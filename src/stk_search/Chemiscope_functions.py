@@ -1,19 +1,18 @@
-import pandas as pd
 import os
-import numpy as np
 import sys
+
+import numpy as np
 
 sys.path.append("/rds/general/user/ma11115/home/SDK_EA_MO/Scripts/")
 
-#!/usr/bin/env python3
-import stk
 import psutil
 import pymongo
 import qml
+import stk
 from qml.representations import get_slatm_mbtypes
 
 
-def generate_Slatm(df_1, dirname, name,database_name="stk_mohammed_new"):
+def generate_Slatm(df_1, dirname, name, database_name="stk_mohammed_new"):
     """generate slatm representation following the script in :
     https://github.com/lcmd-epfl/FORMED_ML/blob/a5d1e588dbb4883de19d4a69fae6694b9bde1101/data/generate_slatm.py
     """
@@ -43,12 +42,12 @@ def generate_Slatm(df_1, dirname, name,database_name="stk_mohammed_new"):
     )
     print("Total RAM:", psutil.virtual_memory()[0], flush=True)
     print("Available RAM:", psutil.virtual_memory()[1], flush=True)
-    if os.path.exists(dirname+"/mbtypes.npy"):
-        mbtypes = np.load(dirname+"/mbtypes.npy", allow_pickle=True)
+    if os.path.exists(dirname + "/mbtypes.npy"):
+        mbtypes = np.load(dirname + "/mbtypes.npy", allow_pickle=True)
     else:
         mbtypes = get_slatm_mbtypes([mol.nuclear_charges for mol in compounds])
         mbtypes = np.array(mbtypes)
-        np.save(dirname+"/mbtypes.npy", mbtypes)
+        np.save(dirname + "/mbtypes.npy", mbtypes)
     for i, mol in enumerate(compounds):
         print(f"Tackling representation of {namelist[i]}", flush=True)
         mol.generate_slatm(mbtypes, local=False, dgrids=[0.1, 0.1])
@@ -111,12 +110,12 @@ def generate_Slatm_CM(df_1, dirname, name, database_name="stk_mohammed_BO"):
     )
     print("Total RAM:", psutil.virtual_memory()[0], flush=True)
     print("Available RAM:", psutil.virtual_memory()[1], flush=True)
-    if os.path.exists(dirname+"/mbtypes.npy"):
-        mbtypes = np.load(dirname+"/mbtypes.npy", allow_pickle=True)
+    if os.path.exists(dirname + "/mbtypes.npy"):
+        mbtypes = np.load(dirname + "/mbtypes.npy", allow_pickle=True)
     else:
         mbtypes = get_slatm_mbtypes([mol.nuclear_charges for mol in compounds])
         mbtypes = np.array(mbtypes)
-        np.save(dirname+"/mbtypes.npy", mbtypes)
+        np.save(dirname + "/mbtypes.npy", mbtypes)
     for i, mol in enumerate(compounds):
         print(f"Tackling representation of {namelist[i]}", flush=True)
         mol.generate_slatm(mbtypes, local=False, dgrids=[0.1, 0.1])

@@ -1,5 +1,4 @@
 import pytest
-
 from stk_search.skeleton import fib, main
 
 __author__ = "mohammedazzouzi15"
