@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "STK_search"
+name = "stk_search"
 maintainers = [
   { name = "Mohammed Azzouzi", email = "mohammed.azzouzi15@ic.ac.uk" },
 ]
@@ -28,8 +28,8 @@ dev = [
 ]
 
 [project.urls]
-github = "https://github.com/mohammedazzouzi15/STK_search"
-documentation = "https://STK_search.readthedocs.io"
+github = "https://github.com/mohammedazzouzi15/stk_search"
+documentation = "https://stk_search.readthedocs.io"
 
 [tool.setuptools_scm]
 
