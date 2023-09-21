@@ -8,7 +8,21 @@ maintainers = [
   { name = "Mohammed Azzouzi", email = "mohammed.azzouzi15@ic.ac.uk" },
 ]
 
-dependencies = []
+dependencies = [
+  "pandas",
+  "numpy",
+  "matplotlib",
+  "torch",
+  "botorch",
+  "gpytorch",
+  "stko",
+  "stk",
+  "qml",
+  "scikit-learn",
+  "rdkit",
+  "ipywidgets",
+  "psutil",
+]
 requires-python = ">=3.11"
 dynamic = ["version"]
 readme = "README.rst"
