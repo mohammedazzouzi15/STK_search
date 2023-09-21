@@ -150,7 +150,6 @@ class Searched_Space(Search_Space):
         plt.tight_layout()
 
     def get_all_possible_syntax(self):
-
         perm = product(
             list(range(self.number_of_fragments)),
             repeat=self.number_of_fragments,
