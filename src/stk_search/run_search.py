@@ -1,7 +1,7 @@
 import os
 import sys
 
-import Search_Exp
+from stk_search import Search_Exp
 
 sys.path.append("/rds/general/user/ma11115/home/BO_polymers")
 from argparse import ArgumentParser

@@ -5,7 +5,6 @@ import numpy as np
 
 sys.path.append("/rds/general/user/ma11115/home/SDK_EA_MO/Scripts/")
 
-#!/usr/bin/env python3
 import psutil
 import pymongo
 import qml

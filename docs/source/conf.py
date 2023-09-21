@@ -22,7 +22,8 @@ extensions = [
     "sphinx_copybutton",
 ]
 
-autosummary_imported_members = True
+# TODO: Turn this to True once _internal folder added.
+# autosummary_imported_members = True
 
 autodoc_typehints = "description"
 autodoc_member_order = "groupwise"
