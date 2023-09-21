@@ -39,6 +39,7 @@ dev = [
   "build",
   "twine",
   "furo",
+  "types-psutil",
 ]
 
 [project.urls]
