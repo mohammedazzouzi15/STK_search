@@ -1,8 +1,9 @@
-import uuid
-import shutil
-import stko
 import os
+import shutil
 import subprocess as sp
+import uuid
+
+import stko
 
 
 class XTBEnergy2(stko.XTBEnergy):
@@ -33,38 +34,38 @@ class XTBEnergy2(stko.XTBEnergy):
 
         # Modify the memory limit.
         if self._unlimited_memory:
-            memory = 'ulimit -s unlimited ;'
+            memory = "ulimit -s unlimited ;"
         else:
-            memory = ''
+            memory = ""
 
         if self._solvent is not None:
-            solvent = f'--{self._solvent_model} {self._solvent} '
+            solvent = f"--{self._solvent_model} {self._solvent} "
         else:
-            solvent = ''
+            solvent = ""
 
         if self._calculate_free_energy:
-            hess = '--hess'
+            hess = "--hess"
         else:
-            hess = ''
+            hess = ""
 
         if self._calculate_ip_and_ea:
-            vipea = '--vipea'
+            vipea = "--vipea"
         else:
-            vipea = ''
+            vipea = ""
 
         cmd = (
-            f'{memory} {self._xtb_path} '
-            f'{xyz} --gfn {self._gfn_version} '
-            f'{hess} {vipea} --parallel {self._num_cores} '
-            f'--etemp {self._electronic_temperature} '
-            f'{solvent} --chrg {self._charge} '
-            f'--uhf {self._num_unpaired_electrons} -I det_control.in'
+            f"{memory} {self._xtb_path} "
+            f"{xyz} --gfn {self._gfn_version} "
+            f"{hess} {vipea} --parallel {self._num_cores} "
+            f"--etemp {self._electronic_temperature} "
+            f"{solvent} --chrg {self._charge} "
+            f"--uhf {self._num_unpaired_electrons} -I det_control.in"
         )
-        #print(cmd)
+        # print(cmd)
         try:
             os.chdir(output_dir)
             self._write_detailed_control()
-            with open(out_file, 'w') as f:
+            with open(out_file, "w") as f:
                 # Note that sp.call will hold the program until
                 # completion of the calculation.
                 sp.call(
@@ -73,7 +74,7 @@ class XTBEnergy2(stko.XTBEnergy):
                     stdout=f,
                     stderr=sp.PIPE,
                     # Shell is required to run complex arguments.
-                    shell=True
+                    shell=True,
                 )
         finally:
             os.chdir(init_dir)
@@ -83,17 +84,17 @@ class XTBEnergy2(stko.XTBEnergy):
             output_dir = str(uuid.uuid4().int)
         else:
             output_dir = self._output_dir
-        #output_dir = os.path.abspath(output_dir)
+        # output_dir = os.path.abspath(output_dir)
 
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
         os.mkdir(output_dir)
 
         init_dir = os.getcwd()
-        xyz = os.path.join(output_dir, 'input_structure.xyz')
-        out_file = os.path.join('energy.output')
+        xyz = os.path.join(output_dir, "input_structure.xyz")
+        out_file = os.path.join("energy.output")
         mol.write(xyz)
-        xyz = os.path.join('input_structure.xyz')
+        xyz = os.path.join("input_structure.xyz")
 
         yield self._run_xtb(
             xyz=xyz,
@@ -124,10 +125,9 @@ class XTBEnergy2(stko.XTBEnergy):
             output_dir = self._output_dir
         output_dir = os.path.abspath(output_dir)
 
-        out_file = os.path.join(output_dir, 'energy.output')
+        out_file = os.path.join(output_dir, "energy.output")
 
         return stko.XTBResults(
             generator=self.calculate(mol),
             output_file=out_file,
         )
-

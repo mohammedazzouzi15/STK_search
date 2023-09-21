@@ -1,11 +1,11 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from ipywidgets import interact, widgets, Layout, VBox
-from IPython.display import display
 import json
+
+import matplotlib.pyplot as plt
 import numpy as np
-import random
-from rdkit.Chem import rdFingerprintGenerator
+import pandas as pd
+from IPython.display import display
+from ipywidgets import Layout, VBox, interact, widgets
+
 
 class Search_Space:
     """
@@ -79,7 +79,10 @@ class Search_Space:
     def get_space_size(self):
         x = 1
 
-        [x := x * len(y) for y in [self.list_fragment[z] for z in set(self.syntax)]]
+        [
+            x := x * len(y)
+            for y in [self.list_fragment[z] for z in set(self.syntax)]
+        ]
         self.space_size = x
         return x
 
@@ -94,9 +97,9 @@ class Search_Space:
         id_list_not_to_merge = []
         for i in set(self.syntax):
             if i == 0:
-                df_multi = self.df_precursors.iloc[list(self.list_fragment[0])][
-                    self.features_frag
-                ]
+                df_multi = self.df_precursors.iloc[
+                    list(self.list_fragment[0])
+                ][self.features_frag]
             else:
                 df_multi = df_multi.merge(
                     self.df_precursors.iloc[list(self.list_fragment[i])][
@@ -107,7 +110,11 @@ class Search_Space:
                 )
             id_list_not_to_merge.append(i)
         df_multi = df_multi.rename(
-            columns={c: c + "_0" for c in df_multi.columns if c in self.features_frag}
+            columns={
+                c: c + "_0"
+                for c in df_multi.columns
+                if c in self.features_frag
+            }
         )
 
         for pos, id in enumerate(self.syntax):
@@ -143,7 +150,7 @@ class Search_Space:
         # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
         self.conditions_list[fragment].remove(condition)
 
-    def check_df_for_element_from_SP(self,df_to_check:pd.DataFrame):
+    def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
         # check if the condition is respected by the search space
         # show that each fragment respect the condition
         # return the list of the InChIKey of the fragment that respect the condition
@@ -162,14 +169,19 @@ class Search_Space:
                 df_precursor_filter = df_precursor_filter[eval(expression)]
 
             df_mult_filtered = df_mult_filtered[
-                df_mult_filtered[f"InChIKey_{i}"].isin(df_precursor_filter["InChIKey"])
+                df_mult_filtered[f"InChIKey_{i}"].isin(
+                    df_precursor_filter["InChIKey"]
+                )
             ]
         # check if the fragment in the dataframe respect the syntax in the syntax list
         for pos, id in enumerate(self.syntax):
             if id == pos:
                 pass
             else:
-                df_mult_filtered = df_mult_filtered[df_mult_filtered[f"InChIKey_{id}"]== df_mult_filtered[f"InChIKey_{pos}"]]
+                df_mult_filtered = df_mult_filtered[
+                    df_mult_filtered[f"InChIKey_{id}"]
+                    == df_mult_filtered[f"InChIKey_{pos}"]
+                ]
 
         return df_mult_filtered
 
@@ -185,12 +197,10 @@ class Search_Space:
         elif self.space_size < 1e8:
             print("space too big but will take element randomly")
             df_search_space = self.generate_dataframe_with_search_space()
-            #reduce the size of the search space by taking random elements
+            # reduce the size of the search space by taking random elements
             return df_search_space.sample(n=int(1e6), replace=False)
         else:
             print("space way too big")
-
-
 
     def plot_histogram_precursor(self):
         def plot_histogram(column_name):
@@ -209,20 +219,28 @@ class Search_Space:
         )
         # Set up the layout of the widgets
 
-        vbox_layout = Layout(display="flex", flex_flow="row", align_items="flex-start")
+        vbox_layout = Layout(
+            display="flex", flex_flow="row", align_items="flex-start"
+        )
         # Display the widget
-        interact(plot_histogram, column_name=columns_dropdown, layout=vbox_layout)
+        interact(
+            plot_histogram, column_name=columns_dropdown, layout=vbox_layout
+        )
         plt.show()
 
     def add_TSNE_to_df_precuros(self):
         # plot t_SNE of the search space
-        from sklearn import datasets, manifold
         from rdkit.Chem import rdFingerprintGenerator
+        from sklearn import manifold
 
-        mfpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+        mfpgen = rdFingerprintGenerator.GetMorganGenerator(
+            radius=2, fpSize=2048
+        )
         # bit vectors:
         df = self.df_precursors
-        fp_list = [mfpgen.GetFingerprintAsNumPy(mol) for mol in df["mol_opt_2"]]
+        fp_list = [
+            mfpgen.GetFingerprintAsNumPy(mol) for mol in df["mol_opt_2"]
+        ]
         TSNE = manifold.TSNE(n_components=2, random_state=0)
         self.precursor_TSNE_X_2d = TSNE.fit_transform(np.array(fp_list))
 
@@ -232,12 +250,21 @@ class Search_Space:
         if not hasattr(self, "precursor_TSNE_X_2d"):
             self.add_TSNE_to_df_precuros()
         plt.scatter(
-            self.precursor_TSNE_X_2d[:, 0], self.precursor_TSNE_X_2d[:, 1], c="0.8"
+            self.precursor_TSNE_X_2d[:, 0],
+            self.precursor_TSNE_X_2d[:, 1],
+            c="0.8",
         )
         # get color list for the different fragment
         # get marker list for the different fragment
         marker_list = ["o", "s", "^", "v", "<", ">"]
-        color_list = ["#21918c", "#5ec962", "#f2c14e", "#f78154", "#f24e4e", "#f24e4e"]
+        color_list = [
+            "#21918c",
+            "#5ec962",
+            "#f2c14e",
+            "#f78154",
+            "#f24e4e",
+            "#f24e4e",
+        ]
         for id, index_of_precursor_chosen in enumerate(self.list_fragment):
             plt.scatter(
                 self.precursor_TSNE_X_2d[index_of_precursor_chosen, 0],
@@ -267,7 +294,9 @@ class Search_Space:
         plt.show()
 
     def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(
+            self, default=lambda o: o.__dict__, sort_keys=True, indent=4
+        )
 
     def save_space(self, filename: str):
         # save the space in a jason file
@@ -285,13 +314,17 @@ class Search_Space:
         # function to generate an interactive prompt to select the condition
         # SP is the search space object
         # return the interactive widget
-        def add_condition(columns: str, operation: str, value: str, fragment: int):
+        def add_condition(
+            columns: str, operation: str, value: str, fragment: int
+        ):
             # condition syntax should follow the following condition:
             # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
             condition = f"'{columns}'#{operation}#{value}"
             self.add_condition(condition, fragment)
 
-        def remove_condition(columns: str, operation: str, value: str, fragment: int):
+        def remove_condition(
+            columns: str, operation: str, value: str, fragment: int
+        ):
             # condition syntax should follow the following condition:
             # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
             condition = f"'{columns}'#{operation}#{value}"
@@ -300,7 +333,9 @@ class Search_Space:
 
         # Interactive widget for conditions selection
         columns_dropdown = widgets.Dropdown(
-            options=self.df_precursors.select_dtypes(include=["int", "float"]).columns,
+            options=self.df_precursors.select_dtypes(
+                include=["int", "float"]
+            ).columns,
             description="Property of fragment:",
         )
         # Interactive widget for fragment selection
@@ -324,8 +359,9 @@ class Search_Space:
         # add an input widget to enter the value
         value_dropdown = widgets.Text(description="Value:")
         # Interactive widget for add or remove condition
-        add_remove_dropdown = widgets.Dropdown(
-            options=[("Add", "add"), ("Remove", "remove")], description="Operation:"
+        widgets.Dropdown(
+            options=[("Add", "add"), ("Remove", "remove")],
+            description="Operation:",
         )
         # Interactive widger for adding the condition
         add_condition_button = widgets.Button(
@@ -359,7 +395,9 @@ class Search_Space:
         remove_condition_button.on_click(on_click_remove)
 
         # Set up the layout of the widgets
-        vbox_layout = Layout(display="flex", flex_flow="row", align_items="flex-start")
+        vbox_layout = Layout(
+            display="flex", flex_flow="row", align_items="flex-start"
+        )
         Vb = VBox(
             [
                 columns_dropdown,
@@ -393,23 +431,30 @@ class Search_Space:
         plt.show()
         self.plot_histogram_precursor()
 
-    def generate_list_most_diverse_fragment(number_fragment:int,df:pd.DataFrame):
+    def generate_list_most_diverse_fragment(
+        number_fragment: int, df: pd.DataFrame
+    ):
         print(len(df))
         fpgen = AllChem.GetRDKitFPGenerator()
         fps = []
-        for  x in df['mol_opt_2'].values:
-            try: 
+        for x in df["mol_opt_2"].values:
+            try:
                 fps.append(fpgen.GetFingerprint(x))
             except:
                 print(x)
                 break
-        low_IP = df['TSNE_1d'].min()
-        sep = (df['TSNE_1d'].max() - low_IP)/number_fragment
-        fps_list_index =[]
+        low_IP = df["TSNE_1d"].min()
+        sep = (df["TSNE_1d"].max() - low_IP) / number_fragment
+        fps_list_index = []
         for i in range(number_fragment):
-            df_test = df[df['TSNE_1d']>low_IP+sep*i] 
-            df_test= df_test [df_test['TSNE_1d']<low_IP+sep*(i+1)]
-            list_of_fragement=df_test.index.to_list()
+            df_test = df[df["TSNE_1d"] > low_IP + sep * i]
+            df_test = df_test[df_test["TSNE_1d"] < low_IP + sep * (i + 1)]
+            list_of_fragement = df_test.index.to_list()
             fps_list_index.append(
-                np.random.choice(list_of_fragement, min(15,len(list_of_fragement)), replace=False))
+                np.random.choice(
+                    list_of_fragement,
+                    min(15, len(list_of_fragement)),
+                    replace=False,
+                )
+            )
         return fps_list_index
