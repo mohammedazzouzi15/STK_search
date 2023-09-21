@@ -29,6 +29,7 @@ readme = "README.rst"
 
 [project.optional-dependencies]
 dev = [
+  "scipy",
   "black",
   "ruff",
   "mypy",
