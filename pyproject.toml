@@ -1,9 +1,57 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
+requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "STK_search"
+maintainers = [
+  { name = "Mohammed Azzouzi", email = "mohammed.azzouzi15@ic.ac.uk" },
+]
+
+dependencies = []
+requires-python = ">=3.11"
+dynamic = ["version"]
+readme = "README.rst"
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "ruff",
+  "mypy",
+  "pytest",
+  "pytest-cov",
+  "sphinx",
+  "sphinx-copybutton",
+  "build",
+  "twine",
+  "furo",
+]
+
+[project.urls]
+github = "https://github.com/mohammedazzouzi15/STK_search"
+documentation = "https://STK_search.readthedocs.io"
+
 [tool.setuptools_scm]
-# For smarter version schemes and other configuration options,
-# check out https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+
+[tool.ruff]
+line-length = 79
+extend-select = ["I"]
+
+[tool.black]
+line-length = 79
+
+[tool.mypy]
+show_error_codes = true
+implicit_optional = false
+warn_no_return = true
+strict_optional = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_unreachable = true
+disallow_any_generics = true
+
+[[tool.mypy.overrides]]
+module = []
+ignore_missing_imports = true
