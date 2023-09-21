@@ -1,14 +1,15 @@
 """ define a class to store the searched space
     this is a sub class of the search space class"""
-import os
+from datetime import datetime
+from itertools import product
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from stk_search.Search_space import Search_Space
-from ipywidgets import interact, widgets, Layout, VBox, interactive
 from IPython.display import display
-from itertools import product
-from datetime import datetime
-import matplotlib.pyplot as plt
+from ipywidgets import Layout, VBox, interactive, widgets
+
+from stk_search.Search_space import Search_Space
 
 
 class Searched_Space(Search_Space):
@@ -24,9 +25,15 @@ class Searched_Space(Search_Space):
             df["ionisation potential (eV)"].hist(
                 ax=ax[0, 0], bins=30, density=1, color=color, label=label
             )
-            df["fosc1"].hist(ax=ax[0, 1], bins=30, density=1, color=color, label=label)
-            df["ES1"].hist(ax=ax[1, 0], bins=30, density=1, color=color, label=label)
-            df["target"].hist(ax=ax[1, 1], bins=30, density=1, color=color, label=label)
+            df["fosc1"].hist(
+                ax=ax[0, 1], bins=30, density=1, color=color, label=label
+            )
+            df["ES1"].hist(
+                ax=ax[1, 0], bins=30, density=1, color=color, label=label
+            )
+            df["target"].hist(
+                ax=ax[1, 1], bins=30, density=1, color=color, label=label
+            )
             # add vertical line showing target
             ax[0, 0].axvline(5.5, color="k", linestyle="--")
             ax[0, 1].axvline(10, color="k", linestyle="--")
@@ -72,7 +79,14 @@ class Searched_Space(Search_Space):
 
         plot_hist(df=df_all, ax=ax, color="#21918c")
         # get a color list for the diffetent datasets
-        color_list = ["#5ec962", "#f9c74f", "#f3722c", "#f94144", "#90be6d", "#577590"]
+        color_list = [
+            "#5ec962",
+            "#f9c74f",
+            "#f3722c",
+            "#f94144",
+            "#90be6d",
+            "#577590",
+        ]
         for id, df in enumerate(df_list):
             plot_hist(df, ax, color=color_list[id], label=label_list[id])
         # add legend for the figure on top showing the different datasets
@@ -93,9 +107,18 @@ class Searched_Space(Search_Space):
     def plot_histogram_fragment(
         self, column_name, df_list, df_total, number_of_fragments, label_list
     ):
-        fig, axs = plt.subplots(3, 2, figsize=(6, 6), sharex="col", sharey="row")
+        fig, axs = plt.subplots(
+            3, 2, figsize=(6, 6), sharex="col", sharey="row"
+        )
 
-        color_list = ["#5ec962", "#f9c74f", "#f3722c", "#f94144", "#90be6d", "#577590"]
+        color_list = [
+            "#5ec962",
+            "#f9c74f",
+            "#f3722c",
+            "#f94144",
+            "#90be6d",
+            "#577590",
+        ]
 
         for i in range(number_of_fragments):
             df_total[f"{column_name}_{i}"].hist(
@@ -127,10 +150,9 @@ class Searched_Space(Search_Space):
         plt.tight_layout()
 
     def get_all_possible_syntax(self):
-        from itertools import combinations_with_replacement
-
         perm = product(
-            list(range(self.number_of_fragments)), repeat=self.number_of_fragments
+            list(range(self.number_of_fragments)),
+            repeat=self.number_of_fragments,
         )
         # Print the obtained permutations
         possible_syntax = []
@@ -160,13 +182,17 @@ class Searched_Space(Search_Space):
         # function to generate an interactive prompt to select the condition
         # SP is the search space object
         # return the interactive widget
-        def add_condition(columns: str, operation: str, value: str, fragment: int):
+        def add_condition(
+            columns: str, operation: str, value: str, fragment: int
+        ):
             # condition syntax should follow the following condition:
             # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
             condition = f"'{columns}'#{operation}#{value}"
             self.add_condition(condition, fragment)
 
-        def remove_condition(columns: str, operation: str, value: str, fragment: int):
+        def remove_condition(
+            columns: str, operation: str, value: str, fragment: int
+        ):
             # condition syntax should follow the following condition:
             # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
             condition = f"'{columns}'#{operation}#{value}"
@@ -178,7 +204,9 @@ class Searched_Space(Search_Space):
 
         # Interactive widget for conditions selection
         columns_dropdown = widgets.Dropdown(
-            options=self.df_precursors.select_dtypes(include=["int", "float"]).columns,
+            options=self.df_precursors.select_dtypes(
+                include=["int", "float"]
+            ).columns,
             description="Property of fragment:",
         )
         # Interactive widget for fragment selection
@@ -202,8 +230,9 @@ class Searched_Space(Search_Space):
         # add an input widget to enter the value
         value_dropdown = widgets.Text(description="Value:")
         # Interactive widget for add or remove condition
-        add_remove_dropdown = widgets.Dropdown(
-            options=[("Add", "add"), ("Remove", "remove")], description="Operation:"
+        widgets.Dropdown(
+            options=[("Add", "add"), ("Remove", "remove")],
+            description="Operation:",
         )
         # Interactive widger for adding the condition
         add_condition_button = widgets.Button(
@@ -236,7 +265,7 @@ class Searched_Space(Search_Space):
                 value_dropdown.value,
                 fragment_dropdown.value,
             )
-            #self.redefine_search_space()
+            # self.redefine_search_space()
             self.get_space_size()
             number_of_elements_text.value = "{:.2e}".format(self.space_size)
 
@@ -269,14 +298,18 @@ class Searched_Space(Search_Space):
                     i,
                 )
                 self.get_space_size()
-                number_of_elements_text.value = "{:.2e}".format(self.space_size)
+                number_of_elements_text.value = "{:.2e}".format(
+                    self.space_size
+                )
 
                 for i in range(self.number_of_fragments):
                     display_conditions[i].options = self.conditions_list[i]
 
         add_to_all_fragment_button.on_click(on_click_add_to_all_fragment)
         # Set up the layout of the widgets
-        vbox_layout = Layout(display="flex", flex_flow="row", align_items="flex-start")
+        vbox_layout = Layout(
+            display="flex", flex_flow="row", align_items="flex-start"
+        )
         Vb = VBox(
             [
                 columns_dropdown,
@@ -315,7 +348,9 @@ class Searched_Space(Search_Space):
             df_total["target"] - df_total["target"].min()
         ) / (df_total["target"].max() - df_total["target"].min())
         top5_percent_length = int(df_total.shape[0] * 0.05)
-        min_target_5percent = df_total["target"].nlargest(n=top5_percent_length).min()
+        min_target_5percent = (
+            df_total["target"].nlargest(n=top5_percent_length).min()
+        )
         top5_All_text = widgets.Text(
             value=str(min_target_5percent),
             description="min target to be anong the 5% highest:",
@@ -336,7 +371,7 @@ class Searched_Space(Search_Space):
 
             for i in range(self.number_of_fragments):
                 display_conditions[i].options = self.conditions_list[i]
-            #number_of_elements_text.value = "{:.2e}".format(self.space_size)
+            # number_of_elements_text.value = "{:.2e}".format(self.space_size)
 
         syntax_button.on_click(on_click_syntax)
         Vb = VBox(
@@ -374,18 +409,24 @@ class Searched_Space(Search_Space):
             self.redefine_search_space()
 
             number_of_elements_text.value = "{:.2e}".format(self.space_size)
-            df_list.append(self.check_df_for_element_from_SP(df_to_check=df_total))
+            df_list.append(
+                self.check_df_for_element_from_SP(df_to_check=df_total)
+            )
             label_list.append(label_text.value)
             # get the number of elements in the last df added to df_list that has target within 5% of the best target in df_total
             if df_list[-1].shape[0] > 0:
                 top5_current_text.value = str(
-                    df_list[-1][df_list[-1]["target"] > min_target_5percent].shape[0]
+                    df_list[-1][
+                        df_list[-1]["target"] > min_target_5percent
+                    ].shape[0]
                     / df_list[-1].shape[0]
                     * 100
                 )
             else:
-                top5_current_text.value = 'no data'
-            number_of_element_evaluated.value = "{:.2e}".format(df_list[-1].shape[0])
+                top5_current_text.value = "no data"
+            number_of_element_evaluated.value = "{:.2e}".format(
+                df_list[-1].shape[0]
+            )
             print(len(df_list))
             widge_plot.kwargs["df_list"] = df_list
             widge_plot.kwargs["label_list"] = label_list
@@ -406,7 +447,9 @@ class Searched_Space(Search_Space):
             )
 
         def save_data(b):
-            df_search_space_properties = pd.DataFrame.from_dict(search_space_properties)
+            df_search_space_properties = pd.DataFrame.from_dict(
+                search_space_properties
+            )
             # add date and time inof into save dataframe
             date_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
             df_search_space_properties.to_pickle(
@@ -445,7 +488,9 @@ class Searched_Space(Search_Space):
         columns_dropdown_2 = widgets.Dropdown(
             options=[
                 x.replace("_0", "")
-                for x in df_total.select_dtypes(include=["int", "float"]).columns
+                for x in df_total.select_dtypes(
+                    include=["int", "float"]
+                ).columns
                 if "_0" in x
             ],
             description="Value:",
@@ -472,6 +517,5 @@ class Searched_Space(Search_Space):
                 "conditions": self.conditions_list,
                 "Elements in top 5%": 0,
                 "number of elements evaluated": 0,
-
             },
         ]

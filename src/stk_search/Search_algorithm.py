@@ -1,29 +1,26 @@
 # class to define the search algorithm
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-from botorch.acquisition.analytic import ExpectedImprovement, LogExpectedImprovement
-from botorch.models import FixedNoiseGP, SingleTaskGP
-from gpytorch.mlls import ExactMarginalLogLikelihood
-from botorch import fit_gpytorch_model
-from botorch.acquisition.analytic import ExpectedImprovement, LogExpectedImprovement
-import os
-import pickle
-import stk
 from botorch import fit_gpytorch_model
 from botorch.acquisition import ExpectedImprovement
-from botorch.exceptions import BadInitialCandidatesWarning
+from botorch.acquisition.analytic import (
+    ExpectedImprovement,
+    LogExpectedImprovement,
+)
+from botorch.models import SingleTaskGP
 from botorch.models.gp_regression import SingleTaskGP
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import ScaleKernel
 from gpytorch.likelihoods import GaussianLikelihood
 from gpytorch.means import ConstantMean
 from gpytorch.mlls import ExactMarginalLogLikelihood
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn.preprocessing import StandardScaler
-from argparse import ArgumentParser
-import matplotlib.pyplot as plt
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -48,7 +45,9 @@ class random_search(Search_Algorithm):
         search_space_df = search_space_df.drop(ids_acquired)
         searched_space_df = search_space_df.drop(bad_ids)
         # evaluate the element
-        return float(np.random.choice(searched_space_df.index, 1, replace=False))
+        return float(
+            np.random.choice(searched_space_df.index, 1, replace=False)
+        )
 
     def initial_suggestion(
         self,
@@ -113,7 +112,9 @@ class Bayesian_Optimisation(Search_Algorithm):
             y_explored_BO_norm = y_explored_BO
         y_explored_BO_norm = y_explored_BO_norm.reshape(-1, 1)  # for the GP
         # set up acquisition function
-        X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])  # for the GP
+        X_unsqueezed = X_unsqueezed.reshape(
+            -1, 1, X_unsqueezed.shape[1]
+        )  # for the GP
 
         return X_explored_BO, y_explored_BO_norm, X_unsqueezed
 
@@ -126,7 +127,11 @@ class Bayesian_Optimisation(Search_Algorithm):
     ):
         # get the element
 
-        X_explored_BO, y_explored_BO_norm, X_unsqueezed = self.prepare_data_for_BO(
+        (
+            X_explored_BO,
+            y_explored_BO_norm,
+            X_unsqueezed,
+        ) = self.prepare_data_for_BO(
             search_space_df, fitness_acquired, ids_acquired
         )
         # construct and fit GP model
@@ -164,10 +169,14 @@ class Bayesian_Optimisation(Search_Algorithm):
                 )  # runs out of memory
         elif self.which_acquisition == "max_y_hat":
             with torch.no_grad():
-                acquisition_values = model.posterior(X_unsqueezed).mean.squeeze()
+                acquisition_values = model.posterior(
+                    X_unsqueezed
+                ).mean.squeeze()
         elif self.which_acquisition == "max_sigma":
             with torch.no_grad():
-                acquisition_values = model.posterior(X_unsqueezed).variance.squeeze()
+                acquisition_values = model.posterior(
+                    X_unsqueezed
+                ).variance.squeeze()
         elif self.which_acquisition == "LOG_EI":
             acquisition_function = LogExpectedImprovement(model, best_f=best_f)
             with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
@@ -176,7 +185,9 @@ class Bayesian_Optimisation(Search_Algorithm):
                 )  # runs out of memory
         else:
             with torch.no_grad():
-                acquisition_values = model.posterior(X_unsqueezed).variance.squeeze()
+                acquisition_values = model.posterior(
+                    X_unsqueezed
+                ).variance.squeeze()
         return acquisition_values
 
     def initial_suggestion(
@@ -249,12 +260,15 @@ class Bayesian_Optimisation(Search_Algorithm):
 
     def train_model(self, X_train, y_train):
         self.model = self.kernel(
-            X_train, torch.tensor(y_train, dtype=torch.float64, device=self.device)
+            X_train,
+            torch.tensor(y_train, dtype=torch.float64, device=self.device),
         )
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_model(mll)
 
-    def test_model_prediction(self, X_train, y_train, X_test, y_test, y_scaler):
+    def test_model_prediction(
+        self, X_train, y_train, X_test, y_test, y_scaler
+    ):
         # X_train = torch.nn.functional.normalize(X_train, dim = 0)
         # X_test = torch.nn.functional.normalize(X_test, dim = 0)
         self.train_model(X_train, y_train)
@@ -268,7 +282,6 @@ class Bayesian_Optimisation(Search_Algorithm):
         y_train = y_scaler.inverse_transform(y_train.tolist())
         y_pred_train = y_scaler.inverse_transform(y_pred_train)
         return y_pred, y_var, y_pred_train, y_train, y_test, y_var_train
-
 
     def plot_prediction(self, y_pred, y_test, y_pred_train, y_train, y_var):
         fig, axs = plt.subplots(1, 3, figsize=(15, 5))

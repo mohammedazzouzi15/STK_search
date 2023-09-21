@@ -1,10 +1,9 @@
 # class to setup and run a search experiment
-from datetime import datetime
-import pickle
 import os
-import pandas as pd
-from stk_search.Search_space import Search_Space
-#from Scripts.Search_algorithm import Search_Algorithm
+import pickle
+from datetime import datetime
+
+# from Scripts.Search_algorithm import Search_Algorithm
 from stk_search.Objective_function import Objective_Function
 
 
@@ -33,7 +32,6 @@ class Search_exp:
         self.verbose = verbose
         self.benchmark = False
         self.df_total = None
-        
 
     def initialise_search_space(self):
         # load the search space
@@ -43,21 +41,34 @@ class Search_exp:
             if self.df_total is None:
                 print("you need to load the benchmark data first")
             else:
-                self.df_searched_space = self.search_space.check_df_for_element_from_SP(df_to_check=self.df_total)
-                list_columns =  [f'InChIKey_{i}' for i in range(6)] # carful here, this is hard coded
-                list_columns.append('target')
+                self.df_searched_space = (
+                    self.search_space.check_df_for_element_from_SP(
+                        df_to_check=self.df_total
+                    )
+                )
+                list_columns = [
+                    f"InChIKey_{i}" for i in range(6)
+                ]  # carful here, this is hard coded
+                list_columns.append("target")
                 if self.df_search_space is not None:
-                    self.df_search_space=self.df_search_space.merge(self.df_searched_space[list_columns],on=[f'InChIKey_{i}' for i in range(6)],how='left')
-                    self.df_search_space.dropna(subset=['target'],inplace=True)
-                    self.df_search_space.drop(columns=['target'],inplace=True)
+                    self.df_search_space = self.df_search_space.merge(
+                        self.df_searched_space[list_columns],
+                        on=[f"InChIKey_{i}" for i in range(6)],
+                        how="left",
+                    )
+                    self.df_search_space.dropna(
+                        subset=["target"], inplace=True
+                    )
+                    self.df_search_space.drop(columns=["target"], inplace=True)
                 else:
-                    columns_name=[]
+                    columns_name = []
                     for i in range(self.search_space.number_of_fragments):
-                        columns_name = columns_name+[x+f'_{i}' for x in self.search_space.features_frag]
-                    self.df_total.dropna(subset=['target'],inplace=True)
-                    self.df_search_space = self.df_total[columns_name]  
-                
-
+                        columns_name = columns_name + [
+                            x + f"_{i}"
+                            for x in self.search_space.features_frag
+                        ]
+                    self.df_total.dropna(subset=["target"], inplace=True)
+                    self.df_search_space = self.df_total[columns_name]
 
     def run_seach(self):
         # save the search experiment
@@ -80,12 +91,12 @@ class Search_exp:
         for id in range(self.number_of_iterations):
             # suggest the next element
             ids_acquired = self.search_algorithm.suggest_element(
-                    search_space_df=self.df_search_space,
-                    fitness_acquired=self.fitness_acquired,
-                    ids_acquired=self.ids_acquired,
-                    bad_ids=self.bad_ids,
-                )
-            
+                search_space_df=self.df_search_space,
+                fitness_acquired=self.fitness_acquired,
+                ids_acquired=self.ids_acquired,
+                bad_ids=self.bad_ids,
+            )
+
             # evaluate the element
             if self.verbose:
                 print(f"element id suggested: {ids_acquired}")
@@ -93,8 +104,8 @@ class Search_exp:
                 element_id=ids_acquired,
                 objective_function=self.objective_function,
             )
-            #self.fitness_acquired.append(Eval)
-            #self.InchiKey_acquired.append(InchiKey)
+            # self.fitness_acquired.append(Eval)
+            # self.InchiKey_acquired.append(InchiKey)
             # save the results
             self.save_results()
             if self.verbose:
@@ -105,8 +116,8 @@ class Search_exp:
         # save the results
         self.save_results()
 
-
-    def evaluate_element(self,
+    def evaluate_element(
+        self,
         element_id: int,
         objective_function: Objective_Function = None,
     ):
@@ -114,7 +125,9 @@ class Search_exp:
         element = self.df_search_space.loc[[element_id], :]
         # evaluate the element
         try:
-            Eval, InchiKey = objective_function.evaluate_element(element=element)
+            Eval, InchiKey = objective_function.evaluate_element(
+                element=element
+            )
             if Eval is None:
                 self.bad_ids.append(element_id)
                 print(f"element {element_id} failed")
@@ -134,7 +147,9 @@ class Search_exp:
         os.makedirs(self.output_folder, exist_ok=True)
         # save the search experiment
         time_now = datetime.now().strftime("%Y%m%d_%H%M%S")
-        with open(self.output_folder + f"/search_experiment_{time_now}.pkl", "wb") as f:
+        with open(
+            self.output_folder + f"/search_experiment_{time_now}.pkl", "wb"
+        ) as f:
             pickle.dump(self, f)
 
     def save_results(self):
