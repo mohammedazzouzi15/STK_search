@@ -55,3 +55,4 @@ MANIFEST
 .python-version
 *.pkl
 *.npy
+*.png

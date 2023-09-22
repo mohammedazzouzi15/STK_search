@@ -207,7 +207,7 @@ class Bayesian_Optimisation(Search_Algorithm):
         fitness_acquired: list = [],
         test_set_size: float = 0.2,
     ):
-        def transform_data(X_train, y_train, X_test, y_test):
+        def transform_data(X_train, y_train, X_test, y_test, X_explored, y_explored):
             """
             Apply feature scaling, dimensionality reduction to the data. Return the standardised and low-dimensional train and
             test sets together with the scaler object for the target values.
@@ -218,14 +218,15 @@ class Bayesian_Optimisation(Search_Algorithm):
             :param y_test: test labels
             :return: X_train_scaled, y_train_scaled, X_test_scaled, y_test_scaled, y_scaler
             """
-            X_train_scaled = (X_train - X_test.min(axis=0).values) / (
-                X_test.max(axis=0).values - X_test.min(axis=0).values
+            X_train_scaled = (X_train - X_explored.min(axis=0).values) / (
+                X_explored.max(axis=0).values - X_explored.min(axis=0).values
             )
-            X_test_scaled = (X_test - X_test.min(axis=0).values) / (
-                X_test.max(axis=0).values - X_test.min(axis=0).values
+            X_test_scaled = (X_test - X_explored.min(axis=0).values) / (
+                X_explored.max(axis=0).values - X_explored.min(axis=0).values
             )
             y_scaler = StandardScaler()
-            y_train_scaled = y_scaler.fit_transform(y_train)
+            y_scaler.fit(y_explored)
+            y_train_scaled = y_scaler.transform(y_train)
             y_test_scaled = y_scaler.transform(y_test)
 
             return (
@@ -235,9 +236,10 @@ class Bayesian_Optimisation(Search_Algorithm):
                 y_test_scaled,
                 y_scaler,
             )
-
+        repr_array = search_space_df.values
+        repr_array = repr_array[:, ~(repr_array == repr_array[0,:]).all(0)] # remove columns with all the same values
         X_explored = torch.tensor(
-            search_space_df.values, dtype=torch.float64, device=self.device
+            repr_array, dtype=torch.float64, device=self.device
         )
         # limit the dataframe to only the numeric data
         y_explored = torch.tensor(
@@ -248,13 +250,14 @@ class Bayesian_Optimisation(Search_Algorithm):
             X_explored, y_explored, test_size=test_set_size, random_state=0
         )
 
+        y_explored = y_explored.reshape(-1, 1)
         y_train = y_train.reshape(-1, 1)
         y_test = y_test.reshape(-1, 1)
 
         #  We standardise the outputs but leave the inputs unchanged
 
         X_train, y_train, X_test, y_test, y_scaler = transform_data(
-            X_train, y_train, X_test, y_test
+            X_train, y_train, X_test, y_test, X_explored, y_explored
         )
         return X_train, X_test, y_train, y_test, y_scaler
 
@@ -283,7 +286,7 @@ class Bayesian_Optimisation(Search_Algorithm):
         y_pred_train = y_scaler.inverse_transform(y_pred_train)
         return y_pred, y_var, y_pred_train, y_train, y_test, y_var_train
 
-    def plot_prediction(self, y_pred, y_test, y_pred_train, y_train, y_var):
+    def plot_prediction(self, y_pred, y_test, y_pred_train, y_train, y_var,save_plot=False,plot_name="prediction.png"):
         fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 
         def plot_prediction(y_pred, y_test, axis, label):
@@ -309,10 +312,24 @@ class Bayesian_Optimisation(Search_Algorithm):
 
         plot_prediction(y_pred, y_test, axs[0], label="test set")
         plot_prediction(y_pred_train, y_train, axs[1], label="train set")
-        axs[2].scatter(y_var, np.abs(y_test - y_pred), marker="x", color="red")
+        y_var = np.array(y_var)
+        data_plot = []
+        spacing_array=np.linspace(y_var.min(),y_var.max(),30)
+        spacing=spacing_array[1]-spacing_array[0]
+        for x in spacing_array:
+            tes = [y_var>x] and [y_var<x+spacing]
+            data_plot.append(np.abs(y_pred-y_test)[tes[0]].mean())
+        axs[2].scatter(y_var, np.abs(y_test - y_pred), marker="x", color="red",label="error")
+        axs[2].plot(spacing_array, data_plot, linestyle="--", color="black", label="mean error")
         axs[2].set_xlabel("Variance")
         axs[2].set_ylabel("Absolute error")
+        axs[2].legend()
         plt.show()
+        if save_plot:
+            dir_name = 'data/figures/test_BO/'
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            fig.savefig(dir_name+plot_name)
 
 
 from stk_search.tanimoto_kernel import TanimotoKernel
