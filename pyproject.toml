@@ -23,7 +23,7 @@ dependencies = [
   "ipywidgets",
   "psutil",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.7"
 dynamic = ["version"]
 readme = "README.rst"
 

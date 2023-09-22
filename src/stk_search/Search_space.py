@@ -81,7 +81,7 @@ class Search_Space:
 
         [
             x := x * len(y)
-            for y in [self.list_fragment[z] for z in set(self.syntax)]
+            for y in [self.list_fragment[z] for z in set(self.syntax[:self.number_of_fragments])]
         ]
         self.space_size = x
         return x
