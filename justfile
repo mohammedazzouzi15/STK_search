@@ -14,6 +14,8 @@ dev:
   pip install rdkit
   pip install scipy
   pip install psutil
+  pip install wandb
+  pip install pytorch-lightning
   pip install -e '.[dev]'
 
 # Run code checks.

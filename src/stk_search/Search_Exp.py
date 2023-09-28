@@ -90,13 +90,13 @@ class Search_exp:
         # run the search
         for id in range(self.number_of_iterations):
             # suggest the next element
-            ids_acquired = self.search_algorithm.suggest_element(
+            ids_acquired, df_search_space = self.search_algorithm.suggest_element(
                 search_space_df=self.df_search_space,
                 fitness_acquired=self.fitness_acquired,
                 ids_acquired=self.ids_acquired,
                 bad_ids=self.bad_ids,
             )
-
+            self.df_search_space = df_search_space
             # evaluate the element
             if self.verbose:
                 print(f"element id suggested: {ids_acquired}")
