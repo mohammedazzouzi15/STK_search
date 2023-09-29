@@ -17,7 +17,6 @@ dependencies = [
   "gpytorch",
   "stko",
   "stk",
-  "qml",
   "scikit-learn",
   "rdkit",
   "ipywidgets",
