@@ -36,6 +36,8 @@ class Search_exp:
     def initialise_search_space(self):
         # load the search space
         self.search_space = pickle.load(open(self.search_space_loc, "rb"))
+        """
+        case where we initialise the whole search space
         self.df_search_space = self.search_space.redefine_search_space()
         if self.benchmark:
             if self.df_total is None:
@@ -69,17 +71,20 @@ class Search_exp:
                         ]
                     self.df_total.dropna(subset=["target"], inplace=True)
                     self.df_search_space = self.df_total[columns_name]
-
+        """
     def run_seach(self):
         # save the search experiment
         self.save_search_experiment()
         # initialise the search space
         self.initialise_search_space()
         # get initial elements
-        ids_acquired = self.search_algorithm.initial_suggestion(
-            search_space_df=self.df_search_space,
+        ids_acquired, df_search_space= self.search_algorithm.initial_suggestion(
+            SP =self.search_space,
             num_elem_initialisation=self.num_elem_initialisation,
+            benchmark=self.benchmark,
+            df_total=self.df_total,
         )
+        self.df_search_space = df_search_space
         for id in range(self.num_elem_initialisation):
             # evaluate the element
             self.evaluate_element(
@@ -93,8 +98,9 @@ class Search_exp:
             ids_acquired, df_search_space = self.search_algorithm.suggest_element(
                 search_space_df=self.df_search_space,
                 fitness_acquired=self.fitness_acquired,
-                ids_acquired=self.ids_acquired,
-                bad_ids=self.bad_ids,
+                SP = self.search_space,
+                benchmark=self.benchmark,
+                df_total=self.df_total,
             )
             self.df_search_space = df_search_space
             # evaluate the element

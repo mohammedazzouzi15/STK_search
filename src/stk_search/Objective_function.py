@@ -35,7 +35,7 @@ class Look_up_table:
             on=[f"InChIKey_{i}" for i in range(self.fragment_size)],
             how="left",
         )
-        return results["target"], results["InChIKey"]
+        return results["target"][0], results["InChIKey"][0]
 
 
 class IP_ES1_fosc(Objective_Function):
