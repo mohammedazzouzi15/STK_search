@@ -21,6 +21,8 @@ dependencies = [
   "rdkit",
   "ipywidgets",
   "psutil",
+  "pytorch-lightning",
+  "torchmetrics",
 ]
 requires-python = ">=3.7"
 dynamic = ["version"]

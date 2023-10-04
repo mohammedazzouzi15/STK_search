@@ -23,6 +23,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
 from stk_search.Search_space import Search_Space
+from gpytorch.constraints import GreaterThan
+from torch.optim import SGD
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
@@ -94,7 +96,7 @@ class Bayesian_Optimisation(Search_Algorithm):
         self,
         search_space_df,
         fitness_acquired,
-        SP : Search_Space,
+        SP: Search_Space,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -209,15 +211,22 @@ class Bayesian_Optimisation(Search_Algorithm):
         df_total: pd.DataFrame = None,
     ):
         if benchmark:
-            searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
-            searched_space_df= searched_space_df.sample(num_elem_initialisation)
+            searched_space_df = SP.check_df_for_element_from_SP(
+                df_to_check=df_total
+            )
+            searched_space_df = searched_space_df.sample(
+                num_elem_initialisation
+            )
         else:
-            searched_space_df = SP.random_generation_df(num_elem_initialisation)
+            searched_space_df = SP.random_generation_df(
+                num_elem_initialisation
+            )
         # reindex the df
-        searched_space_df = searched_space_df[['InChIKey_'+str(i) for i in range(SP.number_of_fragments)]] # careful here, this is hard coded
+        searched_space_df = searched_space_df[
+            ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
+        ]  # careful here, this is hard coded
         searched_space_df.index = range(len(searched_space_df))
-        return searched_space_df.index.tolist() , searched_space_df
-
+        return searched_space_df.index.tolist(), searched_space_df
 
     def get_test_train_data_for_BO(
         self,
@@ -257,16 +266,10 @@ class Bayesian_Optimisation(Search_Algorithm):
                 y_scaler,
             )
 
-        repr_array = search_space_df.values
-        repr_array = repr_array[
-            :, ~(repr_array == repr_array[0, :]).all(0)
-        ]  # remove columns with all the same values
-        X_explored = torch.tensor(
-            repr_array, dtype=torch.float64, device=self.device
-        )
+        X_explored = self.Representation.generate_repr(search_space_df.values)
         # limit the dataframe to only the numeric data
         y_explored = torch.tensor(
-            fitness_acquired, dtype=torch.float64, device=self.device
+            fitness_acquired, dtype=torch.float32, device=self.device
         )
 
         X_train, X_test, y_train, y_test = train_test_split(
@@ -291,6 +294,41 @@ class Bayesian_Optimisation(Search_Algorithm):
         )
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_model(mll)
+
+    def train_model_gpytorch(self, X_train, y_train, NUM_EPOCHS=3000):
+        self.model = self.kernel(
+            X_train,
+            y_train,
+        )
+        self.model.likelihood.noise_covar.register_constraint(
+            "raw_noise", GreaterThan(1e-5)
+        )
+        mll = ExactMarginalLogLikelihood(
+            likelihood=BO.model.likelihood, model=BO.model
+        )
+        # set mll and all submodules to the specified dtype and device
+        mll = mll.to(X_train)
+        optimizer = SGD([{"params": self.model.parameters()}], lr=0.1)
+        self.model.train()
+        for epoch in range(NUM_EPOCHS):
+            # clear gradients
+            optimizer.zero_grad()
+            # forward pass through the model to obtain the output MultivariateNormal
+            output = self.model(X_train)
+            # Compute negative marginal log likelihood
+            loss = -mll(output, self.model.train_targets)
+            # back prop gradients
+            loss.backward()
+            # print every 10 iterations
+            if self.verbose:
+                if (epoch + 1) % 10 == 0:
+                    print(
+                        f"Epoch {epoch+1:>3}/{NUM_EPOCHS} - Loss: {loss.item():>4.3f} "
+                        f"lengthscale: {self.model.covar_module.base_kernel.lengthscale.item():>4.3f} "
+                        f"noise: {self.model.likelihood.noise.item():>4.3f}"
+                    )
+            optimizer.step()
+        self.model.eval()
 
     def test_model_prediction(
         self, X_train, y_train, X_test, y_test, y_scaler

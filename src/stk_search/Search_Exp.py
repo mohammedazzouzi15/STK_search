@@ -74,7 +74,8 @@ class Search_exp:
         """
     def run_seach(self):
         # save the search experiment
-        self.save_search_experiment()
+        if not self.benchmark:
+            self.save_search_experiment()
         # initialise the search space
         self.initialise_search_space()
         # get initial elements
@@ -153,19 +154,25 @@ class Search_exp:
         os.makedirs(self.output_folder, exist_ok=True)
         # save the search experiment
         time_now = datetime.now().strftime("%Y%m%d_%H%M%S")
+        date_now = datetime.now().strftime("%Y%m%d")
         with open(
-            self.output_folder + f"/search_experiment_{time_now}.pkl", "wb"
+            self.output_folder +f"/{date_now}" + f"/search_experiment_{time_now}.pkl", "wb"
         ) as f:
             pickle.dump(self, f)
 
     def save_results(self):
         # save the results
         time_now = datetime.now().strftime("%Y%m%d_%H%M%S")
+        date_now = datetime.now().strftime("%Y%m%d")
         resutls_dict = {
             "ids_acquired": self.ids_acquired,
             "searched_space_df": self.df_search_space.loc[self.ids_acquired],
             "fitness_acquired": self.fitness_acquired,
             "InchiKey_acquired": self.InchiKey_acquired,
         }
-        with open(self.output_folder + f"/results_{time_now}.pkl", "wb") as f:
+        
+        path = self.output_folder +f"/{date_now}"
+        os.makedirs(path, exist_ok=True)
+        with open(path + f"/results_{time_now}.pkl", "wb") as f:
+            
             pickle.dump(resutls_dict, f)
