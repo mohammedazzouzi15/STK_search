@@ -140,6 +140,7 @@ class Search_Space:
         print(f"shape of the dataframe {df_multi.shape}")
         return df_multi
     def random_generation_df(self,num_element):
+        import random
         id_list_not_to_merge = []
         max_fragment = int(num_element**(1/len(set(self.syntax))))+1
         df_list = [None] * self.number_of_fragments

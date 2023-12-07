@@ -1,0 +1,7 @@
+#!/bin/sh
+#SBATCH --output=test.txt
+#SBATCH --time=1
+srun -l /bin/hostname
+srun -l /bin/pwd
+
+

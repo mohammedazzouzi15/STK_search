@@ -7,7 +7,7 @@ import pymongo
 
 
 # read data in database
-def load_data_database():
+def load_data_database( df_precursor_loc = "Data/calculation_data_precursor_310823_clean.pkl"):
     def load_data():
         client = pymongo.MongoClient("mongodb://129.31.66.201/")
         database = client["stk_mohammed_BO"]
@@ -50,7 +50,7 @@ def load_data_database():
                 lambda x: x[i]["InChIKey"]
             )
         df_precursors = pd.read_pickle(
-            "Data/calculation_data_precursor_310823_clean.pkl"
+           df_precursor_loc
         )
         features_frag = df_precursors.columns[1:7].append(
             df_precursors.columns[17:23]

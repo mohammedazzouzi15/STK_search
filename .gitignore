@@ -60,3 +60,7 @@ MANIFEST
 *.csv
 *.yaml
 *.json
+*.pt
+*.tar
+*.gz
+*.ipynb
