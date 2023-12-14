@@ -1,3 +1,5 @@
+import unittest
+from run_search import run_search
 from stk_search import Search_Exp
 from stk_search.Search_algorithm import Search_algorithm
 from stk_search.Search_algorithm import Bayesian_Optimisation
@@ -117,59 +119,6 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
         search_algorithm = Search_algorithm.random_search()
     elif case == 'evolution_algorithm':
         search_algorithm = Search_algorithm.evolution_algorithm()
-    elif case == 'ea_surrogate':
-        from stk_search.Search_algorithm import Ea_surrogate
-        ## load model
-        config_dir = "/rds/general/user/ma11115/home/Geom3D/Geom3D/training/SchNet_Trans_80K"
-        config = read_config(config_dir)
-        
-        model_config = config["model"]
-        graph_pred_linear = torch.nn.Linear(
-                model_config["emb_dim"], model_config["num_tasks"]
-            )
-        model = SchNet(
-            hidden_channels=model_config["emb_dim"],
-            num_filters=model_config["SchNet_num_filters"],
-            num_interactions=model_config["SchNet_num_interactions"],
-            num_gaussians=model_config["SchNet_num_gaussians"],
-            cutoff=model_config["SchNet_cutoff"],
-            readout=model_config["SchNet_readout"],
-            node_class=model_config["node_class"],
-        )
-        pymodel = Pymodel(model, graph_pred_linear)
-        state_dict = torch.load(config["model_embedding_chkpt"],map_location=torch.device('cpu'))
-        pymodel.load_state_dict(state_dict['state_dict'])
-        EncodingModel = Fragment_encoder(
-            input_dim = config["emb_dim"]*config["number_of_fragement"],
-            model_dim=config["emb_dim"],
-            num_heads=1,
-            num_classes=model_config["emb_dim"],
-            num_layers=1,
-            dropout=0.0,
-            lr=5e-4,
-            warmup=50,
-            max_iters=config["max_epochs"] ,
-        )
-        EncodingModel.add_encoder(model)
-        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device('cpu'))
-        EncodingModel.load_state_dict(state_dict['state_dict'])
-        ## load search algorithm
-        ea_surrogate = Ea_surrogate.Ea_surrogate()
-        client = pymongo.MongoClient(config["pymongo_client"])
-        db_poly = stk.ConstructedMoleculeMongoDb(
-            client,
-            database=config["database_name"],
-        )
-        db_frag = stk.MoleculeMongoDb(
-            client,
-            database=config["database_name"],
-        )
-        ea_surrogate.verbose = True
-        ea_surrogate.device = "cpu"#"cuda:0" if torch.cuda.is_available() else "cpu"
-        ea_surrogate.Representation = Represenation_3D.Representation3DFrag_transformer(EncodingModel,df_total,db_poly=db_poly,db_frag=db_frag,device=ea_surrogate.device)
-        pymodel.graph_pred_linear.eval()
-        ea_surrogate.pred_model = pymodel.graph_pred_linear
-        search_algorithm = ea_surrogate
     else:
         raise ValueError("case not recognised")
     
@@ -200,3 +149,13 @@ if __name__ == "__main__":
     parser.add_argument("--case", type=str, default="slatm")
     args = parser.parse_args()
     main(args.num_iteration, args.num_elem_initialisation, args.test_name,args.case)
+
+class TestStkSearch(unittest.TestCase):
+    def test_run_search(self):
+        try:
+            run_search(num_iteration=10, num_elem_initialisation=5, test_name="Test")
+        except Exception as e:
+            self.fail(f"run_search raised an exception: {e}")
+
+if __name__ == '__main__':
+    unittest.main()

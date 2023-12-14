@@ -64,3 +64,6 @@ MANIFEST
 *.tar
 *.gz
 *.ipynb
+*.tar
+*.gz
+*.ipynb

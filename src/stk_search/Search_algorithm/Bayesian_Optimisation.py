@@ -286,9 +286,10 @@ class Bayesian_Optimisation(Search_Algorithm):
                 searched_space_df = SP.check_df_for_element_from_SP(
                     df_to_check=df_total
                 )
-                searched_space_df = searched_space_df.sample(
-                    num_elem_initialisation
-                )
+                # add top elements from the search space
+                searched_space_df = searched_space_df.sort_values(by='target', ascending=False)
+                searched_space_df = pd.concat([searched_space_df.sample(num_elem_initialisation-10),
+                                               searched_space_df[:10]])
             else: 
                 searched_space_df = SP.random_generation_df(
                     num_elem_initialisation
@@ -460,7 +461,7 @@ class Bayesian_Optimisation(Search_Algorithm):
         return scores_test, scores_train
 
 
-from stk_search.tanimoto_kernel import TanimotoKernel
+from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
 
 
 # We define our custom GP surrogate model using the Tanimoto kernel
