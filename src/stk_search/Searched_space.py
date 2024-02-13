@@ -86,6 +86,10 @@ class Searched_Space(Search_Space):
             "#f94144",
             "#90be6d",
             "#577590",
+            "#f8961e",
+            "#e63946",
+            "#a8dadc",
+            "#457b9d",
         ]
         for id, df in enumerate(df_list):
             plot_hist(df, ax, color=color_list[id], label=label_list[id])
@@ -118,6 +122,10 @@ class Searched_Space(Search_Space):
             "#f94144",
             "#90be6d",
             "#577590",
+            "#f8961e",
+            "#e63946",
+            "#a8dadc",
+            "#457b9d",
         ]
 
         for i in range(number_of_fragments):
@@ -404,9 +412,19 @@ class Searched_Space(Search_Space):
         # add a button to add the condition
         df_list = []
         label_list = []
-
+        # save search space properties in table after each addition to hist compare
+        # save the search space properties in a table
+        search_space_properties = [
+            {
+                "number of elements": self.space_size,
+                "syntax": self.syntax,
+                "conditions": [[] for i in range(self.number_of_fragments)],
+                "Elements in top 5%": 0,
+                "number of elements evaluated": 0,
+            },
+        ]
         def add_to_hist_compare(b):
-            self.redefine_search_space()
+            #self.redefine_search_space()
 
             number_of_elements_text.value = "{:.2e}".format(self.space_size)
             df_list.append(
@@ -436,15 +454,18 @@ class Searched_Space(Search_Space):
 
             hist_widget_plot.update()
             # save the search space properties in a table
+            print(self.conditions_list)
+            conditions = [x.copy() for x in self.conditions_list]
             search_space_properties.append(
                 {
                     "number of elements": self.space_size,
                     "syntax": self.syntax,
-                    "conditions": self.conditions_list,
+                    "conditions": conditions,
                     "Elements in top 5%": top5_current_text.value,
                     "number of elements evaluated": number_of_element_evaluated.value,
                 }
             )
+            print(search_space_properties)
 
         def save_data(b):
             df_search_space_properties = pd.DataFrame.from_dict(
@@ -508,14 +529,4 @@ class Searched_Space(Search_Space):
             layout=vbox_layout,
         )
         display(vb)
-        # save search space properties in table after each addistion to hist compare
-        # save the search space properties in a table
-        search_space_properties = [
-            {
-                "number of elements": self.space_size,
-                "syntax": self.syntax,
-                "conditions": self.conditions_list,
-                "Elements in top 5%": 0,
-                "number of elements evaluated": 0,
-            },
-        ]
+        
