@@ -24,25 +24,34 @@ class Objective_Function:
 
 
 class Look_up_table:
-    def __init__(self, df_look_up, fragment_size):
+    def __init__(self, df_look_up, fragment_size,target_name="target", aim = 0):
         self.df_look_up = df_look_up
         self.fragment_size = fragment_size
+        self.target_name = target_name
+        self.aim = aim
 
     def evaluate_element(self, element):
         # if type(element) == pd.Series:
         # element = element.to_frame()
-        # print(element)
         results = element.merge(
             self.df_look_up,
             on=[f"InChIKey_{i}" for i in range(self.fragment_size)],
             how="left",
         )
-        return results["target"][0], results["InChIKey"][0]
-
+        
+        results.drop_duplicates(
+            subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
+            inplace=True,
+        )
+        if results[self.target_name].isna().any():
+            print('missing data')
+            raise ValueError('missing data')
+        target = - np.sqrt((results[self.target_name][0]-self.aim)**2)
+        return target, results["InChIKey"][0]
 
 class IP_ES1_fosc(Objective_Function):
     def __init__(self, oligomer_size):
-        self.client = "mongodb://129.31.66.201/"
+        self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
         self.db_mol = "stk_mohammed_new"
         self.xtb_path = (
             "/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb"
@@ -56,7 +65,11 @@ class IP_ES1_fosc(Objective_Function):
         )
         os.makedirs(self.Db_folder, exist_ok=True)
         self.database_new_calc = "stk_mohammed_BO"
-        self.collection_name = "BO_exp1"
+        if oligomer_size == 6 :
+            self.collection_name = "BO_exp1"
+        else:
+            self.collection_name = f"BO_{oligomer_size}"
+        #print(self.collection_name)
         self.host_IP = "cx1"
         self.oligomer_size = oligomer_size
 
@@ -87,6 +100,7 @@ class IP_ES1_fosc(Objective_Function):
         # define the database and collection name
         database_new_calc = self.database_new_calc
         collection_name = self.collection_name
+        #print(collection_name)
         # build the polymer
         polymer = self.Build_polymer(element, db=db_mol)
         polymer = self.run_xtb_opt(
@@ -113,7 +127,7 @@ class IP_ES1_fosc(Objective_Function):
             STDA_bin_path,
             output_dir_stda,
             property="Excited state energy (eV)",
-            state=1,
+            state=0,
             database="stk_mohammed_BO",
             collection=collection_name + "_Stda",
             client=client,
@@ -123,7 +137,7 @@ class IP_ES1_fosc(Objective_Function):
             STDA_bin_path,
             output_dir_stda,
             property="Excited state oscillator strength",
-            state=1,
+            state=0,
             database="stk_mohammed_BO",
             collection=collection_name + "_Stda",
             client=client,
@@ -140,12 +154,12 @@ class IP_ES1_fosc(Objective_Function):
         precursors = []
         genes = "ABCDEFGH"
         genes = genes[: self.oligomer_size]
-        print(genes)
+        #print(genes)
         repeating_unit = ""
         # joins the Genes to make a repeating unit string
         repeating_unit = repeating_unit.join(genes)
         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
-        print(element[InchiKey_cols].values.flatten())
+        #print(element[InchiKey_cols].values.flatten())
         for fragment in element[InchiKey_cols].values.flatten():
             mol = db.get({"InChIKey": fragment})
             bb = stk.BuildingBlock.init_from_molecule(
@@ -229,12 +243,14 @@ class IP_ES1_fosc(Objective_Function):
             collection.find_one({"InChIKey": get_inchi_key(polymer)})
             is not None
         ):
-            print("already calculated", end="\r")
+            #print("already calculated", end="\r")
+            
             db_polymer = stk.ConstructedMoleculeMongoDb(
                 client,
                 database=database,
             )
-            db_polymer.get({"InChIKey": get_inchi_key(polymer)})
+            polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
+            #print(get_inchi_key(polymer), ' opt geom already calculated')
             return polymer
         if (
             collection.find_one(
@@ -242,7 +258,7 @@ class IP_ES1_fosc(Objective_Function):
             )
             is not None
         ):
-            print("already calculated", end="\r")
+            #print("already calculated", end="\r")
             db_polymer = stk.ConstructedMoleculeMongoDb(
                 client,
                 database=database,
@@ -250,7 +266,9 @@ class IP_ES1_fosc(Objective_Function):
             data = collection.find_one(
                 {"InChIKey_initial": get_inchi_key(polymer)}
             )
-            db_polymer.get({"InChIKey": data["InChIKey"]})
+            #print(get_inchi_key(polymer), ' opt geom already calculated with old geom')
+
+            polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
             return polymer
         output_dir = os.path.join(
             xtb_opt_output_dir, get_inchi_key(polymer)
@@ -298,7 +316,8 @@ class IP_ES1_fosc(Objective_Function):
             {"InChIKey": get_inchi_key(polymer)}
         )
         if XTB_results is not None:
-            print("already calculated", end="\r")
+            #print("already calculated", end="\r")
+            #print(get_inchi_key(polymer), ' ipea geom already calculated')
             return XTB_results[target]
         xtb = XTBEnergy2(
             xtb_path=xtb_path,
@@ -346,7 +365,8 @@ class IP_ES1_fosc(Objective_Function):
             {"InChIKey": get_inchi_key(polymer)}
         )
         if STDA_results is not None:
-            print("already calculated", end="\r")
+            #print(get_inchi_key(polymer), ' stda geom already calculated')
+            #print(STDA_results[property][state])
             return STDA_results[property][state]
         stda = sTDA_XTB(
             STDA_bin_path=STDA_bin_path,

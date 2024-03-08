@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import pandas as pd
-from stk_search import Database_utils
+from stk_search.utils import database_utils
 from botorch.models.gp_regression import SingleTaskGP
 from stk_search.tanimoto_kernel import TanimotoKernel
 from gpytorch.distributions import MultivariateNormal
@@ -25,7 +25,7 @@ import torch
 def load_data():
     df_path = "data/output/Full_datatset/df_total_new2023_08_20.csv"
     df_precursors_path = "data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl"  #'Data/output/Prescursor_data/calculation_data_precursor_310823_clean.pkl'
-    df_total, df_precursors = Database_utils.load_data_from_file(
+    df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
     SP = Searched_space.Searched_Space(

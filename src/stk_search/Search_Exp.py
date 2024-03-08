@@ -18,7 +18,7 @@ class Search_exp:
         verbose=False,
     ):
         self.search_space_loc = search_space_loc
-        self.search_algorithm = search_algorithm
+        self.search_algorithm = search_algorithm # add a name to the search algorithm
         self.objective_function = objective_function
         self.number_of_iterations = number_of_iterations
         self.output_folder = "Data/search_experiment"
@@ -110,8 +110,8 @@ class Search_exp:
             )
             self.df_search_space = df_search_space
             # evaluate the element
-            if self.verbose:
-                print(f"element id suggested: {ids_acquired}")
+            #if self.verbose:
+                #print(f"element id suggested: {ids_acquired}, inchikey suggested: {self.df_search_space.loc[ids_acquired]}")
             self.evaluate_element(
                 element_id=ids_acquired,
                 objective_function=self.objective_function,
@@ -124,10 +124,11 @@ class Search_exp:
                 print(f"iteration {id} completed")
                 print(f"max fitness acquired: {max(self.fitness_acquired)}")
                 print(f"min fitness acquired: {min(self.fitness_acquired)}")
-                print(f"ids acquired: {self.ids_acquired}")
+                #print(f"ids acquired: {self.ids_acquired}")
                 print(f"new fitness acquired: {self.fitness_acquired[-1]}")
         # save the results
-        self.save_results()
+        results_dict = self.save_results()
+        return results_dict
 
     def evaluate_element(
         self,
@@ -141,6 +142,8 @@ class Search_exp:
             Eval, InchiKey = objective_function.evaluate_element(
                 element=element
             )
+            if self.verbose:
+                print(f"element Inchikey suggested: {InchiKey}, Eval: {Eval}")
             if Eval is None:
                 self.bad_ids.append(element_id)
                 print(f"element {element_id} failed")
@@ -184,3 +187,4 @@ class Search_exp:
         with open(path + f"/results_{self.search_exp_name}.pkl", "wb") as f:
             
             pickle.dump(resutls_dict, f)
+        return resutls_dict

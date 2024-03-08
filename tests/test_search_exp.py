@@ -10,7 +10,7 @@ from stk_search.Search_algorithm import (
 )
 from stk_search.Objective_function import Look_up_table
 import pandas as pd
-from stk_search import Database_utils
+from stk_search.utils import database_utils
 from stk_search import Searched_space
 import stk
 import torch
@@ -24,7 +24,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
     df_path = "data/output/Full_dataset/df_total_subset_16_11_23.csv"
     df_precursors_path = "data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl"  #'Data/output/Prescursor_data/calculation_data_precursor_310823_clean.pkl'
 
-    df_total, df_precursors = Database_utils.load_data_from_file(
+    df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
 

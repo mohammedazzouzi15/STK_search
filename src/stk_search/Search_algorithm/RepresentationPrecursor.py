@@ -9,21 +9,6 @@ class RepresentationPrecursor:
 
     def generate_repr(self, elements):
         init_rpr = []
-        '''
-        for elem in elements:
-            init_rpr.append(
-                np.concatenate(
-                    np.concatenate(
-                        [
-                            self.df_precursors[
-                                self.df_precursors["InChIKey"] == x
-                            ][self.frag_properties].values
-                            for x in elem
-                        ]
-                    )
-                )
-            )
-        '''  
         frag_properties = self.frag_properties
         frag_properties = frag_properties.union(['InChIKey'])
         elements_curr = elements.copy()

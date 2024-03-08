@@ -18,6 +18,7 @@ class Ea_surrogate(Search_Algorithm):
         self.model = None
         self.verbose = False
         self.pred_model = None
+        self.name = "Surrogate_EA"
 
 
     def suggest_element(
@@ -37,27 +38,37 @@ class Ea_surrogate(Search_Algorithm):
         )
         elements = np.append(elements, df_search.values, axis=0)
         df_elements = pd.DataFrame(
-            elements, columns=[f"InChIKey_{x}" for x in range(6)]
+            elements, columns=[f"InChIKey_{x}" for x in range(elements.shape[1])]# check this for generalization
         )
         df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(
                 df_total,
-                on=[f"InChIKey_{i}" for i in range(6)],
+                on=[f"InChIKey_{i}" for i in range(elements.shape[1])],# check this for generalization
                 how="left",
             )
+            df_elements.drop_duplicates(
+                subset=[f"InChIKey_{i}" for i in range(elements.shape[1])], inplace=True # check this for generalization
+            )
             df_elements.dropna(subset="target", inplace=True)
-            df_elements = df_elements[[f"InChIKey_{i}" for i in range(6)]]
+            df_elements = df_elements[[f"InChIKey_{i}" for i in range(elements.shape[1])]]# check this for generalization
             if self.verbose:
                 print("df_elements shape is ", df_elements.shape)
         X_unsqueezed = self.Representation.generate_repr(df_elements)
         if self.verbose:
             print("X_unsqueezed shape is ", X_unsqueezed.shape)
         # get model prediction
+        #make sure that the model and the data have the same dtype
+        X_unsqueezed = X_unsqueezed.to(self.device)
+        model_dtype = next(self.pred_model.parameters()).dtype
+        if X_unsqueezed.dtype != model_dtype:
+            X_unsqueezed = X_unsqueezed.type(model_dtype)
         acquisition_values = self.pred_model(X_unsqueezed).squeeze().detach().numpy()
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = (-acquisition_values).argsort()
+        if self.verbose:
+            print("max acquisition value is ", acquisition_values[ids_sorted_by_aquisition[0]])
 
         def add_element(df, element):
             if ~(df == element).all(1).any():
@@ -80,7 +91,7 @@ class Ea_surrogate(Search_Algorithm):
 
         def mutate_element(element):
             elements_val = []
-            for i in range(6):
+            for i in range(element.shape[0]):
                 for frag in SP.df_precursors.InChIKey:
                     element_new = element.copy()
                     element_new[i] = frag
@@ -89,7 +100,7 @@ class Ea_surrogate(Search_Algorithm):
 
         def cross_element(element1, element2):
             elements_val = []
-            for i in range(6):
+            for i in range(element.shape[0]):
                 element_new = element1.copy()
                 element_new[i] = element2[i]
                 elements_val.append(element_new)
@@ -116,36 +127,3 @@ class Ea_surrogate(Search_Algorithm):
         return elements
     
 
-    def initial_suggestion(
-        self,
-        SP: Search_Space = [],
-        num_elem_initialisation: int = 10,
-        benchmark=False,
-        df_total: pd.DataFrame = None,
-    ):
-        if benchmark:
-            searched_space_df = SP.check_df_for_element_from_SP(
-                df_to_check=df_total
-            )
-            searched_space_df = searched_space_df.sample(
-                num_elem_initialisation
-            )
-        else:
-            if df_total is not None:
-                searched_space_df = SP.check_df_for_element_from_SP(
-                    df_to_check=df_total
-                )
-                # add top elements from the search space
-                searched_space_df = searched_space_df.sort_values(by='target', ascending=False)
-                searched_space_df = pd.concat([searched_space_df.sample(num_elem_initialisation-10),
-                                               searched_space_df[:10]])
-            else: 
-                searched_space_df = SP.random_generation_df(
-                    num_elem_initialisation
-                )
-        # reindex the df
-        searched_space_df = searched_space_df[
-            ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
-        ]  # careful here, this is hard coded
-        searched_space_df.index = range(len(searched_space_df))
-        return searched_space_df.index.tolist(), searched_space_df

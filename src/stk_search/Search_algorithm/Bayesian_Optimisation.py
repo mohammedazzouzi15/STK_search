@@ -29,16 +29,74 @@ from torch.optim import SGD
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
+from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
+
+
+# We define our custom GP surrogate model using the Tanimoto kernel
+class TanimotoGP(SingleTaskGP):
+    def __init__(self, train_X, train_Y):
+        super().__init__(train_X, train_Y)
+        self.mean_module = ConstantMean()
+        self.covar_module = ScaleKernel(base_kernel=TanimotoKernel())
+        self.to(train_X)  # make sure we're on the right device/dtype
+
+    def forward(self, x):
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        return MultivariateNormal(mean_x, covar_x)
+
+
+from gpytorch import kernels
+
+
+class MaternKernel(SingleTaskGP):
+    def __init__(self, train_X, train_Y):
+        super().__init__(train_X, train_Y)
+        self.mean_module = ConstantMean()
+        self.covar_module = ScaleKernel(
+            base_kernel=kernels.MaternKernel()
+        )  # kernels.RBFKernel())#)
+        self.to(train_X)  # make sure we're on the right device/dtype
+
+    def change_kernel(self, kernel):
+        self.covar_module = ScaleKernel(base_kernel=kernel)
+
+    def forward(self, x):
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        return MultivariateNormal(mean_x, covar_x)
+
+
+class RBFKernel(SingleTaskGP):
+    def __init__(self, train_X, train_Y):
+        super().__init__(train_X, train_Y)
+        self.mean_module = ConstantMean()
+        self.covar_module = ScaleKernel(
+            base_kernel=kernels.RBFKernel(ard_num_dims=train_X.shape[-1])
+        )  # kernels.RBFKernel())#)
+        self.to(train_X)  # make sure we're on the right device/dtype
+
+    def change_kernel(self, kernel):
+        self.covar_module = ScaleKernel(base_kernel=kernel)
+
+    def forward(self, x):
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        return MultivariateNormal(mean_x, covar_x)
+
+
 class Bayesian_Optimisation(Search_Algorithm):
-    def __init__(self):
-        self.which_acquisition = "EI"
-        self.kernel = TanimotoGP
+    def __init__(self, verbose=False, PCA_input=False, normalise_input=False, which_acquisition="EI", kernel=RBFKernel, likelihood=ExactMarginalLogLikelihood, model=None,lim_counter=2):
+        self.verbose = verbose
+        self.PCA_input = PCA_input
+        self.normalise_input = normalise_input
+        self.which_acquisition = which_acquisition
+        self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.likelihood = ExactMarginalLogLikelihood
-        self.model = None
-        self.verbose = False
-        self.PCA_input = False
-        self.normalise_input = False
+        self.likelihood = likelihood
+        self.model = model
+        self.lim_counter =lim_counter # max iteration for the acquisition function optimisation
+
 
     def normalise_input(self, X_list: list[torch.tensor]):
         X_all = torch.cat(X_list)
@@ -120,7 +178,7 @@ class Bayesian_Optimisation(Search_Algorithm):
 
         def mutate_element(element):
             elements_val = []
-            for i in range(6):
+            for i in range(element.shape[0]):
                 for frag in SP.df_precursors.InChIKey:
                     element_new = element.copy()
                     element_new[i] = frag
@@ -129,7 +187,7 @@ class Bayesian_Optimisation(Search_Algorithm):
 
         def cross_element(element1, element2):
             elements_val = []
-            for i in range(6):
+            for i in range(element.shape[0]):
                 element_new = element1.copy()
                 element_new[i] = element2[i]
                 elements_val.append(element_new)
@@ -179,24 +237,75 @@ class Bayesian_Optimisation(Search_Algorithm):
         y_explored_BO_norm = y_explored_BO_norm.reshape(-1, 1)
 
         # generate list of element to evaluate using acquistion function
+        # train model
+        self.train_model(X_rpr, y_explored_BO_norm)
+        #optimise the acquisition function
+        ids_sorted_by_aquisition, df_elements = self.optimise_acquisition_function(
+            best_f=y_explored_BO_norm.max().item(),
+            fitness_acquired=fitness_acquired,
+            df_search=df_search,
+            ids_acquired=ids_acquired,
+            SP=SP,
+            benchmark=benchmark,
+            df_total=df_total,
+        )
+
+        def add_element(df, element):
+            if ~(df == element).all(1).any():
+                df.loc[len(df)] = element
+                return True
+            return False
+        #print('new_element_df shape is ', df_elements.shape)
+        for id in ids_sorted_by_aquisition:
+            if add_element(df_search, df_elements.values[id.item()]):
+                #print(id.item())
+                break
+                # index = id.item()
+                # return df_search_space_frag
+        return len(df_search) - 1, df_search
+    
+    def suggest_element_old(
+        self,
+        search_space_df,
+        fitness_acquired,
+        ids_acquired,
+        SP: Search_Space,
+        benchmark=True,
+        df_total: pd.DataFrame = None,
+    ):
+        df_search = search_space_df.copy()
+        fitness_acquired = np.array(fitness_acquired)
+        X_rpr = self.Representation.generate_repr(
+            df_search.loc[ids_acquired, :]
+        )
+        X_rpr = X_rpr.double()
+        y_explored_BO_norm = torch.tensor(
+            fitness_acquired, dtype=torch.float64
+        )
+        y_explored_BO_norm = (
+            y_explored_BO_norm - y_explored_BO_norm.mean(axis=0)
+        ) / (y_explored_BO_norm.std(axis=0))
+        y_explored_BO_norm = y_explored_BO_norm.reshape(-1, 1)
+
+        # generate list of element to evaluate using acquistion function
 
         elements = self.Generate_element_to_evaluate(
             fitness_acquired, df_search.loc[ids_acquired, :], SP
         )
         elements = np.append(elements, df_search.values, axis=0)
         df_elements = pd.DataFrame(
-            elements, columns=[f"InChIKey_{x}" for x in range(6)]
+            elements, columns=[f"InChIKey_{x}" for x in range(elements.shape[1])]# check this for generalization
         )
         df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(
                 df_total,
-                on=[f"InChIKey_{i}" for i in range(6)],
+                on=[f"InChIKey_{i}" for i in range(elements.shape[1])],# check this for generalization
                 how="left",
             )
             df_elements.dropna(subset="target", inplace=True)
-            df_elements = df_elements[[f"InChIKey_{i}" for i in range(6)]]
+            df_elements = df_elements[[f"InChIKey_{i}" for i in range(elements.shape[1])]]# check this for generalization
             if self.verbose:
                 print("df_elements shape is ", df_elements.shape)
         X_unsqueezed = self.Representation.generate_repr(df_elements)
@@ -290,6 +399,7 @@ class Bayesian_Optimisation(Search_Algorithm):
                 searched_space_df = searched_space_df.sort_values(by='target', ascending=False)
                 searched_space_df = pd.concat([searched_space_df.sample(num_elem_initialisation-10),
                                                searched_space_df[:10]])
+                
             else: 
                 searched_space_df = SP.random_generation_df(
                     num_elem_initialisation
@@ -300,6 +410,99 @@ class Bayesian_Optimisation(Search_Algorithm):
         ]  # careful here, this is hard coded
         searched_space_df.index = range(len(searched_space_df))
         return searched_space_df.index.tolist(), searched_space_df
+
+    def optimise_acquisition_function(self, best_f, fitness_acquired,df_search,ids_acquired,SP,benchmark=False,df_total=None):
+        # generate list of element to evaluate using acquistion function
+        counter , lim_counter = 0, self.lim_counter
+        elements = self.Generate_element_to_evaluate(
+            fitness_acquired, df_search, SP
+        )
+        elements = np.append(elements, df_search.values, axis=0)
+        df_elements = pd.DataFrame(
+            elements, columns=[f"InChIKey_{x}" for x in range(elements.shape[1])]# check this for generalization
+        )
+        df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
+        if benchmark:
+            # take only element in df_total
+            print('started acquisition function optimisation')
+            df_elements = df_elements.merge(
+                df_total,
+                on=[f"InChIKey_{i}" for i in range(elements.shape[1])],# check this for generalization
+                how="left",
+            )
+            df_elements.dropna(subset="target", inplace=True)
+            df_elements = df_elements[[f"InChIKey_{i}" for i in range(elements.shape[1])]]# check this for generalization
+            df_elements.drop_duplicates(inplace=True)
+        if df_elements.shape[0] > 1000: # limit the number of elements to evaluate each time
+            df_elements = df_elements.sample(1000)
+        df_elements.reset_index(drop=True, inplace=True)
+        X_unsqueezed = self.Representation.generate_repr(df_elements)
+
+        X_unsqueezed = X_unsqueezed.double()
+        # train acquisition function
+        X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
+        acquisition_values = self.get_acquisition_values(
+            self.model,
+            best_f=best_f,
+            X_unsqueezed=X_unsqueezed,
+        )
+        print('size of representation dataset ', len(self.Representation.dataset_local))
+        # select element to acquire with maximal aquisition value, which is not in the acquired set already
+        ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
+        max_acquisition_value = acquisition_values.max()
+        max_counter = 0
+        max_optimisation_iteration = 100
+        while counter < lim_counter:
+            counter += 1
+            max_counter += 1
+            elements = self.Generate_element_to_evaluate(
+                acquisition_values.numpy(), df_elements, SP
+            )
+            #elements = np.append(elements, df_elements.values, axis=0)
+            df_elements = pd.DataFrame(
+                elements, columns=[f"InChIKey_{x}" for x in range(elements.shape[1])]# check this for generalization
+            )
+            df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
+            if benchmark:
+                # take only element in df_total
+                #print(f'counter is {counter}, max_acquisition_value is {max_acquisition_value}')
+                df_elements = df_elements.merge(
+                    df_total,
+                    on=[f"InChIKey_{i}" for i in range(elements.shape[1])],# check this for generalization
+                    how="left",
+                )
+                df_elements.dropna(subset="target", inplace=True)
+                df_elements = df_elements[[f"InChIKey_{i}" for i in range(elements.shape[1])]]# check this for generalization
+                df_elements.drop_duplicates(inplace=True)
+            if df_elements.shape[0] > 1000: # limit the number of elements to evaluate each time
+                df_elements = df_elements.sample(1000)
+            df_elements.reset_index(drop=True, inplace=True)
+
+            X_unsqueezed = self.Representation.generate_repr(df_elements)
+            X_unsqueezed = X_unsqueezed.double()
+            # train acquisition function
+            X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
+            #if benchmark:
+            print('size of representation dataset ', len(self.Representation.dataset_local))
+            
+            acquisition_values = self.get_acquisition_values(
+                self.model,
+                best_f=best_f,
+                X_unsqueezed=X_unsqueezed,
+            )
+            # select element to acquire with maximal aquisition value, which is not in the acquired set already
+            ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
+            max_acquisition_value_current = acquisition_values.max()
+            print(f'counter is {max_counter}, max_acquisition_value is {max_acquisition_value_current}')
+            if max_acquisition_value_current > max_acquisition_value+0.001*max_acquisition_value:
+                max_acquisition_value = max_acquisition_value_current
+                print(f'counter is {max_counter}, max_acquisition_value is {max_acquisition_value}')
+                counter = 0
+            if max_counter > max_optimisation_iteration:
+                print(f'counter is {max_counter}, max_acquisition_value is {max_acquisition_value}')
+                break
+
+        return ids_sorted_by_aquisition, df_elements
 
     def train_test_split(self, X_explored,y_explored,test_set_size,random_state):
         def normalise_output(y):
@@ -461,39 +664,3 @@ class Bayesian_Optimisation(Search_Algorithm):
         return scores_test, scores_train
 
 
-from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
-
-
-# We define our custom GP surrogate model using the Tanimoto kernel
-class TanimotoGP(SingleTaskGP):
-    def __init__(self, train_X, train_Y):
-        super().__init__(train_X, train_Y)
-        self.mean_module = ConstantMean()
-        self.covar_module = ScaleKernel(base_kernel=TanimotoKernel())
-        self.to(train_X)  # make sure we're on the right device/dtype
-
-    def forward(self, x):
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        return MultivariateNormal(mean_x, covar_x)
-
-
-from gpytorch import kernels
-
-
-class MaternKernel(SingleTaskGP):
-    def __init__(self, train_X, train_Y):
-        super().__init__(train_X, train_Y)
-        self.mean_module = ConstantMean()
-        self.covar_module = ScaleKernel(
-            base_kernel=kernels.MaternKernel()
-        )  # kernels.RBFKernel())#)
-        self.to(train_X)  # make sure we're on the right device/dtype
-
-    def change_kernel(self, kernel):
-        self.covar_module = ScaleKernel(base_kernel=kernel)
-
-    def forward(self, x):
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        return MultivariateNormal(mean_x, covar_x)
