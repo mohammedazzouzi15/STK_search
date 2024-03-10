@@ -8,6 +8,7 @@ from stk_search.geom3d import train_models
 from stk_search.geom3d import oligomer_encoding_with_transformer
 import os
 
+
 def main(config_dir):
     """Train the model using the given configuration.
     Args:
@@ -27,7 +28,9 @@ def main(config_dir):
         config,
     )
     if os.path.isfile(config["dataset_all_path"]):
-        dataset_all = torch.load(config["dataset_all_path"])
+        dataset_all = torch.load(
+            config["dataset_all_path"], map_location=config["device"]
+        )
     else:
         print(" no global dataset found ")
         dataset_all = torch.tensor([])
@@ -38,7 +41,7 @@ def main(config_dir):
 
     # train the model
     config, min_val_loss = train_models.get_best_embedding_model(config_dir)
-    output_file = config_dir + "info.txt"
+    output_file = config_dir + "/info.txt"
     with open(output_file, "a") as file:
         file.write(f"Best model: {config['model_embedding_chkpt']}\n")
         file.write(f"Best model val loss: {min_val_loss}\n")
@@ -54,14 +57,15 @@ def main(config_dir):
     )
     if os.path.isfile(config["dataset_all_frag_path"]):
         print(config["dataset_all_frag_path"])
-        dataset_all_frag = torch.load(config["dataset_all_frag_path"])
+        dataset_all_frag = torch.load(
+            config["dataset_all_frag_path"], map_location=config["device"]
+        )
         dataset_all_frag = dataloader.updata_frag_dataset(
-                            dataset_all_frag,
-                            dataset_test,
-                            pymodel.molecule_3D_repr,
-                            config["model_name"],
-                            dataset_all
-                        )
+            dataset_all_frag,
+            dataset_all,
+            pymodel.molecule_3D_repr,
+            config["model_name"],
+        )
     dataset_test_frag = dataloader.updata_frag_dataset(
         dataset_test_frag,
         dataset_test,
@@ -85,7 +89,11 @@ def main(config_dir):
     test_loader_frag = dataloader.get_data_loader(dataset_test_frag, config)
 
     config = save_datasets_frag(
-        config, dataset_train_frag, dataset_val_frag, dataset_test_frag, dataset_all_frag
+        config,
+        dataset_train_frag,
+        dataset_val_frag,
+        dataset_test_frag,
+        dataset_all_frag,
     )
     # evaluate model
     df_train_pred = evaluate_model(
@@ -121,29 +129,39 @@ def main(config_dir):
         )
 
     # run encoding training
-    ephemeral_dir = config["ephemeral_path"] + f"/{config["name"].replace('_','/')}/"
+    ephemeral_dir = (
+        config["ephemeral_path"] + f"/{config['name'].replace('_','/')}/"
+    )
     encoding_dataset_train = (
         oligomer_encoding_with_transformer.save_encoding_dataset(
-            dataset_train_frag, config, dataset_name="_train",
-            save_folder=ephemeral_dir
+            dataset_train_frag,
+            config,
+            dataset_name="_train",
+            save_folder=ephemeral_dir,
         )
     )
     encoding_dataset_val = (
         oligomer_encoding_with_transformer.save_encoding_dataset(
-            dataset_val_frag, config, dataset_name="_val",
-            save_folder=ephemeral_dir
+            dataset_val_frag,
+            config,
+            dataset_name="_val",
+            save_folder=ephemeral_dir,
         )
     )
     encoding_dataset_test = (
         oligomer_encoding_with_transformer.save_encoding_dataset(
-            dataset_test_frag, config, dataset_name="_test",
-            save_folder=ephemeral_dir
+            dataset_test_frag,
+            config,
+            dataset_name="_test",
+            save_folder=ephemeral_dir,
         )
     )
     encoding_dataset_all = (
         oligomer_encoding_with_transformer.save_encoding_dataset(
-            dataset_all_frag, config, dataset_name="_all",
-            save_folder=ephemeral_dir
+            dataset_all_frag,
+            config,
+            dataset_name="_all",
+            save_folder=ephemeral_dir,
         )
     )
 
@@ -210,7 +228,9 @@ def save_datasets(
     return config
 
 
-def save_datasets_frag(config, dataset_train, dataset_val, dataset_test,dataset_all_frag):
+def save_datasets_frag(
+    config, dataset_train, dataset_val, dataset_test, dataset_all_frag
+):
     name = config["name"]
     ephemeral_dir = (
         config["ephemeral_path"] + f"/{name.replace('_','/')}/transformer/"
@@ -230,9 +250,7 @@ def save_datasets_frag(config, dataset_train, dataset_val, dataset_test,dataset_
     config["frag_dataset_path" + "_test"] = (
         ephemeral_dir + "frag_dataset_test.pth"
     )
-    config["dataset_all_frag_path"] = (
-        ephemeral_dir + "frag_dataset_all.pth"
-    )
+    config["dataset_all_frag_path"] = ephemeral_dir + "frag_dataset_all.pth"
     save_config(config, config_dir)
     return config
 

@@ -1,7 +1,6 @@
 # class to define the search algorithm
 import os
 import torch
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
@@ -11,19 +10,16 @@ from botorch.acquisition.analytic import (
     ExpectedImprovement,
     LogExpectedImprovement,
 )
-
 from gpytorch.mlls import ExactMarginalLogLikelihood
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
 from stk_search.Search_space import Search_Space
-from gpytorch.constraints import GreaterThan
-from torch.optim import SGD
-from gpytorch import kernels
 from stk_search.Search_algorithm.Botorch_kernels import (
     TanimotoGP,
     RBFKernel,
     MaternKernel,
 )
+import itertools
+
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -231,8 +227,17 @@ class BayesianOptimisation(Search_Algorithm):
         benchmark=False,
         df_total=None,
     ):
-        import itertools
-
+        """ Generate elements to evaluate.
+        Args:
+            fitness_acquired (list): fitness of the acquired elements
+            df_search (pd.DataFrame): search space
+            SP (Search_Space): search space
+            benchmark (bool): if True, the search space is a benchmark
+            df_total (pd.DataFrame): dataframe of the total dataset
+            Returns:
+                pd.DataFrame: elements to evaluate 
+        """
+        #
         def mutate_element(element):
             elements_val = []
             for i in range(element.shape[0]):
@@ -302,6 +307,11 @@ class BayesianOptimisation(Search_Algorithm):
         return df_elements
 
     def train_model(self, X_train, y_train):
+        """Train the model.
+        Args:
+            X_train (torch.tensor): input
+            y_train (torch.tensor): output
+        """
         self.model = self.kernel(
             X_train,
             y_train,
@@ -310,7 +320,13 @@ class BayesianOptimisation(Search_Algorithm):
         fit_gpytorch_model(mll)
 
     def get_acquisition_values(self, model, best_f, Xrpr):
-
+        """Get the acquisition values.
+        Args:
+            model (gpytorch.models): model
+            best_f (float): best fitness
+            Xrpr (torch.tensor): representation of the element
+        Returns:
+            torch.tensor: acquisition values"""
         X_unsqueezed = Xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function

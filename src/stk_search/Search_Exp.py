@@ -18,7 +18,9 @@ class Search_exp:
         verbose=False,
     ):
         self.search_space_loc = search_space_loc
-        self.search_algorithm = search_algorithm # add a name to the search algorithm
+        self.search_algorithm = (
+            search_algorithm  # add a name to the search algorithm
+        )
         self.objective_function = objective_function
         self.number_of_iterations = number_of_iterations
         self.output_folder = "Data/search_experiment"
@@ -33,59 +35,27 @@ class Search_exp:
         self.verbose = verbose
         self.benchmark = False
         self.df_total = None
+        self.date = datetime.now().strftime("%Y%m%d")
         self.search_exp_name = uuid.uuid4().hex
 
     def initialise_search_space(self):
         # load the search space
         self.search_space = pickle.load(open(self.search_space_loc, "rb"))
-        """
-        case where we initialise the whole search space
-        self.df_search_space = self.search_space.redefine_search_space()
-        if self.benchmark:
-            if self.df_total is None:
-                print("you need to load the benchmark data first")
-            else:
-                self.df_searched_space = (
-                    self.search_space.check_df_for_element_from_SP(
-                        df_to_check=self.df_total
-                    )
-                )
-                list_columns = [
-                    f"InChIKey_{i}" for i in range(6)
-                ]  # carful here, this is hard coded
-                list_columns.append("target")
-                if self.df_search_space is not None:
-                    self.df_search_space = self.df_search_space.merge(
-                        self.df_searched_space[list_columns],
-                        on=[f"InChIKey_{i}" for i in range(6)],
-                        how="left",
-                    )
-                    self.df_search_space.dropna(
-                        subset=["target"], inplace=True
-                    )
-                    self.df_search_space.drop(columns=["target"], inplace=True)
-                else:
-                    columns_name = []
-                    for i in range(self.search_space.number_of_fragments):
-                        columns_name = columns_name + [
-                            x + f"_{i}"
-                            for x in self.search_space.features_frag
-                        ]
-                    self.df_total.dropna(subset=["target"], inplace=True)
-                    self.df_search_space = self.df_total[columns_name]
-        """
+
     def run_seach(self):
         # save the search experiment
-        #if not self.benchmark:
-         #   self.save_search_experiment()
+        # if not self.benchmark:
+        #   self.save_search_experiment()
         # initialise the search space
         self.initialise_search_space()
         # get initial elements
-        ids_acquired, df_search_space= self.search_algorithm.initial_suggestion(
-            SP =self.search_space,
-            num_elem_initialisation=self.num_elem_initialisation,
-            benchmark=self.benchmark,
-            df_total=self.df_total,
+        ids_acquired, df_search_space = (
+            self.search_algorithm.initial_suggestion(
+                SP=self.search_space,
+                num_elem_initialisation=self.num_elem_initialisation,
+                benchmark=self.benchmark,
+                df_total=self.df_total,
+            )
         )
         self.df_search_space = df_search_space
         for id in range(self.num_elem_initialisation):
@@ -100,18 +70,20 @@ class Search_exp:
         # run the search
         for id in range(self.number_of_iterations):
             # suggest the next element
-            ids_acquired, df_search_space = self.search_algorithm.suggest_element(
-                search_space_df=self.df_search_space,
-                ids_acquired=self.ids_acquired,
-                fitness_acquired=self.fitness_acquired,
-                SP = self.search_space,
-                benchmark=self.benchmark,
-                df_total=self.df_total,
+            ids_acquired, df_search_space = (
+                self.search_algorithm.suggest_element(
+                    search_space_df=self.df_search_space,
+                    ids_acquired=self.ids_acquired,
+                    fitness_acquired=self.fitness_acquired,
+                    SP=self.search_space,
+                    benchmark=self.benchmark,
+                    df_total=self.df_total,
+                )
             )
             self.df_search_space = df_search_space
             # evaluate the element
-            #if self.verbose:
-                #print(f"element id suggested: {ids_acquired}, inchikey suggested: {self.df_search_space.loc[ids_acquired]}")
+            # if self.verbose:
+            # print(f"element id suggested: {ids_acquired}, inchikey suggested: {self.df_search_space.loc[ids_acquired]}")
             self.evaluate_element(
                 element_id=ids_acquired,
                 objective_function=self.objective_function,
@@ -124,7 +96,7 @@ class Search_exp:
                 print(f"iteration {id} completed")
                 print(f"max fitness acquired: {max(self.fitness_acquired)}")
                 print(f"min fitness acquired: {min(self.fitness_acquired)}")
-                #print(f"ids acquired: {self.ids_acquired}")
+                # print(f"ids acquired: {self.ids_acquired}")
                 print(f"new fitness acquired: {self.fitness_acquired[-1]}")
         # save the results
         results_dict = self.save_results()
@@ -159,32 +131,34 @@ class Search_exp:
             print(e)
             return None, None
 
-
-
     def save_search_experiment(self):
         # save the search experiment
         time_now = datetime.now().strftime("%Y%m%d_%H%M%S")
         date_now = datetime.now().strftime("%Y%m%d")
-        os.makedirs(self.output_folder+f"/{date_now}", exist_ok=True)
+        os.makedirs(self.output_folder + f"/{date_now}", exist_ok=True)
         with open(
-            self.output_folder +f"/{date_now}" + f"/search_experiment_{self.search_exp_name}.pkl", "wb"
+            self.output_folder
+            + f"/{date_now}"
+            + f"/search_experiment_{self.search_exp_name}.pkl",
+            "wb",
         ) as f:
             pickle.dump(self, f)
 
     def save_results(self):
         # save the results
-        #time_now = datetime.now().strftime("%Y%m%d_%H")
-        date_now = datetime.now().strftime("%Y%m%d")
+        # time_now = datetime.now().strftime("%Y%m%d_%H")
+
+        
         resutls_dict = {
             "ids_acquired": self.ids_acquired,
             "searched_space_df": self.df_search_space.loc[self.ids_acquired],
             "fitness_acquired": self.fitness_acquired,
             "InchiKey_acquired": self.InchiKey_acquired,
         }
-        
-        path = self.output_folder +f"/{date_now}"
+
+        path = self.output_folder + f"/{self.date}"
         os.makedirs(path, exist_ok=True)
         with open(path + f"/results_{self.search_exp_name}.pkl", "wb") as f:
-            
+
             pickle.dump(resutls_dict, f)
         return resutls_dict

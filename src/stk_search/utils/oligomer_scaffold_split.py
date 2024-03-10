@@ -400,12 +400,13 @@ def generate_repr(df_total, df_precursors, frag_properties, idx=0):
     return X_explored_BO
 
 
-def generate_2d_PCA( df_total, df_precursors):
+def generate_2d_PCA(df, df_precursors):
     """
     Generate 2D PCA scores for the dataset and append them to df_total.
     """
 
     #df_total, df_precursors = load_dataframes(dataset, config)
+    df_total = df.copy()
     X_frag_mol = df_precursors["mol_opt"].values
 
     print(f"Dataset file not found in df_total. Generating...")

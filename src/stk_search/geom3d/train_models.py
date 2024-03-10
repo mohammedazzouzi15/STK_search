@@ -4,7 +4,6 @@ created by Mohammed Azzouzi
 date: 2023-11-14
 """
 
-import numpy as np
 import os
 import glob
 import time
@@ -13,33 +12,10 @@ import torch
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
-from stk_search.geom3d.dataloader import (
-    load_data,
-    train_val_split,
-    load_3d_rpr,
-)
-
 from stk_search.utils.config_utils import read_config, save_config
-from stk_search.geom3d.pl_model import Pymodel, model_setup
+from stk_search.geom3d.pl_model import Pymodel
 from stk_search.geom3d import pl_model
 
-
-def main(config_dir):
-    """Train the model using the given configuration.
-    Args:
-        config_dir (str): The path to the directory containing the
-            configuration file.
-
-    """
-    config = read_config(config_dir)
-    np.random.seed(config["seed"])
-    torch.cuda.manual_seed_all(config["seed"])
-    config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
-    dataset = load_data(config)
-    train_loader, val_loader = train_val_split(dataset, config=config)
-
-    load_and_run_model_training(config, train_loader, val_loader)
-    # load dataframe with calculated data
 
 
 def load_and_run_model_training(config, train_loader, val_loader):
@@ -54,8 +30,8 @@ def load_and_run_model_training(config, train_loader, val_loader):
     model, graph_pred_linear = pl_model.model_setup(config)
     print("Model loaded: ", config["model_name"])
 
-    if config["model_path"]:
-        model = load_3d_rpr(model, config["model_path"])
+    #if config["model_path"]:
+     #   model = load_3d_rpr(model, config["model_path"])
     os.chdir(config["running_dir"])
     # wandb.login()
     # wandb.init(settings=wandb.Settings(start_method="fork"))
@@ -134,18 +110,3 @@ def get_best_embedding_model(config_dir):
     return config, min_val_loss
 
 
-
-if __name__ == "__main__":
-    from argparse import ArgumentParser
-
-    root = os.getcwd()
-    argparser = ArgumentParser()
-    argparser.add_argument(
-        "--config_dir",
-        type=str,
-        default="",
-        help="directory to config.json",
-    )
-    args = argparser.parse_args()
-    config_dir = args.config_dir
-    main(config_dir=config_dir)

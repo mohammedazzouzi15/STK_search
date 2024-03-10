@@ -317,11 +317,19 @@ def generate_dataset_frag_pd(
         data_list: list
             list of the dataset
     """
+    if number_of_molecules > len(df_total):
+        number_of_molecules = len(df_total)
+        print(
+            "Number of molecules is greater than the number of molecules in the dataset",
+            number_of_molecules,
+            len(df_total),
+        )
 
     molecule_index = np.random.choice(
         len(df_total), number_of_molecules, replace=False
     )
     data_list = []
+    radius = config["model"]["cutoff"] if "cutoff" in config["model"] else 0.1
     for i in molecule_index:
         moldata = fragment_based_encoding(
             df_total["InChIKey"][i],
@@ -330,7 +338,7 @@ def generate_dataset_frag_pd(
             number_of_fragement,
             device=device,
             model_name=config["model_name"],
-            radius=config["model"]["cutoff"],
+            radius=radius,
         )
         if moldata is not None:
             data_list.append(moldata)
@@ -596,208 +604,3 @@ def get_data_loader(dataset, config):
 
     return loader
 
-
-## old code
-
-
-def load_data(config):
-    if config["load_dataset"]:
-        if os.path.exists(config["dataset_path"]):
-            if "device" in config.keys():
-                dataset = torch.load(
-                    config["dataset_path"], map_location=config["device"]
-                )
-            else:
-                dataset = torch.load(config["dataset_path"])
-            return dataset
-        else:
-            print("dataset not found")
-    df_path = Path(
-        config["STK_path"], "data/output/Full_dataset/", config["df_total"]
-    )
-    df_precursors_path = Path(
-        config["STK_path"],
-        "data/output/Prescursor_data/",
-        config["df_precursor"],
-    )
-    # check if file is a path
-    if os.path.isfile(df_path):
-        df_total, df_precursors = database_utils.load_data_from_file(
-            df_path, df_precursors_path
-        )
-    else:
-        df_total, df_precursors = database_utils.load_data_database(
-            df_precursor_loc=df_precursors_path,
-            num_fragm=config["number_of_fragement"],
-        )
-        config["df_total"] = database_utils.save_data(df_total)
-    client = pymongo.MongoClient(config["pymongo_client"])
-    db = stk.ConstructedMoleculeMongoDb(
-        client,
-        database=config["database_name"],
-    )
-
-    dataset = generate_dataset(
-        df_total,
-        df_precursors,
-        db,
-        number_of_molecules=config["num_molecules"],
-    )
-
-    print(f"length of dataset: {len(dataset)}")
-
-    # where the new dataset daves
-    if config["save_dataset"]:
-        name = config["name"]
-        os.makedirs(name, exist_ok=True)
-        torch.save(dataset, "training/" + name + f"/{len(dataset)}dataset.pt")
-        print(f"dataset saved to {name}/{len(dataset)}dataset.pt")
-    return dataset
-
-
-def load_3d_rpr(model, output_model_path):
-    saved_model_dict = torch.load(output_model_path)
-    model.load_state_dict(saved_model_dict["model"])
-    # model.eval()
-    # check if the function has performed correctly
-    print(model)
-    return model
-
-
-def train_val_split(dataset, config):
-    seed = config["seed"]
-    num_mols = config["num_molecules"]
-    assert num_mols <= len(dataset)
-    np.random.seed(seed)
-    all_idx = np.random.choice(len(dataset), num_mols, replace=False)
-    Ntrain = int(num_mols * config["train_ratio"])
-    train_idx = all_idx[:Ntrain]
-    valid_idx = all_idx[Ntrain:]
-    assert len(set(train_idx).intersection(set(valid_idx))) == 0
-    train_dataset = [dataset[x] for x in train_idx]
-    valid_dataset = [dataset[x] for x in valid_idx]
-    # Set dataloaders
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=config["batch_size"],
-        shuffle=True,
-        num_workers=config["num_workers"],
-        drop_last=True,
-    )
-    val_loader = DataLoader(
-        valid_dataset,
-        batch_size=config["batch_size"],
-        shuffle=True,
-        num_workers=config["num_workers"],
-        drop_last=True,
-    )
-    return train_loader, val_loader
-
-
-def load_data_frag_old(config):
-    dataset_opt = None
-    if config["load_dataset"]:
-        if os.path.exists(config["dataset_path_frag"]):
-            print(f"loading dataset from {config['dataset_path_frag']}")
-            if "device" in config.keys():
-                dataset = torch.load(
-                    config["dataset_path_frag"],
-                    map_location=config["device"],
-                )
-            else:
-                dataset = torch.load(
-                    config["dataset_path_frag"],
-                    map_location=config["device"],
-                )
-
-            if os.path.exists(config["model_embedding_chkpt"]):
-                chkpt_path = config["model_embedding_chkpt"]
-                checkpoint = torch.load(
-                    chkpt_path, map_location=config["device"]
-                )
-                model, graph_pred_linear = model_setup(config)
-                print("Model loaded: ", config["model_name"])
-                # Pass the model and graph_pred_linear to the Pymodel constructor
-                pymodel = Pymodel(model, graph_pred_linear)
-                # Load the state dictionary
-                pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
-                pymodel.freeze()
-                pymodel.to(config["device"])
-                model = pymodel.molecule_3D_repr
-                return dataset, model
-            else:
-                print("model not found")
-                return None, None
-        else:
-            print("dataset frag not found")
-        if os.path.exists(config["dataset_path"]):
-            if "device" in config.keys():
-                dataset_opt = torch.load(
-                    config["dataset_path"], map_location=config["device"]
-                )
-            else:
-                dataset_opt = torch.load(config["dataset_path"])
-        else:
-            print("opt dataset not found")
-
-    if dataset_opt is None:
-        df_path = Path(
-            config["STK_path"], "data/output/Full_dataset/", config["df_total"]
-        )
-        df_precursors_path = Path(
-            config["STK_path"],
-            "data/output/Prescursor_data/",
-            config["df_precursor"],
-        )
-
-        if os.path.isfile(df_path):
-            df_total, df_precursors = database_utils.load_data_from_file(
-                df_path, df_precursors_path
-            )
-
-        else:
-            df_total, df_precursors = database_utils.load_data_database(
-                df_precursor_loc=df_precursors_path,
-                num_fragm=config["number_of_fragement"],
-            )
-            config["df_total"] = database_utils.save_data(df_total)
-
-        generate_function = generate_dataset_frag_pd
-    else:
-        print("loading dataset from org dataset")
-        generate_function = generate_dataset_frag_dataset
-        df_total = dataset_opt
-    client = pymongo.MongoClient(config["pymongo_client"])
-    db = stk.ConstructedMoleculeMongoDb(
-        client,
-        database=config["database_name"],
-    )
-    # check if model is in the path
-    if os.path.exists(config["model_embedding_chkpt"]):
-        chkpt_path = config["model_embedding_chkpt"]
-        checkpoint = torch.load(chkpt_path, map_location=config["device"])
-        model, graph_pred_linear = model_setup(config)
-        print("Model loaded: ", config["model_name"])
-        # Pass the model and graph_pred_linear to the Pymodel constructor
-        pymodel = Pymodel(model, graph_pred_linear)
-        # Load the state dictionary
-        pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
-        pymodel.freeze()
-        pymodel.to(config["device"])
-        model = pymodel.molecule_3D_repr
-        dataset = generate_function(
-            df_total,
-            model,
-            db,
-            number_of_molecules=config["num_molecules"],
-            number_of_fragement=config["number_of_fragement"],
-            device=config["device"],
-        )
-        if config["save_dataset_frag"]:
-            name = config["name"] + "/transformer"
-            os.makedirs(name, exist_ok=True)
-            torch.save(dataset, name + "/dataset_frag.pt")
-        return dataset, model
-    else:
-        print("model not found")
-        return None, None

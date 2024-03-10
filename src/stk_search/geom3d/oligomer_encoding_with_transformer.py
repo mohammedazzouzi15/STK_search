@@ -10,76 +10,13 @@ import lightning.pytorch as pl
 import torch.nn.functional as Functional
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
-from stk_search.geom3d.models import SchNet
 from lightning.pytorch.callbacks import LearningRateMonitor, EarlyStopping
 from stk_search.geom3d.transformer_utils import TransformerPredictor
-from stk_search.utils.config_utils import read_config, save_config
-from stk_search.geom3d.dataloader import load_data_frag, train_val_split
-from torch_geometric.data import Data, Batch
+from stk_search.utils.config_utils import  save_config
+from torch_geometric.data import Data
 from stk_search.geom3d.pl_model import Pymodel, model_setup
 import glob
 
-
-def main(config_dir, training=True, config_dir_dataset=""):
-    """Train the model using the given configuration.
-    Args:
-        config_dir (str): The path to the directory containing the
-            configuration file.
-        training (bool): Whether to train the model.
-        config_dir_dataset (str): The path to the directory containing the
-            configuration file for the dataset.
-    """
-
-    config = read_config(config_dir)
-    os.chdir(config["running_dir"])
-    np.random.seed(config["seed"])
-    torch.cuda.manual_seed_all(config["seed"])
-    config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
-    dataset, model = load_data_frag(config)
-    train_loader, val_loader = train_val_split(dataset, config=config)
-    max_iters = config["max_epochs"] * len(train_loader)
-    # model_config = config["model"]
-    EncodingModel = initialise_model(config, max_iters)
-    name = config["name"] + "_transformer"
-    if training:
-
-        wandb.login()
-        wandb_logger = WandbLogger(
-            log_model="all",
-            project=f"Geom3D_transformer_{config['model_name']}_{config['target_name']}_{config['number_of_fragement']}",
-            name=config["name"] + "_transformer",
-        )
-        wandb_logger.log_hyperparams(config)
-        # train model
-        checkpoint_callback = ModelCheckpoint(
-            dirpath=config["running_dir"] + "/transformer/",
-            filename="{epoch}-{val_loss:.2f}-{other_metric:.2f}",
-            monitor="val_loss",
-            mode="min",
-        )
-        lr_monitor = LearningRateMonitor(logging_interval="step")
-        trainer = pl.Trainer(
-            logger=wandb_logger,
-            max_epochs=config["max_epochs"],
-            val_check_interval=1.0,
-            log_every_n_steps=1,
-            callbacks=[checkpoint_callback, lr_monitor],
-        )
-        trainer.fit(
-            model=EncodingModel,
-            train_dataloaders=train_loader,
-            val_dataloaders=val_loader,
-        )
-        wandb.finish()
-    # save the model encoding:
-    if config_dir_dataset != "":
-        config_dir_dataset = config_dir_dataset
-        config_dataset = read_config(config_dir_dataset)
-        config_dataset["device"] = (
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
-        dataset, model = load_data_frag(config_dataset)
-    save_encoding_dataset(dataset, config)
 
 
 def run_encoding_training(config, train_loader, val_loader):
@@ -368,17 +305,3 @@ class Fragment_encoder(TransformerPredictor):
         loss = self._calculate_loss(batch, mode="test")
 
 
-if __name__ == "__main__":
-    from argparse import ArgumentParser
-
-    root = os.getcwd()
-    argparser = ArgumentParser()
-    argparser.add_argument(
-        "--config_dir",
-        type=str,
-        default="",
-        help="directory to config.json",
-    )
-    args = argparser.parse_args()
-    config_dir = root + args.config_dir
-    main(config_dir=config_dir)

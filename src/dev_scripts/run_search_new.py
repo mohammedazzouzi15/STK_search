@@ -1,17 +1,12 @@
 from stk_search import Search_Exp
 from stk_search.Search_algorithm import Search_algorithm
 from stk_search.Search_algorithm import BayesianOptimisation
-from stk_search.Representation import Representation_from_fragment,Representation_3d_from_fragment
-
-from stk_search.Search_algorithm import (
-    Representation_slatm,
-    RepresentationPrecursor,
-    Represenation_3D,
+from stk_search.Representation import (
+    Representation_from_fragment,
+    Representation_3d_from_fragment,
 )
 from stk_search.Objective_function import IP_ES1_fosc, Look_up_table
 import pandas as pd
-from stk_search.utils import database_utils
-from stk_search import Searched_space
 import stk
 import torch
 import pymongo
@@ -21,10 +16,11 @@ from stk_search.geom3d.oligomer_encoding_with_transformer import (
     initialise_model,
 )
 from stk_search.geom3d.models import SchNet
-from stk_search.geom3d.dataloader import load_data_frag
 from stk_search.Search_algorithm import Ea_surrogate
 import os
 import numpy as np
+import subprocess
+import json
 
 
 # %%
@@ -46,14 +42,16 @@ def main(
     dataset_representation_path="",
     frag_properties="all",
 ):
+    input_json = locals()
+
     # Load the searched space
     print(" number of fragment", oligomer_size)
     print(benchmark, "benchmark")
     df_total = pd.read_csv(df_path)
     df_precursors = pd.read_pickle(df_precursors_path)
-    #df_total, df_precursors = database_utils.load_data_from_file(
+    # df_total, df_precursors = database_utils.load_data_from_file(
     #    df_path, df_precursors_path, num_fragm=oligomer_size
-    #)
+    # )
     # get initial elements
     if benchmark:
         objective_function = Look_up_table(
@@ -79,8 +77,10 @@ def main(
                 include=[np.number]
             ).columns
         print(frag_properties)
-        BO.Representation = Representation_from_fragment.Representation_from_fragment(
-            df_precursors, frag_properties
+        BO.Representation = (
+            Representation_from_fragment.Representation_from_fragment(
+                df_precursors, frag_properties
+            )
         )
         search_algorithm = BO
     elif case == "BO_learned":
@@ -88,7 +88,7 @@ def main(
             which_acquisition=which_acquisition, lim_counter=lim_counter
         )
         BO.verbose = True
-        #BO.normalise_input = False
+        # BO.normalise_input = False
         BO.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
         BO.Representation = load_representation_BO_graph_frag(
             config_dir, df_total, dataset_path=dataset_representation_path
@@ -131,16 +131,32 @@ def main(
     S_exp.num_elem_initialisation = num_elem_initialisation
     S_exp.benchmark = benchmark
     S_exp.df_total = df_total
+    
+    input_json["run_search_name"] = S_exp.search_exp_name
+    input_json["search_output_folder"] = S_exp.output_folder
+    input_json["date"] = S_exp.date
+    save_path = f"/rds/general/user/ma11115/home/STK_Search/STK_search/data/output/search_experiment/search_exp_database/{S_exp.search_exp_name}.json"
+    save_run_search_inputs(input_json, save_path)
     S_exp.run_seach()
-    save_represention = False
-    if save_represention == True:
-        if case == "BO_learned" or case == "ea_surrogate":
-            try:
-                save_represention_dataset(
-                    config_dir, search_algorithm.Representation
-                )
-            except:
-                print("representation not saved")
+
+
+
+def save_run_search_inputs(inputs, save_path="run_search_new_inputs.json"):
+    # Get the current git version
+    git_version = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"])
+        .strip()
+        .decode("utf-8")
+    )
+
+    # Add the git version to the inputs
+    inputs["git_version"] = git_version
+
+    # Save the inputs to a file
+    with open(save_path, "w") as f:
+        json.dump(inputs, f)
+
+    print("Inputs saved.")
 
 
 def save_represention_dataset(config_dir, representation):
@@ -162,11 +178,11 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
     config = read_config(config_dir)
     print(config["model_transformer_chkpt"])
     if os.path.exists(dataset_path):
-        print('loading representation from ', dataset_path)
+        print("loading representation from ", dataset_path)
         data_list = torch.load(dataset_path)
         print("size of data list", len(data_list))
     else:
-        print('no dataset found')
+        print("no dataset found")
         data_list = None
     EncodingModel = initialise_model(config)
     BO = BayesianOptimisation.BayesianOptimisation()
@@ -179,13 +195,15 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
         client,
         database=config["database_name"],
     )
-    Representation = Representation_3d_from_fragment.Representation_3d_from_fragment(
-        EncodingModel,
-        df_total,
-        data=data_list,
-        db_poly=db_poly,
-        db_frag=db_frag,
-        device=BO.device,
+    Representation = (
+        Representation_3d_from_fragment.Representation_3d_from_fragment(
+            EncodingModel,
+            df_total,
+            data=data_list,
+            db_poly=db_poly,
+            db_frag=db_frag,
+            device=BO.device,
+        )
     )
     return Representation
 
@@ -213,7 +231,7 @@ def load_representation_model_SUEA(
         readout=model_config["SchNet_readout"],
         node_class=model_config["node_class"],
     )
-    pymodel = Pymodel(model, graph_pred_linear)
+    pymodel = Pymodel(model, graph_pred_linear,config)
     state_dict = torch.load(
         config["model_embedding_chkpt"], map_location=torch.device(device)
     )
@@ -231,13 +249,15 @@ def load_representation_model_SUEA(
         database=config["database_name"],
     )
     pymodel.graph_pred_linear.eval()
-    Representation = Represenation_3D.Representation3DFrag_transformer(
-        EncodingModel,
-        df_total,
-        data=data_list,
-        db_poly=db_poly,
-        db_frag=db_frag,
-        device=ea_surrogate.device,
+    Representation = (
+        Representation_3d_from_fragment.Representation_3d_from_fragment(
+            EncodingModel,
+            df_total,
+            data=data_list,
+            db_poly=db_poly,
+            db_frag=db_frag,
+            device=ea_surrogate.device,
+        )
     )
     return pymodel, Representation
 
