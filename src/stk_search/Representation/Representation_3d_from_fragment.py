@@ -84,10 +84,13 @@ class Representation_3d_from_fragment:
                         )
         else:
             for x in elements_copy.values:
-                molecule, key = self._getinfo_db(x)
+                key = ""
+                for elm in x:
+                    key = elm + key
                 if key in self.dataset_local:
                     opt_geom_encoding.append(self.dataset_local[key])
                 else:
+                    molecule, key = self._getinfo_db(x)
                     with torch.no_grad():
                         encoding = self.model_encoding(molecule)
                         opt_geom_encoding.append(encoding[0][0])
