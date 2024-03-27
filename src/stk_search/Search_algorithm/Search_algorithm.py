@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from stk_search.Search_space import Search_Space
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class Search_Algorithm:
     def __init__(self):
-        self.name ='default'
+        self.name = "default"
         pass
 
     def suggest_element(
@@ -75,7 +76,7 @@ class Search_Algorithm:
 
 class random_search(Search_Algorithm):
     def __init__(self, seed=None):
-        self.name ='Random'
+        self.name = "Random"
         if seed is not None:
             np.random.seed(seed)
 
@@ -105,7 +106,9 @@ class random_search(Search_Algorithm):
                 df_elements = df_elements.sample(10)
             else:
                 df_elements = SP.random_generation_df(10)
-            df_elements=df_elements[["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]]
+            df_elements = df_elements[
+                ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
+            ]
             for id in df_elements.values:
                 if add_element(df_search, id):
                     print(id)
@@ -118,12 +121,11 @@ class random_search(Search_Algorithm):
         return len(df_search) - 1, df_search
 
 
-
-
 class evolution_algorithm(Search_Algorithm):
     def __init__(self):
-        self.name ='Evolution_algorithm'
+        self.name = "Evolution_algorithm"
         pass
+
     def Generate_element_to_evaluate(
         self, fitness_acquired, df_search, SP: Search_Space
     ):
@@ -131,7 +133,7 @@ class evolution_algorithm(Search_Algorithm):
 
         def mutate_element(element):
             elements = []
-            for i in range(element.shape[0]):# check this for generalization
+            for i in range(element.shape[0]):  # check this for generalization
                 for frag in SP.df_precursors.InChIKey:
                     element_new = element.copy()
                     element_new[i] = frag
@@ -140,15 +142,18 @@ class evolution_algorithm(Search_Algorithm):
 
         def cross_element(element1, element2):
             elements = []
-            for i in range(element.shape[0]):# check this for generalization
+            for i in range(element.shape[0]):  # check this for generalization
                 element_new = element1.copy()
                 element_new[i] = element2[i]
                 elements.append(element_new)
             return elements
+
         # select the 3 best one and add two random element from the search space
         best_element_arg = fitness_acquired.argsort()[-3:][::-1]
         list_parents = df_search.loc[best_element_arg, :].values
-        list_parents = np.append(list_parents, df_search.sample(2).values, axis=0)
+        list_parents = np.append(
+            list_parents, df_search.sample(2).values, axis=0
+        )
         elements = []
         for element in list_parents:
             if len(elements) == 0:
@@ -165,7 +170,40 @@ class evolution_algorithm(Search_Algorithm):
                     elements, cross_element(element1, element2), axis=0
                 )
         return elements
+
     def suggest_element(
+        self,
+        search_space_df,
+        ids_acquired,
+        fitness_acquired,
+        SP: Search_Space,
+        benchmark=True,
+        df_total: pd.DataFrame = None,
+    ):
+        df_elements = self.generate_df_elements_to_choose_from(
+            search_space_df,
+            ids_acquired,
+            fitness_acquired,
+            SP,
+            benchmark,
+            df_total,
+        )
+
+        def add_element(df, element):
+            if ~(df == element).all(1).any():
+                df.loc[len(df)] = element
+                return True
+            return False
+
+        for _ in range(len(df_elements)):
+            id = df_elements.values[np.random.randint(len(df_elements))]
+            if add_element(df_search, id):
+                print(id)
+                break
+
+        return len(df_search) - 1, df_search
+
+    def generate_df_elements_to_choose_from(
         self,
         search_space_df,
         ids_acquired,
@@ -179,34 +217,26 @@ class evolution_algorithm(Search_Algorithm):
         elements = self.Generate_element_to_evaluate(
             fitness_acquired, df_search, SP
         )
-        elements = np.append(elements, df_search.values, axis=0)
+        #elements = np.append(elements, df_search.values, axis=0)
         df_elements = pd.DataFrame(
-            elements, columns=[f"InChIKey_{x}" for x in range(elements.shape[1])]# check this for generalization
+            elements,
+            columns=[
+                f"InChIKey_{x}" for x in range(elements.shape[1])
+            ],  # check this for generalization
         )
         df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(
                 df_total,
-                on=[f"InChIKey_{i}" for i in range(elements.shape[1])],# check this for generalization
+                on=[
+                    f"InChIKey_{i}" for i in range(elements.shape[1])
+                ],  # check this for generalization
                 how="left",
             )
             df_elements.dropna(subset="target", inplace=True)
-            df_elements = df_elements[[f"InChIKey_{i}" for i in range(elements.shape[1])]]# check this for generalization
-            print(df_elements.shape)
-
-        def add_element(df, element):
-            if ~(df == element).all(1).any():
-                df.loc[len(df)] = element
-                return True
-            return False
-
-        while True:
-            id = df_elements.values[np.random.randint(len(df_elements))]
-            if add_element(df_search, id):
-                print(id)
-                break
-
-        print(df_search.shape)
-        return len(df_search) - 1, df_search
-
+            df_elements = df_elements[
+                [f"InChIKey_{i}" for i in range(elements.shape[1])]
+            ]  # check this for generalization
+            # print(df_elements.shape)
+        return df_elements

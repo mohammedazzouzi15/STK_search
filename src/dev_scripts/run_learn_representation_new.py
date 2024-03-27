@@ -6,6 +6,7 @@ from stk_search.utils.config_utils import read_config, save_config
 from stk_search.geom3d import dataloader
 from stk_search.geom3d import train_models
 from stk_search.geom3d import oligomer_encoding_with_transformer
+from stk_search.utils import update_datasets
 
 
 def main(config_dir):
@@ -16,6 +17,7 @@ def main(config_dir):
 
     """
     config = read_config(config_dir)
+    config = update_datasets.save_datasets_for_training(config)
     (
         train_loader,
         val_loader,
@@ -27,6 +29,7 @@ def main(config_dir):
         config,
     )
     # save the dataset in the ephemeral folder
+    
     config = save_datasets(config, dataset_train, dataset_val, dataset_test)
     # save some information into a file
     output_file = config_dir + "info.txt"

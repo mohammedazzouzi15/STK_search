@@ -1,6 +1,7 @@
 import json
 import os
 import torch
+import datetime
 
 def read_config(dir, model_name=""):
     if os.path.exists(dir + "/config.json"):
@@ -173,7 +174,7 @@ def load_config(dir):
     # load config from json
     with open(dir + "/config.json", "r") as f:
         config = json.load(f)
-    config['device'] = "cuda" if torch.cuda.is_available() else "cpu"
+    config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
     return config
 
 
@@ -220,17 +221,59 @@ def load_search_config(dir):
     return config
 
 
-if __name__ == "__main__":
-    from argparse import ArgumentParser
-
-    root = os.getcwd()
-    argparser = ArgumentParser()
-    argparser.add_argument(
-        "--dir",
-        type=str,
-        default="",
-        help="directory to config.json",
+def generate_config(
+    target_name="target",
+    aim=0.0,
+    num_molecules=20000,
+    max_epochs=100,
+    running_dir="/rds/general/user/ma11115/home/STK_Search/STK_search/data/representation_learning",
+    num_fragment=6,
+    df_path="",
+    model_name="SchNet",
+    split_type="rand",
+):
+    # get config and set it up
+    date_now = datetime.datetime.now().strftime("%y%m%d")
+    name = f"{num_fragment}-frag_{target_name}_{date_now}__{model_name}_split{split_type}-nummol{num_molecules}"
+    config_dir = running_dir + f"/{name.replace('_','/')}/"
+    config = read_config(config_dir, model_name=model_name)
+    config["number_of_fragement"] = num_fragment
+    config["STK_path"] = "/rds/general/user/ma11115/home/STK_Search/STK_search"
+    config["ephemeral_path"] = (
+        "/rds/general/ephemeral/user/ma11115/ephemeral/home/STK_Search/STK_search/data/representation_learning"
     )
-    args = argparser.parse_args()
-    dir = root + args.dir
-    read_config(dir=dir)
+    config["df_precursor"] = (
+        "/rds/general/user/ma11115/home/STK_Search/STK_search/data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl"
+    )
+    config["max_epochs"] = max_epochs
+    config["ephemeral_path"] = (
+        "/rds/general/ephemeral/user/ma11115/ephemeral/STK_search/data/representation_learning"
+    )
+    config["load_dataset"] = False
+    config["df_total"] = df_path
+    config["save_dataset"] = False
+    config["num_molecules"] = num_molecules
+    config["running_dir"] = config_dir
+    config["train_ratio"] = 0.9
+    config["save_dataset_frag"] = True
+    config["name"] = name
+    config["target_name"] = target_name
+    if "model_embedding_chkpt" not in config.keys():
+        config["model_embedding_chkpt"] = ""
+    if "model_transformer_chkpt" not in config.keys():
+        config["model_transformer_chkpt"] = ""
+    config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
+    config["lr"] = 5e-4
+    config["lr_scheduler"] = "CosineAnnealingLR"
+    config["lr_encoder"] = 2e-4
+    config["split_type"] = split_type
+    config["dataset_all_path"] = (
+        "/rds/general/ephemeral/user/ma11115/ephemeral/STK_search/data/representation_learning/6-frag/target"
+        + "/dataset_all_schnet.pth"
+    )
+    config["dataset_all_frag_path"] = (
+        "/rds/general/ephemeral/user/ma11115/ephemeral/STK_search/data/representation_learning/6-frag/target"
+        + "/dataset_all_frag_schnet.pth"
+    )
+    save_config(config, config_dir)
+    return config

@@ -131,6 +131,7 @@ def main(
     S_exp.num_elem_initialisation = num_elem_initialisation
     S_exp.benchmark = benchmark
     S_exp.df_total = df_total
+    #S_exp.df_precur
     
     input_json["run_search_name"] = S_exp.search_exp_name
     input_json["search_output_folder"] = S_exp.output_folder
@@ -177,9 +178,10 @@ def save_represention_dataset(config_dir, representation):
 def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
     config = read_config(config_dir)
     print(config["model_transformer_chkpt"])
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     if os.path.exists(dataset_path):
         print("loading representation from ", dataset_path)
-        data_list = torch.load(dataset_path)
+        data_list = torch.load(dataset_path, map_location=device)
         print("size of data list", len(data_list))
     else:
         print("no dataset found")
@@ -213,8 +215,9 @@ def load_representation_model_SUEA(
 ):
     config = read_config(config_dir)
     print(config["device"])
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     if os.path.exists(dataset_path):
-        data_list = torch.load(dataset_path)
+        data_list = torch.load(dataset_path, map_location=device)
         print("size of data list", len(data_list))
     else:
         data_list = None
@@ -272,7 +275,7 @@ if __name__ == "__main__":
     parser.add_argument("--case", type=str, default="slatm")
     parser.add_argument("--target_name", type=str, default="target")
     parser.add_argument("--config_dir", type=str, default="")
-    parser.add_argument("--aim", type=float, default=0.0)
+    parser.add_argument("--aim")
     parser.add_argument("--which_acquisition", type=str, default="EI")
     parser.add_argument("--lim_counter", type=int, default=10)
     parser.add_argument("--benchmark", type=bool, default=False)
@@ -289,6 +292,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--dataset_representation_path", type=str, default="")
     parser.add_argument("--oligomer_size", type=int, default=6)
+    parser.add_argument("--frag_properties", type=str, default="all")
     args = parser.parse_args()
     main(
         args.num_iteration,
@@ -306,4 +310,5 @@ if __name__ == "__main__":
         args.df_precursors_path,
         args.benchmark,
         args.dataset_representation_path,
+        args.frag_properties,
     )

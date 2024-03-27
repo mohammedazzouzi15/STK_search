@@ -10,8 +10,10 @@ import stko
 from stk_search.Calculators.STDA_calculator import sTDA_XTB
 from stk_search.Calculators.XTBcalculator import XTBEnergy2
 
+
 def get_inchi_key(molecule):
     return stk.InchiKey().get_key(molecule)
+
 
 class Objective_Function:
     def __init__(self):
@@ -24,7 +26,7 @@ class Objective_Function:
 
 
 class Look_up_table:
-    def __init__(self, df_look_up, fragment_size,target_name="target", aim = 0):
+    def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
         self.df_look_up = df_look_up
         self.fragment_size = fragment_size
         self.target_name = target_name
@@ -38,16 +40,20 @@ class Look_up_table:
             on=[f"InChIKey_{i}" for i in range(self.fragment_size)],
             how="left",
         )
-        
+
         results.drop_duplicates(
             subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
             inplace=True,
         )
         if results[self.target_name].isna().any():
-            print('missing data')
-            raise ValueError('missing data')
-        target = - np.sqrt((results[self.target_name][0]-self.aim)**2)
+            print("missing data")
+            raise ValueError("missing data")
+        if isinstance(self.aim, (int, float)):
+            target = -np.abs(results[self.target_name][0] - self.aim)
+        else:
+            target = results[self.target_name][0] 
         return target, results["InChIKey"][0]
+
 
 class IP_ES1_fosc(Objective_Function):
     def __init__(self, oligomer_size):
@@ -65,11 +71,11 @@ class IP_ES1_fosc(Objective_Function):
         )
         os.makedirs(self.Db_folder, exist_ok=True)
         self.database_new_calc = "stk_mohammed_BO"
-        if oligomer_size == 6 :
+        if oligomer_size == 6:
             self.collection_name = "BO_exp1"
         else:
             self.collection_name = f"BO_{oligomer_size}"
-        #print(self.collection_name)
+        # print(self.collection_name)
         self.host_IP = "cx1"
         self.oligomer_size = oligomer_size
 
@@ -100,7 +106,7 @@ class IP_ES1_fosc(Objective_Function):
         # define the database and collection name
         database_new_calc = self.database_new_calc
         collection_name = self.collection_name
-        #print(collection_name)
+        # print(collection_name)
         # build the polymer
         polymer = self.Build_polymer(element, db=db_mol)
         polymer = self.run_xtb_opt(
@@ -143,9 +149,8 @@ class IP_ES1_fosc(Objective_Function):
             client=client,
         )
         fitness_function = (
-            -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) - 1 * np.abs(fosc_1 - 10)
+            -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10(fosc_1+1e-10)
         )
-        assert fitness_function < 0
         return fitness_function, Inchikey
 
     def Build_polymer(
@@ -154,12 +159,12 @@ class IP_ES1_fosc(Objective_Function):
         precursors = []
         genes = "ABCDEFGH"
         genes = genes[: self.oligomer_size]
-        #print(genes)
+        # print(genes)
         repeating_unit = ""
         # joins the Genes to make a repeating unit string
         repeating_unit = repeating_unit.join(genes)
         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
-        #print(element[InchiKey_cols].values.flatten())
+        # print(element[InchiKey_cols].values.flatten())
         for fragment in element[InchiKey_cols].values.flatten():
             mol = db.get({"InChIKey": fragment})
             bb = stk.BuildingBlock.init_from_molecule(
@@ -243,22 +248,20 @@ class IP_ES1_fosc(Objective_Function):
             collection.find_one({"InChIKey": get_inchi_key(polymer)})
             is not None
         ):
-            #print("already calculated", end="\r")
-            
+            # print("already calculated", end="\r")
+
             db_polymer = stk.ConstructedMoleculeMongoDb(
                 client,
                 database=database,
             )
             polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
-            #print(get_inchi_key(polymer), ' opt geom already calculated')
+            # print(get_inchi_key(polymer), ' opt geom already calculated')
             return polymer
         if (
-            collection.find_one(
-                {"InChIKey_initial": get_inchi_key(polymer)}
-            )
+            collection.find_one({"InChIKey_initial": get_inchi_key(polymer)})
             is not None
         ):
-            #print("already calculated", end="\r")
+            # print("already calculated", end="\r")
             db_polymer = stk.ConstructedMoleculeMongoDb(
                 client,
                 database=database,
@@ -266,13 +269,11 @@ class IP_ES1_fosc(Objective_Function):
             data = collection.find_one(
                 {"InChIKey_initial": get_inchi_key(polymer)}
             )
-            #print(get_inchi_key(polymer), ' opt geom already calculated with old geom')
+            # print(get_inchi_key(polymer), ' opt geom already calculated with old geom')
 
             polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
             return polymer
-        output_dir = os.path.join(
-            xtb_opt_output_dir, get_inchi_key(polymer)
-        )
+        output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
         InchiKey_initial = get_inchi_key(polymer)
         xtb = stko.OptimizerSequence(
             stko.ETKDG(),
@@ -312,12 +313,10 @@ class IP_ES1_fosc(Objective_Function):
         client=None,
     ):
         collection = client[database][collection]
-        XTB_results = collection.find_one(
-            {"InChIKey": get_inchi_key(polymer)}
-        )
+        XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
         if XTB_results is not None:
-            #print("already calculated", end="\r")
-            #print(get_inchi_key(polymer), ' ipea geom already calculated')
+            # print("already calculated", end="\r")
+            # print(get_inchi_key(polymer), ' ipea geom already calculated')
             return XTB_results[target]
         xtb = XTBEnergy2(
             xtb_path=xtb_path,
@@ -365,8 +364,8 @@ class IP_ES1_fosc(Objective_Function):
             {"InChIKey": get_inchi_key(polymer)}
         )
         if STDA_results is not None:
-            #print(get_inchi_key(polymer), ' stda geom already calculated')
-            #print(STDA_results[property][state])
+            # print(get_inchi_key(polymer), ' stda geom already calculated')
+            # print(STDA_results[property][state])
             return STDA_results[property][state]
         stda = sTDA_XTB(
             STDA_bin_path=STDA_bin_path,

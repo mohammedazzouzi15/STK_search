@@ -269,25 +269,30 @@ def load_data_frag(
         pymodel = Pymodel(model, graph_pred_linear, config)
         # Load the state dictionary
         pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+        #pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
         pymodel.to(config["device"])
         model = pymodel.molecule_3D_repr
-        dataset = generate_function(
-            df_total,
-            model,
-            db,
-            number_of_molecules=config["num_molecules"],
-            number_of_fragement=config["number_of_fragement"],
-            device=config["device"],
-            config=config,
-        )
-        # if config["save_dataset_frag"]:
-        #   name = config["name"] + "/transformer"
-        #  os.makedirs(name, exist_ok=True)
-        # torch.save(dataset, name + "/dataset_frag.pt")
-        return dataset, pymodel
-    else:
+    else: 
         print("model not found")
-        return None, None
+        model, graph_pred_linear = model_setup(config)
+        # Pass the model and graph_pred_linear to the Pymodel constructor
+        pymodel = Pymodel(model, graph_pred_linear, config)
+        pymodel.to(config["device"])
+        model = pymodel.molecule_3D_repr
+    dataset = generate_function(
+        df_total,
+        model,
+        db,
+        number_of_molecules=config["num_molecules"],
+        number_of_fragement=config["number_of_fragement"],
+        device=config["device"],
+        config=config,
+    )
+    # if config["save_dataset_frag"]:
+    #   name = config["name"] + "/transformer"
+    #  os.makedirs(name, exist_ok=True)
+    # torch.save(dataset, name + "/dataset_frag.pt")
+    return dataset, pymodel
 
 
 def generate_dataset_frag_pd(
@@ -522,6 +527,27 @@ def updata_frag_dataset(
             data[i].y = opt_geom_encoding
     return frag_dataset
 
+
+def updata_dataset(
+    dataset, df, target_name
+):
+    """Update the oligomer dataset
+    Args:
+        dataset: list
+            list of the dataset
+        model: torch model
+            the model for the prediction
+        model_name: str
+            the name of the model
+    Returns:
+        frag_dataset: list
+            list of the fragment dataset
+    """
+
+    for data in dataset:
+        data.y = None
+
+    return dataset
 
 def generate_dataset_and_dataloader(config):
     """Generate the dataset and the dataloader

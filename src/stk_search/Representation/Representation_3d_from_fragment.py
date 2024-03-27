@@ -37,6 +37,7 @@ class Representation_3d_from_fragment:
         self.model_encoding.eval()
         self.model_encoding.to(self.device)
         self.dataset_local = {}
+        self.dataset_frag_local = {}
         self.df_inchikey = None
         self.df_total = df_results
         if data is not None:
@@ -110,6 +111,10 @@ class Representation_3d_from_fragment:
         frags = []
         key = ""
         for elm in elements:
+            if elm in self.dataset_frag_local:
+                frags.append(self.dataset_frag_local[elm])
+                key = elm + key
+                continue
             molecule_bb = self.db_frag.get({"InChIKey": elm})
             dat_list = list(molecule_bb.get_atomic_positions())
             positions = np.vstack(dat_list)
@@ -129,6 +134,7 @@ class Representation_3d_from_fragment:
                 device=self.device,
             )
             frags.append(molecule_frag)
+            self.dataset_frag_local[elm] = molecule_frag
             key = elm + key
         return frags, key
 

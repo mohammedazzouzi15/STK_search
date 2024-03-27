@@ -10,7 +10,7 @@ import os
 
 
 def main(config_dir):
-    """Train the model using the given configuration.
+    """evaluate the model on the datasets and save the results in the ephemeral folder
     Args:
        config_dir (str): The path to the directory containing the
            configuration file.

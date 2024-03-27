@@ -32,6 +32,8 @@ class Search_exp:
         self.fitness_acquired = []
         self.InchiKey_acquired = []
         self.bad_ids = []
+        self.time_calc = []
+        self.overall_time = []
         self.verbose = verbose
         self.benchmark = False
         self.df_total = None
@@ -47,7 +49,7 @@ class Search_exp:
         # if not self.benchmark:
         #   self.save_search_experiment()
         # initialise the search space
-        self.initialise_search_space()
+        self.initialise_search_space()# the initialisation of the space here makes it too rigid to change it without saving a new search_space
         # get initial elements
         ids_acquired, df_search_space = (
             self.search_algorithm.initial_suggestion(
@@ -109,6 +111,7 @@ class Search_exp:
     ):
         # get the element
         element = self.df_search_space.loc[[element_id], :]
+        time_calc = datetime.now()
         # evaluate the element
         try:
             Eval, InchiKey = objective_function.evaluate_element(
@@ -124,6 +127,8 @@ class Search_exp:
             self.fitness_acquired.append(Eval)
             self.InchiKey_acquired.append(InchiKey)
             self.ids_acquired.append(element_id)
+            self.time_calc.append(datetime.now() - time_calc)
+            self.overall_time.append(datetime.now())
             return Eval, InchiKey
         except Exception as e:
             self.bad_ids.append(element_id)
@@ -154,6 +159,8 @@ class Search_exp:
             "searched_space_df": self.df_search_space.loc[self.ids_acquired],
             "fitness_acquired": self.fitness_acquired,
             "InchiKey_acquired": self.InchiKey_acquired,
+            "overall_time": self.overall_time,
+            "time_calc": self.time_calc,
         }
 
         path = self.output_folder + f"/{self.date}"
