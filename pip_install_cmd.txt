@@ -1,0 +1,5 @@
+pip install stko
+pip install botorch
+pip install ipykernel
+pip install ipywidgets
+pip install -U setuptools setuptools_scm wheel

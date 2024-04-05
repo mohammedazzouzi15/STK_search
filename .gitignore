@@ -22,6 +22,7 @@ __pycache__/*
 .idea
 .vscode
 tags
+data
 
 # Package files
 *.egg
@@ -55,3 +56,15 @@ MANIFEST
 .python-version
 *.pkl
 *.npy
+*.png
+*.ckpt
+*.csv
+*.yaml
+*.json
+*.pt
+*.tar
+*.gz
+*.ipynb
+*.tar
+*.gz
+*.ipynb

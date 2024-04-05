@@ -11,6 +11,10 @@ from stk_search.Calculators.STDA_calculator import sTDA_XTB
 from stk_search.Calculators.XTBcalculator import XTBEnergy2
 
 
+def get_inchi_key(molecule):
+    return stk.InchiKey().get_key(molecule)
+
+
 class Objective_Function:
     def __init__(self):
         pass
@@ -22,37 +26,56 @@ class Objective_Function:
 
 
 class Look_up_table:
-    def __init__(self, df_look_up, fragment_size):
+    def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
         self.df_look_up = df_look_up
         self.fragment_size = fragment_size
+        self.target_name = target_name
+        self.aim = aim
 
     def evaluate_element(self, element):
         # if type(element) == pd.Series:
         # element = element.to_frame()
-        # print(element)
         results = element.merge(
             self.df_look_up,
             on=[f"InChIKey_{i}" for i in range(self.fragment_size)],
             how="left",
         )
-        return results["target"], results["InChIKey"]
+
+        results.drop_duplicates(
+            subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
+            inplace=True,
+        )
+        if results[self.target_name].isna().any():
+            print("missing data")
+            raise ValueError("missing data")
+        if isinstance(self.aim, (int, float)):
+            target = -np.abs(results[self.target_name][0] - self.aim)
+        else:
+            target = results[self.target_name][0] 
+        return target, results["InChIKey"][0]
 
 
 class IP_ES1_fosc(Objective_Function):
     def __init__(self, oligomer_size):
-        self.client = "mongodb://129.31.66.201/"
+        self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
         self.db_mol = "stk_mohammed_new"
         self.xtb_path = (
             "/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb"
         )
+
         self.STDA_bin_path = (
             "/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/"
         )
         self.Db_folder = (
             "/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers"
         )
+        os.makedirs(self.Db_folder, exist_ok=True)
         self.database_new_calc = "stk_mohammed_BO"
-        self.collection_name = "BO_exp1"
+        if oligomer_size == 6:
+            self.collection_name = "BO_exp1"
+        else:
+            self.collection_name = f"BO_{oligomer_size}"
+        # print(self.collection_name)
         self.host_IP = "cx1"
         self.oligomer_size = oligomer_size
 
@@ -77,8 +100,13 @@ class IP_ES1_fosc(Objective_Function):
         output_dir_stda = os.path.join(
             Db_folder, "Database", "stda_output_dir"
         )
+        os.makedirs(output_dir_ipea, exist_ok=True)
+        os.makedirs(xtb_opt_output_dir, exist_ok=True)
+        os.makedirs(output_dir_stda, exist_ok=True)
+        # define the database and collection name
         database_new_calc = self.database_new_calc
         collection_name = self.collection_name
+        # print(collection_name)
         # build the polymer
         polymer = self.Build_polymer(element, db=db_mol)
         polymer = self.run_xtb_opt(
@@ -105,7 +133,7 @@ class IP_ES1_fosc(Objective_Function):
             STDA_bin_path,
             output_dir_stda,
             property="Excited state energy (eV)",
-            state=1,
+            state=0,
             database="stk_mohammed_BO",
             collection=collection_name + "_Stda",
             client=client,
@@ -115,15 +143,14 @@ class IP_ES1_fosc(Objective_Function):
             STDA_bin_path,
             output_dir_stda,
             property="Excited state oscillator strength",
-            state=1,
+            state=0,
             database="stk_mohammed_BO",
             collection=collection_name + "_Stda",
             client=client,
         )
         fitness_function = (
-            -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) - 1 * np.abs(fosc_1 - 10)
+            -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10(fosc_1+1e-10)
         )
-        assert fitness_function < 0
         return fitness_function, Inchikey
 
     def Build_polymer(
@@ -132,12 +159,12 @@ class IP_ES1_fosc(Objective_Function):
         precursors = []
         genes = "ABCDEFGH"
         genes = genes[: self.oligomer_size]
-        print(genes)
+        # print(genes)
         repeating_unit = ""
         # joins the Genes to make a repeating unit string
         repeating_unit = repeating_unit.join(genes)
         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
-        print(element[InchiKey_cols].values.flatten())
+        # print(element[InchiKey_cols].values.flatten())
         for fragment in element[InchiKey_cols].values.flatten():
             mol = db.get({"InChIKey": fragment})
             bb = stk.BuildingBlock.init_from_molecule(
@@ -185,9 +212,9 @@ class IP_ES1_fosc(Objective_Function):
                         return property_value
 
             polymer_xtb_opt_calc = {
-                "InChIKey": stk.get_inchi_key(polymer),
+                "InChIKey": stk.InchiKey().get_key(polymer),
                 "cal_folder": os.path.join(
-                    xtb_opt_output_dir, stk.get_inchi_key(polymer)
+                    xtb_opt_output_dir, stk.InchiKey().get_key(polymer)
                 ),
                 "Host IP": self.host_IP,
                 "InChIKey_initial": InchiKey_initial,
@@ -211,43 +238,43 @@ class IP_ES1_fosc(Objective_Function):
                 data, "HOMO-LUMO GAP"
             )
             collection.update_many(
-                filter={"InChIKey": stk.get_inchi_key(polymer)},
+                filter={"InChIKey": get_inchi_key(polymer)},
                 update={"$set": polymer_xtb_opt_calc},
                 upsert=True,
             )
 
         collection = client[database][collection]
         if (
-            collection.find_one({"InChIKey": stk.get_inchi_key(polymer)})
+            collection.find_one({"InChIKey": get_inchi_key(polymer)})
             is not None
         ):
-            print("already calculated", end="\r")
+            # print("already calculated", end="\r")
+
             db_polymer = stk.ConstructedMoleculeMongoDb(
                 client,
                 database=database,
             )
-            db_polymer.get({"InChIKey": stk.get_inchi_key(polymer)})
+            polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
+            # print(get_inchi_key(polymer), ' opt geom already calculated')
             return polymer
         if (
-            collection.find_one(
-                {"InChIKey_initial": stk.get_inchi_key(polymer)}
-            )
+            collection.find_one({"InChIKey_initial": get_inchi_key(polymer)})
             is not None
         ):
-            print("already calculated", end="\r")
+            # print("already calculated", end="\r")
             db_polymer = stk.ConstructedMoleculeMongoDb(
                 client,
                 database=database,
             )
             data = collection.find_one(
-                {"InChIKey_initial": stk.get_inchi_key(polymer)}
+                {"InChIKey_initial": get_inchi_key(polymer)}
             )
-            db_polymer.get({"InChIKey": data["InChIKey"]})
+            # print(get_inchi_key(polymer), ' opt geom already calculated with old geom')
+
+            polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
             return polymer
-        output_dir = os.path.join(
-            xtb_opt_output_dir, stk.get_inchi_key(polymer)
-        )
-        InchiKey_initial = stk.get_inchi_key(polymer)
+        output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
+        InchiKey_initial = get_inchi_key(polymer)
         xtb = stko.OptimizerSequence(
             stko.ETKDG(),
             stko.XTB(
@@ -259,7 +286,7 @@ class IP_ES1_fosc(Objective_Function):
         )
         polymer = xtb.optimize(polymer)
         new_output_dir = os.path.join(
-            xtb_opt_output_dir, stk.get_inchi_key(polymer)
+            xtb_opt_output_dir, get_inchi_key(polymer)
         )
         os.rename(output_dir, new_output_dir)
         save_xtb_opt_calculation(
@@ -286,16 +313,15 @@ class IP_ES1_fosc(Objective_Function):
         client=None,
     ):
         collection = client[database][collection]
-        XTB_results = collection.find_one(
-            {"InChIKey": stk.get_inchi_key(polymer)}
-        )
+        XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
         if XTB_results is not None:
-            print("already calculated", end="\r")
+            # print("already calculated", end="\r")
+            # print(get_inchi_key(polymer), ' ipea geom already calculated')
             return XTB_results[target]
         xtb = XTBEnergy2(
             xtb_path=xtb_path,
             output_dir=os.path.join(
-                xtb_opt_output_dir, stk.get_inchi_key(polymer)
+                xtb_opt_output_dir, get_inchi_key(polymer)
             ),
             unlimited_memory=False,
             calculate_ip_and_ea=True,
@@ -309,14 +335,14 @@ class IP_ES1_fosc(Objective_Function):
             "ionisation potential (eV)": xtb_results.get_ionisation_potential()[
                 0
             ],
-            "InChIKey": stk.get_inchi_key(polymer),
+            "InChIKey": get_inchi_key(polymer),
             "cal_folder": os.path.join(
-                xtb_opt_output_dir, stk.get_inchi_key(polymer)
+                xtb_opt_output_dir, get_inchi_key(polymer)
             ),
             "Host IP": self.host_IP,
         }
         collection.update_many(
-            filter={"InChIKey": stk.get_inchi_key(polymer)},
+            filter={"InChIKey": get_inchi_key(polymer)},
             update={"$set": XTB_results},
             upsert=True,
         )
@@ -335,26 +361,27 @@ class IP_ES1_fosc(Objective_Function):
     ):
         collection = client[database][collection]
         STDA_results = collection.find_one(
-            {"InChIKey": stk.get_inchi_key(polymer)}
+            {"InChIKey": get_inchi_key(polymer)}
         )
         if STDA_results is not None:
-            print("already calculated", end="\r")
+            # print(get_inchi_key(polymer), ' stda geom already calculated')
+            # print(STDA_results[property][state])
             return STDA_results[property][state]
         stda = sTDA_XTB(
             STDA_bin_path=STDA_bin_path,
             Num_threads=25,
-            output_dir=os.path.join(output_dir, stk.get_inchi_key(polymer)),
+            output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
         )
         Excited_state_energy, Excited_state_osc = stda.get_results(polymer)
         STDA_results = {
             "Excited state energy (eV)": Excited_state_energy,
             "Excited state oscillator strength": Excited_state_osc,
-            "InChIKey": stk.get_inchi_key(polymer),
-            "cal_folder": os.path.join(output_dir, stk.get_inchi_key(polymer)),
+            "InChIKey": get_inchi_key(polymer),
+            "cal_folder": os.path.join(output_dir, get_inchi_key(polymer)),
             "Host IP": self.host_IP,
         }
         collection.update_many(
-            filter={"InChIKey": stk.get_inchi_key(polymer)},
+            filter={"InChIKey": get_inchi_key(polymer)},
             update={"$set": STDA_results},
             upsert=True,
         )

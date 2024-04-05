@@ -17,19 +17,19 @@ dependencies = [
   "gpytorch",
   "stko",
   "stk",
-  "qml",
   "scikit-learn",
   "rdkit",
   "ipywidgets",
   "psutil",
+  "pytorch-lightning",
+  "torchmetrics",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.7"
 dynamic = ["version"]
 readme = "README.rst"
 
 [project.optional-dependencies]
 dev = [
-  "scipy",
   "black",
   "ruff",
   "mypy",

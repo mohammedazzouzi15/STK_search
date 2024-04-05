@@ -14,7 +14,7 @@ from stk_search.Search_space import Search_Space
 
 class Searched_Space(Search_Space):
     def plot_hist_compare(self, df_all, df_list, label_list):
-        fig, ax = plt.subplots(2, 2, figsize=(10, 6))
+        fig, ax = plt.subplots(2, 2, figsize=(15, 10))
 
         def plot_hist(df, ax, color, label="all data"):
             df["target"] = (
@@ -23,16 +23,16 @@ class Searched_Space(Search_Space):
                 - 0.5 * np.abs(df["ES1"].values - 3)
             )
             df["ionisation potential (eV)"].hist(
-                ax=ax[0, 0], bins=30, density=1, color=color, label=label
+                ax=ax[0, 0], bins=30, density=1, color=color, label=label, alpha=0.5
             )
             df["fosc1"].hist(
-                ax=ax[0, 1], bins=30, density=1, color=color, label=label
+                ax=ax[0, 1], bins=30, density=1, color=color, label=label, alpha=0.5
             )
             df["ES1"].hist(
-                ax=ax[1, 0], bins=30, density=1, color=color, label=label
+                ax=ax[1, 0], bins=30, density=1, color=color, label=label,  alpha=0.5
             )
             df["target"].hist(
-                ax=ax[1, 1], bins=30, density=1, color=color, label=label
+                ax=ax[1, 1], bins=30, density=1, color=color, label=label, alpha=0.5
             )
             # add vertical line showing target
             ax[0, 0].axvline(5.5, color="k", linestyle="--")
@@ -48,6 +48,7 @@ class Searched_Space(Search_Space):
                 verticalalignment="center",
                 horizontalalignment="right",
                 color="b",
+                alpha=0.5,
             )
             ax[0, 1].text(
                 10,
@@ -57,6 +58,7 @@ class Searched_Space(Search_Space):
                 verticalalignment="center",
                 horizontalalignment="right",
                 color="b",
+                alpha=0.5,
             )
             ax[1, 0].text(
                 3,
@@ -66,6 +68,7 @@ class Searched_Space(Search_Space):
                 verticalalignment="center",
                 horizontalalignment="right",
                 color="b",
+                alpha=0.5,
             )
             ax[1, 1].text(
                 0,
@@ -75,6 +78,7 @@ class Searched_Space(Search_Space):
                 verticalalignment="center",
                 horizontalalignment="right",
                 color="b",
+                alpha=0.5,
             )
 
         plot_hist(df=df_all, ax=ax, color="#21918c")
@@ -86,6 +90,10 @@ class Searched_Space(Search_Space):
             "#f94144",
             "#90be6d",
             "#577590",
+            "#f8961e",
+            "#e63946",
+            "#a8dadc",
+            "#457b9d",
         ]
         for id, df in enumerate(df_list):
             plot_hist(df, ax, color=color_list[id], label=label_list[id])
@@ -96,19 +104,20 @@ class Searched_Space(Search_Space):
         ax[1, 0].set_xlim([1, 4])
         ax[0, 1].set_xlim([0, 10])
         ax[1, 1].set_xlabel("Combined Target Function")
-
+        ax[0,0].legend()
         for ax in ax.flatten():
             ax.grid(False)
             ax.set_ylabel("Density")
             ax.set_yticks([])
-            ax.legend()
+            #ax.legend()
         plt.tight_layout()
+        return fig,ax
 
     def plot_histogram_fragment(
         self, column_name, df_list, df_total, number_of_fragments, label_list
     ):
         fig, axs = plt.subplots(
-            3, 2, figsize=(6, 6), sharex="col", sharey="row"
+            3, 2, figsize=(12, 6), sharex="col", sharey="row"
         )
 
         color_list = [
@@ -118,9 +127,16 @@ class Searched_Space(Search_Space):
             "#f94144",
             "#90be6d",
             "#577590",
+            "#f8961e",
+            "#e63946",
+            "#a8dadc",
+            "#457b9d",
         ]
 
         for i in range(number_of_fragments):
+            range_min = df_total[f"{column_name}_{i}"].min()
+            range_max = df_total[f"{column_name}_{i}"].max()
+
             df_total[f"{column_name}_{i}"].hist(
                 ax=axs[i // 2, i % 2],
                 bins=20,
@@ -128,6 +144,7 @@ class Searched_Space(Search_Space):
                 density=True,
                 label="all",
                 color="#21918c",
+                range=(range_min, range_max),
             )
             for id, df in enumerate(df_list):
                 df[f"{column_name}_{i}"].hist(
@@ -137,17 +154,22 @@ class Searched_Space(Search_Space):
                     density=True,
                     label=label_list[id],
                     color=color_list[id],
+                    range=(range_min, range_max),
+                    alpha=0.5,
                 )
             axs[i // 2, i % 2].set_xlabel(f"{column_name}_{i}")
 
         # set xlabel and y label for the last row
+        # put the lengend on top of the figure
+        
         for ax in axs.flatten():
             # ax.set_yscale('log')
             ax.grid(False)
             ax.set_ylabel("Density")
             ax.set_yticks([])
-            ax.legend()
+            #ax.legend()
         plt.tight_layout()
+        return fig, axs
 
     def get_all_possible_syntax(self):
         perm = product(
@@ -404,10 +426,24 @@ class Searched_Space(Search_Space):
         # add a button to add the condition
         df_list = []
         label_list = []
-
+        # save search space properties in table after each addition to hist compare
+        # save the search space properties in a table
+        search_space_properties = [
+            {
+                "number of elements": self.space_size,
+                "syntax": self.syntax,
+                "conditions": [[] for i in range(self.number_of_fragments)],
+                "Elements in top 5%": 0,
+                "number of elements evaluated": 0,
+            },
+        ]
         def add_to_hist_compare(b):
-            self.redefine_search_space()
-
+            #self.redefine_search_space()
+            self.list_fragment = self.generate_list_fragment(
+                self.generation_type
+            ) 
+            self.get_space_size()
+            print('space size ' ,self.space_size)
             number_of_elements_text.value = "{:.2e}".format(self.space_size)
             df_list.append(
                 self.check_df_for_element_from_SP(df_to_check=df_total)
@@ -436,15 +472,18 @@ class Searched_Space(Search_Space):
 
             hist_widget_plot.update()
             # save the search space properties in a table
+            print(self.conditions_list)
+            conditions = [x.copy() for x in self.conditions_list]
             search_space_properties.append(
                 {
                     "number of elements": self.space_size,
                     "syntax": self.syntax,
-                    "conditions": self.conditions_list,
+                    "conditions": conditions,
                     "Elements in top 5%": top5_current_text.value,
                     "number of elements evaluated": number_of_element_evaluated.value,
                 }
             )
+            print(search_space_properties)
 
         def save_data(b):
             df_search_space_properties = pd.DataFrame.from_dict(
@@ -453,7 +492,7 @@ class Searched_Space(Search_Space):
             # add date and time inof into save dataframe
             date_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
             df_search_space_properties.to_pickle(
-                f"Data/search_space_properties_{date_time}.pkl"
+                f"data/search_space_properties_{date_time}.pkl"
             )
             # save the figure
 
@@ -508,14 +547,4 @@ class Searched_Space(Search_Space):
             layout=vbox_layout,
         )
         display(vb)
-        # save search space properties in table after each addistion to hist compare
-        # save the search space properties in a table
-        search_space_properties = [
-            {
-                "number of elements": self.space_size,
-                "syntax": self.syntax,
-                "conditions": self.conditions_list,
-                "Elements in top 5%": 0,
-                "number of elements evaluated": 0,
-            },
-        ]
+        

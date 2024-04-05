@@ -10,6 +10,12 @@ docs:
 
 # Do a dev install.
 dev:
+  pip install numpy
+  pip install rdkit
+  pip install scipy
+  pip install psutil
+  pip install wandb
+  pip install pytorch-lightning
   pip install -e '.[dev]'
 
 # Run code checks.
