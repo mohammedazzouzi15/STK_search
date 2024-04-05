@@ -176,6 +176,8 @@ def save_represention_dataset(config_dir, representation):
 
 
 def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
+    import uuid
+    repr_id = str(uuid.uuid4())
     config = read_config(config_dir)
     print(config["model_transformer_chkpt"])
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -186,6 +188,10 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
     else:
         print("no dataset found")
         data_list = None
+        name = config["name"]
+        ephemeral_dir = config["ephemeral_path"] + f"/{name.replace('_','/')}/"
+        os.makedirs(ephemeral_dir + "/local_dataset", exist_ok=True)
+        save_dataset_path = ephemeral_dir+ f"/local_dataset/local_dataset_new{repr_id}.pt"
     EncodingModel = initialise_model(config)
     BO = BayesianOptimisation.BayesianOptimisation()
     client = pymongo.MongoClient(config["pymongo_client"])
@@ -207,12 +213,17 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
             device=BO.device,
         )
     )
+    if ~os.path.exists(dataset_path):
+        Representation.save_dataset_path = save_dataset_path
+        Representation.db_name = config["name"]
     return Representation
 
 
 def load_representation_model_SUEA(
     config_dir, df_total, dataset_path="", device="cpu"
-):
+):  
+    import uuid
+    repr_id = str(uuid.uuid4())
     config = read_config(config_dir)
     print(config["device"])
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -221,6 +232,11 @@ def load_representation_model_SUEA(
         print("size of data list", len(data_list))
     else:
         data_list = None
+        name = config["name"]
+        ephemeral_dir = config["ephemeral_path"] + f"/{name.replace('_','/')}/"
+        os.makedirs(ephemeral_dir + "/local_dataset", exist_ok=True)
+
+        save_dataset_path = ephemeral_dir+ f"/local_dataset/local_dataset_new{repr_id}.pt"
     model_config = config["model"]
     graph_pred_linear = torch.nn.Linear(
         model_config["emb_dim"], model_config["num_tasks"]
@@ -262,6 +278,9 @@ def load_representation_model_SUEA(
             device=ea_surrogate.device,
         )
     )
+    if ~os.path.exists(dataset_path):
+        Representation.save_dataset_path = save_dataset_path
+        Representation.db_name = config["name"]
     return pymodel, Representation
 
 

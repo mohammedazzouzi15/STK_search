@@ -34,7 +34,7 @@ def plot_metric(
     for key in keys.values:
         res = results_dict[key]
         color = df_plot[df_plot["key"] == key]["color"].iloc[0]
-        if df_total is not None:
+        if df_total is None:
             df_total = pd.read_csv(
                 df_list_dict[key]["df_path"].iloc[0], low_memory=False
             )

@@ -68,7 +68,7 @@ def get_dataset_frag_from_df(dataset_all_frag, df, config):
     Returns:
         dataset: list of dictionaries"""
     if len(dataset_all_frag) == 0:
-        dataset_all_frag = {}
+        dataset_all_dict = {}
     else:
         dataset_all_dict = {
             data[0]["InChIKey"]: data for data in dataset_all_frag

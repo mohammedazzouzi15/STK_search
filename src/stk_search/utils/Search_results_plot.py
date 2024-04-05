@@ -536,6 +536,47 @@ def plot_number_of_molecule_discovered_sum(
     axs.set_ylabel(f"Number of unique top \n" + f" {topKmol} molecules found")
     return max(max_mol_found)
 
+def plot_simple_regret_batch(
+    res,
+    nb_iterations=100,
+    topKmol=1000,
+    axs=None,
+    color=search_to_color["BO"],
+    label="BO",
+    df_total=[],
+    nb_initialisation=0,
+    target_name="target",
+    number_of_results=25,
+    min_target=0,
+):  
+    if topKmol is not None:
+        min_target = -np.sort(-df_total[target_name].values)[topKmol]
+    df_results = pd.concat(
+        list(
+            generate_datafame_from_search_results(
+                res[:number_of_results],
+                max_iteration=nb_iterations,
+                num_initialisation=nb_initialisation,
+            )
+        )
+    )
+
+    df_results["InChIKey"] = df_results["InchiKey_acquired"]
+    df_results.drop_duplicates(subset=["InChIKey"], inplace=True)
+    df_max = df_total[df_total[target_name] > min_target].copy()
+
+    df_max_found = df_max.merge(df_results, on="InChIKey", how="inner")
+    df_results = df_total.merge(df_results, on="InChIKey", how="inner")
+    max_mol_found = np.zeros(nb_iterations)
+    for num_iter in range(nb_iterations):
+        max_mol_found[num_iter] = df_max_found[
+            df_max_found["ids_acquired"] < num_iter
+        ][target_name].max() - df_max_found[target_name].max()
+    axs.plot(np.arange(nb_iterations), max_mol_found, label=label, color=color)
+    axs.set_xlabel("# evaluated oligomers")
+    axs.set_ylabel(f"Simple regret")
+    return max(max_mol_found)
+
 
 def plot_total_rate_of_discovery(
     res,

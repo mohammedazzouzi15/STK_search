@@ -5,6 +5,8 @@ this script is to encode the representation of the oligomer from the representat
 import numpy as np
 import torch
 from torch_geometric.data import Data, Batch
+import pymongo
+from pymongo import InsertOne, DeleteMany, ReplaceOne, UpdateOne
 
 
 class Representation_3d_from_fragment:
@@ -50,7 +52,9 @@ class Representation_3d_from_fragment:
         else:
             raise ValueError("Please provide either data or db_poly")
         self.db_frag = db_frag
-        self.name = 'Representation_3d_from_fragment'
+        self.name = "Representation_3d_from_fragment"
+        self.save_dataset_path = ""
+        self.db_name = "test"
 
     def generate_repr(self, elements):
         """Generate the representation of the elements.
@@ -84,6 +88,8 @@ class Representation_3d_from_fragment:
                             .cpu()
                         )
         else:
+            #self.add_representation_to_local_dataset(elements_copy)
+            dataset_local_new = {}
             for x in elements_copy.values:
                 key = ""
                 for elm in x:
@@ -98,6 +104,11 @@ class Representation_3d_from_fragment:
                         self.dataset_local[key] = (
                             encoding[0][0].type(torch.float16).detach()
                         )
+                        dataset_local_new[key] = (
+                            encoding[0][0].type(torch.float16).detach()
+                        )
+            #self.save_representation_to_database(dataset_local_new)
+            #self.save_dataset_local()
         return torch.stack(opt_geom_encoding)
 
     def _getinfo_db(self, elements):
@@ -159,3 +170,52 @@ class Representation_3d_from_fragment:
             raise ValueError("InChIKey not found in database")
 
         return results["InChIKey"].values
+
+    def save_dataset_local(self):
+        """Save the dataset_local."""
+        if self.save_dataset_path == "":
+            print("Please provide a path to save the dataset")
+        else:
+            torch.save(self.dataset_local, self.save_dataset_path)
+
+    def add_representation_to_local_dataset(self, elements):
+        """Add the representation to the local dataset.
+        Args:
+            elements (pd.dataframe): table of building blocks nmaed with their InChIKey
+            Returns:
+            dict: dictionary containing the representation of the elements
+        """
+        df_element = elements.copy()
+        client = pymongo.MongoClient("mongodb://ch-atarzia.ch.ic.ac.uk/")
+        db = client["learned_representations"]
+        collection = db[self.db_name]
+        df_element["key"] = df_element.apply(lambda x: "".join(x), axis=1)
+        keys = df_element["key"].to_list()
+        keys = [x for x in keys if x not in self.dataset_local.keys()]
+        for document in collection.find({"key": {"$in": keys}}):
+            self.dataset_local[document["key"]] = torch.tensor(
+                document["representation"]
+            )
+        return self.dataset_local
+
+    def save_representation_to_database(self, local_dataset_new):
+        client = pymongo.MongoClient("mongodb://ch-atarzia.ch.ic.ac.uk/")
+        db = client["learned_representations"]
+        collection = db[self.db_name]
+        if len(local_dataset_new) == 0:
+            return local_dataset_new
+        collection.bulk_write(
+            [
+                UpdateOne(
+                    {"key": key},
+                    {
+                        "$set": {
+                            "representation": local_dataset_new[key].tolist()
+                        }
+                    },
+                    upsert=True,
+                )
+                for key in local_dataset_new.keys()
+            ]
+        )
+        return local_dataset_new

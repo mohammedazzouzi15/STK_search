@@ -180,7 +180,7 @@ class evolution_algorithm(Search_Algorithm):
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
-        df_elements = self.generate_df_elements_to_choose_from(
+        df_elements, df_search = self.generate_df_elements_to_choose_from(
             search_space_df,
             ids_acquired,
             fitness_acquired,
@@ -196,9 +196,9 @@ class evolution_algorithm(Search_Algorithm):
             return False
 
         for _ in range(len(df_elements)):
-            id = df_elements.values[np.random.randint(len(df_elements))]
-            if add_element(df_search, id):
-                print(id)
+            elem_id = df_elements.values[np.random.randint(len(df_elements))]
+            if add_element(df_search, elem_id):
+                print(elem_id)
                 break
 
         return len(df_search) - 1, df_search
@@ -239,4 +239,4 @@ class evolution_algorithm(Search_Algorithm):
                 [f"InChIKey_{i}" for i in range(elements.shape[1])]
             ]  # check this for generalization
             # print(df_elements.shape)
-        return df_elements
+        return df_elements, df_search

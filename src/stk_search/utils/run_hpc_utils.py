@@ -16,7 +16,8 @@ def generate_string_run(
     df_precursors_path = "data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
     config_dir = "/rds/general/user/ma11115/home/Geom3D/Geom3D/training/SchNet_frag/",
     search_space_loc = "/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/search_space/test/search_space1.pkl",
-    frag_properties='all'
+    frag_properties='all',
+    lim_counter = 10,
     ):
     """ 
     Generate the string to run the search notebook
