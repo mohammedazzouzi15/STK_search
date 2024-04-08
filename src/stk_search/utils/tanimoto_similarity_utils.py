@@ -210,9 +210,9 @@ def plot_similarity_results_elem_suggested_to_initial(
     std_similarity = np.std(similarity, axis=0)
     if ax is None:
         fig, ax = plt.subplots()
-    ax.plot(nb_iterations_range, mean_similarity, color=color, label=label)
+    ax.plot(nb_iterations_range+nb_initialisation, mean_similarity, color=color, label=label)
     ax.fill_between(
-        nb_iterations_range,
+        nb_iterations_range+nb_initialisation,
         np.array(mean_similarity) - np.array(std_similarity),
         np.array(mean_similarity) + np.array(std_similarity),
         alpha=0.3,
@@ -262,9 +262,9 @@ def plot_similarity_results_elem_suggested_df(
     std_similarity = np.std(similarity, axis=0)
     if ax is None:
         fig, ax = plt.subplots()
-    ax.plot(nb_iterations_range, mean_similarity, color=color, label=label)
+    ax.plot(nb_iterations_range+nb_initialisation, mean_similarity, color=color, label=label)
     ax.fill_between(
-        nb_iterations_range,
+        nb_iterations_range+nb_initialisation,
         np.array(mean_similarity) - np.array(std_similarity),
         np.array(mean_similarity) + np.array(std_similarity),
         alpha=0.3,

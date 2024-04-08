@@ -213,7 +213,7 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
             device=BO.device,
         )
     )
-    if ~os.path.exists(dataset_path):
+    if not os.path.exists(dataset_path):
         Representation.save_dataset_path = save_dataset_path
         Representation.db_name = config["name"]
     return Representation

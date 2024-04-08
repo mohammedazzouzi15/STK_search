@@ -17,7 +17,7 @@ from sklearn.cluster import HDBSCAN
 from tqdm import tqdm
 import torch
 
-from geom3d.utils import database_utils
+from stk_search.utils import database_utils
 
 
 def oligomer_scaffold_splitter(dataset, config):
