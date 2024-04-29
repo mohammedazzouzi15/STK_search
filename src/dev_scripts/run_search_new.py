@@ -95,6 +95,29 @@ def main(
         )
         search_algorithm = BO
 
+    elif case == "BO_learned_new":
+        BO = BayesianOptimisation.BayesianOptimisation(
+            which_acquisition=which_acquisition, lim_counter=lim_counter
+        )
+        BO.verbose = True
+        # BO.normalise_input = False
+        BO.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
+        BO.Representation, pymodel = load_representation_model(config_dir)
+        search_algorithm = BO
+
+    elif case == "ea_surrogate_new":
+        ea_surrogate = Ea_surrogate.Ea_surrogate()
+        ea_surrogate.verbose = True
+        # BO.normalise_input = False
+        ea_surrogate.device = (
+            "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
+        )
+        ea_surrogate.Representation, pymodel = load_representation_model(
+            config_dir
+        )
+        ea_surrogate.pred_model = pymodel.graph_pred_linear
+        search_algorithm = ea_surrogate
+
     elif case == "random":
         search_algorithm = Search_algorithm.random_search()
     elif case == "evolution_algorithm":
@@ -131,15 +154,14 @@ def main(
     S_exp.num_elem_initialisation = num_elem_initialisation
     S_exp.benchmark = benchmark
     S_exp.df_total = df_total
-    #S_exp.df_precur
-    
+    # S_exp.df_precur
+
     input_json["run_search_name"] = S_exp.search_exp_name
     input_json["search_output_folder"] = S_exp.output_folder
     input_json["date"] = S_exp.date
     save_path = f"/rds/general/user/ma11115/home/STK_Search/STK_search/data/output/search_experiment/search_exp_database/{S_exp.search_exp_name}.json"
     save_run_search_inputs(input_json, save_path)
     S_exp.run_seach()
-
 
 
 def save_run_search_inputs(inputs, save_path="run_search_new_inputs.json"):
@@ -177,6 +199,7 @@ def save_represention_dataset(config_dir, representation):
 
 def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
     import uuid
+
     repr_id = str(uuid.uuid4())
     config = read_config(config_dir)
     print(config["model_transformer_chkpt"])
@@ -191,7 +214,9 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
         name = config["name"]
         ephemeral_dir = config["ephemeral_path"] + f"/{name.replace('_','/')}/"
         os.makedirs(ephemeral_dir + "/local_dataset", exist_ok=True)
-        save_dataset_path = ephemeral_dir+ f"/local_dataset/local_dataset_new{repr_id}.pt"
+        save_dataset_path = (
+            ephemeral_dir + f"/local_dataset/local_dataset_new{repr_id}.pt"
+        )
     EncodingModel = initialise_model(config)
     BO = BayesianOptimisation.BayesianOptimisation()
     client = pymongo.MongoClient(config["pymongo_client"])
@@ -221,8 +246,9 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
 
 def load_representation_model_SUEA(
     config_dir, df_total, dataset_path="", device="cpu"
-):  
+):
     import uuid
+
     repr_id = str(uuid.uuid4())
     config = read_config(config_dir)
     print(config["device"])
@@ -236,7 +262,9 @@ def load_representation_model_SUEA(
         ephemeral_dir = config["ephemeral_path"] + f"/{name.replace('_','/')}/"
         os.makedirs(ephemeral_dir + "/local_dataset", exist_ok=True)
 
-        save_dataset_path = ephemeral_dir+ f"/local_dataset/local_dataset_new{repr_id}.pt"
+        save_dataset_path = (
+            ephemeral_dir + f"/local_dataset/local_dataset_new{repr_id}.pt"
+        )
     model_config = config["model"]
     graph_pred_linear = torch.nn.Linear(
         model_config["emb_dim"], model_config["num_tasks"]
@@ -250,7 +278,7 @@ def load_representation_model_SUEA(
         readout=model_config["SchNet_readout"],
         node_class=model_config["node_class"],
     )
-    pymodel = Pymodel(model, graph_pred_linear,config)
+    pymodel = Pymodel(model, graph_pred_linear, config)
     state_dict = torch.load(
         config["model_embedding_chkpt"], map_location=torch.device(device)
     )
@@ -282,6 +310,34 @@ def load_representation_model_SUEA(
         Representation.save_dataset_path = save_dataset_path
         Representation.db_name = config["name"]
     return pymodel, Representation
+
+
+def load_representation_model(config_dir):
+    """New model representation for the search algorithm
+    Args:
+        config_dir: str
+            path to the config file
+            Returns:
+            representation: Representation_poly_3d
+            pymodel: Pymodel"""
+    from stk_search.Representation import Representation_poly_3d
+    from stk_search.geom3d import pl_model
+
+    config = read_config(config_dir)
+    chkpt_path = config["model_embedding_chkpt"]
+    checkpoint = torch.load(chkpt_path, map_location=config["device"])
+    model, graph_pred_linear = pl_model.model_setup(config)
+    print("Model loaded: ", config["model_name"])
+    # Pass the model and graph_pred_linear to the Pymodel constructor
+    pymodel = pl_model.Pymodel_new(model, graph_pred_linear, config)
+    # Load the state dictionary
+    pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+    # pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+    pymodel.to(config["device"])
+    representation = Representation_poly_3d.Representation_poly_3d(
+        pymodel, device="cpu"
+    )
+    return representation, pymodel
 
 
 if __name__ == "__main__":

@@ -161,6 +161,171 @@ class Pymodel(pl.LightningModule):
         return z
 
 
+class Pymodel_new(pl.LightningModule):
+    """lightning model taking into account two different oligomer representations"""
+    def __init__(self, model, graph_pred_linear, config):
+        super().__init__()
+
+        self.save_hyperparameters(ignore=["graph_pred_linear", "model"])
+        self.molecule_3D_repr = model
+        self.graph_pred_linear = graph_pred_linear
+        self.config = config
+        self.transform_to_opt = torch.nn.Linear(config["emb_dim"], config["emb_dim"])
+
+
+    def training_step(self, batch, batch_idx):
+        # training_step defines the train loop.
+        with torch.cuda.amp.autocast(
+            enabled=self.trainer.precision == 16
+        ):  # 16-bit precision for mixed precision training, activated only when self.trainer.precision == 16
+            loss, loss1, loss2 = self._get_preds_loss_accuracy(batch)
+
+        lr = self.trainer.optimizers[0].param_groups[0]["lr"]
+        self.log("train_loss", loss, batch_size=batch.size(0))
+        self.log("train_loss_target", loss1, batch_size=batch.size(0))
+        self.log("train_loss_repr", loss2, batch_size=batch.size(0))
+        self.log(
+            "lr",
+            lr,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=False,
+            logger=True,
+            batch_size=batch.size(0),
+        )
+
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        """used for logging metrics"""
+        with torch.cuda.amp.autocast(
+            enabled=self.trainer.precision == 16
+        ):  # 16-bit precision for mixed precision training, activated only when self.trainer.precision == 16
+            loss, loss1, loss2 = self._get_preds_loss_accuracy(batch)
+
+        # Log loss and metric
+        self.log("val_loss", loss, batch_size=batch.size(0))
+        self.log("val_loss_target", loss1, batch_size=batch.size(0))
+        self.log("val_loss_repr", loss2, batch_size=batch.size(0))
+        return loss
+
+    def _get_preds_loss_accuracy(self, batch):
+        """convenience function since train/valid/test steps are similar"""
+        batch = batch.to(self.device)
+        z, z_opt, z_repr, z_repr_opt = self.forward_train(batch)
+
+        if self.graph_pred_linear is not None:
+            loss1 = Functional.mse_loss(z_opt, batch.y.unsqueeze(1)) 
+            loss2 = Functional.mse_loss(z_repr, z_repr_opt)
+            # loss = loss + Functional.mse_loss(z, batch.y.unsqueeze(1))
+            a = torch.tensor(0.5, requires_grad=True)
+            loss = a * loss1 + (1 - a) * loss2
+        else:
+            loss = Functional.mse_loss(z, batch.y)
+        return loss, loss1, loss2
+
+    def forward_train(self, batch):
+
+        batch = batch.to(self.device)
+        model_name = type(self.molecule_3D_repr).__name__
+
+        def get_Z(x, positions, model_name, batch):
+            if model_name == "EquiformerEnergy":
+                model_name = "Equiformer"
+
+            if self.graph_pred_linear is not None:
+                if model_name == "PaiNN":
+                    z_repr = self.molecule_3D_repr(
+                        x,
+                        positions,
+                        batch.radius_edge_index,
+                        batch.batch,
+                    ).squeeze()
+                else:
+                    z_repr = self.molecule_3D_repr(x, positions, batch.batch)
+                    
+                return z_repr
+
+        z_repr = get_Z(batch.x, batch.positions, model_name, batch)
+        z_repr_opt = get_Z(
+            batch.x_opt, batch.positions_opt, model_name, batch
+        )
+        z_repr = self.transform_to_opt(z_repr)
+        z = self.graph_pred_linear(z_repr)
+        z_opt = self.graph_pred_linear(z_repr_opt)
+
+        return z, z_opt, z_repr, z_repr_opt
+    def configure_optimizers(self):
+        # set up optimizer
+        # make sure the optimiser step does not reset the val_loss metrics
+
+        config = self.config
+        optimizer = torch.optim.Adam(self.parameters(), lr=config["lr"])
+
+        lr_scheduler = None
+        monitor = None
+
+        if config["lr_scheduler"] == "CosineAnnealingLR":
+            lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer, config["max_epochs"]
+            )
+            print("Apply lr scheduler CosineAnnealingLR")
+        elif config["lr_scheduler"] == "CosineAnnealingWarmRestarts":
+            lr_scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
+                optimizer, config["max_epochs"], eta_min=1e-4
+            )
+            print("Apply lr scheduler CosineAnnealingWarmRestarts")
+        elif config["lr_scheduler"] == "StepLR":
+            lr_scheduler = optim.lr_scheduler.StepLR(
+                optimizer,
+                step_size=config["lr_decay_step_size"],
+                gamma=config["lr_decay_factor"],
+            )
+            print("Apply lr scheduler StepLR")
+        else:
+            print("lr scheduler {} is not included.")
+
+        return [optimizer], [lr_scheduler]
+
+        # optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
+        # return optimizer
+
+    def forward(self, batch):
+        batch = batch.to(self.device)
+        model_name = type(self.molecule_3D_repr).__name__
+        if model_name == "EquiformerEnergy":
+            model_name = "Equiformer"
+
+        if self.graph_pred_linear is not None:
+            if model_name == "PaiNN":
+                z = self.molecule_3D_repr(
+                    batch.x,
+                    batch.positions,
+                    batch.radius_edge_index,
+                    batch.batch,
+                ).squeeze()
+            else:
+                z = self.molecule_3D_repr(
+                    batch.x, batch.positions, batch.batch
+                )
+            z = self.transform_to_opt(z)
+            z = self.graph_pred_linear(z)
+        else:
+            if model_name == "GemNet":
+                z = self.molecule_3D_repr(
+                    batch.x, batch.positions, batch
+                ).squeeze()
+            elif model_name == "Equiformer":
+                z = self.molecule_3D_repr(
+                    node_atom=batch.x, pos=batch.positions, batch=batch.batch
+                ).squeeze()
+            else:
+                z = self.molecule_3D_repr(
+                    batch.x, batch.positions, batch.batch
+                ).squeeze()
+        return z
+
+
 def model_setup(config, trial=None):
     """
     Setup the model based on the configuration file.

@@ -118,7 +118,7 @@ def generate_dataset(
         # except KeyError:
         #     print(f"No key found in the database for molecule at index {i}")
         molecule = load_molecule(
-            df_total["InChIKey"][i], df_total[target_name][i], db
+            df_total["InChIKey"].iloc[i], df_total[target_name].iloc[i], db
         )
         if model_name == "PaiNN":
             if molecule is not None:
@@ -167,7 +167,7 @@ def load_molecule(InChIKey, target, db):
         y = torch.tensor(target, dtype=torch.float32)
 
         molecule = Data(
-            x=atom_types, positions=positions, y=y, InChIKey=InChIKey
+            x=atom_types, positions=positions, y=y, InChIKey=InChIKey,
         )
         return molecule
     else:

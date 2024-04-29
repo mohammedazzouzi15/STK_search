@@ -42,14 +42,16 @@ class Search_exp:
 
     def initialise_search_space(self):
         # load the search space
-        self.search_space = pickle.load(open(self.search_space_loc, "rb"))
+        import pandas as pd
+
+        self.search_space = pd.read_pickle(self.search_space_loc)
 
     def run_seach(self):
         # save the search experiment
         # if not self.benchmark:
         #   self.save_search_experiment()
         # initialise the search space
-        self.initialise_search_space()# the initialisation of the space here makes it too rigid to change it without saving a new search_space
+        self.initialise_search_space()  # the initialisation of the space here makes it too rigid to change it without saving a new search_space
         # get initial elements
         ids_acquired, df_search_space = (
             self.search_algorithm.initial_suggestion(
@@ -153,7 +155,6 @@ class Search_exp:
         # save the results
         # time_now = datetime.now().strftime("%Y%m%d_%H")
 
-        
         resutls_dict = {
             "ids_acquired": self.ids_acquired,
             "searched_space_df": self.df_search_space.loc[self.ids_acquired],

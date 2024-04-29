@@ -17,8 +17,9 @@ from stk_search.geom3d.pl_model import Pymodel
 from stk_search.geom3d import pl_model
 
 
-
-def load_and_run_model_training(config, train_loader, val_loader):
+def load_and_run_model_training(
+    config, train_loader, val_loader, lightning_model=Pymodel
+):
     """Load the model and train it using the given data loaders.
 
     Args:
@@ -30,23 +31,24 @@ def load_and_run_model_training(config, train_loader, val_loader):
     model, graph_pred_linear = pl_model.model_setup(config)
     print("Model loaded: ", config["model_name"])
 
-    #if config["model_path"]:
-     #   model = load_3d_rpr(model, config["model_path"])
+    # if config["model_path"]:
+    #   model = load_3d_rpr(model, config["model_path"])
     os.chdir(config["running_dir"])
     # wandb.login()
     # wandb.init(settings=wandb.Settings(start_method="fork"))
     # model
     # check if chkpt exists
-    pymodel = Pymodel(model, graph_pred_linear, config)
+    pymodel = lightning_model(model, graph_pred_linear, config)
     if os.path.exists(config["model_embedding_chkpt"]):
         chkpt_path = config["model_embedding_chkpt"]
         checkpoint = torch.load(chkpt_path, map_location=config["device"])
         print("Model loaded: ", config["model_embedding_chkpt"])
         # Pass the model and graph_pred_linear to the Pymodel constructor
         # Load the state dictionary
-        pymodel.load_state_dict(state_dict=checkpoint["state_dict"])    
-
-
+        try:
+            pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+        except:
+            print('issue loading checkpoint file')
     wandb_logger = WandbLogger(
         log_model=True,
         project=config["name"].split("__")[0],
@@ -108,5 +110,3 @@ def get_best_embedding_model(config_dir):
             config["model_embedding_chkpt"] = file
     save_config(config, config_dir)
     return config, min_val_loss
-
-

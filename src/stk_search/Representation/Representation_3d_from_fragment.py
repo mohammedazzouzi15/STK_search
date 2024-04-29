@@ -167,6 +167,7 @@ class Representation_3d_from_fragment:
             subset=[f"InChIKey_{i}" for i in range(num_fragment)], inplace=True
         )
         if results.shape[0] != elements.shape[0]:
+            print(results.shape[0], elements.shape[0])
             raise ValueError("InChIKey not found in database")
 
         return results["InChIKey"].values
