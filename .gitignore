@@ -64,7 +64,8 @@ MANIFEST
 *.pt
 *.tar
 *.gz
-*.ipynb
 *.tar
 *.gz
-*.ipynb
+notebooks/*.ipynb
+notebooks/*/*.ipynb
+

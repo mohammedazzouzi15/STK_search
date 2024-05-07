@@ -36,7 +36,7 @@ def plot_metric(
         color = df_plot[df_plot["key"] == key]["color"].iloc[0]
         if df_total is None:
             df_total = pd.read_csv(
-                df_list_dict[key]["df_path"].iloc[0], low_memory=False
+                df_plot[df_plot["key"] == key]["df_path"].iloc[0], low_memory=False
             )
 
         metric_dict = {}
@@ -145,13 +145,13 @@ def save_mol_dict(df_mol_dict):
     df["InChIKey"] = df.index
 
     df.to_pickle(
-        "/rds/general/user/ma11115/home/STK_Search/STK_search/data/output/search_experiment/mol_dict.pkl"
+        "data/output/search_experiment/mol_dict.pkl"
     )
 
 
 def load_mol_dict():
     df = pd.read_pickle(
-        "/rds/general/user/ma11115/home/STK_Search/STK_search/data/output/search_experiment/mol_dict.pkl"
+        "data/output/search_experiment/mol_dict.pkl"
     )
     df_mol_dict = df.T.loc["mol"].to_dict()
     return df_mol_dict

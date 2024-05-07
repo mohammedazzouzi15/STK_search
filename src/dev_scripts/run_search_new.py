@@ -31,7 +31,7 @@ def main(
     case="random",
     target_name="target",
     config_dir="",
-    aim=0,
+    aim="maximise",
     which_acquisition="EI",
     lim_counter=10,
     search_space_loc="data/input/search_space/test/search_space1.pkl",
@@ -159,7 +159,7 @@ def main(
     input_json["run_search_name"] = S_exp.search_exp_name
     input_json["search_output_folder"] = S_exp.output_folder
     input_json["date"] = S_exp.date
-    save_path = f"/rds/general/user/ma11115/home/STK_Search/STK_search/data/output/search_experiment/search_exp_database/{S_exp.search_exp_name}.json"
+    save_path = f"data/output/search_experiment/search_exp_database/{S_exp.search_exp_name}.json"
     save_run_search_inputs(input_json, save_path)
     S_exp.run_seach()
 

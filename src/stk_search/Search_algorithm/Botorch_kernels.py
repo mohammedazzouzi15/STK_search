@@ -30,7 +30,7 @@ class MaternKernel(SingleTaskGP):
         super().__init__(train_X, train_Y)
         self.mean_module = ConstantMean()
         self.covar_module = kernels.ScaleKernel(
-            base_kernel=kernels.MaternKernel()
+            base_kernel=kernels.MaternKernel(ard_num_dims=train_X.shape[-1])
         )
         self.to(train_X)
 

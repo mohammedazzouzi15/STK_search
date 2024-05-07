@@ -157,7 +157,7 @@ class Representation_poly_3d:
         keys = [
             stk.InchiKey().get_key(bb) for bb in polymer.get_building_blocks()
         ]
-        return "_".join(set(keys))
+        return "_".join(keys)
 
     def join_keys_elem(self, element):
         keys = [
@@ -167,7 +167,7 @@ class Representation_poly_3d:
             ].values
         ]
         # print(keys)
-        return "_".join(set(keys))
+        return "_".join(keys)
 
     def get_bbs_dict(self, client, database):
         client = pymongo.MongoClient(client)

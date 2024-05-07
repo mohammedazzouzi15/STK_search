@@ -182,7 +182,6 @@ class evolution_algorithm(Search_Algorithm):
     ):
         df_elements, df_search = self.generate_df_elements_to_choose_from(
             search_space_df,
-            ids_acquired,
             fitness_acquired,
             SP,
             benchmark,
@@ -206,7 +205,6 @@ class evolution_algorithm(Search_Algorithm):
     def generate_df_elements_to_choose_from(
         self,
         search_space_df,
-        ids_acquired,
         fitness_acquired,
         SP: Search_Space,
         benchmark=True,

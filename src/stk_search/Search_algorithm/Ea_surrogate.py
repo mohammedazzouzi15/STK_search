@@ -31,7 +31,6 @@ class Ea_surrogate(Search_Algorithm):
     ):
         df_elements, df_search = self.generate_df_elements_to_choose_from(
             search_space_df,
-            ids_acquired,
             fitness_acquired,
             SP,
             benchmark,
@@ -66,7 +65,8 @@ class Ea_surrogate(Search_Algorithm):
 
         print("new_element_df shape is ", df_elements.shape)
         for elem_id in ids_sorted_by_aquisition:
-            if add_element(df_search, df_elements.values[elem_id.item()]):
+            element = df_elements.values[elem_id.item()]
+            if add_element(df_search, element):
                 print(elem_id.item())
                 break
                 # index = id.item()
@@ -121,7 +121,6 @@ class Ea_surrogate(Search_Algorithm):
     def generate_df_elements_to_choose_from(
         self,
         search_space_df,
-        ids_acquired,
         fitness_acquired,
         SP: Search_Space,
         benchmark=True,

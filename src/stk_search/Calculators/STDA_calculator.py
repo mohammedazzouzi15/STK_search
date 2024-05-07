@@ -4,10 +4,10 @@ import shutil
 import subprocess as sp
 import uuid
 
-from stko.calculators import Calculator
+#from stko.calculators import Calculator
 
 
-class sTDA_XTB(Calculator):
+class sTDA_XTB:
     def __init__(
         self,
         STDA_bin_path,
