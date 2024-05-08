@@ -92,8 +92,8 @@ def plot_simple_regret(
         y_maxes = np.array(y_maxes)
         assert np.size(y_maxes) == nb_runs
         y_max_mu[i - 1] = np.mean(y_maxes)
-        y_max_sig_bot[i - 1] = np.std(y_maxes)
-        y_max_sig_top[i - 1] = np.std(y_maxes)
+        y_max_sig_bot[i - 1] = np.std(y_maxes[y_maxes < y_max_mu[i - 1]])
+        y_max_sig_top[i - 1] = np.std(y_maxes[y_maxes > y_max_mu[i - 1]])
     axs.plot(nb_iterations_range, y_max_mu, label=label, color=color)
     axs.fill_between(
         nb_iterations_range,
@@ -200,8 +200,8 @@ def plot_cumulative_regret(
         y_maxes = -np.array(y_maxes)
         assert np.size(y_maxes) == nb_runs
         y_max_mu[i - 1] = np.mean(y_maxes)
-        y_max_sig_bot[i - 1] = np.std(y_maxes)
-        y_max_sig_top[i - 1] = np.std(y_maxes)
+        y_max_sig_bot[i - 1] = np.std(y_maxes[y_maxes < y_max_mu[i - 1]])
+        y_max_sig_top[i - 1] = np.std(y_maxes[y_maxes > y_max_mu[i - 1]])
     axs.plot(nb_iterations_range, y_max_mu, label=label, color=color)
     axs.fill_between(
         nb_iterations_range,
@@ -255,8 +255,8 @@ def plot_y_max(
         )  # among runs
         assert np.size(y_maxes) == nb_runs
         y_max_mu[i - 1] = np.mean(y_maxes)
-        y_max_sig_bot[i - 1] = np.std(y_maxes)
-        y_max_sig_top[i - 1] = np.std(y_maxes)
+        y_max_sig_bot[i - 1] = np.std(y_maxes[y_maxes < y_max_mu[i - 1]])
+        y_max_sig_top[i - 1] = np.std(y_maxes[y_maxes > y_max_mu[i - 1]])
     axs.plot(nb_iterations_range, y_max_mu, label=label, color=color)
     axs.fill_between(
         nb_iterations_range,
@@ -661,14 +661,18 @@ def plot_rate_of_discovery(
             / prop
         )
     y_elm = np.mean(y_results, axis=1)
-    y_elm_sig = np.std(y_results, axis=1)
+    # get bottom  variance of data
+    #y_elm_sig_bot = np.std(y_results[y_results < y_elm], axis=1)
+    #y_elm_sig_top = np.std(y_results[y_results > y_elm], axis=1)
+    y_elm_sig_bot = np.array([np.std(row[row < y_elm[i]]) for i, row in enumerate(y_results)])
+    y_elm_sig_top = np.array([np.std(row[row > y_elm[i]]) for i, row in enumerate(y_results)])  
 
     nb_iterations_range = np.arange(0, nb_iterations)
     axs.plot(nb_iterations_range, y_elm, label=label, color=color)
     axs.fill_between(
         nb_iterations_range,
-        y_elm - y_elm_sig,
-        y_elm + y_elm_sig,  #
+        y_elm - y_elm_sig_bot,
+        y_elm + y_elm_sig_top,  #
         alpha=0.2,
         ec="None",
         color=color,
