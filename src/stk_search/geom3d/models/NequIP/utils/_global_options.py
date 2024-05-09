@@ -5,7 +5,7 @@ import torch
 import e3nn
 import e3nn.util.jit
 
-from geom3d.models.NequIP.data import register_fields
+from stk_search.geom3d.models.NequIP.data import register_fields
 from .misc import dtype_from_name
 from .auto_init import instantiate
 from .test import set_irreps_debug

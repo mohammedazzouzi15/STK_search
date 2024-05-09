@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from torch_geometric.nn import global_mean_pool
 
-from geom3d.models.GPS_layer import GPSLayer
+from stk_search.geom3d.models.GPS_layer import GPSLayer
 
 
 class SANGraphHead(nn.Module):

@@ -1,6 +1,6 @@
 import torch
 
-from geom3d.models.NequIP.nn.radial_basis import BesselBasis
+from stk_search.geom3d.models.NequIP.nn.radial_basis import BesselBasis
 
 
 class NormalizedBasis(torch.nn.Module):

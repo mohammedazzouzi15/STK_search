@@ -2,10 +2,10 @@ from typing import Optional
 import math
 
 import torch
-from geom3d.models.NequIP.utils import scatter
+from stk_search.geom3d.models.NequIP.utils import scatter
 
-from geom3d.models.NequIP.data import AtomicDataDict
-from geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict
+from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 
 from .. import _keys
 

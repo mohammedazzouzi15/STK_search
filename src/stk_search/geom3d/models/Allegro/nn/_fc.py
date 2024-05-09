@@ -9,9 +9,9 @@ from e3nn.util.jit import compile_mode
 from e3nn.util.codegen import CodeGenMixin
 from e3nn.math import normalize2mom
 
-from geom3d.models.NequIP.data import AtomicDataDict
-from geom3d.models.NequIP.nn import GraphModuleMixin
-from geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict
+from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
 
 
 @compile_mode("script")

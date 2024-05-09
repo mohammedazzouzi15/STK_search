@@ -103,6 +103,7 @@ def main(
         # BO.normalise_input = False
         BO.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
         BO.Representation, pymodel = load_representation_model(config_dir)
+        BO.pred_model = pymodel.graph_pred_linear
         search_algorithm = BO
 
     elif case == "ea_surrogate_new":

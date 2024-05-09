@@ -3,14 +3,14 @@ from typing import Optional, Dict, Callable
 
 import torch
 
-from geom3d.models.NequIP.utils import scatter
+from stk_search.geom3d.models.NequIP.utils import scatter
 
 from e3nn import o3
 from e3nn.nn import FullyConnectedNet
 from e3nn.o3 import TensorProduct, Linear, FullyConnectedTensorProduct
 
-from geom3d.models.NequIP.data import AtomicDataDict
-from geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict
+from stk_search.geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
 from ._graph_mixin import GraphModuleMixin
 
 

@@ -1,10 +1,10 @@
 import inspect
 from typing import Optional
 
-# from geom3d.models.NequIP.data import AtomicDataset
-from geom3d.models.NequIP.data.transforms import TypeMapper
-from geom3d.models.NequIP.nn import GraphModuleMixin
-from geom3d.models.NequIP.utils import load_callable, instantiate
+# from stk_search.geom3d.models.NequIP.data import AtomicDataset
+from stk_search.geom3d.models.NequIP.data.transforms import TypeMapper
+from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.utils import load_callable, instantiate
 
 
 def model_from_config(

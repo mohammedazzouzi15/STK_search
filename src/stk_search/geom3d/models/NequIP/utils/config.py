@@ -39,7 +39,7 @@ import inspect
 from copy import deepcopy
 from typing import Optional
 
-from geom3d.models.NequIP.utils.savenload import save_file, load_file
+from stk_search.geom3d.models.NequIP.utils.savenload import save_file, load_file
 
 
 class Config(object):

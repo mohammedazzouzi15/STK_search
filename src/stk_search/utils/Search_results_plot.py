@@ -578,7 +578,7 @@ def plot_simple_regret_batch(
     return max(max_mol_found)
 
 
-def plot_total_rate_of_discovery(
+def plot_rate_of_discovery_old(
     res,
     nb_iterations=100,
     topKmol=1000,
@@ -593,6 +593,7 @@ def plot_total_rate_of_discovery(
 ):
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
+    print( 'min_target is ', min_target)
     df_results = pd.concat(
         list(
             generate_datafame_from_search_results(
@@ -630,7 +631,7 @@ def plot_total_rate_of_discovery(
 def plot_rate_of_discovery(
     res,
     nb_iterations=350,
-    topKmol=None,
+    topKmol=1000,
     axs=None,
     color="C0",
     label="BO",

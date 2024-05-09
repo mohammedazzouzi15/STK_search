@@ -13,9 +13,9 @@ from stk_search import Searched_space
 import stk
 import torch
 import pymongo
-from geom3d.test_train import read_config, Pymodel
-from geom3d.frag_encoding_with_transformer import Fragment_encoder
-from geom3d.models import SchNet
+from stk_search.geom3d.test_train import read_config, Pymodel
+from stk_search.geom3d.frag_encoding_with_transformer import Fragment_encoder
+from stk_search.geom3d.models import SchNet
 # %%
 def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",search_space_loc = "data/input/search_space/test/search_space1.pkl"):
     # Load the searched space

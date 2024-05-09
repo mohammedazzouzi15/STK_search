@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 
-from geom3d.models.TransformerM.modules import FairseqDropout, utils
+from stk_search.geom3d.models.TransformerM.modules import FairseqDropout, utils
 
 
 def init_params(module, n_layers):

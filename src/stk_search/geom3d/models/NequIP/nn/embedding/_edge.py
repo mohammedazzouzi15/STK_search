@@ -5,7 +5,7 @@ import torch
 from e3nn import o3
 from e3nn.util.jit import compile_mode
 
-from geom3d.models.NequIP.data import AtomicDataDict
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from .._graph_mixin import GraphModuleMixin
 from ..radial_basis import BesselBasis
 from ..cutoffs import PolynomialCutoff

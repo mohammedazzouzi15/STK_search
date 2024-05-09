@@ -4,8 +4,8 @@ import torch
 
 from e3nn import o3
 
-from geom3d.models.NequIP.data import AtomicDataDict
-from geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict
+from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 
 
 class Concat(GraphModuleMixin, torch.nn.Module):

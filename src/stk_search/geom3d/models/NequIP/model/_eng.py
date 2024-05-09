@@ -3,14 +3,14 @@ import logging
 
 from e3nn import o3
 
-from geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
-from geom3d.models.NequIP.nn import (
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
+from stk_search.geom3d.models.NequIP.nn import (
     SequentialGraphNetwork,
     AtomwiseLinear,
     AtomwiseReduce,
     ConvNetLayer,
 )
-from geom3d.models.NequIP.nn.embedding import (
+from stk_search.geom3d.models.NequIP.nn.embedding import (
     OneHotAtomEncoding,
     RadialBasisEdgeEncoding,
     SphericalHarmonicEdgeAttrs,

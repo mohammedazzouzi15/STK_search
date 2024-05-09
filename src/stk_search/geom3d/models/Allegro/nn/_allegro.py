@@ -3,14 +3,14 @@ import math
 import functools
 
 import torch
-from geom3d.models.NequIP.utils import scatter
+from stk_search.geom3d.models.NequIP.utils import scatter
 
 from e3nn import o3
 from e3nn.util.jit import compile_mode
 
-from geom3d.models.NequIP.data import AtomicDataDict
-from geom3d.models.NequIP.nn import GraphModuleMixin
-from geom3d.models.NequIP.utils.tp_utils import tp_path_exists
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict
+from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.utils.tp_utils import tp_path_exists
 
 from ._fc import ScalarMLPFunction
 from .. import _keys

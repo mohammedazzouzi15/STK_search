@@ -13,11 +13,11 @@ from stk_search import Searched_space
 import stk
 import torch
 import pymongo
-from geom3d.pl_model import  Pymodel
-from geom3d.utils.config_utils import read_config
-from geom3d.oligomer_encoding_with_transformer import initialise_model
-from geom3d.models import SchNet
-from geom3d.dataloader import load_data_frag
+from stk_search.geom3d.pl_model import  Pymodel
+from stk_search.geom3d.utils.config_utils import read_config
+from stk_search.geom3d.oligomer_encoding_with_transformer import initialise_model
+from stk_search.geom3d.models import SchNet
+from stk_search.geom3d.dataloader import load_data_frag
 from stk_search.Search_algorithm import Ea_surrogate
 
 # %%

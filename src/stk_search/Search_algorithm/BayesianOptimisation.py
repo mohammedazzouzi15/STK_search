@@ -58,6 +58,7 @@ class BayesianOptimisation(Search_Algorithm):
         self.lim_counter = lim_counter  # max iteration for the acquisition function optimisation
         self.Representation = Representation
         self.name = "Bayesian_Optimisation"
+        self.pred_model = None
 
     def update_representation(self, Representation):
         self.Representation = Representation
@@ -352,6 +353,15 @@ class BayesianOptimisation(Search_Algorithm):
                 acquisition_values = acquisition_function.forward(
                     X_unsqueezed
                 )  # runs out of memory
+        elif self.which_acquisition == "UCB_GNN":
+            if self.pred_model is None:
+                raise ValueError("pred_model is None, but it's required for UCB_GNN acquisition")
+            with torch.no_grad():
+                acquisition_values = self.pred_model(X_unsqueezed.float()).squeeze()
+                acquisition_values = acquisition_values + self.model.posterior(
+                                X_unsqueezed
+                            ).variance.squeeze()
+
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
