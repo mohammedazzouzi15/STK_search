@@ -80,7 +80,10 @@ class Search_Space:
 
         [
             x := x * len(y)
-            for y in [self.list_fragment[z] for z in set(self.syntax[:self.number_of_fragments])]
+            for y in [
+                self.list_fragment[z]
+                for z in set(self.syntax[: self.number_of_fragments])
+            ]
         ]
         self.space_size = x
         return x
@@ -96,9 +99,9 @@ class Search_Space:
         id_list_not_to_merge = []
         for i in set(self.syntax):
             if i == 0:
-                df_multi = self.df_precursors.loc[
-                    list(self.list_fragment[0])
-                ][self.features_frag]
+                df_multi = self.df_precursors.loc[list(self.list_fragment[0])][
+                    self.features_frag
+                ]
             else:
                 df_multi = df_multi.merge(
                     self.df_precursors.loc[list(self.list_fragment[i])][
@@ -136,25 +139,29 @@ class Search_Space:
                     }
                 )
 
-        #print(f"shape of the dataframe {df_multi.shape}")
+        # print(f"shape of the dataframe {df_multi.shape}")
         return df_multi
-    def random_generation_df(self,num_element):
+
+    def random_generation_df(self, num_element):
         import random
+
         id_list_not_to_merge = []
-        max_fragment = int(num_element**(1/len(set(self.syntax))))+1
+        max_fragment = int(num_element ** (1 / len(set(self.syntax)))) + 1
         df_list = [None] * self.number_of_fragments
         for i in set(self.syntax):
 
             if i == 0:
-                df_list[i]=self.df_precursors.loc[list(random.sample(self.list_fragment[0], max_fragment))][
-                        self.features_frag
-                    ]
+                df_list[i] = self.df_precursors.loc[
+                    list(random.sample(self.list_fragment[0], max_fragment))
+                ][self.features_frag]
                 df_multi = df_list[i]
-                
+
             else:
-                df_list[i]=self.df_precursors.loc[list(random.sample(self.list_fragment[i], max_fragment))][
-                        self.features_frag]
-                df_multi = df_multi.merge(df_list[i],
+                df_list[i] = self.df_precursors.loc[
+                    list(random.sample(self.list_fragment[i], max_fragment))
+                ][self.features_frag]
+                df_multi = df_multi.merge(
+                    df_list[i],
                     how="cross",
                     suffixes=("", "_" + str(i)),
                 )
@@ -185,11 +192,10 @@ class Search_Space:
                 )
 
         df_multi = df_multi.sample(num_element)
-        #print(f"shape of the dataframe {df_multi.shape}")
+        # print(f"shape of the dataframe {df_multi.shape}")
 
         return df_multi
-    
-    
+
     def add_condition(self, condition: str, fragment: int):
         # condition syntax should follow the following condition:
         # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
@@ -384,7 +390,7 @@ class Search_Space:
         # Interactive widget for conditions selection
         columns_dropdown = widgets.Dropdown(
             options=self.df_precursors.select_dtypes(
-                include=["int", "float"]
+                include=[np.number]
             ).columns,
             description="Property of fragment:",
         )

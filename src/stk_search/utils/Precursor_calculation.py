@@ -10,76 +10,36 @@ import stko
 from stk_search.Calculators.STDA_calculator import sTDA_XTB
 from stk_search.Calculators.XTBcalculator import XTBEnergy2
 
-
 def get_inchi_key(molecule):
     return stk.InchiKey().get_key(molecule)
 
-
-class Objective_Function:
+class Calculate_Precursor():
     def __init__(self):
-        pass
-
-    def evaluate_element(self, element):
-        for x in element:
-            if type(x) == int or type(x) == np.float64:
-                return float(x), "test"
-
-
-class Look_up_table:
-    def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
-        self.df_look_up = df_look_up
-        self.fragment_size = fragment_size
-        self.target_name = target_name
-        self.aim = aim
-
-    def evaluate_element(self, element):
-        # if type(element) == pd.Series:
-        # element = element.to_frame()
-        results = element.merge(
-            self.df_look_up,
-            on=[f"InChIKey_{i}" for i in range(self.fragment_size)],
-            how="left",
-        )
-
-        results.drop_duplicates(
-            subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
-            inplace=True,
-        )
-        if results[self.target_name].isna().any():
-            print("missing data")
-            raise ValueError("missing data")
-        if isinstance(self.aim, (int, float)):
-            target = -np.abs(results[self.target_name][0] - self.aim)
-        else:
-            target = results[self.target_name][0] 
-        return target, results["InChIKey"][0]
-
-
-class IP_ES1_fosc(Objective_Function):
-    def __init__(self, oligomer_size):
         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
         self.db_mol = "stk_mohammed_new"
         self.xtb_path = (
             "/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb"
         )
-
         self.STDA_bin_path = (
             "/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/"
         )
         self.Db_folder = (
-            "/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers"
+            "/rds/general/ephemeral/user/ma11115/ephemeral/BO_precursor"
         )
         os.makedirs(self.Db_folder, exist_ok=True)
-        self.database_new_calc = "stk_mohammed_BO"
-        if oligomer_size == 6:
-            self.collection_name = "BO_exp1"
-        else:
-            self.collection_name = f"BO_{oligomer_size}"
         # print(self.collection_name)
         self.host_IP = "cx1"
-        self.oligomer_size = oligomer_size
+        self.collection_name = "Precursors"
 
-    def evaluate_element(self, element):
+    def load_precursors(self, smile):
+        """ Function to generate stk building block from smiles"""
+        precursor = stk.BuildingBlock(
+                smile, functional_groups=[
+                    stk.BromoFactory()])
+
+        return precursor
+
+    def evaluate_element(self, smile):
         # initialise the database
         client = pymongo.MongoClient(self.client)
         db_mol = stk.MoleculeMongoDb(
@@ -104,82 +64,41 @@ class IP_ES1_fosc(Objective_Function):
         os.makedirs(xtb_opt_output_dir, exist_ok=True)
         os.makedirs(output_dir_stda, exist_ok=True)
         # define the database and collection name
-        database_new_calc = self.database_new_calc
         collection_name = self.collection_name
         # print(collection_name)
-        # build the polymer
-        polymer = self.Build_polymer(element, db=db_mol)
-        polymer = self.run_xtb_opt(
-            polymer,
+        precursor = self.load_precursors(smile)
+        precursor = self.run_xtb_opt(
+            precursor,
             xtb_path,
             xtb_opt_output_dir,
-            database=database_new_calc,
+            database=self.db_mol,
             collection=collection_name + "_opt",
             client=client,
         )
-        Inchikey = stk.InchiKey().get_key(polymer)
+        Inchikey = stk.InchiKey().get_key(precursor)
 
         IP = self.run_xtb_ipea(
-            polymer,
+            precursor,
             xtb_path,
             output_dir_ipea,
-            database=database_new_calc,
+            database=self.db_mol,
             target="ionisation potential (eV)",
             collection=collection_name + "_IPEA",
             client=client,
         )
         Es1 = self.run_stda(
-            polymer,
+            precursor,
             STDA_bin_path,
             output_dir_stda,
             property="Excited state energy (eV)",
             state=0,
-            database=database_new_calc,
+            database=self.db_mol,
             collection=collection_name + "_Stda",
             client=client,
         )
-        fosc_1 = self.run_stda(
-            polymer,
-            STDA_bin_path,
-            output_dir_stda,
-            property="Excited state oscillator strength",
-            state=0,
-            database=database_new_calc,
-            collection=collection_name + "_Stda",
-            client=client,
-        )
-        fitness_function = (
-            -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10(fosc_1+1e-10)
-        )
-        return fitness_function, Inchikey
+        return Es1, Inchikey
 
-    def Build_polymer(
-        self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
-    ):
-        precursors = []
-        genes = "ABCDEFGH"
-        genes = genes[: self.oligomer_size]
-        # print(genes)
-        repeating_unit = ""
-        # joins the Genes to make a repeating unit string
-        repeating_unit = repeating_unit.join(genes)
-        InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
-        # print(element[InchiKey_cols].values.flatten())
-        for fragment in element[InchiKey_cols].values.flatten():
-            mol = db.get({"InChIKey": fragment})
-            bb = stk.BuildingBlock.init_from_molecule(
-                mol, functional_groups=[stk.BromoFactory()]
-            )
-            precursors.append(bb)
-        polymer = stk.ConstructedMolecule(
-            stk.polymer.Linear(
-                building_blocks=precursors,
-                repeating_unit=repeating_unit,
-                num_repeating_units=1,
-                # optimizer=stk.MCHammer()
-            )
-        )
-        return polymer
+
 
     def run_xtb_opt(
         self,
@@ -250,7 +169,7 @@ class IP_ES1_fosc(Objective_Function):
         ):
             # print("already calculated", end="\r")
 
-            db_polymer = stk.ConstructedMoleculeMongoDb(
+            db_polymer = stk.MoleculeMongoDb(
                 client,
                 database=database,
             )
@@ -262,7 +181,7 @@ class IP_ES1_fosc(Objective_Function):
             is not None
         ):
             # print("already calculated", end="\r")
-            db_polymer = stk.ConstructedMoleculeMongoDb(
+            db_polymer = stk.MoleculeMongoDb(
                 client,
                 database=database,
             )
@@ -288,14 +207,15 @@ class IP_ES1_fosc(Objective_Function):
         new_output_dir = os.path.join(
             xtb_opt_output_dir, get_inchi_key(polymer)
         )
-        os.rename(output_dir, new_output_dir)
+        if ~os.path.exists(new_output_dir):
+            os.rename(output_dir, new_output_dir)
         save_xtb_opt_calculation(
             polymer,
             xtb_opt_output_dir,
             collection=collection,
             InchiKey_initial=InchiKey_initial,
         )
-        db_polymer = stk.ConstructedMoleculeMongoDb(
+        db_polymer = stk.MoleculeMongoDb(
             client,
             database=database,
         )

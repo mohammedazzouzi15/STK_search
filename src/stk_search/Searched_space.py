@@ -1,5 +1,6 @@
 """ define a class to store the searched space
     this is a sub class of the search space class"""
+
 from datetime import datetime
 from itertools import product
 
@@ -18,16 +19,36 @@ class Searched_Space(Search_Space):
 
         def plot_hist(df, ax, color, label="all data"):
             df["ionisation potential (eV)"].hist(
-                ax=ax[0, 0], bins=30, density=1, color=color, label=label, alpha=0.5
+                ax=ax[0, 0],
+                bins=30,
+                density=1,
+                color=color,
+                label=label,
+                alpha=0.5,
             )
             df["fosc1"].hist(
-                ax=ax[0, 1], bins=30, density=1, color=color, label=label, alpha=0.5
+                ax=ax[0, 1],
+                bins=30,
+                density=1,
+                color=color,
+                label=label,
+                alpha=0.5,
             )
             df["ES1"].hist(
-                ax=ax[1, 0], bins=30, density=1, color=color, label=label,  alpha=0.5
+                ax=ax[1, 0],
+                bins=30,
+                density=1,
+                color=color,
+                label=label,
+                alpha=0.5,
             )
             df["target"].hist(
-                ax=ax[1, 1], bins=30, density=1, color=color, label=label, alpha=0.5
+                ax=ax[1, 1],
+                bins=30,
+                density=1,
+                color=color,
+                label=label,
+                alpha=0.5,
             )
             # add vertical line showing target
             ax[0, 0].axvline(5.5, color="k", linestyle="--")
@@ -99,14 +120,14 @@ class Searched_Space(Search_Space):
         ax[1, 0].set_xlim([1, 4])
         ax[0, 1].set_xlim([0, 10])
         ax[1, 1].set_xlabel("Combined Target Function")
-        ax[0,0].legend()
+        ax[0, 0].legend()
         for ax in ax.flatten():
             ax.grid(False)
             ax.set_ylabel("Density")
             ax.set_yticks([])
-            #ax.legend()
+            # ax.legend()
         plt.tight_layout()
-        return fig,ax
+        return fig, ax
 
     def plot_histogram_fragment(
         self, column_name, df_list, df_total, number_of_fragments, label_list
@@ -156,13 +177,13 @@ class Searched_Space(Search_Space):
 
         # set xlabel and y label for the last row
         # put the lengend on top of the figure
-        
+
         for ax in axs.flatten():
             # ax.set_yscale('log')
             ax.grid(False)
             ax.set_ylabel("Density")
             ax.set_yticks([])
-            #ax.legend()
+            # ax.legend()
         plt.tight_layout()
         return fig, axs
 
@@ -222,7 +243,7 @@ class Searched_Space(Search_Space):
         # Interactive widget for conditions selection
         columns_dropdown = widgets.Dropdown(
             options=self.df_precursors.select_dtypes(
-                include=["int", "float"]
+                include=[np.number]
             ).columns,
             description="Property of fragment:",
         )
@@ -432,13 +453,14 @@ class Searched_Space(Search_Space):
                 "number of elements evaluated": 0,
             },
         ]
+
         def add_to_hist_compare(b):
-            #self.redefine_search_space()
+            # self.redefine_search_space()
             self.list_fragment = self.generate_list_fragment(
                 self.generation_type
-            ) 
+            )
             self.get_space_size()
-            print('space size ' ,self.space_size)
+            print("space size ", self.space_size)
             number_of_elements_text.value = "{:.2e}".format(self.space_size)
             df_list.append(
                 self.check_df_for_element_from_SP(df_to_check=df_total)
@@ -481,13 +503,27 @@ class Searched_Space(Search_Space):
             print(search_space_properties)
 
         def save_data(b):
-            df_search_space_properties = pd.DataFrame.from_dict(
-                search_space_properties
-            )
-            # add date and time inof into save dataframe
-            date_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+            import os
+
+            path_to_save = "data/search_space_properties.pkl"
+            if os.path.exists(path_to_save):
+                df_search_space_properties = pd.read_pickle(path_to_save)
+                df_search_space_properties_2 = pd.DataFrame.from_dict(
+                    search_space_properties
+                )
+                df_search_space_properties = pd.concat(
+                    [
+                        df_search_space_properties,
+                        df_search_space_properties_2[1:],
+                    ]
+                )
+                df_search_space_properties.reset_index(drop=True,inplace=True)
+            else:
+                df_search_space_properties = pd.DataFrame.from_dict(
+                    search_space_properties
+                )
             df_search_space_properties.to_pickle(
-                f"data/search_space_properties_{date_time}.pkl"
+                f"data/search_space_properties.pkl"
             )
             # save the figure
 
@@ -520,14 +556,10 @@ class Searched_Space(Search_Space):
         )
         # Interactive widget for column selection
         columns_dropdown_2 = widgets.Dropdown(
-            options=[
-                x.replace("_0", "")
-                for x in df_total.select_dtypes(
-                    include=["int", "float"]
-                ).columns
-                if "_0" in x
-            ],
-            description="Value:",
+            options=self.df_precursors.select_dtypes(
+                include=[np.number]
+            ).columns,
+            description="Property of fragment:",
         )
         hist_widget_plot = interactive(
             self.plot_histogram_fragment,
@@ -542,4 +574,3 @@ class Searched_Space(Search_Space):
             layout=vbox_layout,
         )
         display(vb)
-        

@@ -87,18 +87,20 @@ def load_data_from_file(
         df_test = df_total_new
         df_precursors = pd.read_pickle(df_precursors_path)
         if features_frag is None:
-            features_frag = df_precursors.columns[1:7].append(
-                df_precursors.columns[17:23]
-            )
-            features_frag = features_frag.append(df_precursors.columns[0:1])
+            # consider only columns that are np.number
+            features_frag = df_precursors.select_dtypes(
+                include=[np.number]
+            ).columns
+            features_frag = features_frag.append(pd.Index(["InChIKey"]))
         else:
-            features_frag = features_frag.append(df_precursors.columns[0:1])
+            features_frag = features_frag.append(pd.Index(["InChIKey"]))
 
         for i in range(num_fragm):
             df_test = df_test.merge(
                 df_precursors[features_frag].add_suffix(f"_{i}"),
                 on=f"InChIKey_{i}",
                 how="left",
+                suffixes=("_old", ""),
             )
         return df_test, df_precursors
 
