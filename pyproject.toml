@@ -22,7 +22,21 @@ dependencies = [
   "ipywidgets",
   "psutil",
   "pytorch-lightning",
-  "torchmetrics",
+  "torchmetrics",  
+  "ase",
+  "packaging",
+  "e3nn",
+  "transformers",
+  "selfies",
+  "atom3d",
+  "cffi",
+  "biopython",
+  "cython",
+  "networkx",
+  "ogb",
+  "ipykernel",
+  "torch_geometric",
+  "lightning",
 ]
 requires-python = ">=3.7"
 dynamic = ["version"]

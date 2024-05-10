@@ -4,7 +4,7 @@ import torch
 import numpy as np
 import pandas as pd
 import torch
-from botorch import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll as fit_gpytorch_model
 from botorch.acquisition import ExpectedImprovement
 from botorch.acquisition.analytic import (
     ExpectedImprovement,

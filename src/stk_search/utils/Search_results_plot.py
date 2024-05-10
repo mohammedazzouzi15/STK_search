@@ -578,7 +578,7 @@ def plot_simple_regret_batch(
     return max(max_mol_found)
 
 
-def plot_rate_of_discovery_old(
+def plot_total_rate_of_discovery(
     res,
     nb_iterations=100,
     topKmol=1000,

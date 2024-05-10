@@ -17,11 +17,6 @@ class Searched_Space(Search_Space):
         fig, ax = plt.subplots(2, 2, figsize=(15, 10))
 
         def plot_hist(df, ax, color, label="all data"):
-            df["target"] = (
-                -np.abs(df["ionisation potential (eV)"].values - 5.5)
-                - 1 * np.abs(df["fosc1"].values - 10)
-                - 0.5 * np.abs(df["ES1"].values - 3)
-            )
             df["ionisation potential (eV)"].hist(
                 ax=ax[0, 0], bins=30, density=1, color=color, label=label, alpha=0.5
             )
