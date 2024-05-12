@@ -11,11 +11,10 @@ from stk_search.Search_space import Search_Space
 from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
-from botorch.acquisition import PosteriorMean
 from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
-from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
+from botorch.optim.initializers import gen_one_shot_kg_initial_conditions
 
 import itertools
 
@@ -27,7 +26,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
     def __init__(
         self,
         verbose=False,
-        which_acquisition="EI",
         kernel=SingleTaskMultiFidelityGP,
         likelihood=ExactMarginalLogLikelihood,
         model=None,
@@ -49,7 +47,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
         self.verbose = verbose
         #self.normalise_input = normalise_input
-        self.which_acquisition = which_acquisition
         self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.likelihood = likelihood
@@ -62,16 +59,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
     def update_representation(self, Representation):
         self.Representation = Representation
 
-    def get_mfkg(self, model):
-        cost_model = AffineFidelityCostModel(fidelity_weights={11: 1/3, 12: 2/3}, fixed_cost=5.0)
-        cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
-
-        return qMultiFidelityKnowledgeGradient(
-            model=model,
-            num_fantasies=2,
-            cost_aware_utility=cost_aware_utility
-            )
-        
     def suggest_element(
         self,
         search_space_df,
@@ -295,7 +282,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
-            #print("started acquisition function optimisation")
             df_elements = df_elements.merge(
                 df_total,
                 on=[
@@ -348,3 +334,32 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )  # runs out of memory
         return acquisition_values
    
+    def get_mfkg(self, model):
+        cost_model = AffineFidelityCostModel(fidelity_weights={11: 1/3, 12: 2/3}, fixed_cost=5.0)
+        cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
+
+        return qMultiFidelityKnowledgeGradient(
+            model=model,
+            num_fantasies=2,
+            cost_aware_utility=cost_aware_utility
+            )
+
+    def optimize_mfkg_and_get_observation(mfkg_acqf, X_init):
+        """Optimizes MFKG and returns a new candidate, observation, and cost."""
+        
+        # Don't think the below is needed. We can reuse the Generate_element_to_evaluate and optimise on this.
+        # X_init = gen_one_shot_kg_initial_conditions(
+        #     acq_function=mfkg_acqf,
+        #     q=4,
+        #     num_restarts=10,
+        #     raw_samples=512,
+        # )
+        candidates, _ = optimize_acqf(
+            acq_function=mfkg_acqf,
+            q=1,
+            num_restarts=10,
+            raw_samples=512,
+            batch_initial_conditions=X_init,
+            options={"batch_limit": 5, "maxiter": 200},
+        )
+        return candidates
