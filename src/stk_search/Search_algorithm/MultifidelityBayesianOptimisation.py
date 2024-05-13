@@ -4,7 +4,6 @@ import torch
 import numpy as np
 import pandas as pd
 import torch
-from botorch import fit_gpytorch_mll
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
 from stk_search.Search_space import Search_Space
@@ -12,9 +11,8 @@ from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
 from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
-from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
-from botorch.optim.initializers import gen_one_shot_kg_initial_conditions
+from botorch import fit_gpytorch_mll
 
 import itertools
 
@@ -149,7 +147,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         """
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
-        df_elements = self.Generate_element_to_evaluate(
+        df_elements = self.generate_element_to_evaluate(
             fitness_acquired, df_search, SP, benchmark, df_total
         )
         Xrpr = self.Representation.generate_repr(df_elements)
@@ -173,7 +171,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         while counter < lim_counter:
             counter += 1
             max_counter += 1
-            df_elements = self.Generate_element_to_evaluate(
+            df_elements = self.generate_element_to_evaluate(
                 acquisition_values.numpy(), df_elements, SP, benchmark, df_total
             )
             Xrpr = self.Representation.generate_repr(df_elements)
@@ -215,7 +213,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         #print(ids_sorted_by_aquisition[:1], df_elements[:1])
         return ids_sorted_by_aquisition, df_elements
 
-    def Generate_element_to_evaluate(
+    def generate_element_to_evaluate(
         self,
         fitness_acquired,
         df_search,
@@ -327,39 +325,20 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         X_unsqueezed = Xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
-        acquisition_function = self.get_mfkg(model)
+        acquisition_function = self.get_mfkg(model, Xrpr)
         with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
             acquisition_values = acquisition_function.forward(
                 X_unsqueezed
             )  # runs out of memory
         return acquisition_values
    
-    def get_mfkg(self, model):
+    def get_mfkg(self, model, Xrpr):
         cost_model = AffineFidelityCostModel(fidelity_weights={11: 1/3, 12: 2/3}, fixed_cost=5.0)
         cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
         return qMultiFidelityKnowledgeGradient(
             model=model,
             num_fantasies=2,
-            cost_aware_utility=cost_aware_utility
+            cost_aware_utility=cost_aware_utility,
+            project=project_to_target_fidelity(X=Xrpr, target_fidelities= {11: 1/3, 12: 2/3})
             )
-
-    def optimize_mfkg_and_get_observation(mfkg_acqf, X_init):
-        """Optimizes MFKG and returns a new candidate, observation, and cost."""
-        
-        # Don't think the below is needed. We can reuse the Generate_element_to_evaluate and optimise on this.
-        # X_init = gen_one_shot_kg_initial_conditions(
-        #     acq_function=mfkg_acqf,
-        #     q=4,
-        #     num_restarts=10,
-        #     raw_samples=512,
-        # )
-        candidates, _ = optimize_acqf(
-            acq_function=mfkg_acqf,
-            q=1,
-            num_restarts=10,
-            raw_samples=512,
-            batch_initial_conditions=X_init,
-            options={"batch_limit": 5, "maxiter": 200},
-        )
-        return candidates
