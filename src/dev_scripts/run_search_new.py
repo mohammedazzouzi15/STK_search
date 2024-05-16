@@ -109,14 +109,23 @@ def main(
         search_algorithm = BO
 
     elif case == "MFBO":
-        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(
-            lim_counter=lim_counter
+        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation()
+        if frag_properties == "selected":
+            frag_properties = []
+            frag_properties = df_precursors.columns[1:7]
+            frag_properties = frag_properties.append(
+                df_precursors.columns[17:23]
+            )
+        else:
+            frag_properties = df_precursors.select_dtypes(
+                include=[np.number]
+            ).columns
+        print(frag_properties)
+        MFBO.Representation = (
+            Representation_from_fragment.Representation_from_fragment(
+                df_precursors, frag_properties
+            )
         )
-        MFBO.verbose = True
-        # BO.normalise_input = False
-        MFBO.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
-        MFBO.Representation, pymodel = load_representation_model(config_dir)
-        MFBO.pred_model = pymodel.graph_pred_linear
         search_algorithm = MFBO
     elif case == "ea_surrogate_new":
         ea_surrogate = Ea_surrogate.Ea_surrogate()
