@@ -11,6 +11,9 @@ from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
 from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
+from botorch.acquisition import PosteriorMean
+from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
+from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch import fit_gpytorch_mll
 
@@ -24,6 +27,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
     def __init__(
         self,
         verbose=False,
+        which_acquisition="KG",
         kernel=SingleTaskMultiFidelityGP,
         likelihood=ExactMarginalLogLikelihood,
         model=None,
@@ -44,6 +48,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         """
 
         self.verbose = verbose
+        self.which_acquisition=which_acquisition,
         #self.normalise_input = normalise_input
         self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -124,6 +129,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0])
         return X_rpr
 
+# This should be edited since how we evaluate the generated elements needs to change. -EJ
     def optimise_acquisition_function(
         self,
         best_f,
@@ -176,7 +182,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )
             Xrpr = self.Representation.generate_repr(df_elements)
             Xrpr = self.normalise_input(Xrpr)
-            # if benchmark:
             acquisition_values = self.get_acquisition_values(
                 self.model,
                 best_f=best_f,
@@ -192,9 +197,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 descending=True
             )
             max_acquisition_value_current = acquisition_values.max()
-            #print(
-             #  f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value_current}"
-            #)
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
@@ -205,14 +207,10 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 #)
                 counter = 0
             if max_counter > max_optimisation_iteration:
-                #print(
-                 #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
-                #)
                 break
-        #print("finished acquisition function optimisation")
-        #print(ids_sorted_by_aquisition[:1], df_elements[:1])
         return ids_sorted_by_aquisition, df_elements
 
+# This should be the same as in the BO case, I think. Nothing new is being added. -EJ
     def generate_element_to_evaluate(
         self,
         fitness_acquired,
@@ -299,7 +297,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         df_elements.reset_index(drop=True, inplace=True)
         return df_elements
 
-# Hardcoded values for the columns at the moment for the data-fidelities.
+# Hardcoded values for the columns at the moment for the data-fidelities - EJ
     def train_model(self, X_train, y_train, data_fidelities=[11,12]):
         """Train the model.
         Args:
@@ -325,20 +323,41 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         X_unsqueezed = Xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
-        acquisition_function = self.get_mfkg(model, Xrpr)
-        with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-            acquisition_values = acquisition_function.forward(
-                X_unsqueezed
-            )  # runs out of memory
+        if self.which_acquisition == "KG":
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]])
+            target_fidelities = {12:1}
+            cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
+            cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
+
+            curr_val_acqf = FixedFeatureAcquisitionFunction(
+                    acq_function=PosteriorMean(model),
+                    d=5,
+                    columns=[4],
+                    values=[1],
+                )                
+            _, current_value = optimize_acqf(
+                    acq_function=curr_val_acqf,
+                    bounds=bounds[:,:-1],
+                    q=1,
+                    num_restarts= 2,
+                    raw_samples=4
+            )
+            acquisition_function = qMultiFidelityKnowledgeGradient(
+                model=model,
+                num_fantasies= 1,
+                cost_aware_utility=cost_aware_utility,
+                project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities) ,
+                current_value=current_value
+            )
+            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+                acquisition_values = acquisition_function.forward(
+                    X_unsqueezed,
+                    bounds=bounds
+                )  # runs out of memory
+        else:
+            with torch.no_grad():
+                acquisition_values = model.posterior(
+                    X_unsqueezed
+                ).variance.squeeze()
         return acquisition_values
    
-    def get_mfkg(self, model, Xrpr):
-        cost_model = AffineFidelityCostModel(fidelity_weights={11: 1/3, 12: 2/3}, fixed_cost=5.0)
-        cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
-
-        return qMultiFidelityKnowledgeGradient(
-            model=model,
-            num_fantasies=2,
-            cost_aware_utility=cost_aware_utility,
-            project=project_to_target_fidelity(X=Xrpr, target_fidelities= {11: 1/3, 12: 2/3})
-            )
