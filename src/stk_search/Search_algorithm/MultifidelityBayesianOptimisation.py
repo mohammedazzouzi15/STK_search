@@ -16,6 +16,7 @@ from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch import fit_gpytorch_mll
+from botorch.models.transforms.outcome import Standardize
 
 import itertools
 
@@ -33,6 +34,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         model=None,
         lim_counter=2,
         Representation=None,
+        fidelity_col=72
     ):
         """Initialise the class.
         Args:
@@ -58,7 +60,51 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self.Representation = Representation
         self.name = "Multifidelity_Bayesian_Optimisation"
         self.pred_model = None
+        self.fidelity_col = fidelity_col
 
+    def initial_suggestion(
+        self,
+        SP: Search_Space = [],
+        num_elem_initialisation: int = 10,
+        benchmark=False,
+        df_total: pd.DataFrame = None,
+    ):
+        if benchmark:
+            searched_space_df = SP.check_df_for_element_from_SP(
+                df_to_check=df_total
+            )
+            searched_space_df = searched_space_df.sample(
+                num_elem_initialisation
+            )
+        else:
+            if df_total is not None:
+                searched_space_df = SP.check_df_for_element_from_SP(
+                    df_to_check=df_total
+                )
+                # add top elements from the search space
+                searched_space_df = searched_space_df.sort_values(
+                    by="target", ascending=False
+                )
+                searched_space_df = pd.concat(
+                    [
+                        searched_space_df.sample(num_elem_initialisation - 10),
+                        searched_space_df[:10],
+                    ]
+                )
+
+            else:
+                searched_space_df = SP.random_generation_df(
+                    num_elem_initialisation
+                )
+        # reindex the df
+        filtered_cols = ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
+        filtered_cols.append("fidelity")
+        searched_space_df = searched_space_df[
+            filtered_cols
+        ]  # careful here, this is hard coded
+        searched_space_df.index = range(len(searched_space_df))
+        return searched_space_df.index.tolist(), searched_space_df
+    
     def update_representation(self, Representation):
         self.Representation = Representation
 
@@ -85,12 +131,17 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         """
         df_search = search_space_df.copy()
         fitness_acquired = np.array(fitness_acquired)
+        repr = df_search.loc[ids_acquired, :]
+        repr = repr.drop(columns = repr.columns[-1])
+
         # prepare input for the BO
         X_rpr = self.Representation.generate_repr(
-            df_search.loc[ids_acquired, :]
+            repr
         )
         X_rpr = X_rpr.double()
         X_rpr = self.normalise_input(X_rpr)
+        fid = torch.tensor(search_space_df[["fidelity"]].to_numpy())
+        X_rpr = torch.concat([X_rpr, fid], dim=1)
         y_explored_BO_norm = torch.tensor(
             fitness_acquired, dtype=torch.float64
         )
@@ -98,6 +149,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             y_explored_BO_norm - y_explored_BO_norm.mean(axis=0)
         ) / (y_explored_BO_norm.std(axis=0))
         y_explored_BO_norm = y_explored_BO_norm.reshape(-1, 1)
+
         # train model
         self.train_model(X_rpr, y_explored_BO_norm)
         # optimise the acquisition function
@@ -127,7 +179,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         X_rpr = X_rpr.double()
         # min max scaling the input
         X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0])
-        return X_rpr
+        return torch.tensor(pd.DataFrame(X_rpr).fillna(0).to_numpy())
 
 # This should be edited since how we evaluate the generated elements needs to change. -EJ
     def optimise_acquisition_function(
@@ -154,10 +206,11 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
         df_elements = self.generate_element_to_evaluate(
-            fitness_acquired, df_search, SP, benchmark, df_total
+            fitness_acquired, df_search.iloc[:, :-1], SP, benchmark, df_total
         )
         Xrpr = self.Representation.generate_repr(df_elements)
         Xrpr = self.normalise_input(Xrpr)
+
         acquisition_values = self.get_acquisition_values(
             self.model,
             best_f=best_f,
@@ -184,7 +237,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             Xrpr = self.normalise_input(Xrpr)
             acquisition_values = self.get_acquisition_values(
                 self.model,
-                best_f=best_f,
                 Xrpr=Xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
@@ -298,7 +350,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         return df_elements
 
 # Hardcoded values for the columns at the moment for the data-fidelities - EJ
-    def train_model(self, X_train, y_train, data_fidelities=[11,12]):
+    def train_model(self, X_train, y_train):
         """Train the model.
         Args:
             X_train (torch.tensor): input
@@ -307,7 +359,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self.model = self.kernel(
             X_train,
             y_train,
-            data_fidelities
+            data_fidelity=self.fidelity_col
         )
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
@@ -320,12 +372,13 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             Xrpr (torch.tensor): representation of the element
         Returns:
             torch.tensor: acquisition values"""
+        
         X_unsqueezed = Xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
         if self.which_acquisition == "KG":
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]])
-            target_fidelities = {12:1}
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]])   
+            target_fidelities = {self.fidelity_col:1}
             cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
             cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
