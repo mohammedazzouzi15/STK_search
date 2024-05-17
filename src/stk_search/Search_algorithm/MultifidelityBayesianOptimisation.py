@@ -50,7 +50,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         """
 
         self.verbose = verbose
-        self.which_acquisition=which_acquisition,
+        self.which_acquisition=which_acquisition
         #self.normalise_input = normalise_input
         self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -206,14 +206,17 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
         df_elements = self.generate_element_to_evaluate(
-            fitness_acquired, df_search.iloc[:, :-1], SP, benchmark, df_total
+            fitness_acquired, df_search.iloc[:,:-1], SP, benchmark, df_total
         )
-        Xrpr = self.Representation.generate_repr(df_elements)
-        Xrpr = self.normalise_input(Xrpr)
+        repr = df_elements.drop(columns = df_elements.columns[-1])
 
+        Xrpr = self.Representation.generate_repr(repr)
+        Xrpr = self.normalise_input(Xrpr)
+        fid = torch.tensor(df_elements[["fidelity"]].to_numpy())
+        Xrpr = torch.concat([Xrpr, fid], dim=1)
+        
         acquisition_values = self.get_acquisition_values(
             self.model,
-            best_f=best_f,
             Xrpr=Xrpr,
         )
 
@@ -233,6 +236,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             df_elements = self.generate_element_to_evaluate(
                 acquisition_values.numpy(), df_elements, SP, benchmark, df_total
             )
+
             Xrpr = self.Representation.generate_repr(df_elements)
             Xrpr = self.normalise_input(Xrpr)
             acquisition_values = self.get_acquisition_values(
@@ -338,8 +342,10 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 how="left",
             )
             df_elements.dropna(subset="target", inplace=True)
+            columns = [f"InChIKey_{i}" for i in range(elements.shape[1])]
+            columns.append('fidelity')
             df_elements = df_elements[
-                [f"InChIKey_{i}" for i in range(elements.shape[1])]
+                columns
             ]  # check this for generalization
             df_elements.drop_duplicates(inplace=True)
         if (
