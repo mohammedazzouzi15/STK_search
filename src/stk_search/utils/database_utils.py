@@ -52,21 +52,12 @@ def load_data_database(
             # print(x)
             if len(x["BB"]) != num_fragm:
                 df_test.drop(id, inplace=True)
+        df_precursors = pd.read_pickle(df_precursor_loc)
         for i in range(num_fragm):
             df_test[f"InChIKey_{i}"] = df_test["BB"].apply(
-                lambda x: x[i]["InChIKey"]
+                lambda x: str(x[i]["InChIKey"])
             )
-        df_precursors = pd.read_pickle(df_precursor_loc)
-        features_frag = df_precursors.columns[1:7].append(
-            df_precursors.columns[17:23]
-        )
-        features_frag = features_frag.append(df_precursors.columns[0:1])
-        for i in range(num_fragm):
-            df_test = df_test.merge(
-                df_precursors[features_frag].add_suffix(f"_{i}"),
-                on=f"InChIKey_{i}",
-                how="left",
-            )
+            df_test= df_test[df_test[f'InChIKey_{i}'].isin(df_precursors['InChIKey'])] 
         return df_test, df_precursors
 
     df_total, df_precursors = prepare_df_for_plot(df_total_new)

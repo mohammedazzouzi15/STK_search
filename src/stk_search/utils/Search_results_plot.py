@@ -448,7 +448,8 @@ def plot_number_of_molecule_discovered(
     df_total=[],
     nb_initialisation=0,
     target_name="target",
-):
+):  
+    topKmol = int(df_total.shape[0]*0.01)
     min_target = -np.sort(-df_total[target_name].values)[topKmol]
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_elm = -10 * np.ones(nb_iterations)
@@ -641,7 +642,7 @@ def plot_rate_of_discovery(
     nb_initialisation=50,
     prop=1,
 ):
-
+    topKmol = int(df_total.shape[0]*0.01)
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
     y_results = np.zeros((nb_iterations + nb_initialisation, len(res)))

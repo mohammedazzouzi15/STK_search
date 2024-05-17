@@ -4,6 +4,7 @@ import datetime
 
 
 def generate_string_run(
+        
     case = 'BO_precursor',
     test_name = f"test",
     target = 'target', aim = 0,
@@ -72,13 +73,14 @@ def generate_string_run(
     string_to_run = f"python {string_to_run_notbook} "
     if benchmark:
         num_cpus, mem = 8 , 24
+        num_iterations = 50
     else:
         num_cpus, mem = 30 , 50
-
+        num_iterations = 20
     script_qsub = "#!/bin/bash \n"+\
                     "#PBS -l walltime=07:59:01 \n"+\
                     f"#PBS -l select=1:ncpus={num_cpus}:mem={mem}gb:avx=true \n"+\
-                    "#PBS -J 1-25 \n"+\
+                    f"#PBS -J 1-{num_iterations} \n"+\
                     " \n"+\
                     "cd /rds/general/user/ma11115/home/STK_Search/STK_search \n"+\
                     "module load anaconda3/personal \n"+ \

@@ -17,7 +17,8 @@ def plot_metric(
     target_name="target",
     nb_initialisation=50,
     number_cols=3,
-    df_total=None
+    df_total=None,
+    num_results_min =500
 ):
     
     number_rows = int(np.ceil((len(plot_function_list)+2) / number_cols))
@@ -32,7 +33,7 @@ def plot_metric(
     print(" keys :", keys)
     metric_dict_res = {}
     for key in keys.values:
-        res = results_dict[key]
+        res = results_dict[key][:num_results_min]
         color = df_plot[df_plot["key"] == key]["color"].iloc[0]
         if df_total is None:
             df_total = pd.read_csv(

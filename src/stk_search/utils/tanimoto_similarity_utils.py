@@ -194,7 +194,7 @@ def plot_similarity_results_elem_suggested_to_initial(
     df_mol_dict=None,
 ):
     similarity = np.zeros((len(search_results), nb_iterations))
-    nb_iterations_range = np.arange(0, nb_iterations)
+    nb_iterations_range = np.arange(0, nb_iterations -nb_iterations)
 
     for res_num, dict_org in enumerate(search_results):
         mol_list_suggested, mol_list_init = get_mol_from_res(
@@ -204,7 +204,7 @@ def plot_similarity_results_elem_suggested_to_initial(
         tanimoto_sim = get_mean_similarity(mol_list_suggested, mol_list_init)
         for i in nb_iterations_range:
             similarity[res_num, i] = np.max(tanimoto_sim[i, :])
-        similarity[res_num, 5:-5] = moving_average(similarity[res_num, 5:-5], 5)
+        similarity[res_num, 5:-5] = moving_average(similarity[res_num, 5:-1], 5)
             # std_similarity.append(np.std(tanimoto_sim[:i,]))
     mean_similarity = np.mean(similarity, axis=0)
     std_similarity = np.std(similarity, axis=0)
