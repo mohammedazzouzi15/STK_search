@@ -157,22 +157,24 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )
         )
 
-        # add the new element to the search space
-        def add_element(df, element):
-            if ~(df == element).all(1).any():
-                df.loc[len(df)] = element
-                return True
-            return False
         for element_id in ids_sorted_by_aquisition:
-            if add_element(df_search, df_elements.values[element_id.item()]):
+            if self.add_element(df_search, df_elements.values[element_id.item()]):
                 break
         return len(df_search) - 1, df_search
+
+    # Add the new element to the search space. It checks if the element is already in the
+    # df which is usually the df_search (i.e. those elts formally evaulated by the OF).
+    def add_element(self, df, element):
+        if ~(df == element).all(1).any():
+            df.loc[len(df)] = element
+            return True
+        return False
 
     def normalise_input(self, X_rpr):
         X_rpr = X_rpr.double()
         # min max scaling the input
         X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0])
-        return torch.tensor(pd.DataFrame(X_rpr).fillna(0).to_numpy())
+        return torch.tensor(pd.DataFrame(X_rpr).fillna(0.5).to_numpy())
 
 # This should be edited since how we evaluate the generated elements needs to change. -EJ
     def optimise_acquisition_function(
@@ -233,14 +235,9 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 Xrpr=Xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
-                print(
-                    "size of representation dataset ",
-                    len(self.Representation.dataset_local),
-                )
+                print("size of representation dataset ", len(self.Representation.dataset_local),)
             # select element to acquire with maximal aquisition value, which is not in the acquired set already
-            ids_sorted_by_aquisition = acquisition_values.argsort(
-                descending=True
-            )
+            ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
             max_acquisition_value_current = acquisition_values.max()
             if (
                 max_acquisition_value_current
