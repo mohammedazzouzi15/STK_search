@@ -255,7 +255,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 break
         return ids_sorted_by_aquisition, df_elements
 
-# This should be the same as in the BO case, I think. Nothing new is being added. -EJ
+# Similar to the BO case, except when the elements are generated at the end we add the fidelity
+# data as well -EJ
     def generate_element_to_evaluate(
         self,
         fitness_acquired,
