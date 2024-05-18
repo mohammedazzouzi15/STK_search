@@ -395,11 +395,11 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities) ,
                 current_value=current_value
             )
-            # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-            acquisition_values = acquisition_function.evaluate(
-                    X_unsqueezed,
-                    bounds=bounds
-                )  # runs out of memory
+            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+                acquisition_values = acquisition_function.evaluate(
+                        X_unsqueezed,
+                        bounds=bounds
+                    )  # runs out of memory
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
