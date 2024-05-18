@@ -117,7 +117,8 @@ class Search_exp:
         # evaluate the element
         try:
             Eval, InchiKey = objective_function.evaluate_element(
-                element=element
+                element=element,
+                multiFidelity = self.search_algorithm.multiFidelity
             )
             if self.verbose:
                 print(f"element Inchikey suggested: {InchiKey}, Eval: {Eval}")

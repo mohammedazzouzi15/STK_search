@@ -61,6 +61,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self.name = "Multifidelity_Bayesian_Optimisation"
         self.pred_model = None
         self.fidelity_col = fidelity_col
+        self.multiFidelity = True
 
     def initial_suggestion(
         self,
@@ -132,16 +133,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         df_search = search_space_df.copy()
         fitness_acquired = np.array(fitness_acquired)
         repr = df_search.loc[ids_acquired, :]
-        repr = repr.drop(columns = repr.columns[-1])
 
-        # prepare input for the BO
-        X_rpr = self.Representation.generate_repr(
-            repr
-        )
-        X_rpr = X_rpr.double()
-        X_rpr = self.normalise_input(X_rpr)
-        fid = torch.tensor(search_space_df[["fidelity"]].to_numpy())
-        X_rpr = torch.concat([X_rpr, fid], dim=1)
+        X_rpr = self.generate_rep_with_fidelity(repr)
         y_explored_BO_norm = torch.tensor(
             fitness_acquired, dtype=torch.float64
         )

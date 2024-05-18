@@ -19,7 +19,7 @@ class Objective_Function:
     def __init__(self):
         pass
 
-    def evaluate_element(self, element):
+    def evaluate_element(self, element, multiFidelity = False):
         for x in element:
             if type(x) == int or type(x) == np.float64:
                 return float(x), "test"
@@ -32,12 +32,14 @@ class Look_up_table:
         self.target_name = target_name
         self.aim = aim
 
-    def evaluate_element(self, element):
+    def evaluate_element(self, element, multiFidelity=False):
         # if type(element) == pd.Series:
         # element = element.to_frame()
+        columns = [f"InChIKey_{i}" for i in range(self.fragment_size)]
+        columns = columns.append('fidelity') if multiFidelity else columns 
         results = element.merge(
             self.df_look_up,
-            on=[f"InChIKey_{i}" for i in range(self.fragment_size)],
+            on=columns,
             how="left",
         )
 
@@ -79,7 +81,7 @@ class IP_ES1_fosc(Objective_Function):
         self.host_IP = "cx1"
         self.oligomer_size = oligomer_size
 
-    def evaluate_element(self, element):
+    def evaluate_element(self, element, multiFidelity=False):
         # initialise the database
         client = pymongo.MongoClient(self.client)
         db_mol = stk.MoleculeMongoDb(
