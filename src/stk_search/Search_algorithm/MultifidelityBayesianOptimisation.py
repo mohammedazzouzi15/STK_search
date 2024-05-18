@@ -208,12 +208,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         df_elements = self.generate_element_to_evaluate(
             fitness_acquired, df_search.iloc[:,:-1], SP, benchmark, df_total
         )
-        repr = df_elements.drop(columns = df_elements.columns[-1])
 
-        Xrpr = self.Representation.generate_repr(repr)
-        Xrpr = self.normalise_input(Xrpr)
-        fid = torch.tensor(df_elements[["fidelity"]].to_numpy())
-        Xrpr = torch.concat([Xrpr, fid], dim=1)
+        Xrpr = self.generate_rep_with_fidelity(df_elements)
         
         acquisition_values = self.get_acquisition_values(
             self.model,
@@ -234,11 +230,11 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             counter += 1
             max_counter += 1
             df_elements = self.generate_element_to_evaluate(
-                acquisition_values.numpy(), df_elements, SP, benchmark, df_total
+                acquisition_values.numpy(), df_elements.iloc[:,:-1], SP, benchmark, df_total
             )
 
-            Xrpr = self.Representation.generate_repr(df_elements)
-            Xrpr = self.normalise_input(Xrpr)
+            Xrpr = self.generate_rep_with_fidelity(df_elements)
+            
             acquisition_values = self.get_acquisition_values(
                 self.model,
                 Xrpr=Xrpr,
@@ -390,8 +386,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
             curr_val_acqf = FixedFeatureAcquisitionFunction(
                     acq_function=PosteriorMean(model),
-                    d=5,
-                    columns=[4],
+                    d=73,
+                    columns=[72],
                     values=[1],
                 )                
             _, current_value = optimize_acqf(
@@ -408,8 +404,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities) ,
                 current_value=current_value
             )
-            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-                acquisition_values = acquisition_function.forward(
+            # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+            acquisition_values = acquisition_function.evaluate(
                     X_unsqueezed,
                     bounds=bounds
                 )  # runs out of memory
@@ -420,3 +416,9 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 ).variance.squeeze()
         return acquisition_values
    
+    def generate_rep_with_fidelity(self, df_elements):
+        repr = df_elements.drop(columns = df_elements.columns[-1])
+        Xrpr = self.Representation.generate_repr(repr)
+        Xrpr = self.normalise_input(Xrpr)
+        fid = torch.tensor(df_elements[["fidelity"]].to_numpy())
+        return torch.concat([Xrpr, fid], dim=1)
