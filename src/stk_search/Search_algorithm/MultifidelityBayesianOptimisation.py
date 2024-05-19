@@ -370,7 +370,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
         if self.which_acquisition == "KG":
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]])   
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
             target_fidelities = {self.fidelity_col:1}
             cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
             cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
@@ -392,17 +392,17 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 model=model,
                 num_fantasies= 1,
                 cost_aware_utility=cost_aware_utility,
-                project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities) ,
+                project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
                 current_value=current_value
             )
-            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-                acquisition_values = acquisition_function.evaluate(
+            # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+            acquisition_values = acquisition_function.evaluate(
                         X_unsqueezed,
                         bounds=bounds
                     )  # runs out of memory
         else:
-            with torch.no_grad():
-                acquisition_values = model.posterior(
+            # with torch.no_grad():
+            acquisition_values = model.posterior(
                     X_unsqueezed
                 ).variance.squeeze()
         return acquisition_values
@@ -411,5 +411,5 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         repr = df_elements.drop(columns = df_elements.columns[-1])
         Xrpr = self.Representation.generate_repr(repr)
         Xrpr = self.normalise_input(Xrpr)
-        fid = torch.tensor(df_elements[["fidelity"]].to_numpy())
+        fid = torch.tensor(df_elements[["fidelity"]].to_numpy(), dtype=torch.float64)
         return torch.concat([Xrpr, fid], dim=1)
