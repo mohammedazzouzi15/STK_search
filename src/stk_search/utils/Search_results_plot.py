@@ -108,7 +108,42 @@ def plot_simple_regret(
     axs.set_ylim([df_total[target_name].min(), df_total[target_name].max()])
     return max(y_max_mu)
 
-
+def plot_mfbo(
+    res,
+    nb_iterations=100,
+    axs=None,
+    color=search_to_color["BO"],
+    label="MFBO",
+    target_name="target",
+    df_total=[],
+    nb_initialisation=0,
+):  
+    #Assume there arre just two fidelities at the moment, but we can relax this.
+    fitness_list = res[0]["fitness_acquired"]
+    target = np.ones(nb_iterations)
+    df_sample = res[0]['searched_space_df']
+    fidelities = list(dict.fromkeys(df_sample['fidelity'].values))
+    fidelity_1_target=[]
+    fidelity_1_iteration=[]
+    fidelity_2_target=[]
+    fidelity_2_iteration=[]
+    for i in range(0, nb_iterations):
+        if (df_sample.at[i, 'fidelity'] == fidelities[0]):
+            fidelity_1_target.append(fitness_list[i])
+            fidelity_1_iteration.append(i)
+        else:
+            fidelity_2_target.append(fitness_list[i])
+            fidelity_2_iteration.append(i)
+    legend_text_1 = f'Fidelity: {fidelities[0]}'
+    legend_text_2 = f'Fidelity: {fidelities[1]}'
+    axs.scatter(fidelity_1_iteration, fidelity_1_target, label=legend_text_1, color='red')
+    axs.scatter(fidelity_2_iteration, fidelity_2_target, label=legend_text_2, color='blue')
+    axs.legend(loc="upper right")
+    axs.set_xlabel("Iteration Number")
+    axs.set_ylabel("Target")
+    axs.set_ylim([df_total[target_name].min(), df_total[target_name].max()])
+    return max(target)
+    
 def plot_inst_regret(
     res,
     nb_iterations=100,
@@ -578,7 +613,7 @@ def plot_simple_regret_batch(
     return max(max_mol_found)
 
 
-def plot_rate_of_discovery_old(
+def plot_total_rate_of_discovery(
     res,
     nb_iterations=100,
     topKmol=1000,
