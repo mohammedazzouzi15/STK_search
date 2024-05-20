@@ -36,7 +36,7 @@ class Look_up_table:
         # if type(element) == pd.Series:
         # element = element.to_frame()
         columns = [f"InChIKey_{i}" for i in range(self.fragment_size)]
-        columns = columns.append('fidelity') if multiFidelity else columns 
+        if multiFidelity: columns.append('fidelity')
         results = element.merge(
             self.df_look_up,
             on=columns,
