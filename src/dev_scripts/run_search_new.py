@@ -1,6 +1,7 @@
 from stk_search import Search_Exp
 from stk_search.Search_algorithm import Search_algorithm
 from stk_search.Search_algorithm import BayesianOptimisation
+from stk_search.Search_algorithm import MultifidelityBayesianOptimisation
 from stk_search.Representation import (
     Representation_from_fragment,
     Representation_3d_from_fragment,
@@ -83,6 +84,7 @@ def main(
             )
         )
         search_algorithm = BO
+    
     elif case == "BO_learned":
         BO = BayesianOptimisation.BayesianOptimisation(
             which_acquisition=which_acquisition, lim_counter=lim_counter
@@ -106,6 +108,25 @@ def main(
         BO.pred_model = pymodel.graph_pred_linear
         search_algorithm = BO
 
+    elif case == "MFBO":
+        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(which_acquisition=which_acquisition)
+        if frag_properties == "selected":
+            frag_properties = []
+            frag_properties = df_precursors.columns[1:7]
+            frag_properties = frag_properties.append(
+                df_precursors.columns[17:23]
+            )
+        else:
+            frag_properties = df_precursors.select_dtypes(
+                include=[np.number]
+            ).columns
+        print(frag_properties)
+        MFBO.Representation = (
+            Representation_from_fragment.Representation_from_fragment(
+                df_precursors, frag_properties
+            )
+        )
+        search_algorithm = MFBO
     elif case == "ea_surrogate_new":
         ea_surrogate = Ea_surrogate.Ea_surrogate()
         ea_surrogate.verbose = True
