@@ -111,7 +111,7 @@ def plot_simple_regret(
 def plot_target_MFBO(
     res,
     axs=None,
-    title="MFBO",
+    title="",
     target_name="target",
     df_total=None,
     colours=['blue','red','green','yellow']
