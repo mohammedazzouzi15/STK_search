@@ -4,8 +4,8 @@ import torch
 import numpy as np
 import pandas as pd
 import torch
-from botorch.fit import fit_gpytorch_mll as fit_gpytorch_model
-from botorch.acquisition import ExpectedImprovement
+from botorch import fit_gpytorch_mll
+from botorch.acquisition import ExpectedImprovement, qKnowledgeGradient
 from botorch.acquisition.analytic import (
     ExpectedImprovement,
     LogExpectedImprovement,
@@ -19,7 +19,6 @@ from stk_search.Search_algorithm.Botorch_kernels import (
     MaternKernel,
 )
 import itertools
-
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -47,7 +46,6 @@ class BayesianOptimisation(Search_Algorithm):
             lim_counter (int): max iteration for the acquisition function optimisation
             Representation (object): representation of the element
         """
-
         self.verbose = verbose
         #self.normalise_input = normalise_input
         self.which_acquisition = which_acquisition
@@ -318,7 +316,7 @@ class BayesianOptimisation(Search_Algorithm):
             y_train,
         )
         mll = self.likelihood(self.model.likelihood, self.model)
-        fit_gpytorch_model(mll)
+        fit_gpytorch_mll(mll)
 
     def get_acquisition_values(self, model, best_f, Xrpr):
         """Get the acquisition values.
@@ -361,7 +359,14 @@ class BayesianOptimisation(Search_Algorithm):
                 acquisition_values = acquisition_values + self.model.posterior(
                                 X_unsqueezed
                             ).variance.squeeze()
-
+        elif self.which_acquisition == "KG":
+            acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 128)
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
+            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+                acquisition_values = acquisition_function.evaluate(
+                    X_unsqueezed,
+                    bounds= bounds
+                )  # runs out of memory
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
