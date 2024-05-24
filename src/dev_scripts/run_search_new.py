@@ -66,7 +66,7 @@ def main(
         )
     print(case, "  case  ")
     if case == "BO_precursor":
-        BO = BayesianOptimisation.BayesianOptimisation()
+        BO = BayesianOptimisation.BayesianOptimisation(which_acquisition=which_acquisition, lim_counter=lim_counter)
         if frag_properties == "selected":
             frag_properties = []
             frag_properties = df_precursors.columns[1:7]
@@ -109,7 +109,7 @@ def main(
         search_algorithm = BO
 
     elif case == "MFBO":
-        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(which_acquisition=which_acquisition)
+        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(which_acquisition=which_acquisition, lim_counter=lim_counter)
         if frag_properties == "selected":
             frag_properties = []
             frag_properties = df_precursors.columns[1:7]
