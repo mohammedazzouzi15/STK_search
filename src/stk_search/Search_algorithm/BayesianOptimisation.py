@@ -362,11 +362,10 @@ class BayesianOptimisation(Search_Algorithm):
         elif self.which_acquisition == "KG":
             acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 128)
             bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
-            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-                acquisition_values = acquisition_function.evaluate(
-                    X_unsqueezed,
-                    bounds= bounds
-                )  # runs out of memory
+            acquisition_values = acquisition_function.evaluate(
+                X_unsqueezed,
+                bounds= bounds
+            ) 
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
