@@ -360,7 +360,7 @@ class BayesianOptimisation(Search_Algorithm):
                                 X_unsqueezed
                             ).variance.squeeze()
         elif self.which_acquisition == "KG":
-            acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 128)
+            acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 5)
             bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
             acquisition_values = acquisition_function.evaluate(
                 X_unsqueezed,
