@@ -42,6 +42,7 @@ def main(
     benchmark=False,
     dataset_representation_path="",
     frag_properties="all",
+    budget=None
 ):
     input_json = locals()
 
@@ -109,7 +110,10 @@ def main(
         search_algorithm = BO
 
     elif case == "MFBO":
-        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(which_acquisition=which_acquisition, lim_counter=lim_counter)
+        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(
+            budget=budget, 
+            which_acquisition=which_acquisition, 
+            lim_counter=lim_counter)
         if frag_properties == "selected":
             frag_properties = []
             frag_properties = df_precursors.columns[1:7]

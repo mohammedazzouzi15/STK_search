@@ -11,7 +11,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 class Search_Algorithm:
     multiFidelity=False
-
+    budget=None
     def __init__(self):
         self.name = "default"
         pass
