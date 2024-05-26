@@ -107,7 +107,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         ]  # careful here, this is hard coded
         searched_space_df.index = range(len(searched_space_df))
         if self.budget is not None:
-            self.budget -= searched_space_df[-1].sum()
+            self.budget -= searched_space_df['fidelity'].sum()
         return searched_space_df.index.tolist(), searched_space_df
     
     def update_representation(self, Representation):
