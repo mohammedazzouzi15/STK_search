@@ -63,8 +63,6 @@ def generate_string_run(
     string_to_run_notbook = 'src/dev_scripts/run_search_new.py '
     if benchmark:
         test_name = f"benchmark/{test_name}"
-    if budget is None:
-        input.pop("budget")
     for key, value in input.items():
         if value==True:
             string_to_run_notbook = f"{string_to_run_notbook} --{key} 1"
