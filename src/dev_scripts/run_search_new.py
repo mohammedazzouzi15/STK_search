@@ -394,6 +394,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_representation_path", type=str, default="")
     parser.add_argument("--oligomer_size", type=int, default=6)
     parser.add_argument("--frag_properties", type=str, default="all")
+    parser.add_argument("--budget", type=int)
     args = parser.parse_args()
     main(
         args.num_iteration,
@@ -412,4 +413,5 @@ if __name__ == "__main__":
         args.benchmark,
         args.dataset_representation_path,
         args.frag_properties,
+        args.budget
     )

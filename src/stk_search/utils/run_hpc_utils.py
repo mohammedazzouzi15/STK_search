@@ -5,7 +5,6 @@ import datetime
 
 def generate_string_run(
 
-    budget,   
     case = 'BO_precursor',
     test_name = f"test",
     target = 'target', aim = 0,
@@ -20,6 +19,7 @@ def generate_string_run(
     search_space_loc = "/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/search_space/test/search_space1.pkl",
     frag_properties='all',
     lim_counter = 10,
+    budget=None
     ):
     """ 
     Generate the string to run the search notebook
@@ -63,6 +63,8 @@ def generate_string_run(
     string_to_run_notbook = 'src/dev_scripts/run_search_new.py '
     if benchmark:
         test_name = f"benchmark/{test_name}"
+    if budget is None:
+        input.pop("budget")
     for key, value in input.items():
         if value==True:
             string_to_run_notbook = f"{string_to_run_notbook} --{key} 1"
