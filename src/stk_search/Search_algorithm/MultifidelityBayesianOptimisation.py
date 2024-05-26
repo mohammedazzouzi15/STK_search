@@ -106,6 +106,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             filtered_cols
         ]  # careful here, this is hard coded
         searched_space_df.index = range(len(searched_space_df))
+        if self.budget is not None:
+            self.budget -= searched_space_df[-1].sum()
         return searched_space_df.index.tolist(), searched_space_df
     
     def update_representation(self, Representation):
@@ -169,7 +171,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
     def add_element(self, df, element):
         if ~(df == element).all(1).any():
             if self.budget is not None:
-                self.budget-element[-1]
+                self.budget -= element[-1]
             df.loc[len(df)] = element
             return True
         return False

@@ -4,7 +4,8 @@ import datetime
 
 
 def generate_string_run(
-        
+
+    budget,   
     case = 'BO_precursor',
     test_name = f"test",
     target = 'target', aim = 0,
