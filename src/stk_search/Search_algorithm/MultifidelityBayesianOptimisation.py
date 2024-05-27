@@ -396,7 +396,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )
             acquisition_function = qMultiFidelityKnowledgeGradient(
                 model=model,
-                num_fantasies= 1,
+                num_fantasies= 5,
                 cost_aware_utility=cost_aware_utility,
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
                 current_value=current_value
