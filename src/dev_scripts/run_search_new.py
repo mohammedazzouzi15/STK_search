@@ -42,6 +42,7 @@ def main(
     benchmark=False,
     dataset_representation_path="",
     frag_properties="all",
+    budget=None
 ):
     input_json = locals()
 
@@ -109,7 +110,10 @@ def main(
         search_algorithm = BO
 
     elif case == "MFBO":
-        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(which_acquisition=which_acquisition, lim_counter=lim_counter)
+        MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(
+            budget=budget, 
+            which_acquisition=which_acquisition, 
+            lim_counter=lim_counter)
         if frag_properties == "selected":
             frag_properties = []
             frag_properties = df_precursors.columns[1:7]
@@ -364,7 +368,7 @@ def load_representation_model(config_dir):
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
-
+  
     parser = ArgumentParser()
     parser.add_argument("--num_iteration", type=int, default=100)
     parser.add_argument("--num_elem_initialisation", type=int, default=10)
@@ -390,6 +394,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_representation_path", type=str, default="")
     parser.add_argument("--oligomer_size", type=int, default=6)
     parser.add_argument("--frag_properties", type=str, default="all")
+    parser.add_argument("--budget",  type=lambda x : None if x == 'None' else int(x), nargs='?', default=None)
     args = parser.parse_args()
     main(
         args.num_iteration,
@@ -408,4 +413,5 @@ if __name__ == "__main__":
         args.benchmark,
         args.dataset_representation_path,
         args.frag_properties,
+        args.budget
     )
