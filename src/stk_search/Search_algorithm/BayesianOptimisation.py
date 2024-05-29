@@ -49,7 +49,7 @@ class BayesianOptimisation(Search_Algorithm):
         """
 
         self.verbose = verbose
-        #self.normalise_input = normalise_input
+        # self.normalise_input = normalise_input
         self.which_acquisition = which_acquisition
         self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -119,6 +119,7 @@ class BayesianOptimisation(Search_Algorithm):
                 df.loc[len(df)] = element
                 return True
             return False
+
         for element_id in ids_sorted_by_aquisition:
             if add_element(df_search, df_elements.values[element_id.item()]):
                 break
@@ -127,7 +128,9 @@ class BayesianOptimisation(Search_Algorithm):
     def normalise_input(self, X_rpr):
         X_rpr = X_rpr.double()
         # min max scaling the input
-        X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0])
+        X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (
+            X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0]
+        )
         return X_rpr
 
     def optimise_acquisition_function(
@@ -172,14 +175,18 @@ class BayesianOptimisation(Search_Algorithm):
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
-        #print('max_acquisition_value is ', max_acquisition_value)
-        #print('min_acquisition_value is ', acquisition_values.min())
+        # print('max_acquisition_value is ', max_acquisition_value)
+        # print('min_acquisition_value is ', acquisition_values.min())
         max_counter, max_optimisation_iteration = 0, 100
         while counter < lim_counter:
             counter += 1
             max_counter += 1
             df_elements = self.Generate_element_to_evaluate(
-                acquisition_values.numpy(), df_elements, SP, benchmark, df_total
+                acquisition_values.numpy(),
+                df_elements,
+                SP,
+                benchmark,
+                df_total,
             )
             Xrpr = self.Representation.generate_repr(df_elements)
             Xrpr = self.normalise_input(Xrpr)
@@ -199,25 +206,25 @@ class BayesianOptimisation(Search_Algorithm):
                 descending=True
             )
             max_acquisition_value_current = acquisition_values.max()
-            #print(
-             #  f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value_current}"
-            #)
+            # print(
+            #  f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value_current}"
+            # )
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
             ):
                 max_acquisition_value = max_acquisition_value_current
-                #print(
-                 #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
-                #)
+                # print(
+                #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
+                # )
                 counter = 0
             if max_counter > max_optimisation_iteration:
-                #print(
-                 #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
-                #)
+                # print(
+                #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
+                # )
                 break
-        #print("finished acquisition function optimisation")
-        #print(ids_sorted_by_aquisition[:1], df_elements[:1])
+        # print("finished acquisition function optimisation")
+        # print(ids_sorted_by_aquisition[:1], df_elements[:1])
         return ids_sorted_by_aquisition, df_elements
 
     def Generate_element_to_evaluate(
@@ -228,7 +235,7 @@ class BayesianOptimisation(Search_Algorithm):
         benchmark=False,
         df_total=None,
     ):
-        """ Generate elements to evaluate.
+        """Generate elements to evaluate.
         Args:
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
@@ -236,8 +243,9 @@ class BayesianOptimisation(Search_Algorithm):
             benchmark (bool): if True, the search space is a benchmark
             df_total (pd.DataFrame): dataframe of the total dataset
             Returns:
-                pd.DataFrame: elements to evaluate 
+                pd.DataFrame: elements to evaluate
         """
+
         #
         def mutate_element(element):
             elements_val = []
@@ -287,7 +295,7 @@ class BayesianOptimisation(Search_Algorithm):
         df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
-            #print("started acquisition function optimisation")
+            # print("started acquisition function optimisation")
             df_elements = df_elements.merge(
                 df_total,
                 on=[
@@ -355,12 +363,23 @@ class BayesianOptimisation(Search_Algorithm):
                 )  # runs out of memory
         elif self.which_acquisition == "UCB_GNN":
             if self.pred_model is None:
-                raise ValueError("pred_model is None, but it's required for UCB_GNN acquisition")
+                raise ValueError(
+                    "pred_model is None, but it's required for UCB_GNN acquisition"
+                )
             with torch.no_grad():
-                acquisition_values = self.pred_model(X_unsqueezed.float()).squeeze()
-                acquisition_values = acquisition_values + self.model.posterior(
-                                X_unsqueezed
-                            ).variance.squeeze()
+                acquisition_values = self.pred_model(
+                    X_unsqueezed.float()
+                ).squeeze()
+                acquisition_values = (
+                    acquisition_values
+                    + self.model.posterior(X_unsqueezed).variance.squeeze()
+                )
+        elif self.which_acquisition == "UCB":
+            with torch.no_grad():
+                acquisition_values = acquisition_values = (
+                    model.posterior(X_unsqueezed).mean.squeeze()
+                    + self.model.posterior(X_unsqueezed).variance.squeeze()
+                )
 
         else:
             with torch.no_grad():
@@ -368,5 +387,3 @@ class BayesianOptimisation(Search_Algorithm):
                     X_unsqueezed
                 ).variance.squeeze()
         return acquisition_values
-
-    
