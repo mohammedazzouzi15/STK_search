@@ -4,7 +4,7 @@ import datetime
 
 
 def generate_string_run(
-        
+
     case = 'BO_precursor',
     test_name = f"test",
     target = 'target', aim = 0,
@@ -19,6 +19,7 @@ def generate_string_run(
     search_space_loc = "/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/search_space/test/search_space1.pkl",
     frag_properties='all',
     lim_counter = 10,
+    budget=None
     ):
     """ 
     Generate the string to run the search notebook

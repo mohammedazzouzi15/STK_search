@@ -34,7 +34,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         model=None,
         lim_counter=2,
         Representation=None,
-        fidelity_col=72
+        fidelity_col=72,
+        budget=None
     ):
         """Initialise the class.
         Args:
@@ -62,6 +63,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self.pred_model = None
         self.fidelity_col = fidelity_col
         self.multiFidelity = True
+        self.budget = budget
 
     def initial_suggestion(
         self,
@@ -104,6 +106,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             filtered_cols
         ]  # careful here, this is hard coded
         searched_space_df.index = range(len(searched_space_df))
+        if self.budget is not None:
+            self.budget -= searched_space_df['fidelity'].sum()
         return searched_space_df.index.tolist(), searched_space_df
     
     def update_representation(self, Representation):
@@ -166,6 +170,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
     # df which is usually the df_search (i.e. those elts formally evaulated by the OF).
     def add_element(self, df, element):
         if ~(df == element).all(1).any():
+            if self.budget is not None:
+                self.budget -= element[-1]
             df.loc[len(df)] = element
             return True
         return False
@@ -390,7 +396,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )
             acquisition_function = qMultiFidelityKnowledgeGradient(
                 model=model,
-                num_fantasies= 1,
+                num_fantasies= 5,
                 cost_aware_utility=cost_aware_utility,
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
                 current_value=current_value

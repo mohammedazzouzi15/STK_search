@@ -61,6 +61,10 @@ class Search_exp:
                 df_total=self.df_total,
             )
         )
+        
+        if (self.search_algorithm.budget is not None) and (self.search_algorithm.budget < 0): 
+            raise Exception('Budget exhausted by Initial Sample')
+        
         self.df_search_space = df_search_space
         for id in range(self.num_elem_initialisation):
             # evaluate the element
@@ -84,6 +88,7 @@ class Search_exp:
                     df_total=self.df_total,
                 )
             )
+            if (self.search_algorithm.budget is not None) and (self.search_algorithm.budget < 0): break
             self.df_search_space = df_search_space
             # evaluate the element
             # if self.verbose:
