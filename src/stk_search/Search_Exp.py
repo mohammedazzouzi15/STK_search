@@ -123,10 +123,12 @@ class Search_exp:
         try:
             Eval, InchiKey = objective_function.evaluate_element(
                 element=element,
-                multiFidelity = self.search_algorithm.multiFidelity
+                multiFidelity=self.search_algorithm.multiFidelity
             )
             if self.verbose:
                 print(f"element Inchikey suggested: {InchiKey}, Eval: {Eval}")
+            if self.search_algorithm.multiFidelity:
+                print(f"fitness suggested: {element['fidelity']}")
             if Eval is None:
                 self.bad_ids.append(element_id)
                 print(f"element {element_id} failed")

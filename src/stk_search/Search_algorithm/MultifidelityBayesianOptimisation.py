@@ -231,7 +231,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             counter += 1
             max_counter += 1
             df_elements = self.generate_element_to_evaluate(
-                acquisition_values.numpy(), df_elements.iloc[:,:-1], SP, benchmark, df_total
+                acquisition_values.detach().numpy(), df_elements.iloc[:,:-1], SP, benchmark, df_total
             )
 
             Xrpr = self.generate_rep_with_fidelity(df_elements)

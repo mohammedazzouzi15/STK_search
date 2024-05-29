@@ -19,7 +19,7 @@ class Objective_Function:
     def __init__(self):
         pass
 
-    def evaluate_element(self, element, multiFidelity = False):
+    def evaluate_element(self, element, multiFidelity=False):
         for x in element:
             if type(x) == int or type(x) == np.float64:
                 return float(x), "test"
@@ -36,7 +36,8 @@ class Look_up_table:
         # if type(element) == pd.Series:
         # element = element.to_frame()
         columns = [f"InChIKey_{i}" for i in range(self.fragment_size)]
-        if multiFidelity: columns.append('fidelity')
+        if multiFidelity:
+            columns.append("fidelity")
         results = element.merge(
             self.df_look_up,
             on=columns,
@@ -53,7 +54,7 @@ class Look_up_table:
         if isinstance(self.aim, (int, float)):
             target = -np.abs(results[self.target_name][0] - self.aim)
         else:
-            target = results[self.target_name][0] 
+            target = results[self.target_name][0]
         return target, results["InChIKey"][0]
 
 
@@ -151,7 +152,9 @@ class IP_ES1_fosc(Objective_Function):
             client=client,
         )
         fitness_function = (
-            -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10(fosc_1+1e-10)
+            -np.abs(IP - 5.5)
+            - 0.5 * np.abs(Es1 - 3)
+            + np.log10(fosc_1 + 1e-10)
         )
         return fitness_function, Inchikey
 
