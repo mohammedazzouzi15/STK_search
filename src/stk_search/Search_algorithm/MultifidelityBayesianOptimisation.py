@@ -342,9 +342,9 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             ]  # check this for generalization
             df_elements.drop_duplicates(inplace=True)
         if (
-            df_elements.shape[0] > 1000
+            df_elements.shape[0] > 10
         ):  # limit the number of elements to evaluate each time
-            df_elements = df_elements.sample(1000)
+            df_elements = df_elements.sample(10)
         df_elements.reset_index(drop=True, inplace=True)
         return df_elements
 
@@ -383,8 +383,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
             curr_val_acqf = FixedFeatureAcquisitionFunction(
                     acq_function=PosteriorMean(model),
-                    d=73,
-                    columns=[72],
+                    d=Xrpr.shape[1],
+                    columns=[Xrpr.shape[1]-1],
                     values=[1],
                 )                
             _, current_value = optimize_acqf(
@@ -396,7 +396,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )
             acquisition_function = qMultiFidelityKnowledgeGradient(
                 model=model,
-                num_fantasies= 5,
+                num_fantasies= 50,
                 cost_aware_utility=cost_aware_utility,
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
                 current_value=current_value
@@ -405,7 +405,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             acquisition_values = acquisition_function.evaluate(
                         X_unsqueezed,
                         bounds=bounds
-                    )  # runs out of memory
+                    ).detach()  # runs out of memory
         else:
             # with torch.no_grad():
             acquisition_values = model.posterior(

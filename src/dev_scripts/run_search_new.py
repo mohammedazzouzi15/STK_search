@@ -113,18 +113,16 @@ def main(
         MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(
             budget=budget, 
             which_acquisition=which_acquisition, 
-            lim_counter=lim_counter)
+            lim_counter=lim_counter )
         if frag_properties == "selected":
             frag_properties = []
-            frag_properties = df_precursors.columns[1:7]
-            frag_properties = frag_properties.append(
-                df_precursors.columns[17:23]
-            )
+            frag_properties = df_precursors.columns[17:23]
         else:
             frag_properties = df_precursors.select_dtypes(
                 include=[np.number]
             ).columns
         print(frag_properties)
+        MFBO.fidelity_col = len(frag_properties)*oligomer_size
         MFBO.Representation = (
             Representation_from_fragment.Representation_from_fragment(
                 df_precursors, frag_properties
