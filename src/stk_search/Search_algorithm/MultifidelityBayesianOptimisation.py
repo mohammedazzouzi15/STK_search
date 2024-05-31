@@ -420,7 +420,6 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 cost_aware_utility=cost_aware_utility,
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
                 candidate_set=candidate_set,
-                use_gumbel=False
             )
             # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
             acquisition_values = acquisition_function(
