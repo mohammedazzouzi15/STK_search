@@ -11,6 +11,7 @@ from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
 from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
+from botorch.acquisition.max_value_entropy_search import qMultiFidelityMaxValueEntropy
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
@@ -406,6 +407,25 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                         X_unsqueezed,
                         bounds=bounds
                     ).detach()  # runs out of memory
+            
+        elif self.which_acquisition == "MES":
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
+            candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(10000, 1)   
+            target_fidelities = {self.fidelity_col:1}
+            cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
+            cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
+
+            acquisition_function = qMultiFidelityMaxValueEntropy(
+                model=model,
+                cost_aware_utility=cost_aware_utility,
+                project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
+                candidate_set=candidate_set,
+            )
+            # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+            acquisition_values = acquisition_function(
+                        X_unsqueezed,
+                    ).detach()  # runs out of memory
+        
         else:
             # with torch.no_grad():
             acquisition_values = model.posterior(
