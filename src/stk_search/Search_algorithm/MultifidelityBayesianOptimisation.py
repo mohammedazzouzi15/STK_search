@@ -410,7 +410,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             
         elif self.which_acquisition == "MES":
             bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
-            candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(1000, 1)   
+            candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(10000, 1)   
             target_fidelities = {self.fidelity_col:1}
             cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
             cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
@@ -419,7 +419,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 model=model,
                 cost_aware_utility=cost_aware_utility,
                 project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
-                candidate_set=candidate_set
+                candidate_set=candidate_set,
+                use_gumbel=False
             )
             # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
             acquisition_values = acquisition_function(
