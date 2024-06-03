@@ -130,14 +130,14 @@ def plot_target_MFBO(
                 if (df_sample.at[i, 'fidelity'] == fidelity):
                     fidelity_target.append(fitness_list[i])
                     fidelity_iteration.append(i)
-            maximum_target.append(max(fidelity_target))
+            maximum_target.append(max(df_total[df_total['fidelity']==fidelity][['target']]))
             legend_text = f'Fidelity: {fidelity}'
             axs.scatter(fidelity_iteration, fidelity_target, label=legend_text, color=colours[fidelities.index(fidelity)])
-        plt.axhline(y=maximum_target[-1], color='black', linestyle='--', label='Best Target for Fidelity')
+        plt.axhline(y=maximum_target[-1], color='black', linestyle='--', label='Global Max for Best Fidelity')
 
     else:
         axs.scatter(np.arange(nb_iterations+1), fitness_list, label='Evaluated Element', color=colours[0])
-        plt.axhline(y=max(fitness_list), color='black', linestyle='--', label='Best Target Found')
+        plt.axhline(y=max(df_total[['target']]), color='black', linestyle='--', label='Global Maximum')
     axs.legend(loc="lower right")
     axs.set_xlabel("Iteration Number")
     axs.set_ylabel("Target")
