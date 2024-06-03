@@ -1,6 +1,9 @@
 from stk_search import Search_Exp
 from stk_search.Search_algorithm import Search_algorithm
-from stk_search.Search_algorithm import BayesianOptimisation
+from stk_search.Search_algorithm import (
+    BayesianOptimisation,
+    BayesianOptimisation_ErrPred,
+)
 from stk_search.Search_algorithm import MultifidelityBayesianOptimisation
 from stk_search.Representation import (
     Representation_from_fragment,
@@ -42,7 +45,7 @@ def main(
     benchmark=False,
     dataset_representation_path="",
     frag_properties="all",
-    budget=None
+    budget=None,
 ):
     input_json = locals()
 
@@ -67,7 +70,9 @@ def main(
         )
     print(case, "  case  ")
     if case == "BO_precursor":
-        BO = BayesianOptimisation.BayesianOptimisation(which_acquisition=which_acquisition, lim_counter=lim_counter)
+        BO = BayesianOptimisation.BayesianOptimisation(
+            which_acquisition=which_acquisition, lim_counter=lim_counter
+        )
         if frag_properties == "selected":
             frag_properties = []
             frag_properties = df_precursors.columns[1:7]
@@ -85,7 +90,7 @@ def main(
             )
         )
         search_algorithm = BO
-    
+
     elif case == "BO_learned":
         BO = BayesianOptimisation.BayesianOptimisation(
             which_acquisition=which_acquisition, lim_counter=lim_counter
@@ -109,11 +114,23 @@ def main(
         BO.pred_model = pymodel.graph_pred_linear
         search_algorithm = BO
 
+    elif case == "BayesianOptimisation_ErrPred":
+        BO = BayesianOptimisation_ErrPred.BayesianOptimisation_ErrPred(
+            which_acquisition=which_acquisition, lim_counter=lim_counter
+        )
+        BO.verbose = True
+        # BO.normalise_input = False
+        BO.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
+        BO.Representation, pymodel = load_representation_model(config_dir)
+        BO.pred_model = pymodel.graph_pred_linear
+        search_algorithm = BO
+
     elif case == "MFBO":
         MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(
-            budget=budget, 
-            which_acquisition=which_acquisition, 
-            lim_counter=lim_counter )
+            budget=budget,
+            which_acquisition=which_acquisition,
+            lim_counter=lim_counter,
+        )
         if frag_properties == "selected":
             frag_properties = []
             frag_properties = df_precursors.columns[17:23]
@@ -122,7 +139,7 @@ def main(
                 include=[np.number]
             ).columns
         print(frag_properties)
-        MFBO.fidelity_col = len(frag_properties)*oligomer_size
+        MFBO.fidelity_col = len(frag_properties) * oligomer_size
         MFBO.Representation = (
             Representation_from_fragment.Representation_from_fragment(
                 df_precursors, frag_properties
@@ -366,7 +383,7 @@ def load_representation_model(config_dir):
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
-  
+
     parser = ArgumentParser()
     parser.add_argument("--num_iteration", type=int, default=100)
     parser.add_argument("--num_elem_initialisation", type=int, default=10)
@@ -392,7 +409,12 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_representation_path", type=str, default="")
     parser.add_argument("--oligomer_size", type=int, default=6)
     parser.add_argument("--frag_properties", type=str, default="all")
-    parser.add_argument("--budget",  type=lambda x : None if x == 'None' else int(x), nargs='?', default=None)
+    parser.add_argument(
+        "--budget",
+        type=lambda x: None if x == "None" else int(x),
+        nargs="?",
+        default=None,
+    )
     args = parser.parse_args()
     main(
         args.num_iteration,
@@ -411,5 +433,5 @@ if __name__ == "__main__":
         args.benchmark,
         args.dataset_representation_path,
         args.frag_properties,
-        args.budget
+        args.budget,
     )

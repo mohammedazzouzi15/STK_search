@@ -10,7 +10,9 @@ from stk_search.Search_space import Search_Space
 from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
-from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
+from botorch.acquisition.knowledge_gradient import (
+    qMultiFidelityKnowledgeGradient,
+)
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
@@ -35,7 +37,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         lim_counter=2,
         Representation=None,
         fidelity_col=72,
-        budget=None
+        budget=None,
     ):
         """Initialise the class.
         Args:
@@ -51,8 +53,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         """
 
         self.verbose = verbose
-        self.which_acquisition=which_acquisition
-        #self.normalise_input = normalise_input
+        self.which_acquisition = which_acquisition
+        # self.normalise_input = normalise_input
         self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.likelihood = likelihood
@@ -64,6 +66,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self.fidelity_col = fidelity_col
         self.multiFidelity = True
         self.budget = budget
+        self.population_size = 10
 
     def initial_suggestion(
         self,
@@ -100,16 +103,18 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                     num_elem_initialisation
                 )
         # reindex the df
-        filtered_cols = ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
+        filtered_cols = [
+            "InChIKey_" + str(i) for i in range(SP.number_of_fragments)
+        ]
         filtered_cols.append("fidelity")
         searched_space_df = searched_space_df[
             filtered_cols
         ]  # careful here, this is hard coded
         searched_space_df.index = range(len(searched_space_df))
         if self.budget is not None:
-            self.budget -= searched_space_df['fidelity'].sum()
+            self.budget -= searched_space_df["fidelity"].sum()
         return searched_space_df.index.tolist(), searched_space_df
-    
+
     def update_representation(self, Representation):
         self.Representation = Representation
 
@@ -162,7 +167,9 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         )
 
         for element_id in ids_sorted_by_aquisition:
-            if self.add_element(df_search, df_elements.values[element_id.item()]):
+            if self.add_element(
+                df_search, df_elements.values[element_id.item()]
+            ):
                 break
         return len(df_search) - 1, df_search
 
@@ -179,10 +186,12 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
     def normalise_input(self, X_rpr):
         X_rpr = X_rpr.double()
         # min max scaling the input
-        X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0])
+        X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (
+            X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0]
+        )
         return torch.tensor(pd.DataFrame(X_rpr).fillna(0.5).to_numpy())
 
-# This should be edited since how we evaluate the generated elements needs to change. -EJ
+    # This should be edited since how we evaluate the generated elements needs to change. -EJ
     def optimise_acquisition_function(
         self,
         best_f,
@@ -207,11 +216,11 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
         df_elements = self.generate_element_to_evaluate(
-            fitness_acquired, df_search.iloc[:,:-1], SP, benchmark, df_total
+            fitness_acquired, df_search.iloc[:, :-1], SP, benchmark, df_total
         )
 
         Xrpr = self.generate_rep_with_fidelity(df_elements)
-        
+
         acquisition_values = self.get_acquisition_values(
             self.model,
             Xrpr=Xrpr,
@@ -223,43 +232,65 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 len(self.Representation.dataset_local),
             )
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
-        ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
+        df_elements["acquisition_value"] = acquisition_values.detach().numpy()
+        acquisition_values = acquisition_values.numpy()
+        ids_sorted_by_aquisition = -acquisition_values.argsort()
         max_acquisition_value = acquisition_values.max()
 
         max_counter, max_optimisation_iteration = 0, 100
         while counter < lim_counter:
             counter += 1
             max_counter += 1
-            df_elements = self.generate_element_to_evaluate(
-                acquisition_values.detach().numpy(), df_elements.iloc[:,:-1], SP, benchmark, df_total
+            df_elements_old = df_elements.copy()
+            df_elements = self.Generate_element_to_evaluate(
+                acquisition_values,
+                df_elements_old.drop(columns="acquisition_value"),
+                SP,
+                benchmark,
+                df_total,
             )
-
             Xrpr = self.generate_rep_with_fidelity(df_elements)
-            
             acquisition_values = self.get_acquisition_values(
                 self.model,
                 Xrpr=Xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
-                print("size of representation dataset ", len(self.Representation.dataset_local),)
+                print(
+                    "size of representation dataset ",
+                    len(self.Representation.dataset_local),
+                )
+            # merge the new elements with the old ones
+            df_elements['acquisition_value'] = acquisition_values.detach().numpy()
+            df_elements = pd.concat([df_elements_old, df_elements])
+            #print('when merged df_elements size is ', df_elements.shape[0])
+
+            df_elements.drop_duplicates(inplace=True)
+            df_elements.reset_index(drop=True, inplace=True)
+            df_elements = df_elements.sort_values(
+                by="acquisition_value", ascending=False
+            )
+            if df_elements.shape[0] > self.population_size:  
+                df_elements = df_elements.loc[:self.population_size]
+            acquisition_values = df_elements['acquisition_value'].values
+            #print('df_elements size is ', df_elements.shape[0])
             # select element to acquire with maximal aquisition value, which is not in the acquired set already
-            ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
+            ids_sorted_by_aquisition = -acquisition_values.argsort()
             max_acquisition_value_current = acquisition_values.max()
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
             ):
                 max_acquisition_value = max_acquisition_value_current
-                #print(
-                 #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
-                #)
+                # print(
+                #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
+                # )
                 counter = 0
             if max_counter > max_optimisation_iteration:
                 break
         return ids_sorted_by_aquisition, df_elements
 
-# Similar to the BO case, except when the elements are generated at the end we add the fidelity
-# data as well -EJ
+    # Similar to the BO case, except when the elements are generated at the end we add the fidelity
+    # data as well -EJ
     def generate_element_to_evaluate(
         self,
         fitness_acquired,
@@ -268,7 +299,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         benchmark=False,
         df_total=None,
     ):
-        """ Generate elements to evaluate.
+        """Generate elements to evaluate.
         Args:
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
@@ -276,8 +307,9 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             benchmark (bool): if True, the search space is a benchmark
             df_total (pd.DataFrame): dataframe of the total dataset
             Returns:
-                pd.DataFrame: elements to evaluate 
+                pd.DataFrame: elements to evaluate
         """
+
         #
         def mutate_element(element):
             elements_val = []
@@ -336,10 +368,8 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             )
             df_elements.dropna(subset="target", inplace=True)
             columns = [f"InChIKey_{i}" for i in range(elements.shape[1])]
-            columns.append('fidelity')
-            df_elements = df_elements[
-                columns
-            ]  # check this for generalization
+            columns.append("fidelity")
+            df_elements = df_elements[columns]  # check this for generalization
             df_elements.drop_duplicates(inplace=True)
         if (
             df_elements.shape[0] > 10
@@ -348,7 +378,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         df_elements.reset_index(drop=True, inplace=True)
         return df_elements
 
-# Hardcoded values for the columns at the moment for the data-fidelities - EJ
+    # Hardcoded values for the columns at the moment for the data-fidelities - EJ
     def train_model(self, X_train, y_train):
         """Train the model.
         Args:
@@ -356,9 +386,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             y_train (torch.tensor): output
         """
         self.model = self.kernel(
-            X_train,
-            y_train,
-            data_fidelity=self.fidelity_col
+            X_train, y_train, data_fidelity=self.fidelity_col
         )
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
@@ -371,51 +399,61 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             Xrpr (torch.tensor): representation of the element
         Returns:
             torch.tensor: acquisition values"""
-        
+
         X_unsqueezed = Xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
         if self.which_acquisition == "KG":
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
-            target_fidelities = {self.fidelity_col:1}
-            cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
-            cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
+            bounds = torch.tensor(
+                [[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]],
+                dtype=torch.float64,
+            )
+            target_fidelities = {self.fidelity_col: 1}
+            cost_model = AffineFidelityCostModel(
+                fidelity_weights=target_fidelities, fixed_cost=1.0
+            )
+            cost_aware_utility = InverseCostWeightedUtility(
+                cost_model=cost_model
+            )
 
             curr_val_acqf = FixedFeatureAcquisitionFunction(
-                    acq_function=PosteriorMean(model),
-                    d=Xrpr.shape[1],
-                    columns=[Xrpr.shape[1]-1],
-                    values=[1],
-                )                
+                acq_function=PosteriorMean(model),
+                d=Xrpr.shape[1],
+                columns=[Xrpr.shape[1] - 1],
+                values=[1],
+            )
             _, current_value = optimize_acqf(
-                    acq_function=curr_val_acqf,
-                    bounds=bounds[:,:-1],
-                    q=1,
-                    num_restarts= 2,
-                    raw_samples=4
+                acq_function=curr_val_acqf,
+                bounds=bounds[:, :-1],
+                q=1,
+                num_restarts=2,
+                raw_samples=4,
             )
             acquisition_function = qMultiFidelityKnowledgeGradient(
                 model=model,
-                num_fantasies= 50,
+                num_fantasies=50,
                 cost_aware_utility=cost_aware_utility,
-                project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
-                current_value=current_value
+                project=lambda x: project_to_target_fidelity(
+                    X=x, target_fidelities=target_fidelities
+                ),
+                current_value=current_value,
             )
             # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
             acquisition_values = acquisition_function.evaluate(
-                        X_unsqueezed,
-                        bounds=bounds
-                    ).detach()  # runs out of memory
+                X_unsqueezed, bounds=bounds
+            ).detach()  # runs out of memory
         else:
             # with torch.no_grad():
             acquisition_values = model.posterior(
-                    X_unsqueezed
-                ).variance.squeeze()
+                X_unsqueezed
+            ).variance.squeeze()
         return acquisition_values
-   
+
     def generate_rep_with_fidelity(self, df_elements):
-        repr = df_elements.drop(columns = df_elements.columns[-1])
+        repr = df_elements.drop(columns=df_elements.columns[-1])
         Xrpr = self.Representation.generate_repr(repr)
         Xrpr = self.normalise_input(Xrpr)
-        fid = torch.tensor(df_elements[["fidelity"]].to_numpy(), dtype=torch.float64)
+        fid = torch.tensor(
+            df_elements[["fidelity"]].to_numpy(), dtype=torch.float64
+        )
         return torch.concat([Xrpr, fid], dim=1)

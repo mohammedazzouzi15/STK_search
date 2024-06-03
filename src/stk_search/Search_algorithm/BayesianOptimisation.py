@@ -57,6 +57,7 @@ class BayesianOptimisation(Search_Algorithm):
         self.Representation = Representation
         self.name = "Bayesian_Optimisation"
         self.pred_model = None
+        self.population_size = 1000
 
     def update_representation(self, Representation):
         self.Representation = Representation
@@ -158,12 +159,11 @@ class BayesianOptimisation(Search_Algorithm):
             fitness_acquired, df_search, SP, benchmark, df_total
         )
         Xrpr = self.Representation.generate_repr(df_elements)
-        Xrpr = self.normalise_input(Xrpr)
         acquisition_values = self.get_acquisition_values(
-            self.model,
             best_f=best_f,
             Xrpr=Xrpr,
         )
+        df_elements['acquisition_value'] = acquisition_values.detach().numpy()
 
         if "dataset_local" in self.Representation.__dict__:
             print(
@@ -171,26 +171,25 @@ class BayesianOptimisation(Search_Algorithm):
                 len(self.Representation.dataset_local),
             )
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
-        ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
+        acquisition_values = acquisition_values.numpy()
+        ids_sorted_by_aquisition = -acquisition_values.argsort()
         max_acquisition_value = acquisition_values.max()
         # print('max_acquisition_value is ', max_acquisition_value)
         # print('min_acquisition_value is ', acquisition_values.min())
         max_counter, max_optimisation_iteration = 0, 100
         while counter < lim_counter:
+            df_elements_old = df_elements.copy()
             counter += 1
             max_counter += 1
             df_elements = self.Generate_element_to_evaluate(
-                acquisition_values.numpy(),
-                df_elements,
+                acquisition_values,
+                df_elements_old.drop(columns="acquisition_value"),
                 SP,
                 benchmark,
                 df_total,
             )
             Xrpr = self.Representation.generate_repr(df_elements)
-            Xrpr = self.normalise_input(Xrpr)
-            # if benchmark:
             acquisition_values = self.get_acquisition_values(
-                self.model,
                 best_f=best_f,
                 Xrpr=Xrpr,
             )
@@ -199,14 +198,23 @@ class BayesianOptimisation(Search_Algorithm):
                     "size of representation dataset ",
                     len(self.Representation.dataset_local),
                 )
-            # select element to acquire with maximal aquisition value, which is not in the acquired set already
-            ids_sorted_by_aquisition = acquisition_values.argsort(
-                descending=True
+            # merge the new elements with the old ones
+            df_elements['acquisition_value'] = acquisition_values.detach().numpy()
+            df_elements = pd.concat([df_elements_old, df_elements])
+            #print('when merged df_elements size is ', df_elements.shape[0])
+
+            df_elements.drop_duplicates(inplace=True)
+            df_elements.reset_index(drop=True, inplace=True)
+            df_elements = df_elements.sort_values(
+                by="acquisition_value", ascending=False
             )
+            if df_elements.shape[0] > self.population_size:  
+                df_elements = df_elements.loc[:self.population_size]
+            acquisition_values = df_elements['acquisition_value'].values
+            #print('df_elements size is ', df_elements.shape[0])
+            # select element to acquire with maximal aquisition value, which is not in the acquired set already
+            ids_sorted_by_aquisition = -acquisition_values.argsort()
             max_acquisition_value_current = acquisition_values.max()
-            # print(
-            #  f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value_current}"
-            # )
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
@@ -223,7 +231,7 @@ class BayesianOptimisation(Search_Algorithm):
                 break
         # print("finished acquisition function optimisation")
         # print(ids_sorted_by_aquisition[:1], df_elements[:1])
-        return ids_sorted_by_aquisition, df_elements
+        return ids_sorted_by_aquisition, df_elements.drop(columns="acquisition_value")
 
     def Generate_element_to_evaluate(
         self,
@@ -307,7 +315,7 @@ class BayesianOptimisation(Search_Algorithm):
             ]  # check this for generalization
             df_elements.drop_duplicates(inplace=True)
         if (
-            df_elements.shape[0] > 1000
+            df_elements.shape[0] > self.population_size
         ):  # limit the number of elements to evaluate each time
             df_elements = df_elements.sample(1000)
         df_elements.reset_index(drop=True, inplace=True)
@@ -326,7 +334,7 @@ class BayesianOptimisation(Search_Algorithm):
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
 
-    def get_acquisition_values(self, model, best_f, Xrpr):
+    def get_acquisition_values(self, best_f, Xrpr):
         """Get the acquisition values.
         Args:
             model (gpytorch.models): model
@@ -334,44 +342,49 @@ class BayesianOptimisation(Search_Algorithm):
             Xrpr (torch.tensor): representation of the element
         Returns:
             torch.tensor: acquisition values"""
-        X_unsqueezed = Xrpr.double()
-        X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
-        # set up acquisition function
-        if self.which_acquisition == "EI":
-            acquisition_function = ExpectedImprovement(model, best_f=best_f)
-            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-                acquisition_values = acquisition_function.forward(
-                    X_unsqueezed
-                )  # runs out of memory
-        elif self.which_acquisition == "max_y_hat":
-            with torch.no_grad():
-                acquisition_values = model.posterior(
-                    X_unsqueezed
-                ).mean.squeeze()
-        elif self.which_acquisition == "max_sigma":
-            with torch.no_grad():
-                acquisition_values = model.posterior(
-                    X_unsqueezed
-                ).variance.squeeze()
-        elif self.which_acquisition == "LOG_EI":
-            acquisition_function = LogExpectedImprovement(model, best_f=best_f)
-            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-                acquisition_values = acquisition_function.forward(
-                    X_unsqueezed
-                )  # runs out of memory
-        elif self.which_acquisition == "UCB_GNN":
+        if self.which_acquisition == "UCB_GNN":
+            X_unsqueezed = self.normalise_input(Xrpr).double()
+            X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
             if self.pred_model is None:
                 raise ValueError(
                     "pred_model is None, but it's required for UCB_GNN acquisition"
                 )
             with torch.no_grad():
                 acquisition_values = self.pred_model(
-                    X_unsqueezed.float()
+                    Xrpr.float()
                 ).squeeze()
                 acquisition_values = (
                     acquisition_values
                     + self.model.posterior(X_unsqueezed).variance.squeeze()
                 )
+            return acquisition_values
+        Xrpr = self.normalise_input(Xrpr)
+        X_unsqueezed = Xrpr.double()
+        X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
+        # set up acquisition function
+        if self.which_acquisition == "EI":
+            acquisition_function = ExpectedImprovement(self.model, best_f=best_f)
+            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+                acquisition_values = acquisition_function.forward(
+                    X_unsqueezed
+                )  # runs out of memory
+        elif self.which_acquisition == "max_y_hat":
+            with torch.no_grad():
+                acquisition_values = self.model.posterior(
+                    X_unsqueezed
+                ).mean.squeeze()
+        elif self.which_acquisition == "max_sigma":
+            with torch.no_grad():
+                acquisition_values = self.model.posterior(
+                    X_unsqueezed
+                ).variance.squeeze()
+        elif self.which_acquisition == "LOG_EI":
+            acquisition_function = LogExpectedImprovement(self.model, best_f=best_f)
+            with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+                acquisition_values = acquisition_function.forward(
+                    X_unsqueezed
+                )  # runs out of memory
+        
         elif self.which_acquisition == "UCB":
             with torch.no_grad():
                 acquisition_values = acquisition_values = (
@@ -384,12 +397,12 @@ class BayesianOptimisation(Search_Algorithm):
                                 X_unsqueezed
                             ).variance.squeeze()
         elif self.which_acquisition == "KG":
-            acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 5)
+            acquisition_function = qKnowledgeGradient(model=self.model,num_fantasies= 50)
             bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
             acquisition_values = acquisition_function.evaluate(
                 X_unsqueezed,
                 bounds= bounds
-            ) 
+            ).detach() 
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
