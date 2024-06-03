@@ -141,7 +141,7 @@ def plot_target_MFBO(
     axs.legend(loc="lower right")
     axs.set_xlabel("Iteration Number")
     axs.set_ylabel("Target")
-    axs.set_ylim([min(fitness_list)-2, max(fitness_list)+1])
+    axs.set_ylim([min(fitness_list)-2, max(df_total[['target']])+2])
     axs.set_title(title)
     return max(fitness_list)
     
