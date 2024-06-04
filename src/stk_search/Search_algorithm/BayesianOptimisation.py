@@ -397,7 +397,7 @@ class BayesianOptimisation(Search_Algorithm):
             acquisition_function = qMaxValueEntropy(model, candidate_set=candidate_set)
             acquisition_values = acquisition_function(
                 X_unsqueezed,
-            )
+            ).detach()
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
