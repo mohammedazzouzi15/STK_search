@@ -62,6 +62,7 @@ class BayesianOptimisation_ErrPred(BayesianOptimisation.BayesianOptimisation):
         X_rpr = self.normalise_input(X_rpr)
 
         y_explored_BO = torch.tensor(fitness_acquired, dtype=torch.float64)
+        y_explored_BO_norm = (y_explored_BO - y_explored_BO.mean()) / y_explored_BO.std()
         y_Err_BO_norm = (
             y_explored_BO - y_pred_model.squeeze().detach().double()
         )
@@ -76,7 +77,7 @@ class BayesianOptimisation_ErrPred(BayesianOptimisation.BayesianOptimisation):
         # optimise the acquisition function
         ids_sorted_by_aquisition, df_elements = (
             self.optimise_acquisition_function(
-                best_f=y_Err_BO_norm.max().item(),
+                best_f=y_explored_BO_norm.max().item(),
                 fitness_acquired=fitness_acquired,
                 df_search=df_search,
                 SP=SP,
@@ -112,7 +113,7 @@ class BayesianOptimisation_ErrPred(BayesianOptimisation.BayesianOptimisation):
                     "pred_model is None, but it's required for UCB_GNN acquisition"
                 )
             with torch.no_grad():
-                acquisition_values = self.pred_model(Xrpr.float())
+                GNN_pred = self.pred_model(Xrpr.float())
                 predicted_error = (
                     self.model.posterior(X_unsqueezed).mean.squeeze()
                     * self.target_normstd
@@ -123,9 +124,7 @@ class BayesianOptimisation_ErrPred(BayesianOptimisation.BayesianOptimisation):
                     * self.target_normstd
                 )
                 acquisition_values = (
-                    acquisition_values.squeeze()
-                    + predicted_error
-                    + predicted_error_std
+                    GNN_pred.squeeze() + predicted_error + predicted_error_std
                 )
             return acquisition_values
         if self.which_acquisition == "EI_GNN":
@@ -135,10 +134,12 @@ class BayesianOptimisation_ErrPred(BayesianOptimisation.BayesianOptimisation):
                 self.model, best_f=best_f
             )
             with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
-                GNN_pred = self.pred_model(Xrpr.float()).detach()
+                GNN_pred = (
+                    self.pred_model(Xrpr.float()).detach()
+                    / self.target_normstd
+                )  # assuming the same std for the GNN and the data
                 acquisition_values = acquisition_function.forward(
-                    X_unsqueezed,
-                    GNN_pred.squeeze()
+                    X_unsqueezed, GNN_pred.squeeze()
                 )  # runs out of memory
             return acquisition_values
 
@@ -155,8 +156,7 @@ class ExpectedImprovement_GNN(ExpectedImprovement):
     Computes expected improvement considering the
     """
 
-
-    def forward(self, X: Tensor,GNN_pred) -> Tensor:
+    def forward(self, X: Tensor, GNN_pred) -> Tensor:
         r"""Evaluate Expected Improvement on the candidate set X.
 
         Args:

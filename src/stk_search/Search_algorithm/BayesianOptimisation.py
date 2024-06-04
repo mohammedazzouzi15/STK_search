@@ -193,25 +193,26 @@ class BayesianOptimisation(Search_Algorithm):
                 best_f=best_f,
                 Xrpr=Xrpr,
             )
-            if "dataset_local" in self.Representation.__dict__:
-                print(
-                    "size of representation dataset ",
-                    len(self.Representation.dataset_local),
-                )
+            #if "dataset_local" in self.Representation.__dict__:
+             #   print(
+              #      "size of representation dataset ",
+               #     len(self.Representation.dataset_local),
+                #)
             # merge the new elements with the old ones
             df_elements['acquisition_value'] = acquisition_values.detach().numpy()
             df_elements = pd.concat([df_elements_old, df_elements])
-            #print('when merged df_elements size is ', df_elements.shape[0])
+            #print('when merged df_elements size is ', df_elements.shape)
 
             df_elements.drop_duplicates(inplace=True)
-            df_elements.reset_index(drop=True, inplace=True)
             df_elements = df_elements.sort_values(
                 by="acquisition_value", ascending=False
             )
-            if df_elements.shape[0] > self.population_size:  
-                df_elements = df_elements.loc[:self.population_size]
+            df_elements.reset_index(drop=True, inplace=True)
+
+            #if df_elements.shape[0] > self.population_size:  
+             #   df_elements = df_elements.loc[:self.population_size]
             acquisition_values = df_elements['acquisition_value'].values
-            #print('df_elements size is ', df_elements.shape[0])
+            #print('df_elements size is ', df_elements.shape)
             # select element to acquire with maximal aquisition value, which is not in the acquired set already
             ids_sorted_by_aquisition = -acquisition_values.argsort()
             max_acquisition_value_current = acquisition_values.max()

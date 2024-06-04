@@ -265,10 +265,11 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             #print('when merged df_elements size is ', df_elements.shape[0])
 
             df_elements.drop_duplicates(inplace=True)
-            df_elements.reset_index(drop=True, inplace=True)
             df_elements = df_elements.sort_values(
                 by="acquisition_value", ascending=False
             )
+            df_elements.reset_index(drop=True, inplace=True)
+
             if df_elements.shape[0] > self.population_size:  
                 df_elements = df_elements.loc[:self.population_size]
             acquisition_values = df_elements['acquisition_value'].values
