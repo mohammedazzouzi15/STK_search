@@ -434,7 +434,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
             acquisition = ExpectedImprovement( model=model, best_f= best_f)
 
-            acquisition_scores = acquisition.forward(Xrpr.reshape(-1,1, Xrpr.shape[1]) ).detach()
+            acquisition_scores = acquisition.forward(Xrpr_hf.reshape(-1,1, Xrpr_hf.shape[1]) ).detach()
             max_hf_ind = acquisition_scores.argmax()
 
             index_in_xrpr = Xrpr.tolist().index(Xrpr_hf[max_hf_ind].tolist())
