@@ -241,6 +241,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             
             acquisition_values = self.get_acquisition_values(
                 self.model,
+                best_f=best_f,
                 Xrpr=Xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
@@ -433,8 +434,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
             acquisition = ExpectedImprovement( model=model, best_f= best_f)
 
-            Xrpr = torch.tensor(Xrpr)
-            acquisition_scores =  acquisition.forward(Xrpr.reshape(-1,1, Xrpr.shape[1]) ).detach()
+            acquisition_scores = acquisition.forward(Xrpr.reshape(-1,1, Xrpr.shape[1]) ).detach()
             max_hf_ind = acquisition_scores.argmax()
 
             index_in_xrpr = Xrpr.tolist().index(Xrpr_hf[max_hf_ind].tolist())
