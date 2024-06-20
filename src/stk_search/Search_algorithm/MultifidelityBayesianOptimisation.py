@@ -18,6 +18,7 @@ from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch import fit_gpytorch_mll
 from botorch.models.transforms.outcome import Standardize
+from botorch.acquisition.analytic import ExpectedImprovement
 
 import itertools
 
@@ -216,6 +217,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         acquisition_values = self.get_acquisition_values(
             self.model,
             Xrpr=Xrpr,
+            best_f = best_f
         )
 
         if "dataset_local" in self.Representation.__dict__:
@@ -364,7 +366,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
 
-    def get_acquisition_values(self, model, Xrpr):
+    def get_acquisition_values(self, model, best_f, Xrpr):
         """Get the acquisition values.
         Args:
             model (gpytorch.models): model
@@ -426,6 +428,26 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                         X_unsqueezed,
                     ).detach()  # runs out of memory
         
+        elif self.which_acquisition == "TVR":
+            Xrpr_hf = Xrpr[np.where(Xrpr[:,-1]==1)]
+
+            acquisition = ExpectedImprovement( model=model, best_f= best_f)
+
+            Xrpr = torch.tensor(Xrpr)
+            acquisition_scores =  acquisition.forward(Xrpr.reshape(-1,1, Xrpr.shape[1]) ).detach()
+            max_hf_ind = acquisition_scores.argmax()
+
+            index_in_xrpr = Xrpr.tolist().index(Xrpr_hf[max_hf_ind].tolist())
+
+            posterior = model.posterior(Xrpr)
+
+            pcov = posterior.distribution.covariance_matrix
+            p_var = posterior.variance
+            hf_max_cov = pcov[index_in_xrpr]
+            hf_max_var = hf_max_cov[index_in_xrpr]
+            cost = Xrpr[:, 1]
+
+            return hf_max_cov ** 2 / (p_var.reshape(-1) * hf_max_var * cost)
         else:
             # with torch.no_grad():
             acquisition_values = model.posterior(
