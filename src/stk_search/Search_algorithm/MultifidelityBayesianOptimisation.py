@@ -11,12 +11,14 @@ from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
 from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
+from botorch.acquisition.max_value_entropy_search import qMultiFidelityMaxValueEntropy
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch import fit_gpytorch_mll
 from botorch.models.transforms.outcome import Standardize
+from botorch.acquisition.analytic import ExpectedImprovement
 
 import itertools
 
@@ -215,6 +217,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         acquisition_values = self.get_acquisition_values(
             self.model,
             Xrpr=Xrpr,
+            best_f = best_f
         )
 
         if "dataset_local" in self.Representation.__dict__:
@@ -238,6 +241,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             
             acquisition_values = self.get_acquisition_values(
                 self.model,
+                best_f=best_f,
                 Xrpr=Xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
@@ -363,7 +367,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
 
-    def get_acquisition_values(self, model, Xrpr):
+    def get_acquisition_values(self, model, best_f, Xrpr):
         """Get the acquisition values.
         Args:
             model (gpytorch.models): model
@@ -406,6 +410,18 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                         X_unsqueezed,
                         bounds=bounds
                     ).detach()  # runs out of memory
+            
+        elif self.which_acquisition == "MES":
+            acquisition_values=self.MES( model, Xrpr, X_unsqueezed)
+        elif self.which_acquisition == "TVR":
+            acquisition_values = self.TVR( model, Xrpr, best_f)
+
+        elif self.which_acquisition == "custom":
+            mes = self.MES(model, Xrpr, X_unsqueezed)
+            normalized_mes= mes / torch.sqrt(torch.sum(mes**2))
+            tvr = self.TVR(model, Xrpr, best_f)
+            normalized_tvr = tvr / torch.sqrt(torch.sum(tvr**2))
+            acquisition_values= normalized_mes + normalized_tvr
         else:
             # with torch.no_grad():
             acquisition_values = model.posterior(
@@ -413,6 +429,44 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 ).variance.squeeze()
         return acquisition_values
    
+    def TVR(self, model, Xrpr, best_f):
+        Xrpr_hf = Xrpr[np.where(Xrpr[:,-1]==1)]
+
+        acquisition = ExpectedImprovement( model=model, best_f= best_f)
+
+        acquisition_scores = acquisition.forward(Xrpr_hf.reshape(-1,1, Xrpr_hf.shape[1]) ).detach()
+        max_hf_ind = acquisition_scores.argmax()
+
+        index_in_xrpr = Xrpr.tolist().index(Xrpr_hf[max_hf_ind].tolist())
+
+        posterior = model.posterior(Xrpr)
+
+        pcov = posterior.distribution.covariance_matrix
+        p_var = posterior.variance
+        hf_max_cov = pcov[index_in_xrpr]
+        hf_max_var = hf_max_cov[index_in_xrpr]
+        cost = Xrpr[:, 1]
+
+        return hf_max_cov ** 2 / (p_var.reshape(-1) * hf_max_var * cost)
+    
+    def MES(self, model, Xrpr, X_unsqueezed):
+        bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
+        candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(10000, 1)   
+        target_fidelities = {self.fidelity_col:1}
+        cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
+        cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
+
+        acquisition_function = qMultiFidelityMaxValueEntropy(
+            model=model,
+            cost_aware_utility=cost_aware_utility,
+            project=lambda x: project_to_target_fidelity(X=x, target_fidelities=target_fidelities),
+            candidate_set=candidate_set,
+        )
+        # with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
+        return acquisition_function(
+                    X_unsqueezed,
+                ).detach()  # runs out of memory
+        
     def generate_rep_with_fidelity(self, df_elements):
         repr = df_elements.drop(columns = df_elements.columns[-1])
         Xrpr = self.Representation.generate_repr(repr)

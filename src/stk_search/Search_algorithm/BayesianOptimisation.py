@@ -10,6 +10,7 @@ from botorch.acquisition.analytic import (
     ExpectedImprovement,
     LogExpectedImprovement,
 )
+from botorch.acquisition.max_value_entropy_search import qMaxValueEntropy
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
 from stk_search.Search_space import Search_Space
@@ -389,7 +390,14 @@ class BayesianOptimisation(Search_Algorithm):
             acquisition_values = acquisition_function.evaluate(
                 X_unsqueezed,
                 bounds= bounds
-            ) 
+            )
+        elif self.which_acquisition == "MES":
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]])
+            candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(10000, 1)
+            acquisition_function = qMaxValueEntropy(model, candidate_set=candidate_set)
+            acquisition_values = acquisition_function(
+                X_unsqueezed,
+            ).detach()
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
