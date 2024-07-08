@@ -49,8 +49,8 @@ docs/_rst/*
 docs/_build/*
 cover/*
 MANIFEST
-notebooks
-wandb
+notebooks/
+wandb/
 
 # Per-project virtualenvs
 .venv*/
