@@ -445,7 +445,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         p_var = posterior.variance
         hf_max_cov = pcov[index_in_xrpr]
         hf_max_var = hf_max_cov[index_in_xrpr]
-        cost = Xrpr[:, 1]
+        cost = Xrpr[:, -1]
 
         return hf_max_cov ** 2 / (p_var.reshape(-1) * hf_max_var * cost)
     
