@@ -63,7 +63,7 @@ class SearchExp:
             raise Exception("Budget exhausted by Initial Sample")
 
         self.df_search_space = df_search_space
-        for id in range(self.num_elem_initialisation):
+        for id in range(len(ids_acquired)):
             # evaluate the element
             self.evaluate_element(
                 element_id=ids_acquired[id],
