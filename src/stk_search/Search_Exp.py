@@ -66,7 +66,7 @@ class Search_exp:
             raise Exception('Budget exhausted by Initial Sample')
         
         self.df_search_space = df_search_space
-        for id in range(self.num_elem_initialisation):
+        for id in range(len(ids_acquired)):
             # evaluate the element
             self.evaluate_element(
                 element_id=ids_acquired[id],
@@ -76,7 +76,7 @@ class Search_exp:
             print(f"max fitness acquired: {max(self.fitness_acquired)}")
             print(f"min fitness acquired: {min(self.fitness_acquired)}")
         # run the search
-        for id in range(self.number_of_iterations):
+        for id in range(len(ids_acquired)):
             # suggest the next element
             ids_acquired, df_search_space = (
                 self.search_algorithm.suggest_element(
