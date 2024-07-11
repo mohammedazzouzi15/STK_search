@@ -7,50 +7,126 @@ from IPython.display import display
 from ipywidgets import Layout, VBox, interact, widgets
 
 
-class Search_Space:
+class SearchSpace:
     """
     class that contains the chemical space to search over
     it is defined by the number of fragments and the syntax of the fragment forming the oligomer
+    it also contains the conditions that need to be respected by the building blocks
+
+    Attributes
+    ----------
+    number_of_fragments : int
+        number of fragments in the oligomer
+    df_precursors : pd.DataFrame
+        dataframe containing the building blocks inchikeys and features
+    generation_type : str
+        type of generation of the search space
+    syntax : list
+        list of the syntax of the oligomer
+    conditions_list : list
+        list of the conditions that need to be respected by the building blocks
+
+
     """
 
     def __init__(
         self,
         number_of_fragments: int,
         df: pd.DataFrame,
-        features_frag: list,
-        generation_type: str = "manual",
+        # features_frag: list,
+        generation_type: str = "conditional",
     ):
+        """
+        Parameters
+        ----------
+        number_of_fragments : int
+            number of fragments in the oligomer
+        df : pd.DataFrame
+            dataframe containing the building blocks inchikeys and features
+        features_frag : list
+            list of the features of the building blocks
+        generation_type : str
+            type of generation of the search space
+        """
         self.number_of_fragments = number_of_fragments
         self.df_precursors = df
-        self.features_frag = features_frag
+        # self.features_frag = features_frag
         self.syntax = [0, 1, 2, 3, 4, 5]
         self.conditions_list = [[] for i in range(self.number_of_fragments)]
         self.generation_type = generation_type
         self.update()
 
+    def add_condition(self, condition: str, fragment: int):
+        """
+        add a condition to the condition list
+        # condition syntax should follow the following condition:
+        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
+        Parameters
+        ----------
+        condition : str
+            condition to add
+        fragment : int
+            fragment position to which the condition is added
+        """
+        # condition syntax should follow the following condition:
+        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
+        self.conditions_list[fragment].append(condition)
+
+    def remove_condition(self, condition: str, fragment: int):
+        # condition syntax should follow the following condition:
+        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
+        self.conditions_list[fragment].remove(condition)
+
+    def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
+        # check if the condition is respected by the search space
+        # show that each fragment respect the condition
+        # return the list of the InChIKey of the fragment that respect the condition
+        df_mult_filtered = df_to_check.copy()
+        for i in range(self.number_of_fragments):
+            df_precursor_filter = self.df_precursors.copy()
+            for condition in self.conditions_list[i]:
+                condition_exp = condition.split("#")
+                expression = (
+                    "df_precursor_filter["
+                    + condition_exp[0]
+                    + "]"
+                    + condition_exp[1]
+                    + condition_exp[2]
+                )
+                df_precursor_filter = df_precursor_filter[eval(expression)]
+
+            df_mult_filtered = df_mult_filtered[
+                df_mult_filtered[f"InChIKey_{i}"].isin(
+                    df_precursor_filter["InChIKey"]
+                )
+            ]
+        # check if the fragment in the dataframe respect the syntax in the syntax list
+        for pos, id in enumerate(self.syntax):
+            if id == pos:
+                pass
+            else:
+                df_mult_filtered = df_mult_filtered[
+                    df_mult_filtered[f"InChIKey_{id}"]
+                    == df_mult_filtered[f"InChIKey_{pos}"]
+                ]
+        return df_mult_filtered
+
     def update(self):
-        self.list_fragment = self.generate_list_fragment(
-            self.generation_type
+        """
+        update the search space based on the conditions
+        changes the list of fragment and recomputes the space size
+        """
+        self.list_fragment = (
+            self.generate_list_fragment()
         )  # list of list of index of the fragment ( need to be the same length as the number of fragments)
         self.get_space_size()
 
-    def generate_list_fragment(self, generation_type="random"):
+    def generate_list_fragment(self):
         # generate the list of list of index of the fragment ( need to be the same length as the number of fragments)
         # generation type can either be random or most_diverse or manual or conditional
 
         list_fragment = []
-        if generation_type == "random":
-            for i in range(self.number_of_fragments):
-                list_fragment.append(
-                    np.random.choice(
-                        self.df_precursors.index.to_list(), 8, replace=False
-                    )
-                )
-        elif generation_type == "most_diverse":
-            list_fragment = generate_list_most_diverse_fragment(
-                number_fragment=8, df=self.df_precursors
-            )
-        elif generation_type == "conditional":
+        if self.generation_type == "conditional":
             for i in range(self.number_of_fragments):
                 df_filtered = self.df_precursors.copy()
                 for condition in self.conditions_list[i]:
@@ -64,7 +140,7 @@ class Search_Space:
                     )
                     df_filtered = df_filtered[eval(expression)]
                 list_fragment.append(df_filtered.index.to_list())
-        elif generation_type == "manual":
+        elif self.generation_type == "manual":
             list_fragment = [
                 [1, 2],
                 [3, 4],
@@ -142,122 +218,6 @@ class Search_Space:
         # print(f"shape of the dataframe {df_multi.shape}")
         return df_multi
 
-    def random_generation_df(self, num_element):
-        import random
-
-        id_list_not_to_merge = []
-        max_fragment = int(num_element ** (1 / len(set(self.syntax)))) + 1
-        df_list = [None] * self.number_of_fragments
-        for i in set(self.syntax):
-
-            if i == 0:
-                df_list[i] = self.df_precursors.loc[
-                    list(random.sample(self.list_fragment[0], max_fragment))
-                ][self.features_frag]
-                df_multi = df_list[i]
-
-            else:
-                df_list[i] = self.df_precursors.loc[
-                    list(random.sample(self.list_fragment[i], max_fragment))
-                ][self.features_frag]
-                df_multi = df_multi.merge(
-                    df_list[i],
-                    how="cross",
-                    suffixes=("", "_" + str(i)),
-                )
-            id_list_not_to_merge.append(i)
-        df_multi = df_multi.rename(
-            columns={
-                c: c + "_0"
-                for c in df_multi.columns
-                if c in self.features_frag
-            }
-        )
-        for pos, id in enumerate(self.syntax):
-            if pos in id_list_not_to_merge:
-                continue
-            else:
-                df_multi = df_multi.merge(
-                    df_list[id],
-                    left_on=f"InChIKey_{id}",
-                    right_on="InChIKey",
-                    suffixes=("", "_" + str(pos)),
-                )
-                df_multi = df_multi.rename(
-                    columns={
-                        c: c + f"_{pos}"
-                        for c in df_multi.columns
-                        if c in self.features_frag
-                    }
-                )
-
-        df_multi = df_multi.sample(num_element)
-        # print(f"shape of the dataframe {df_multi.shape}")
-
-        return df_multi
-
-    def add_condition(self, condition: str, fragment: int):
-        # condition syntax should follow the following condition:
-        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
-        self.conditions_list[fragment].append(condition)
-
-    def remove_condition(self, condition: str, fragment: int):
-        # condition syntax should follow the following condition:
-        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
-        self.conditions_list[fragment].remove(condition)
-
-    def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
-        # check if the condition is respected by the search space
-        # show that each fragment respect the condition
-        # return the list of the InChIKey of the fragment that respect the condition
-        df_mult_filtered = df_to_check.copy()
-        for i in range(self.number_of_fragments):
-            df_precursor_filter = self.df_precursors.copy()
-            for condition in self.conditions_list[i]:
-                condition_exp = condition.split("#")
-                expression = (
-                    "df_precursor_filter["
-                    + condition_exp[0]
-                    + "]"
-                    + condition_exp[1]
-                    + condition_exp[2]
-                )
-                df_precursor_filter = df_precursor_filter[eval(expression)]
-
-            df_mult_filtered = df_mult_filtered[
-                df_mult_filtered[f"InChIKey_{i}"].isin(
-                    df_precursor_filter["InChIKey"]
-                )
-            ]
-        # check if the fragment in the dataframe respect the syntax in the syntax list
-        for pos, id in enumerate(self.syntax):
-            if id == pos:
-                pass
-            else:
-                df_mult_filtered = df_mult_filtered[
-                    df_mult_filtered[f"InChIKey_{id}"]
-                    == df_mult_filtered[f"InChIKey_{pos}"]
-                ]
-
-        return df_mult_filtered
-
-    def redefine_search_space(self):
-        # redifine the search space based on the conditions
-        # and return the new search space as a dataframe
-        self.list_fragment = self.generate_list_fragment(
-            self.generation_type
-        )  # list of list of index of the fragment ( need to be the same length as the number of fragments)
-        self.get_space_size()
-        if self.space_size < 1e6:
-            return self.generate_dataframe_with_search_space()
-        elif self.space_size < 1e8:
-            print("space too big but will take element randomly")
-            df_search_space = self.generate_dataframe_with_search_space()
-            # reduce the size of the search space by taking random elements
-            return df_search_space.sample(n=int(1e6), replace=False)
-        else:
-            print("space way too big")
-
     def plot_histogram_precursor(self):
         def plot_histogram(column_name):
             plt.figure(figsize=(6, 4))
@@ -284,6 +244,25 @@ class Search_Space:
         )
         plt.show()
 
+    ## old function
+    """
+
+    def redefine_search_space(self):
+        # redifine the search space based on the conditions
+        # and return the new search space as a dataframe
+        self.list_fragment = self.generate_list_fragment(
+            self.generation_type
+        )  # list of list of index of the fragment ( need to be the same length as the number of fragments)
+        self.get_space_size()
+        if self.space_size < 1e6:
+            return self.generate_dataframe_with_search_space()
+        elif self.space_size < 1e8:
+            print("space too big but will take element randomly")
+            df_search_space = self.generate_dataframe_with_search_space()
+            # reduce the size of the search space by taking random elements
+            return df_search_space.sample(n=int(1e6), replace=False)
+        else:
+            print("space way too big")
     def add_TSNE_to_df_precuros(self):
         # plot t_SNE of the search space
         from rdkit.Chem import rdFingerprintGenerator
@@ -481,36 +460,6 @@ class Search_Space:
             layout=vbox_layout,
         )
         display(Vb)
-        # interact(add_condition, columns=columns_dropdown, operation=operation_dropdown, value=value_dropdown, fragment=fragment_dropdown,add_condition=add_condition_button, layout=vbox_layout)
-        # interact(remove_condition, condition=f"'{columns_dropdown.value}'#{operation_dropdown.value}#{value_dropdown.value}", fragment=fragment_dropdown, layout=vbox_layout)
-        # interact(plot_histogram, column_name=columns_dropdown, layout=vbox_layout)
         plt.show()
         self.plot_histogram_precursor()
-
-    def generate_list_most_diverse_fragment(
-        number_fragment: int, df: pd.DataFrame
-    ):
-        print(len(df))
-        fpgen = AllChem.GetRDKitFPGenerator()
-        fps = []
-        for x in df["mol_opt_2"].values:
-            try:
-                fps.append(fpgen.GetFingerprint(x))
-            except:
-                print(x)
-                break
-        low_IP = df["TSNE_1d"].min()
-        sep = (df["TSNE_1d"].max() - low_IP) / number_fragment
-        fps_list_index = []
-        for i in range(number_fragment):
-            df_test = df[df["TSNE_1d"] > low_IP + sep * i]
-            df_test = df_test[df_test["TSNE_1d"] < low_IP + sep * (i + 1)]
-            list_of_fragement = df_test.index.to_list()
-            fps_list_index.append(
-                np.random.choice(
-                    list_of_fragement,
-                    min(15, len(list_of_fragement)),
-                    replace=False,
-                )
-            )
-        return fps_list_index
+    """

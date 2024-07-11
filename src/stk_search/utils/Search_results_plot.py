@@ -21,9 +21,9 @@ import glob
 import pickle
 
 
-plt.matplotlib.style.use(
-    "https://gist.githubusercontent.com/JonnyCBB/c464d302fefce4722fe6cf5f461114ea/raw/64a78942d3f7b4b5054902f2cee84213eaff872f/matplotlibrc"
-)
+#plt.matplotlib.style.use(
+#    "https://gist.githubusercontent.com/JonnyCBB/c464d302fefce4722fe6cf5f461114ea/raw/64a78942d3f7b4b5054902f2cee84213eaff872f/matplotlibrc"
+#)
 cool_colors = [
     "#00BEFF",
     "#D4CA3A",

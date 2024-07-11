@@ -1,6 +1,6 @@
 import unittest
 from run_search import run_search
-from stk_search import Search_Exp
+from stk_search import SearchExp
 from stk_search.Search_algorithm import Search_algorithm
 from stk_search.Search_algorithm import Bayesian_Optimisation
 from stk_search.Search_algorithm import (
@@ -125,7 +125,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
     number_of_iterations = num_iteration
     verbose = True
     num_elem_initialisation = num_elem_initialisation
-    S_exp = Search_Exp.Search_exp(
+    S_exp = SearchExp.Search_exp(
         search_space_loc,
         search_algorithm,
         objective_function,

@@ -13,7 +13,7 @@ from botorch.acquisition.analytic import (
 from botorch.acquisition.max_value_entropy_search import qMaxValueEntropy
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
-from stk_search.Search_space import Search_Space
+from stk_search.SearchSpace import SearchSpace
 from stk_search.Search_algorithm.Botorch_kernels import (
     TanimotoGP,
     RBFKernel,
@@ -67,7 +67,7 @@ class BayesianOptimisation(Search_Algorithm):
         search_space_df,
         fitness_acquired,
         ids_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -230,7 +230,7 @@ class BayesianOptimisation(Search_Algorithm):
         self,
         fitness_acquired,
         df_search,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=False,
         df_total=None,
     ):

@@ -12,7 +12,7 @@ import stk
 import pymongo
 from pathlib import Path
 import stk_search
-from stk_search import Searched_space
+from stk_search import SearchedSpace
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,7 +26,7 @@ def load_data(
     df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
-    SP = Searched_space.Searched_Space(
+    SP = Searched_pace.Searched_Space(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],
@@ -149,7 +149,7 @@ def generate_test_val_data(
         client,
         database=config["database_name"],
     )
-    SP = Searched_space.Searched_Space(
+    SP = Searched_pace.Searched_Space(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],

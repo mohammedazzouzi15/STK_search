@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
-from stk_search.Search_space import Search_Space
+from stk_search.SearchSpace import SearchSpace
 from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.cost import AffineFidelityCostModel
 from botorch.acquisition.cost_aware import InverseCostWeightedUtility
@@ -69,7 +69,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
     def initial_suggestion(
         self,
-        SP: Search_Space = [],
+        SP: SearchSpace = [],
         num_elem_initialisation: int = 10,
         benchmark=False,
         df_total: pd.DataFrame = None,
@@ -120,7 +120,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         search_space_df,
         fitness_acquired,
         ids_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -268,7 +268,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self,
         fitness_acquired,
         df_search,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=False,
         df_total=None,
     ):

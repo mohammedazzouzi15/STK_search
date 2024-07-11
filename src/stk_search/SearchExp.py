@@ -2,22 +2,23 @@
 import os
 import pickle
 from datetime import datetime
+from stk_search.SearchSpace import SearchSpace
 
 # from Scripts.Search_algorithm import Search_Algorithm
 from stk_search.Objective_function import Objective_Function
 import uuid
 
 
-class Search_exp:
+class SearchExp:
     def __init__(
         self,
-        search_space_loc,
+        searchspace: SearchSpace,
         search_algorithm,
         objective_function,
         number_of_iterations,
         verbose=False,
     ):
-        self.search_space_loc = search_space_loc
+        self.search_space = searchspace
         self.search_algorithm = (
             search_algorithm  # add a name to the search algorithm
         )
@@ -26,7 +27,6 @@ class Search_exp:
         self.output_folder = "Data/search_experiment"
         self.search_space_folder = "Data/search_experiment/search_space"
         self.num_elem_initialisation = 10
-        self.search_space = None
         self.df_search_space = None
         self.ids_acquired = []
         self.fitness_acquired = []
@@ -40,18 +40,13 @@ class Search_exp:
         self.date = datetime.now().strftime("%Y%m%d")
         self.search_exp_name = uuid.uuid4().hex
 
-    def initialise_search_space(self):
-        # load the search space
-        import pandas as pd
-
-        self.search_space = pd.read_pickle(self.search_space_loc)
 
     def run_seach(self):
         # save the search experiment
         # if not self.benchmark:
         #   self.save_search_experiment()
         # initialise the search space
-        self.initialise_search_space()  # the initialisation of the space here makes it too rigid to change it without saving a new search_space
+        #self.initialise_search_space()  # the initialisation of the space here makes it too rigid to change it without saving a new search_space
         # get initial elements
         ids_acquired, df_search_space = (
             self.search_algorithm.initial_suggestion(
@@ -61,10 +56,12 @@ class Search_exp:
                 df_total=self.df_total,
             )
         )
-        
-        if (self.search_algorithm.budget is not None) and (self.search_algorithm.budget < 0): 
-            raise Exception('Budget exhausted by Initial Sample')
-        
+
+        if (self.search_algorithm.budget is not None) and (
+            self.search_algorithm.budget < 0
+        ):
+            raise Exception("Budget exhausted by Initial Sample")
+
         self.df_search_space = df_search_space
         for id in range(self.num_elem_initialisation):
             # evaluate the element
@@ -88,7 +85,10 @@ class Search_exp:
                     df_total=self.df_total,
                 )
             )
-            if (self.search_algorithm.budget is not None) and (self.search_algorithm.budget < 0): break
+            if (self.search_algorithm.budget is not None) and (
+                self.search_algorithm.budget < 0
+            ):
+                break
             self.df_search_space = df_search_space
             # evaluate the element
             # if self.verbose:
@@ -123,7 +123,7 @@ class Search_exp:
         try:
             Eval, InchiKey = objective_function.evaluate_element(
                 element=element,
-                multiFidelity=self.search_algorithm.multiFidelity
+                multiFidelity=self.search_algorithm.multiFidelity,
             )
             if self.verbose:
                 print(f"element Inchikey suggested: {InchiKey}, Eval: {Eval}")

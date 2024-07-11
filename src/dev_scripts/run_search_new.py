@@ -1,4 +1,4 @@
-from stk_search import Search_Exp
+from stk_search import SearchExp
 from stk_search.Search_algorithm import Search_algorithm
 from stk_search.Search_algorithm import BayesianOptimisation
 from stk_search.Search_algorithm import MultifidelityBayesianOptimisation
@@ -22,6 +22,7 @@ import os
 import numpy as np
 import subprocess
 import json
+import pickle
 
 
 # %%
@@ -38,22 +39,22 @@ def main(
     search_space_loc="data/input/search_space/test/search_space1.pkl",
     oligomer_size=6,
     df_path="",
-    df_precursors_path="data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
+    df_representation_path="data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
     benchmark=False,
     dataset_representation_path="",
     frag_properties="all",
-    budget=None
+    budget=None,
 ):
     input_json = locals()
-
+    search_space_loc = "data/input/STK_search_space/search_space_test.pkl"
+    with open(search_space_loc, "rb") as f:
+        search_space = pickle.load(f)
     # Load the searched space
     print(" number of fragment", oligomer_size)
     print(benchmark, "benchmark")
     df_total = pd.read_csv(df_path)
-    df_precursors = pd.read_pickle(df_precursors_path)
-    # df_total, df_precursors = database_utils.load_data_from_file(
-    #    df_path, df_precursors_path, num_fragm=oligomer_size
-    # )
+    df_representation = pd.read_pickle(df_representation_path)
+
     # get initial elements
     if benchmark:
         objective_function = Look_up_table(
@@ -67,25 +68,27 @@ def main(
         )
     print(case, "  case  ")
     if case == "BO_precursor":
-        BO = BayesianOptimisation.BayesianOptimisation(which_acquisition=which_acquisition, lim_counter=lim_counter)
+        BO = BayesianOptimisation.BayesianOptimisation(
+            which_acquisition=which_acquisition, lim_counter=lim_counter
+        )
         if frag_properties == "selected":
             frag_properties = []
-            frag_properties = df_precursors.columns[1:7]
+            frag_properties = df_representation.columns[1:7]
             frag_properties = frag_properties.append(
-                df_precursors.columns[17:23]
+                df_representation.columns[17:23]
             )
         else:
-            frag_properties = df_precursors.select_dtypes(
+            frag_properties = df_representation.select_dtypes(
                 include=[np.number]
             ).columns
         print(frag_properties)
         BO.Representation = (
             Representation_from_fragment.Representation_from_fragment(
-                df_precursors, frag_properties
+                df_representation, frag_properties
             )
         )
         search_algorithm = BO
-    
+
     elif case == "BO_learned":
         BO = BayesianOptimisation.BayesianOptimisation(
             which_acquisition=which_acquisition, lim_counter=lim_counter
@@ -111,21 +114,22 @@ def main(
 
     elif case == "MFBO":
         MFBO = MultifidelityBayesianOptimisation.MultifidelityBayesianOptimisation(
-            budget=budget, 
-            which_acquisition=which_acquisition, 
-            lim_counter=lim_counter )
+            budget=budget,
+            which_acquisition=which_acquisition,
+            lim_counter=lim_counter,
+        )
         if frag_properties == "selected":
             frag_properties = []
-            frag_properties = df_precursors.columns[17:23]
+            frag_properties = df_representation.columns[17:23]
         else:
-            frag_properties = df_precursors.select_dtypes(
+            frag_properties = df_representation.select_dtypes(
                 include=[np.number]
             ).columns
         print(frag_properties)
-        MFBO.fidelity_col = len(frag_properties)*oligomer_size
+        MFBO.fidelity_col = len(frag_properties) * oligomer_size
         MFBO.Representation = (
             Representation_from_fragment.Representation_from_fragment(
-                df_precursors, frag_properties
+                df_representation, frag_properties
             )
         )
         search_algorithm = MFBO
@@ -164,9 +168,8 @@ def main(
 
     number_of_iterations = num_iteration
     verbose = True
-    num_elem_initialisation = num_elem_initialisation
-    S_exp = Search_Exp.Search_exp(
-        search_space_loc,
+    S_exp = SearchExp.SearchExp(
+        search_space,
         search_algorithm,
         objective_function,
         number_of_iterations,
@@ -366,7 +369,7 @@ def load_representation_model(config_dir):
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
-  
+
     parser = ArgumentParser()
     parser.add_argument("--num_iteration", type=int, default=100)
     parser.add_argument("--num_elem_initialisation", type=int, default=10)
@@ -385,14 +388,19 @@ if __name__ == "__main__":
     )
     parser.add_argument("--df_path", type=str, default="")
     parser.add_argument(
-        "--df_precursors_path",
+        "--df_representation_path",
         type=str,
         default="data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
     )
     parser.add_argument("--dataset_representation_path", type=str, default="")
     parser.add_argument("--oligomer_size", type=int, default=6)
     parser.add_argument("--frag_properties", type=str, default="all")
-    parser.add_argument("--budget",  type=lambda x : None if x == 'None' else int(x), nargs='?', default=None)
+    parser.add_argument(
+        "--budget",
+        type=lambda x: None if x == "None" else int(x),
+        nargs="?",
+        default=None,
+    )
     args = parser.parse_args()
     main(
         args.num_iteration,
@@ -407,9 +415,9 @@ if __name__ == "__main__":
         args.search_space_loc,
         args.oligomer_size,
         args.df_path,
-        args.df_precursors_path,
+        args.df_representation_path,
         args.benchmark,
         args.dataset_representation_path,
         args.frag_properties,
-        args.budget
+        args.budget,
     )

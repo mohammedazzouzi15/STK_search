@@ -100,14 +100,6 @@ def load_data_from_file(
         return None, df_precursors
     else:
         df_total = pd.read_csv(df_path)
-        df_total.dropna(subset=["fosc1"], inplace=True)
-        df_total = df_total[df_total["fosc1"] > 0]
-        df_total = df_total[df_total["fosc1"] < 11]
-        df_total["target"] = (
-            -np.abs(df_total["ES1"] - 3)
-            - np.abs(df_total["ionisation potential (eV)"] - 5.5)
-            + np.log10(df_total["fosc1"])
-        )
         if add_feature_frag:
             df_total, df_precursors = prepare_df_for_plot(
                 df_total, features_frag=features_frag

@@ -10,92 +10,24 @@ import pandas as pd
 from IPython.display import display
 from ipywidgets import Layout, VBox, interactive, widgets
 
-from stk_search.Search_space import Search_Space
+from stk_search.SearchSpace import SearchSpace
 
 
-class Searched_Space(Search_Space):
-    def plot_hist_compare(self, df_all, df_list, label_list):
-        fig, ax = plt.subplots(2, 2, figsize=(15, 10))
-
+class SearchedSpace(SearchSpace):
+    def plot_hist_compare(self, df_all, df_list, label_list,properties_to_plot=[]):
+        fig, ax = plt.subplots(1, len(properties_to_plot), figsize=(15, 10))
+        ax = ax.flatten()
         def plot_hist(df, ax, color, label="all data"):
-            df["ionisation potential (eV)"].hist(
-                ax=ax[0, 0],
-                bins=30,
-                density=1,
-                color=color,
-                label=label,
-                alpha=0.5,
-            )
-            df["fosc1"].hist(
-                ax=ax[0, 1],
-                bins=30,
-                density=1,
-                color=color,
-                label=label,
-                alpha=0.5,
-            )
-            df["ES1"].hist(
-                ax=ax[1, 0],
-                bins=30,
-                density=1,
-                color=color,
-                label=label,
-                alpha=0.5,
-            )
-            df["target"].hist(
-                ax=ax[1, 1],
-                bins=30,
-                density=1,
-                color=color,
-                label=label,
-                alpha=0.5,
-            )
-            # add vertical line showing target
-            ax[0, 0].axvline(5.5, color="k", linestyle="--")
-            ax[0, 1].axvline(10, color="k", linestyle="--")
-            ax[1, 0].axvline(3, color="k", linestyle="--")
-            ax[1, 1].axvline(0, color="k", linestyle="--")
-            # add label to vertical line
-            ax[0, 0].text(
-                5.5,
-                0.5,
-                "target",
-                rotation=90,
-                verticalalignment="center",
-                horizontalalignment="right",
-                color="b",
-                alpha=0.5,
-            )
-            ax[0, 1].text(
-                10,
-                0.2,
-                "target",
-                rotation=90,
-                verticalalignment="center",
-                horizontalalignment="right",
-                color="b",
-                alpha=0.5,
-            )
-            ax[1, 0].text(
-                3,
-                0.5,
-                "target",
-                rotation=90,
-                verticalalignment="center",
-                horizontalalignment="right",
-                color="b",
-                alpha=0.5,
-            )
-            ax[1, 1].text(
-                0,
-                0.2,
-                "target",
-                rotation=90,
-                verticalalignment="center",
-                horizontalalignment="right",
-                color="b",
-                alpha=0.5,
-            )
+            for axis_num,property in enumerate(properties_to_plot):
+                df[property].hist(
+                    ax=ax[axis_num],
+                    bins=30,
+                    density=1,
+                    color=color,
+                    label=label,
+                    alpha=0.5,
+                )
+                ax[axis_num].set_xlabel(f"{property}")
 
         plot_hist(df=df_all, ax=ax, color="#21918c")
         # get a color list for the diffetent datasets
@@ -113,19 +45,12 @@ class Searched_Space(Search_Space):
         ]
         for id, df in enumerate(df_list):
             plot_hist(df, ax, color=color_list[id], label=label_list[id])
+        for _ax in ax.flatten():
+            # ax.set_yscale('log')
+            _ax.grid(False)
+            _ax.set_ylabel("Density")
+            _ax.set_yticks([])
         # add legend for the figure on top showing the different datasets
-        ax[0, 0].set_xlabel("Ionisation Potential (eV)")
-        ax[0, 1].set_xlabel("First Excited State Oscillator Strength")
-        ax[1, 0].set_xlabel("Excited State Energy (eV)")
-        ax[1, 0].set_xlim([1, 4])
-        ax[0, 1].set_xlim([0, 10])
-        ax[1, 1].set_xlabel("Combined Target Function")
-        ax[0, 0].legend()
-        for ax in ax.flatten():
-            ax.grid(False)
-            ax.set_ylabel("Density")
-            ax.set_yticks([])
-            # ax.legend()
         plt.tight_layout()
         return fig, ax
 
@@ -216,7 +141,8 @@ class Searched_Space(Search_Space):
                 possible_syntax.append(i)
         return possible_syntax
 
-    def generate_interactive_condition_V2(self, df_total: pd.DataFrame):
+    def generate_interactive_condition_V2(self, df_total: pd.DataFrame,
+                                          properties_to_plot=[]):
         # function to generate an interactive prompt to select the condition
         # SP is the search space object
         # return the interactive widget
@@ -553,6 +479,7 @@ class Searched_Space(Search_Space):
             df_all=widgets.fixed(df_total),
             df_list=widgets.fixed(df_list),
             label_list=widgets.fixed(label_list),
+            properties_to_plot = widgets.fixed(properties_to_plot),
         )
         # Interactive widget for column selection
         columns_dropdown_2 = widgets.Dropdown(

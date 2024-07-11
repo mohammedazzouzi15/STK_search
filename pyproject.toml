@@ -37,6 +37,7 @@ dependencies = [
   "ipykernel",
   "torch_geometric",
   "lightning",
+  "mordred",
 ]
 requires-python = ">=3.7"
 dynamic = ["version"]

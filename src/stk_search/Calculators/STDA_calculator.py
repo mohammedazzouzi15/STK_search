@@ -8,14 +8,34 @@ import uuid
 
 
 class sTDA_XTB:
+    """
+    A class to calculate the excited state properties using sTDA method
+    from xtb output.
+
+    Attributes
+    ----------
+    STDA_bin_path : str
+        The path to the STDA binary file.
+    Num_threads : int
+        The number of threads to use.
+    output_dir : str
+        The path to the output directory.
+    maxeV_ExcitedEnergy : float
+        The maximum energy of the excited state.
+
+    Methods
+    -------
+    calculate(mol)
+        Calculate the excited state properties.
+    get_results(mol)
+        Get the results of the calculation.
+    """
     def __init__(
         self,
         STDA_bin_path,
         Num_threads=1,
         output_dir=None,
         maxeV_ExcitedEnergy=10,
-        property="Energy",
-        state=1,
     ):
         self.STDA_bin_path = STDA_bin_path
         self.Num_threads = Num_threads
@@ -23,6 +43,7 @@ class sTDA_XTB:
         self.maxeV_ExcitedEnergy = maxeV_ExcitedEnergy
 
     def calculate(self, mol):
+        
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:

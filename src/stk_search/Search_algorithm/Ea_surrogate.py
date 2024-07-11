@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
-from stk_search.Search_space import Search_Space
+from stk_search.SearchSpace import SearchSpace
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -25,7 +25,7 @@ class Ea_surrogate(Search_Algorithm):
         search_space_df,
         fitness_acquired,
         ids_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -74,7 +74,7 @@ class Ea_surrogate(Search_Algorithm):
         return len(df_search) - 1, df_search
 
     def Generate_element_to_evaluate(
-        self, fitness_acquired, df_search, SP: Search_Space
+        self, fitness_acquired, df_search, SP: SearchSpace
     ):
         import itertools
 
@@ -122,7 +122,7 @@ class Ea_surrogate(Search_Algorithm):
         self,
         search_space_df,
         fitness_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):

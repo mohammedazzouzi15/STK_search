@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from stk_search.Search_space import Search_Space
+from stk_search.SearchSpace import SearchSpace
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -27,7 +27,7 @@ class Search_Algorithm:
 
     def initial_suggestion(
         self,
-        SP: Search_Space = [],
+        SP: SearchSpace = [],
         num_elem_initialisation: int = 10,
         benchmark=False,
         df_total: pd.DataFrame = None,
@@ -87,7 +87,7 @@ class random_search(Search_Algorithm):
         search_space_df,
         ids_acquired,
         fitness_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -129,7 +129,7 @@ class evolution_algorithm(Search_Algorithm):
         pass
 
     def Generate_element_to_evaluate(
-        self, fitness_acquired, df_search, SP: Search_Space
+        self, fitness_acquired, df_search, SP: SearchSpace
     ):
         import itertools
 
@@ -178,7 +178,7 @@ class evolution_algorithm(Search_Algorithm):
         search_space_df,
         ids_acquired,
         fitness_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -208,7 +208,7 @@ class evolution_algorithm(Search_Algorithm):
         self,
         search_space_df,
         fitness_acquired,
-        SP: Search_Space,
+        SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):

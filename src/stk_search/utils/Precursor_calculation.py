@@ -20,9 +20,7 @@ class Calculate_Precursor():
         self.xtb_path = (
             "/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb"
         )
-        self.STDA_bin_path = (
-            "/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/"
-        )
+
         self.Db_folder = (
             "/rds/general/ephemeral/user/ma11115/ephemeral/BO_precursor"
         )
@@ -40,6 +38,9 @@ class Calculate_Precursor():
         return precursor
 
     def evaluate_element(self, smile):
+        """function to evaluate the element
+        depending on the paths provided (xtb or stda )
+        the function will add those calculations to the model"""
         # initialise the database
         client = pymongo.MongoClient(self.client)
         db_mol = stk.MoleculeMongoDb(
@@ -48,7 +49,7 @@ class Calculate_Precursor():
         )
         # define the path to xtb and stda
         xtb_path = self.xtb_path
-        STDA_bin_path = self.STDA_bin_path
+        
         # define the output directories
         Db_folder = self.Db_folder
         output_dir_ipea = os.path.join(
@@ -67,38 +68,70 @@ class Calculate_Precursor():
         collection_name = self.collection_name
         # print(collection_name)
         precursor = self.load_precursors(smile)
-        precursor = self.run_xtb_opt(
-            precursor,
-            xtb_path,
-            xtb_opt_output_dir,
-            database=self.db_mol,
-            collection=collection_name + "_opt",
-            client=client,
-        )
-        Inchikey = stk.InchiKey().get_key(precursor)
+        if self.xtb_path is not None:
+            precursor = self.run_xtb_opt(
+                precursor,
+                xtb_path,
+                xtb_opt_output_dir,
+                database=self.db_mol,
+                collection=collection_name + "_opt",
+                client=client,
+            )
+            Inchikey = stk.InchiKey().get_key(precursor)
 
-        IP = self.run_xtb_ipea(
-            precursor,
-            xtb_path,
-            output_dir_ipea,
-            database=self.db_mol,
-            target="ionisation potential (eV)",
-            collection=collection_name + "_IPEA",
-            client=client,
-        )
-        Es1 = self.run_stda(
-            precursor,
-            STDA_bin_path,
-            output_dir_stda,
-            property="Excited state energy (eV)",
-            state=0,
-            database=self.db_mol,
-            collection=collection_name + "_Stda",
-            client=client,
-        )
-        return Es1, Inchikey
+            IP = self.run_xtb_ipea(
+                precursor,
+                xtb_path,
+                output_dir_ipea,
+                database=self.db_mol,
+                target="ionisation potential (eV)",
+                collection=collection_name + "_IPEA",
+                client=client,
+            )
+            if self.STDA_bin_path is not None:
+                STDA_bin_path = self.STDA_bin_path
+                Es1 = self.run_stda(
+                    precursor,
+                    STDA_bin_path,
+                    output_dir_stda,
+                    property="Excited state energy (eV)",
+                    state=0,
+                    database=self.db_mol,
+                    collection=collection_name + "_Stda",
+                    client=client,
+                )
+                return Es1, Inchikey
+            return IP, Inchikey
+        else: 
+            precursor = self.run_ETKDG_opt(
+                precursor,
+                xtb_opt_output_dir,
+                database=self.db_mol,
+                client=client,
+            )
+            Inchikey = stk.InchiKey().get_key(precursor)
+            return None, Inchikey
+        
 
-
+    def run_ETKDG_opt(
+        self,
+        polymer,
+        xtb_opt_output_dir,
+        database="stk_mohammed_BO",
+        client=None,
+    ):
+        output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
+        InchiKey_initial = get_inchi_key(polymer)
+        ETKDG = stko.OptimizerSequence(
+            stko.ETKDG(),
+        )
+        polymer = ETKDG.optimize(polymer)
+        db_polymer = stk.MoleculeMongoDb(
+            client,
+            database=database,
+        )
+        db_polymer.put(polymer)
+        return polymer
 
     def run_xtb_opt(
         self,

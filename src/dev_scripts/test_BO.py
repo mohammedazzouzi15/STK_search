@@ -14,7 +14,7 @@ from stk_search.Search_algorithm import (
     RepresentationPrecursor,
 )
 from stk_search.Search_algorithm import Bayesian_Optimisation
-from stk_search import Searched_space
+from stk_search import SearchedSpace
 from sklearn.decomposition import PCA
 
 import torch
@@ -28,7 +28,7 @@ def load_data():
     df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
-    SP = Searched_space.Searched_Space(
+    SP = Searched_pace.Searched_Space(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],
