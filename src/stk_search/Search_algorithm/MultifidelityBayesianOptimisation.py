@@ -103,10 +103,18 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 )
         # reindex the df
         filtered_cols = ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
-        filtered_cols.append("fidelity")
         searched_space_df = searched_space_df[
             filtered_cols
         ]  # careful here, this is hard coded
+        # This ensures we take both hf and lf values for intitial sample 
+        searched_space_df = searched_space_df.merge(
+            df_total,
+            on=filtered_cols,  # check this for generalization
+            how="left",
+        )
+
+        filtered_cols.append("fidelity")
+        searched_space_df = searched_space_df[filtered_cols]
         searched_space_df.index = range(len(searched_space_df))
         if self.budget is not None:
             self.budget -= searched_space_df['fidelity'].sum()
