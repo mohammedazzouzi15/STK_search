@@ -19,6 +19,7 @@ from botorch.acquisition.utils import project_to_target_fidelity
 from botorch import fit_gpytorch_mll
 from botorch.models.transforms.outcome import Standardize
 from botorch.acquisition.analytic import ExpectedImprovement
+import random
 
 import itertools
 
@@ -458,8 +459,10 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         return hf_max_cov ** 2 / (p_var.reshape(-1) * hf_max_var * cost)
     
     def MES(self, model, Xrpr, X_unsqueezed):
-        bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
-        candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(10000, 1)   
+        fidelities = np.unique(Xrpr[:, -1])
+        bounds = torch.tensor([[0.0] * (Xrpr.shape[1]-1), [1.0] * (Xrpr.shape[1]-1)], dtype=torch.float64)
+        candidate_set_no_hf = bounds[0] + np.multiply(bounds[1] - bounds[0], torch.rand(10000,  Xrpr.shape[1] -1))
+        candidate_set = torch.tensor(np.concatenate((candidate_set_no_hf, np.array([[random.choice(fidelities) for x in range(10000)]]).T), axis=1))
         target_fidelities = {self.fidelity_col:1}
         cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
         cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
