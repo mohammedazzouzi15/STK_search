@@ -17,14 +17,11 @@ class Calculate_Precursor():
     def __init__(self):
         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
         self.db_mol = "stk_mohammed_new"
-        self.xtb_path = (
-            "/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb"
-        )
+        self.xtb_path = None
 
-        self.Db_folder = (
-            "/rds/general/ephemeral/user/ma11115/ephemeral/BO_precursor"
-        )
-        os.makedirs(self.Db_folder, exist_ok=True)
+        self.Db_folder = None
+        if self.Db_folder is not None:
+            os.makedirs(self.Db_folder, exist_ok=True)
         # print(self.collection_name)
         self.host_IP = "cx1"
         self.collection_name = "Precursors"

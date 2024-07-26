@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../../../img/favicon.ico" />
+    <title>Transformer M Layers - stk_search</title>
+    <link rel="stylesheet" href="../../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Transformer M Layers";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../../.." class="icon icon-home"> stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../../..">stk_search Index</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../../../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../..">stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+          <li class="breadcrumb-item">TransformerM</li>
+          <li class="breadcrumb-item">Layers</li>
+      <li class="breadcrumb-item active">Transformer M Layers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="transformer-m-layers">Transformer M Layers</h1>
+<p><a href="../../../../../../../#stk_search-index">stk_search Index</a> / <code>src</code> / <a href="../../../../../#stk-search">Stk Search</a> / <a href="../../../../../#stk-search">Stk Search</a> / <a href="../../../#models">Models</a> / <a href="../../#transformerm">Transformerm</a> / <a href="../#layers">Layers</a> / Transformer M Layers</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py">src.stk_search.geom3d.models.TransformerM.layers.transformer_m_layers</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#transformer-m-layers">Transformer M Layers</a></li>
+<li><a href="#atomfeature">AtomFeature</a><ul>
+<li><a href="#atomfeature()forward">AtomFeature().forward</a></li>
+</ul>
+</li>
+<li><a href="#atomtaskhead">AtomTaskHead</a><ul>
+<li><a href="#atomtaskhead()forward">AtomTaskHead().forward</a></li>
+</ul>
+</li>
+<li><a href="#gaussianlayer">GaussianLayer</a><ul>
+<li><a href="#gaussianlayer()forward">GaussianLayer().forward</a></li>
+</ul>
+</li>
+<li><a href="#molecule3dbias">Molecule3DBias</a><ul>
+<li><a href="#molecule3dbias()forward">Molecule3DBias().forward</a></li>
+</ul>
+</li>
+<li><a href="#moleculeattnbias">MoleculeAttnBias</a><ul>
+<li><a href="#moleculeattnbias()forward">MoleculeAttnBias().forward</a></li>
+</ul>
+</li>
+<li><a href="#nonlinear">NonLinear</a><ul>
+<li><a href="#nonlinear()forward">NonLinear().forward</a></li>
+</ul>
+</li>
+<li><a href="#gaussian">gaussian</a></li>
+<li><a href="#init_params">init_params</a></li>
+</ul>
+<h2 id="atomfeature">AtomFeature</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L21">Show source in transformer_m_layers.py:21</a></p>
+<p>Compute atom features for each atom in the molecule.</p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class AtomFeature(nn.Module):
+    def __init__(
+        self,
+        num_heads,
+        num_atoms,
+        num_in_degree,
+        num_out_degree,
+        hidden_dim,
+        n_layers,
+        no_2d=False,
+    ): ...
+</code></pre>
+<h3 id="atomfeatureforward">AtomFeature().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L41">Show source in transformer_m_layers.py:41</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, batched_data, mask_2d=None): ...
+</code></pre>
+<h2 id="atomtaskhead">AtomTaskHead</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L242">Show source in transformer_m_layers.py:242</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">class AtomTaskHead(nn.Module):
+    def __init__(self, embed_dim: int, num_heads: int): ...
+</code></pre>
+<h3 id="atomtaskheadforward">AtomTaskHead().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L263">Show source in transformer_m_layers.py:263</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def forward(self, query: Tensor, attn_bias: Tensor, delta_pos: Tensor) -&gt; Tensor: ...
+</code></pre>
+<h2 id="gaussianlayer">GaussianLayer</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L204">Show source in transformer_m_layers.py:204</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">class GaussianLayer(nn.Module):
+    def __init__(self, K=128, edge_types=512 * 3): ...
+</code></pre>
+<h3 id="gaussianlayerforward">GaussianLayer().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L217">Show source in transformer_m_layers.py:217</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def forward(self, x, edge_types): ...
+</code></pre>
+<h2 id="molecule3dbias">Molecule3DBias</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L144">Show source in transformer_m_layers.py:144</a></p>
+<p>Compute 3D attention bias according to the position information for each head.</p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">class Molecule3DBias(nn.Module):
+    def __init__(
+        self, num_heads, num_edges, n_layers, embed_dim, num_kernel, no_share_rpe=False
+    ): ...
+</code></pre>
+<h3 id="molecule3dbiasforward">Molecule3DBias().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L168">Show source in transformer_m_layers.py:168</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def forward(self, batched_data): ...
+</code></pre>
+<h2 id="moleculeattnbias">MoleculeAttnBias</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L61">Show source in transformer_m_layers.py:61</a></p>
+<p>Compute attention bias for each head.</p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">class MoleculeAttnBias(nn.Module):
+    def __init__(
+        self,
+        num_heads,
+        num_atoms,
+        num_edges,
+        num_spatial,
+        num_edge_dis,
+        hidden_dim,
+        edge_type,
+        multi_hop_max_dist,
+        n_layers,
+        no_2d=False,
+    ): ...
+</code></pre>
+<h3 id="moleculeattnbiasforward">MoleculeAttnBias().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L84">Show source in transformer_m_layers.py:84</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def forward(self, batched_data, mask_2d=None): ...
+</code></pre>
+<h2 id="nonlinear">NonLinear</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L226">Show source in transformer_m_layers.py:226</a></p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">class NonLinear(nn.Module):
+    def __init__(self, input, output_size, hidden=None): ...
+</code></pre>
+<h3 id="nonlinearforward">NonLinear().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L235">Show source in transformer_m_layers.py:235</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h2 id="gaussian">gaussian</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L198">Show source in transformer_m_layers.py:198</a></p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">@torch.jit.script
+def gaussian(x, mean, std): ...
+</code></pre>
+<h2 id="init_params">init_params</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TransformerM/layers/transformer_m_layers.py#L12">Show source in transformer_m_layers.py:12</a></p>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">def init_params(module, n_layers): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../transformer_m_encoder_layer/" class="btn btn-neutral float-left" title="TransformerMEncoderLayer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../modules/" class="btn btn-neutral float-right" title="Modules">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../transformer_m_encoder_layer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../modules/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../../..";</script>
+    <script src="../../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../../js/theme.js"></script>
+      <script src="../../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

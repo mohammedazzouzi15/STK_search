@@ -23,6 +23,8 @@ class Representation_poly_3d:
         db_frag=None,
         device=None,
         oligomer_size=6,
+        mongo_client="mongodb://ch-atarzia.ch.ic.ac.uk/",
+        database="stk_mohammed_new",
     ):
         """Initialise the class.
         Args:
@@ -44,7 +46,7 @@ class Representation_poly_3d:
         # self.model_encoding.eval()
         # self.model_encoding.to(self.device)
         self.get_bbs_dict(
-            "mongodb://ch-atarzia.ch.ic.ac.uk/", "stk_mohammed_new"
+            mongo_client, database
         )
         self.batch_size = 100
         self.pymodel = model_encoding.to(self.device)

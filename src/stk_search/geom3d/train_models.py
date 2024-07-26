@@ -30,7 +30,7 @@ def load_and_run_model_training(
     start_time = time.time()  # Record the start time
     model, graph_pred_linear = pl_model.model_setup(config)
     print("Model loaded: ", config["model_name"])
-
+    init_dir = os.getcwd()  
     # if config["model_path"]:
     #   model = load_3d_rpr(model, config["model_path"])
     os.chdir(config["running_dir"])
@@ -59,7 +59,7 @@ def load_and_run_model_training(
 
     # train model
     checkpoint_callback = ModelCheckpoint(
-        dirpath=config["running_dir"],
+        dirpath=os.getcwd(),
         filename="{epoch}-{val_loss:.2f}-{other_metric:.2f}",
         monitor="val_loss",
         mode="min",
@@ -89,6 +89,7 @@ def load_and_run_model_training(
     end_time = time.time()  # Record the end time
     total_time = end_time - start_time
     print(f"Total time taken for model training: {total_time} seconds")
+    os.chdir(init_dir)
 
 
 def get_best_embedding_model(config_dir):
@@ -108,5 +109,7 @@ def get_best_embedding_model(config_dir):
             print(file)
             min_val_loss = val_loss
             config["model_embedding_chkpt"] = file
+    
     save_config(config, config_dir)
+    config['device'] = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     return config, min_val_loss

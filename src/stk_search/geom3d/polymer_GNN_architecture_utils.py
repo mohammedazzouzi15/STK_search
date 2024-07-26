@@ -11,14 +11,13 @@ import numpy as np
 from stk_search.utils.config_utils import read_config, save_config
 import os
 
+
 def join_keys(polymer):
-        keys = [
-            stk.InchiKey().get_key(bb) for bb in polymer.get_building_blocks()
-        ]
-        return "_".join(keys)
+    keys = [stk.InchiKey().get_key(bb) for bb in polymer.get_building_blocks()]
+    return "_".join(keys)
 
 
-def get_bbs_dict(client,database):
+def get_bbs_dict(client, database):
     client = pymongo.MongoClient(client)
     db_mol = stk.MoleculeMongoDb(
         client,
@@ -27,14 +26,18 @@ def get_bbs_dict(client,database):
     mols = db_mol.get_all()
     bbs_dict = {}
     for mol in mols:
-        bbs_dict[stk.InchiKey().get_key(mol)] = stk.BuildingBlock.init_from_molecule(
-            mol, functional_groups=[stk.BromoFactory()]
+        bbs_dict[stk.InchiKey().get_key(mol)] = (
+            stk.BuildingBlock.init_from_molecule(
+                mol, functional_groups=[stk.BromoFactory()]
+            )
         )
     return bbs_dict
-def Build_polymers( element: pd.DataFrame, bbs_dict):
-    
+
+
+def Build_polymers(element: pd.DataFrame, bbs_dict):
+
     # print(genes)
-  
+
     InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
     oligomer_size = len(InchiKey_cols)
     genes = "ABCDEFGH"
@@ -42,6 +45,7 @@ def Build_polymers( element: pd.DataFrame, bbs_dict):
     repeating_unit = ""
     # joins the Genes to make a repeating unit string
     repeating_unit = repeating_unit.join(genes)
+
     # print(element[InchiKey_cols].values.flatten())
     def gen_mol(elem):
         precursors = []
@@ -73,13 +77,12 @@ def Build_polymers( element: pd.DataFrame, bbs_dict):
             positions=positions,
             InChIKey=stk.InchiKey().get_key(polymer),
             bb_key=bb_key,
-            y=elem['target']
+            y=elem["target"],
         )
         return molecule
 
     element["polymer"] = element.swifter.apply(lambda x: gen_mol(x), axis=1)
     return element["polymer"].tolist()
-
 
 
 def load_molecule(InChIKey, target, db):
@@ -117,34 +120,43 @@ def load_molecule(InChIKey, target, db):
         y = torch.tensor(target, dtype=torch.float32)
 
         molecule = Data(
-            x=atom_types, positions=positions, y=y, InChIKey=InChIKey,
-            bb_key=join_keys(polymer)
+            x=atom_types,
+            positions=positions,
+            y=y,
+            InChIKey=InChIKey,
+            bb_key=join_keys(polymer),
         )
         return molecule
     else:
         return None
 
-def get_dataset_polymer_opt(config,element):
+
+def get_dataset_polymer_opt(config, element):
     client = pymongo.MongoClient(config["pymongo_client"])
     db = stk.ConstructedMoleculeMongoDb(
         client,
         database=config["database_name"],
     )
-    element['data_opt'] = element.swifter.apply(lambda x: load_molecule(x['InChIKey'],x['target'],db), axis=1)
-    return element['data_opt'].tolist()
+    element["data_opt"] = element.swifter.apply(
+        lambda x: load_molecule(x["InChIKey"], x["target"], db), axis=1
+    )
+    return element["data_opt"].tolist()
 
-def add_position_opt(dataset,dataset_opt):
+
+def add_position_opt(dataset, dataset_opt):
     for i in range(len(dataset)):
         dataset[i].positions_opt = dataset_opt[i].positions
         dataset[i].x_opt = dataset_opt[i].x
     return dataset
 
-def get_dataset_polymer( element: pd.DataFrame, bbs_dict,config):
-    #element_copy = element[[f'InChIKey_{i}' for i in range(oligomer_size)]].copy()
+
+def get_dataset_polymer(element: pd.DataFrame, bbs_dict, config):
+    # element_copy = element[[f'InChIKey_{i}' for i in range(oligomer_size)]].copy()
     dataset_poly = Build_polymers(element, bbs_dict)
-    dataset_poly_opt = get_dataset_polymer_opt(config,element)
-    dataset = add_position_opt(dataset_poly,dataset_poly_opt)
+    dataset_poly_opt = get_dataset_polymer_opt(config, element)
+    dataset = add_position_opt(dataset_poly, dataset_poly_opt)
     return dataset
+
 
 def get_data_loader(dataset, config):
     """Get the dataloader
@@ -169,7 +181,8 @@ def get_data_loader(dataset, config):
 
     return loader
 
-def generate_dataset_and_dataloader(config,bbs_dict):
+
+def generate_dataset_and_dataloader(config, bbs_dict):
     """Generate the dataset and the dataloader
     Args:
         config: dict
@@ -208,9 +221,7 @@ def generate_dataset_and_dataloader(config,bbs_dict):
                 print("dataset not found")
         df = pd.read_csv(config["running_dir"] + f"/df_{df_name}.csv")
         dataset = get_dataset_polymer(
-            element=df,
-            bbs_dict=bbs_dict,
-            config=config
+            element=df, bbs_dict=bbs_dict, config=config
         )
         data_loader = get_data_loader(dataset, config)
         return dataset, data_loader
@@ -230,6 +241,7 @@ def generate_dataset_and_dataloader(config,bbs_dict):
         dataset_test,
     )
 
+
 def save_datasets(config, dataset_train, dataset_val, dataset_test):
     name = config["name"]
     ephemeral_dir = config["ephemeral_path"] + f"/{name.replace('_','/')}/"
@@ -241,14 +253,14 @@ def save_datasets(config, dataset_train, dataset_val, dataset_test):
     config["dataset_path" + "_train"] = ephemeral_dir + "dataset_train.pth"
     config["dataset_path" + "_val"] = ephemeral_dir + "dataset_val.pth"
     config["dataset_path" + "_test"] = ephemeral_dir + "dataset_test.pth"
-    save_config(config, config['running_dir'])
+    save_config(config, config["running_dir"])
     return config
 
 
-#df_elements = df_total.sample(500)
-#dataset = get_dataset_polymer(
+# df_elements = df_total.sample(500)
+# dataset = get_dataset_polymer(
 #    oligomer_size=6,
 #    element=df_elements,
 #    bbs_dict=bbs_dict,
 #    config=config
-#)
+# )

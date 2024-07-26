@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Layer Norm - stk_search</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Layer Norm";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/Equiformer/layer_norm.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">stk_search Index</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+          <li class="breadcrumb-item">Equiformer</li>
+      <li class="breadcrumb-item active">Layer Norm</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/Equiformer/layer_norm.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="layer-norm">Layer Norm</h1>
+<p><a href="../../../../../../#stk_search-index">stk_search Index</a> / <code>src</code> / <a href="../../../../#stk-search">Stk Search</a> / <a href="../../../../#stk-search">Stk Search</a> / <a href="../../#models">Models</a> / <a href="../#equiformer">Equiformer</a> / Layer Norm</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py">src.stk_search.geom3d.models.Equiformer.layer_norm</a> module.</p>
+</blockquote>
+<h4 id="attributes">Attributes</h4>
+<ul>
+<li>
+<p><code>rot</code> - Check equivariant: -o3.rand_matrix()</p>
+</li>
+<li>
+<p><a href="#layer-norm">Layer Norm</a></p>
+</li>
+<li><a href="#equivariantlayernorm">EquivariantLayerNorm</a><ul>
+<li><a href="#equivariantlayernorm()forward">EquivariantLayerNorm().forward</a></li>
+</ul>
+</li>
+<li><a href="#equivariantlayernormv2">EquivariantLayerNormV2</a><ul>
+<li><a href="#equivariantlayernormv2()forward">EquivariantLayerNormV2().forward</a></li>
+</ul>
+</li>
+<li><a href="#equivariantlayernormv3">EquivariantLayerNormV3</a><ul>
+<li><a href="#equivariantlayernormv3()forward">EquivariantLayerNormV3().forward</a></li>
+</ul>
+</li>
+<li><a href="#equivariantlayernormv4">EquivariantLayerNormV4</a><ul>
+<li><a href="#equivariantlayernormv4()forward">EquivariantLayerNormV4().forward</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="equivariantlayernorm">EquivariantLayerNorm</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L12">Show source in layer_norm.py:12</a></p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class EquivariantLayerNorm(torch.nn.Module):
+    def __init__(self, irreps_in, eps=1e-05): ...
+</code></pre>
+<h3 id="equivariantlayernormforward">EquivariantLayerNorm().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L29">Show source in layer_norm.py:29</a></p>
+<p>Assume <code>f_in</code> is of shape [N, C].</p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, f_in, **kwargs): ...
+</code></pre>
+<h2 id="equivariantlayernormv2">EquivariantLayerNormV2</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L62">Show source in layer_norm.py:62</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">class EquivariantLayerNormV2(nn.Module):
+    def __init__(self, irreps, eps=1e-05, affine=True, normalization=&quot;component&quot;): ...
+</code></pre>
+<h3 id="equivariantlayernormv2forward">EquivariantLayerNormV2().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L89">Show source in layer_norm.py:89</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">@torch.cuda.amp.autocast(enabled=False)
+def forward(self, node_input, **kwargs): ...
+</code></pre>
+<h2 id="equivariantlayernormv3">EquivariantLayerNormV3</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L155">Show source in layer_norm.py:155</a></p>
+<p>V2 + Centering for vectors of all degrees</p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">class EquivariantLayerNormV3(nn.Module):
+    def __init__(self, irreps, eps=1e-05, affine=True, normalization=&quot;component&quot;): ...
+</code></pre>
+<h3 id="equivariantlayernormv3forward">EquivariantLayerNormV3().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L185">Show source in layer_norm.py:185</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def forward(self, node_input, **kwargs): ...
+</code></pre>
+<h2 id="equivariantlayernormv4">EquivariantLayerNormV4</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L235">Show source in layer_norm.py:235</a></p>
+<p>V3 + Learnable mean shift</p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">class EquivariantLayerNormV4(nn.Module):
+    def __init__(self, irreps, eps=1e-05, affine=True, normalization=&quot;component&quot;): ...
+</code></pre>
+<h3 id="equivariantlayernormv4forward">EquivariantLayerNormV4().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/layer_norm.py#L274">Show source in layer_norm.py:274</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def forward(self, node_input, **kwargs): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../instance_norm/" class="btn btn-neutral float-left" title="Instance Norm"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../radial_basis/" class="btn btn-neutral float-right" title="RadialBasis">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../instance_norm/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../radial_basis/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

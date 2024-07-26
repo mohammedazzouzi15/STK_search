@@ -10,7 +10,7 @@ import os
 def main(config_dir):
     config = read_config(config_dir)
     bbs_dict = polymer_GNN_architecture_utils.get_bbs_dict(
-        "mongodb://ch-atarzia.ch.ic.ac.uk/", "stk_mohammed_new"
+        config['pymongo_client'] , config['precursor_database_name']
     )
 
     (

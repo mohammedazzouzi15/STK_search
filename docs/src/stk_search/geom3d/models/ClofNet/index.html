@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Clofnet - stk_search</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Clofnet";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/ClofNet.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">stk_search Index</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Clofnet</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/ClofNet.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="clofnet">Clofnet</h1>
+<p><a href="../../../../../#stk_search-index">stk_search Index</a> / <code>src</code> / <a href="../../../#stk-search">Stk Search</a> / <a href="../../../#stk-search">Stk Search</a> / <a href="../#models">Models</a> / Clofnet</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py">src.stk_search.geom3d.models.ClofNet</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#clofnet">Clofnet</a></li>
+<li><a href="#cfconvs2v">CFConvS2V</a><ul>
+<li><a href="#cfconvs2v()forward">CFConvS2V().forward</a></li>
+<li><a href="#cfconvs2v()message">CFConvS2V().message</a></li>
+</ul>
+</li>
+<li><a href="#clofnet">ClofNet</a><ul>
+<li><a href="#clofnet()forward">ClofNet().forward</a></li>
+<li><a href="#clofnet()global_add_pool">ClofNet().global_add_pool</a></li>
+<li><a href="#clofnet()reset_parameters">ClofNet().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#neighboremb">NeighborEmb</a><ul>
+<li><a href="#neighboremb()forward">NeighborEmb().forward</a></li>
+<li><a href="#neighboremb()message">NeighborEmb().message</a></li>
+</ul>
+</li>
+<li><a href="#residuallayer">ResidualLayer</a><ul>
+<li><a href="#residuallayer()forward">ResidualLayer().forward</a></li>
+<li><a href="#residuallayer()reset_parameters">ResidualLayer().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#transformerconv">TransformerConv</a><ul>
+<li><a href="#transformerconv()forward">TransformerConv().forward</a></li>
+<li><a href="#transformerconv()message">TransformerConv().message</a></li>
+<li><a href="#transformerconv()reset_parameters">TransformerConv().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#emb">emb</a><ul>
+<li><a href="#emb()forward">emb().forward</a></li>
+<li><a href="#emb()reset_parameters">emb().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#init">init</a><ul>
+<li><a href="#init()forward">init().forward</a></li>
+<li><a href="#init()reset_parameters">init().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#rbf_emb">rbf_emb</a><ul>
+<li><a href="#rbf_emb()forward">rbf_emb().forward</a></li>
+<li><a href="#rbf_emb()reset_parameters">rbf_emb().reset_parameters</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="cfconvs2v">CFConvS2V</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L327">Show source in ClofNet.py:327</a></p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class CFConvS2V(MessagePassing):
+    def __init__(self, hid_dim: int, **kwargs): ...
+</code></pre>
+<h3 id="cfconvs2vforward">CFConvS2V().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L342">Show source in ClofNet.py:342</a></p>
+<p>s (B, N, hid_dim)
+v (B, N, 3, hid_dim)
+ea (B, N, N)
+ef (B, N, N, ef_dim)
+ev (B, N, N, 3)
+v (BN, 3, 1)
+emb (BN, hid_dim)</p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, s, v, edge_index, emb): ...
+</code></pre>
+<h3 id="cfconvs2vmessage">CFConvS2V().message</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L363">Show source in ClofNet.py:363</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">def message(self, x_j, norm): ...
+</code></pre>
+<h2 id="clofnet_1">ClofNet</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L150">Show source in ClofNet.py:150</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">class ClofNet(torch.nn.Module):
+    def __init__(
+        self,
+        energy_and_force=False,
+        cutoff=5.0,
+        num_layers=4,
+        hidden_channels=64,
+        out_channels=1,
+        int_emb_size=64,
+        basis_emb_size_dist=8,
+        basis_emb_size_angle=8,
+        basis_emb_size_torsion=8,
+        out_emb_channels=256,
+        num_radial=12,
+        num_radial2=80,
+        envelope_exponent=5,
+        num_before_skip=1,
+        num_after_skip=2,
+        num_output_layers=3,
+        heads=1,
+        act=&quot;swish&quot;,
+        output_init=&quot;GlorotOrthogonal&quot;,
+        use_node_features=True,
+        **kwargs
+    ): ...
+</code></pre>
+<h3 id="clofnetforward">ClofNet().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L228">Show source in ClofNet.py:228</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">def forward(self, z, pos, batch): ...
+</code></pre>
+<h3 id="clofnetglobal_add_pool">ClofNet().global_add_pool</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L220">Show source in ClofNet.py:220</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def global_add_pool(
+    x: Tensor, batch: Optional[Tensor], size: Optional[int] = None
+) -&gt; Tensor: ...
+</code></pre>
+<h3 id="clofnetreset_parameters">ClofNet().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L216">Show source in ClofNet.py:216</a></p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="neighboremb">NeighborEmb</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L305">Show source in ClofNet.py:305</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">class NeighborEmb(MessagePassing):
+    def __init__(self, hid_dim: int, **kwargs): ...
+</code></pre>
+<h3 id="neighborembforward">NeighborEmb().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L315">Show source in ClofNet.py:315</a></p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">def forward(self, z, s, edge_index, embs): ...
+</code></pre>
+<h3 id="neighborembmessage">NeighborEmb().message</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L323">Show source in ClofNet.py:323</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def message(self, x_j, norm): ...
+</code></pre>
+<h2 id="residuallayer">ResidualLayer</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L96">Show source in ClofNet.py:96</a></p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">class ResidualLayer(torch.nn.Module):
+    def __init__(self, hidden_channels, act=&quot;swish&quot;): ...
+</code></pre>
+<h3 id="residuallayerforward">ResidualLayer().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L111">Show source in ClofNet.py:111</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h3 id="residuallayerreset_parameters">ResidualLayer().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L105">Show source in ClofNet.py:105</a></p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="transformerconv">TransformerConv</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L369">Show source in ClofNet.py:369</a></p>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">class TransformerConv(MessagePassing):
+    def __init__(
+        self,
+        in_channels: Union[int, Tuple[int, int]],
+        out_channels: int,
+        heads: int = 2,
+        concat: bool = True,
+        beta: bool = False,
+        dropout: float = 0.0,
+        edge_dim: Optional[int] = None,
+        bias: bool = True,
+        root_weight: bool = True,
+        **kwargs
+    ): ...
+</code></pre>
+<h3 id="transformerconvforward">TransformerConv().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L442">Show source in ClofNet.py:442</a></p>
+<h4 id="signature_14">Signature</h4>
+<pre><code class="language-python">def forward(
+    self,
+    x: Union[Tensor, PairTensor],
+    edge_index: Adj,
+    edge_attr: OptTensor = None,
+    edgeweight: OptTensor = None,
+    emb: OptTensor = None,
+    return_attention_weights=None,
+): ...
+</code></pre>
+<h3 id="transformerconvmessage">TransformerConv().message</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L484">Show source in ClofNet.py:484</a></p>
+<h4 id="signature_15">Signature</h4>
+<pre><code class="language-python">def message(
+    self,
+    query_i: Tensor,
+    key_j: Tensor,
+    value_j: Tensor,
+    edge_attr: OptTensor,
+    edgeweight: OptTensor,
+    emb: OptTensor,
+    index: Tensor,
+    ptr: OptTensor,
+    size_i: Optional[int],
+) -&gt; Tensor: ...
+</code></pre>
+<h3 id="transformerconvreset_parameters">TransformerConv().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L432">Show source in ClofNet.py:432</a></p>
+<h4 id="signature_16">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="emb">emb</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L71">Show source in ClofNet.py:71</a></p>
+<h4 id="signature_17">Signature</h4>
+<pre><code class="language-python">class emb(torch.nn.Module):
+    def __init__(self, num_radial, cutoff, envelope_exponent): ...
+</code></pre>
+<h3 id="embforward">emb().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L87">Show source in ClofNet.py:87</a></p>
+<h4 id="signature_18">Signature</h4>
+<pre><code class="language-python">def forward(self, dist): ...
+</code></pre>
+<h3 id="embreset_parameters">emb().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L81">Show source in ClofNet.py:81</a></p>
+<h4 id="signature_19">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="init">init</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L115">Show source in ClofNet.py:115</a></p>
+<h4 id="signature_20">Signature</h4>
+<pre><code class="language-python">class init(torch.nn.Module):
+    def __init__(
+        self, num_radial, hidden_channels, act=&quot;swish&quot;, use_node_features=True
+    ): ...
+</code></pre>
+<h3 id="initforward">init().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L137">Show source in ClofNet.py:137</a></p>
+<h4 id="signature_21">Signature</h4>
+<pre><code class="language-python">def forward(self, x, emb, i, j): ...
+</code></pre>
+<h3 id="initreset_parameters">init().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L130">Show source in ClofNet.py:130</a></p>
+<h4 id="signature_22">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="rbf_emb">rbf_emb</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L31">Show source in ClofNet.py:31</a></p>
+<p>modified: delete cutoff with r</p>
+<h4 id="signature_23">Signature</h4>
+<pre><code class="language-python">class rbf_emb(nn.Module):
+    def __init__(self, num_rbf, rbound_upper, rbf_trainable=False, **kwargs): ...
+</code></pre>
+<h3 id="rbf_embforward">rbf_emb().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L59">Show source in ClofNet.py:59</a></p>
+<h4 id="signature_24">Signature</h4>
+<pre><code class="language-python">def forward(self, dist): ...
+</code></pre>
+<h3 id="rbf_embreset_parameters">rbf_emb().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/ClofNet.py#L54">Show source in ClofNet.py:54</a></p>
+<h4 id="signature_25">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../CNN/" class="btn btn-neutral float-left" title="Cnn"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../DMPNN/" class="btn btn-neutral float-right" title="Dmpnn">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../CNN/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../DMPNN/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
