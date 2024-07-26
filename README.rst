@@ -10,20 +10,19 @@ Installation
 To install the package, follow these steps:
 
 1. Open a terminal and change to the directory where the `pyproject.toml` file is located.
-   cd path/to/directory
+        cd path/to/directory
 2. create a new conda environment
-   conda create -n stk_search python=3.8 
+        conda create -n stk_search python=3.8 
 3. activate the environment
-    conda activate stk_search
+        conda activate stk_search
 4. Run the following command to install the package:
-    pip install .
+        pip install .
 5. install additional package to use the GNN model:
-    '''
     for GPU:
        pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
     for CPU:
         pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cpu.html
-    '''
+
 
 Usage
 ============
