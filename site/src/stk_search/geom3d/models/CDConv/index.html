@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Cdconv - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Cdconv";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/CDConv.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Cdconv</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/CDConv.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="cdconv">Cdconv</h1>
+<p><a href="../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../#stk-search">Stk Search</a> / <a href="../../../#stk-search">Stk Search</a> / <a href="../#models">Models</a> / Cdconv</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py">src.stk_search.geom3d.models.CDConv</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#cdconv">Cdconv</a></li>
+<li><a href="#avgpooling">AvgPooling</a><ul>
+<li><a href="#avgpooling()forward">AvgPooling().forward</a></li>
+</ul>
+</li>
+<li><a href="#basicblock">BasicBlock</a><ul>
+<li><a href="#basicblock()forward">BasicBlock().forward</a></li>
+</ul>
+</li>
+<li><a href="#cdconv">CDConv</a><ul>
+<li><a href="#cdconv()forward">CDConv().forward</a></li>
+<li><a href="#cdconv()message">CDConv().message</a></li>
+<li><a href="#cdconv()reset_parameters">CDConv().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#cdconv-1">CDConv</a><ul>
+<li><a href="#cdconv()forward-1">CDConv().forward</a></li>
+</ul>
+</li>
+<li><a href="#linear">Linear</a><ul>
+<li><a href="#linear()forward">Linear().forward</a></li>
+</ul>
+</li>
+<li><a href="#mlp">MLP</a><ul>
+<li><a href="#mlp()forward">MLP().forward</a></li>
+</ul>
+</li>
+<li><a href="#maxpooling">MaxPooling</a><ul>
+<li><a href="#maxpooling()forward">MaxPooling().forward</a></li>
+</ul>
+</li>
+<li><a href="#weightnet">WeightNet</a><ul>
+<li><a href="#weightnet()forward">WeightNet().forward</a></li>
+<li><a href="#weightnet()reset_parameters">WeightNet().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#kaiming_uniform">kaiming_uniform</a></li>
+</ul>
+<h2 id="avgpooling">AvgPooling</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L171">Show source in CDConv.py:171</a></p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class AvgPooling(nn.Module):
+    def __init__(self): ...
+</code></pre>
+<h3 id="avgpoolingforward">AvgPooling().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L175">Show source in CDConv.py:175</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, x, pos, seq, ori, batch): ...
+</code></pre>
+<h2 id="basicblock">BasicBlock</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L251">Show source in CDConv.py:251</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">class BasicBlock(nn.Module):
+    def __init__(
+        self,
+        r: float,
+        l: float,
+        kernel_channels,
+        in_channels: int,
+        out_channels: int,
+        base_width: float = 16.0,
+        batch_norm: bool = True,
+        dropout: float = 0.0,
+        bias: bool = False,
+        leakyrelu_negative_slope: float = 0.1,
+        momentum: float = 0.2,
+    ) -&gt; nn.Module: ...
+</code></pre>
+<h3 id="basicblockforward">BasicBlock().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L296">Show source in CDConv.py:296</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def forward(self, x, pos, seq, ori, batch): ...
+</code></pre>
+<h2 id="cdconv_1">CDConv</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L74">Show source in CDConv.py:74</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">class CDConv(MessagePassing):
+    def __init__(
+        self,
+        r: float,
+        l: float,
+        kernel_channels,
+        in_channels: int,
+        out_channels: int,
+        add_self_loops: bool = True,
+        **kwargs
+    ): ...
+</code></pre>
+<h3 id="cdconvforward">CDConv().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L95">Show source in CDConv.py:95</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def forward(
+    self, x: OptTensor, pos: Tensor, seq: Tensor, ori: Tensor, batch: Tensor
+) -&gt; Tensor: ...
+</code></pre>
+<h3 id="cdconvmessage">CDConv().message</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L112">Show source in CDConv.py:112</a></p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">def message(
+    self,
+    x_j: Optional[Tensor],
+    pos_i: Tensor,
+    pos_j: Tensor,
+    seq_i: Tensor,
+    seq_j: Tensor,
+    ori_i: Tensor,
+    ori_j: Tensor,
+) -&gt; Tensor: ...
+</code></pre>
+<h3 id="cdconvreset_parameters">CDConv().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L91">Show source in CDConv.py:91</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="cdconv_2">CDConv</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L303">Show source in CDConv.py:303</a></p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">class CDConv(nn.Module):
+    def __init__(
+        self,
+        geometric_radii: List[float],
+        sequential_kernel_size: float,
+        kernel_channels: List[int],
+        channels: List[int],
+        base_width: float = 16.0,
+        embedding_dim: int = 16,
+        batch_norm: bool = True,
+        dropout: float = 0.2,
+        bias: bool = False,
+        num_classes: int = 1195,
+    ) -&gt; nn.Module: ...
+</code></pre>
+<h3 id="cdconvforward_1">CDConv().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L354">Show source in CDConv.py:354</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def forward(self, data): ...
+</code></pre>
+<h2 id="linear">Linear</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L192">Show source in CDConv.py:192</a></p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">class Linear(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        batch_norm: bool = True,
+        dropout: float = 0.0,
+        bias: bool = False,
+        leakyrelu_negative_slope: float = 0.1,
+        momentum: float = 0.2,
+    ) -&gt; nn.Module: ...
+</code></pre>
+<h3 id="linearforward">Linear().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L211">Show source in CDConv.py:211</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h2 id="mlp">MLP</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L214">Show source in CDConv.py:214</a></p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">class MLP(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        mid_channels: int,
+        out_channels: int,
+        batch_norm: bool,
+        dropout: float = 0.0,
+        bias: bool = True,
+        leakyrelu_negative_slope: float = 0.2,
+        momentum: float = 0.2,
+    ) -&gt; nn.Module: ...
+</code></pre>
+<h3 id="mlpforward">MLP().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L248">Show source in CDConv.py:248</a></p>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">def forward(self, input): ...
+</code></pre>
+<h2 id="maxpooling">MaxPooling</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L151">Show source in CDConv.py:151</a></p>
+<h4 id="signature_14">Signature</h4>
+<pre><code class="language-python">class MaxPooling(nn.Module):
+    def __init__(self): ...
+</code></pre>
+<h3 id="maxpoolingforward">MaxPooling().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L155">Show source in CDConv.py:155</a></p>
+<h4 id="signature_15">Signature</h4>
+<pre><code class="language-python">def forward(self, x, pos, seq, ori, batch): ...
+</code></pre>
+<h2 id="weightnet">WeightNet</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L35">Show source in CDConv.py:35</a></p>
+<h4 id="signature_16">Signature</h4>
+<pre><code class="language-python">class WeightNet(nn.Module):
+    def __init__(self, l: int, kernel_channels): ...
+</code></pre>
+<h3 id="weightnetforward">WeightNet().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L63">Show source in CDConv.py:63</a></p>
+<h4 id="signature_17">Signature</h4>
+<pre><code class="language-python">def forward(self, input, idx): ...
+</code></pre>
+<h3 id="weightnetreset_parameters">WeightNet().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L55">Show source in CDConv.py:55</a></p>
+<h4 id="signature_18">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="kaiming_uniform">kaiming_uniform</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/CDConv.py#L25">Show source in CDConv.py:25</a></p>
+<h4 id="signature_19">Signature</h4>
+<pre><code class="language-python">def kaiming_uniform(tensor, size): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../BERT/" class="btn btn-neutral float-left" title="Bert"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../CNN/" class="btn btn-neutral float-right" title="Cnn">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../BERT/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../CNN/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

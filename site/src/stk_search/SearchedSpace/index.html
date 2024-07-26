@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Searchedspace - Stk_search</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Searchedspace";
+        var mkdocs_page_input_path = "src/stk_search/SearchedSpace.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Searchedspace</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#searchedspace_1">SearchedSpace</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#signature">Signature</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#searchedspacegenerate_interactive_condition_v2">SearchedSpace().generate_interactive_condition_V2</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#searchedspaceget_all_possible_syntax">SearchedSpace().get_all_possible_syntax</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#searchedspaceplot_hist_compare">SearchedSpace().plot_hist_compare</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#searchedspaceplot_histogram_fragment">SearchedSpace().plot_histogram_fragment</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Geom3d</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >Models</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../geom3d/models/utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+      <li class="breadcrumb-item active">Searchedspace</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/SearchedSpace.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="searchedspace">Searchedspace</h1>
+<p><a href="../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../#stk-search">Stk Search</a> / Searchedspace</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/SearchedSpace.py">src.stk_search.SearchedSpace</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#searchedspace">Searchedspace</a></li>
+<li><a href="#searchedspace">SearchedSpace</a><ul>
+<li><a href="#searchedspace()generate_interactive_condition_v2">SearchedSpace().generate_interactive_condition_V2</a></li>
+<li><a href="#searchedspace()get_all_possible_syntax">SearchedSpace().get_all_possible_syntax</a></li>
+<li><a href="#searchedspace()plot_hist_compare">SearchedSpace().plot_hist_compare</a></li>
+<li><a href="#searchedspace()plot_histogram_fragment">SearchedSpace().plot_histogram_fragment</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="searchedspace_1">SearchedSpace</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/SearchedSpace.py#L16">Show source in SearchedSpace.py:16</a></p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class SearchedSpace(SearchSpace): ...
+</code></pre>
+<h3 id="searchedspacegenerate_interactive_condition_v2">SearchedSpace().generate_interactive_condition_V2</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/SearchedSpace.py#L144">Show source in SearchedSpace.py:144</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def generate_interactive_condition_V2(
+    self, df_total: pd.DataFrame, properties_to_plot=[]
+): ...
+</code></pre>
+<h3 id="searchedspaceget_all_possible_syntax">SearchedSpace().get_all_possible_syntax</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/SearchedSpace.py#L115">Show source in SearchedSpace.py:115</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">def get_all_possible_syntax(self): ...
+</code></pre>
+<h3 id="searchedspaceplot_hist_compare">SearchedSpace().plot_hist_compare</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/SearchedSpace.py#L17">Show source in SearchedSpace.py:17</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def plot_hist_compare(self, df_all, df_list, label_list, properties_to_plot=[]): ...
+</code></pre>
+<h3 id="searchedspaceplot_histogram_fragment">SearchedSpace().plot_histogram_fragment</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/SearchedSpace.py#L57">Show source in SearchedSpace.py:57</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">def plot_histogram_fragment(
+    self, column_name, df_list, df_total, number_of_fragments, label_list
+): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SearchSpace/" class="btn btn-neutral float-left" title="Searchspace"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../geom3d/models/" class="btn btn-neutral float-right" title="Models">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../SearchSpace/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../geom3d/models/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

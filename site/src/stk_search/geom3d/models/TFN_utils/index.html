@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Tfn Utils - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Tfn Utils";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/TFN_utils.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Tfn Utils</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/TFN_utils.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="tfn-utils">Tfn Utils</h1>
+<p><a href="../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../#stk-search">Stk Search</a> / <a href="../../../#stk-search">Stk Search</a> / <a href="../#models">Models</a> / Tfn Utils</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py">src.stk_search.geom3d.models.TFN_utils</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#tfn-utils">Tfn Utils</a></li>
+<li><a href="#bn">BN</a><ul>
+<li><a href="#bn()forward">BN().forward</a></li>
+</ul>
+</li>
+<li><a href="#gconvse3">GConvSE3</a><ul>
+<li><a href="#gconvse3()forward">GConvSE3().forward</a></li>
+</ul>
+</li>
+<li><a href="#gnormse3">GNormSE3</a><ul>
+<li><a href="#gnormse3()forward">GNormSE3().forward</a></li>
+</ul>
+</li>
+<li><a href="#pairwiseconv">PairwiseConv</a><ul>
+<li><a href="#pairwiseconv()forward">PairwiseConv().forward</a></li>
+</ul>
+</li>
+<li><a href="#radialfunc">RadialFunc</a><ul>
+<li><a href="#radialfunc()forward">RadialFunc().forward</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="bn">BN</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L6">Show source in TFN_utils.py:6</a></p>
+<p>SE(3)-equvariant batch/layer normalization</p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class BN(nn.Module):
+    def __init__(self, m): ...
+</code></pre>
+<h3 id="bnforward">BN().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L18">Show source in TFN_utils.py:18</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h2 id="gconvse3">GConvSE3</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L111">Show source in TFN_utils.py:111</a></p>
+<p>A tensor field network layer as a DGL module.
+GConvSE3 stands for a Graph Convolution SE(3)-equivariant layer. It is the
+equivalent of a linear layer in an MLP, a conv layer in a CNN, or a graph
+conv layer in a GCN.
+At each node, the activations are split into different "feature types",
+indexed by the SE(3) representation type: non-negative integers 0, 1, 2, ..</p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">class GConvSE3(nn.Module):
+    def __init__(
+        self, f_in, f_out, self_interaction=False, edge_dim=0, flavor=&quot;skip&quot;
+    ): ...
+</code></pre>
+<h3 id="gconvse3forward">GConvSE3().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L160">Show source in TFN_utils.py:160</a></p>
+<p>Forward pass of the linear layer</p>
+<h4 id="arguments">Arguments</h4>
+<ul>
+<li><code>G</code> - minibatch of (homo)graphs</li>
+<li><code>h</code> - dict of features</li>
+<li><code>r</code> - inter-atomic distances</li>
+<li><code>basis</code> - pre-computed Q * Y</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p>tensor with new features [B, n_points, n_features_out]</p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def forward(self, h, r, basis, edge_index, edge_feat=None, **kwargs): ...
+</code></pre>
+<h2 id="gnormse3">GNormSE3</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L221">Show source in TFN_utils.py:221</a></p>
+<p>Graph Norm-based SE(3)-equivariant nonlinearity.
+Nonlinearities are important in SE(3) equivariant GCNs. They are also quite
+expensive to compute, so it is convenient for them to share resources with
+other layers, such as normalization. The general workflow is as follows:</p>
+<blockquote>
+<p>for feature type in features:
+   norm, phase &lt;- feature
+   output = fnc(norm) * phase
+where fnc: {R+}^m -&gt; R^m is a learnable map from m norms to m scalars.</p>
+</blockquote>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">class GNormSE3(nn.Module):
+    def __init__(self, fiber, nonlin=nn.ReLU(inplace=True), num_layers: int = 0): ...
+</code></pre>
+<h3 id="gnormse3forward">GNormSE3().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L265">Show source in TFN_utils.py:265</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def forward(self, features, **kwargs): ...
+</code></pre>
+<h2 id="pairwiseconv">PairwiseConv</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L63">Show source in TFN_utils.py:63</a></p>
+<p>SE(3)-equivariant convolution between two single-type features</p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">class PairwiseConv(nn.Module):
+    def __init__(
+        self, degree_in: int, nc_in: int, degree_out: int, nc_out: int, edge_dim: int = 0
+    ): ...
+</code></pre>
+<h3 id="pairwiseconvforward">PairwiseConv().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L101">Show source in TFN_utils.py:101</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def forward(self, feat, basis): ...
+</code></pre>
+<h2 id="radialfunc">RadialFunc</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L22">Show source in TFN_utils.py:22</a></p>
+<p>NN parameterized radial profile function.</p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">class RadialFunc(nn.Module):
+    def __init__(self, num_freq, in_dim, out_dim, edge_dim: int = 0): ...
+</code></pre>
+<h3 id="radialfuncforward">RadialFunc().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/TFN_utils.py#L55">Show source in TFN_utils.py:55</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../TFN/" class="btn btn-neutral float-left" title="Tfn"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../fibers/" class="btn btn-neutral float-right" title="Fibers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../TFN/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../fibers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

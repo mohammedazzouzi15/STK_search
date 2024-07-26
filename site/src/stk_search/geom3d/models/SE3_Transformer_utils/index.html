@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Se3 Transformer Utils - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Se3 Transformer Utils";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/SE3_Transformer_utils.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Se3 Transformer Utils</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/SE3_Transformer_utils.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="se3-transformer-utils">Se3 Transformer Utils</h1>
+<p><a href="../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../#stk-search">Stk Search</a> / <a href="../../../#stk-search">Stk Search</a> / <a href="../#models">Models</a> / Se3 Transformer Utils</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py">src.stk_search.geom3d.models.SE3_Transformer_utils</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#se3-transformer-utils">Se3 Transformer Utils</a></li>
+<li><a href="#g1x1se3">G1x1SE3</a><ul>
+<li><a href="#g1x1se3()forward">G1x1SE3().forward</a></li>
+</ul>
+</li>
+<li><a href="#gattentiveselfint">GAttentiveSelfInt</a><ul>
+<li><a href="#gattentiveselfint()forward">GAttentiveSelfInt().forward</a></li>
+</ul>
+</li>
+<li><a href="#gcat">GCat</a><ul>
+<li><a href="#gcat()forward">GCat().forward</a></li>
+</ul>
+</li>
+<li><a href="#gconvse3partial">GConvSE3Partial</a><ul>
+<li><a href="#gconvse3partial()forward">GConvSE3Partial().forward</a></li>
+</ul>
+</li>
+<li><a href="#gmabse3">GMABSE3</a><ul>
+<li><a href="#gmabse3()forward">GMABSE3().forward</a></li>
+</ul>
+</li>
+<li><a href="#gse3res">GSE3Res</a><ul>
+<li><a href="#gse3res()forward">GSE3Res().forward</a></li>
+</ul>
+</li>
+<li><a href="#gsum">GSum</a><ul>
+<li><a href="#gsum()forward">GSum().forward</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="g1x1se3">G1x1SE3</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L203">Show source in SE3_Transformer_utils.py:203</a></p>
+<p>Graph Linear SE(3)-equivariant layer, equivalent to a 1x1 convolution.
+This is equivalent to a self-interaction layer in TensorField Networks.</p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class G1x1SE3(nn.Module):
+    def __init__(self, f_in, f_out, learnable=True): ...
+</code></pre>
+<h3 id="g1x1se3forward">G1x1SE3().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L226">Show source in SE3_Transformer_utils.py:226</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, features, **kwargs): ...
+</code></pre>
+<h2 id="gattentiveselfint">GAttentiveSelfInt</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L307">Show source in SE3_Transformer_utils.py:307</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">class GAttentiveSelfInt(nn.Module):
+    def __init__(self, f_in, f_out): ...
+</code></pre>
+<h3 id="gattentiveselfintforward">GAttentiveSelfInt().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L340">Show source in SE3_Transformer_utils.py:340</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def forward(self, features, **kwargs): ...
+</code></pre>
+<h2 id="gcat">GCat</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L419">Show source in SE3_Transformer_utils.py:419</a></p>
+<p>Concat only degrees which are in f_x</p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">class GCat(nn.Module):
+    def __init__(self, f_x: Fiber, f_y: Fiber): ...
+</code></pre>
+<h3 id="gcatforward">GCat().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L433">Show source in SE3_Transformer_utils.py:433</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def forward(self, x, y): ...
+</code></pre>
+<h2 id="gconvse3partial">GConvSE3Partial</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L97">Show source in SE3_Transformer_utils.py:97</a></p>
+<p>Graph SE(3)-equivariant node -&gt; edge layer</p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">class GConvSE3Partial(nn.Module):
+    def __init__(self, f_in, f_out, edge_dim: int = 0, x_ij=None): ...
+</code></pre>
+<h3 id="gconvse3partialforward">GConvSE3Partial().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L132">Show source in SE3_Transformer_utils.py:132</a></p>
+<p>Forward pass of the linear layer</p>
+<h4 id="arguments">Arguments</h4>
+<ul>
+<li><code>h</code> - dict of node-features</li>
+<li><code>G</code> - minibatch of (homo)graphs</li>
+<li><code>r</code> - inter-atomic distances</li>
+<li><code>basis</code> - pre-computed Q * Y</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p>tensor with new features [B, n_points, n_features_out]</p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def forward(self, h, positions, r, basis, edge_index, edge_feat=None): ...
+</code></pre>
+<h2 id="gmabse3">GMABSE3</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L237">Show source in SE3_Transformer_utils.py:237</a></p>
+<p>An SE(3)-equivariant multi-headed self-attention module for DGL graphs.</p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">class GMABSE3(nn.Module):
+    def __init__(self, f_value, f_key, n_heads): ...
+</code></pre>
+<h3 id="gmabse3forward">GMABSE3().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L252">Show source in SE3_Transformer_utils.py:252</a></p>
+<p>Forward pass of the linear layer</p>
+<h4 id="arguments_1">Arguments</h4>
+<ul>
+<li><code>G</code> - minibatch of (homo)graphs</li>
+<li><code>v</code> - dict of value edge-features</li>
+<li><code>k</code> - dict of key edge-features</li>
+<li><code>q</code> - dict of query node-features</li>
+</ul>
+<h4 id="returns_1">Returns</h4>
+<p>tensor with new features [B, n_points, n_features_out]</p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def forward(self, v, k, q, edge_index, **kwargs): ...
+</code></pre>
+<h2 id="gse3res">GSE3Res</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L10">Show source in SE3_Transformer_utils.py:10</a></p>
+<p>Graph attention block with SE(3)-equivariance and skip connection</p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">class GSE3Res(nn.Module):
+    def __init__(
+        self,
+        f_in,
+        f_out,
+        edge_dim=0,
+        div=4,
+        n_heads=1,
+        learnable_skip=True,
+        skip=&quot;cat&quot;,
+        selfint=&quot;1x1&quot;,
+        x_ij=None,
+    ): ...
+</code></pre>
+<h3 id="gse3resforward">GSE3Res().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L78">Show source in SE3_Transformer_utils.py:78</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, h, edge_index, **kwargs): ...
+</code></pre>
+<h2 id="gsum">GSum</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L375">Show source in SE3_Transformer_utils.py:375</a></p>
+<p>SE(3)-equvariant graph residual sum function.</p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">class GSum(nn.Module):
+    def __init__(self, f_x: Fiber, f_y: Fiber): ...
+</code></pre>
+<h3 id="gsumforward">GSum().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SE3_Transformer_utils.py#L393">Show source in SE3_Transformer_utils.py:393</a></p>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">def forward(self, x, y): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SE3_Transformer/" class="btn btn-neutral float-left" title="Se3 Transformer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../SchNet/" class="btn btn-neutral float-right" title="Schnet">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../SE3_Transformer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../SchNet/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

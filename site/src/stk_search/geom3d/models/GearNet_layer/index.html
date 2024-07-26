@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Gearnet Layer - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Gearnet Layer";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/GearNet_layer.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Gearnet Layer</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/GearNet_layer.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="gearnet-layer">Gearnet Layer</h1>
+<p><a href="../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../#stk-search">Stk Search</a> / <a href="../../../#stk-search">Stk Search</a> / <a href="../#models">Models</a> / Gearnet Layer</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py">src.stk_search.geom3d.models.GearNet_layer</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#gearnet-layer">Gearnet Layer</a></li>
+<li><a href="#geometricrelationalgraphconv">GeometricRelationalGraphConv</a><ul>
+<li><a href="#geometricrelationalgraphconv()aggregate">GeometricRelationalGraphConv().aggregate</a></li>
+<li><a href="#geometricrelationalgraphconv()combine">GeometricRelationalGraphConv().combine</a></li>
+<li><a href="#geometricrelationalgraphconv()forward">GeometricRelationalGraphConv().forward</a></li>
+<li><a href="#geometricrelationalgraphconv()message">GeometricRelationalGraphConv().message</a></li>
+</ul>
+</li>
+<li><a href="#ieconvlayer">IEConvLayer</a><ul>
+<li><a href="#ieconvlayer()aggregate">IEConvLayer().aggregate</a></li>
+<li><a href="#ieconvlayer()combine">IEConvLayer().combine</a></li>
+<li><a href="#ieconvlayer()forward">IEConvLayer().forward</a></li>
+<li><a href="#ieconvlayer()message">IEConvLayer().message</a></li>
+</ul>
+</li>
+<li><a href="#multilayerperceptron">MultiLayerPerceptron</a><ul>
+<li><a href="#multilayerperceptron()forward">MultiLayerPerceptron().forward</a></li>
+</ul>
+</li>
+<li><a href="#spatiallinegraph">SpatialLineGraph</a><ul>
+<li><a href="#spatiallinegraph()forward">SpatialLineGraph().forward</a></li>
+</ul>
+</li>
+<li><a href="#construct_line_graph">construct_line_graph</a></li>
+</ul>
+<h2 id="geometricrelationalgraphconv">GeometricRelationalGraphConv</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L123">Show source in GearNet_layer.py:123</a></p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class GeometricRelationalGraphConv(nn.Module):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        num_relation,
+        edge_input_dim=None,
+        batch_norm=False,
+        activation=&quot;relu&quot;,
+    ): ...
+</code></pre>
+<h3 id="geometricrelationalgraphconvaggregate">GeometricRelationalGraphConv().aggregate</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L159">Show source in GearNet_layer.py:159</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def aggregate(self, graph, message): ...
+</code></pre>
+<h3 id="geometricrelationalgraphconvcombine">GeometricRelationalGraphConv().combine</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L169">Show source in GearNet_layer.py:169</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">def combine(self, input, update): ...
+</code></pre>
+<h3 id="geometricrelationalgraphconvforward">GeometricRelationalGraphConv().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L177">Show source in GearNet_layer.py:177</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def forward(self, graph, input, edge_input=None): ...
+</code></pre>
+<h3 id="geometricrelationalgraphconvmessage">GeometricRelationalGraphConv().message</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L149">Show source in GearNet_layer.py:149</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">def message(self, graph, input, edge_input=None): ...
+</code></pre>
+<h2 id="ieconvlayer">IEConvLayer</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L56">Show source in GearNet_layer.py:56</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">class IEConvLayer(nn.Module):
+    def __init__(
+        self,
+        input_dim,
+        hidden_dim,
+        output_dim,
+        edge_input_dim,
+        kernel_hidden_dim=32,
+        dropout=0.05,
+        dropout_before_conv=0.2,
+        activation=&quot;relu&quot;,
+        aggregate_func=&quot;sum&quot;,
+    ): ...
+</code></pre>
+<h3 id="ieconvlayeraggregate">IEConvLayer().aggregate</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L96">Show source in GearNet_layer.py:96</a></p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">def aggregate(self, graph, message): ...
+</code></pre>
+<h3 id="ieconvlayercombine">IEConvLayer().combine</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L106">Show source in GearNet_layer.py:106</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def combine(self, input, update): ...
+</code></pre>
+<h3 id="ieconvlayerforward">IEConvLayer().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L110">Show source in GearNet_layer.py:110</a></p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">def forward(self, graph, input, edge_input): ...
+</code></pre>
+<h3 id="ieconvlayermessage">IEConvLayer().message</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L86">Show source in GearNet_layer.py:86</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def message(self, graph, input, edge_input): ...
+</code></pre>
+<h2 id="multilayerperceptron">MultiLayerPerceptron</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L9">Show source in GearNet_layer.py:9</a></p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">class MultiLayerPerceptron(nn.Module):
+    def __init__(
+        self,
+        input_dim,
+        hidden_dims,
+        short_cut=False,
+        batch_norm=False,
+        activation=&quot;relu&quot;,
+        dropout=0,
+    ): ...
+</code></pre>
+<h3 id="multilayerperceptronforward">MultiLayerPerceptron().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L37">Show source in GearNet_layer.py:37</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, input): ...
+</code></pre>
+<h2 id="spatiallinegraph">SpatialLineGraph</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L184">Show source in GearNet_layer.py:184</a></p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">class SpatialLineGraph(nn.Module):
+    def __init__(self, num_angle_bin=8): ...
+</code></pre>
+<h3 id="spatiallinegraphforward">SpatialLineGraph().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L189">Show source in GearNet_layer.py:189</a></p>
+<p>Generate the spatial line graph of the input graph.
+The edge types are decided by the angles between two adjacent edges in the input graph.</p>
+<h4 id="arguments">Arguments</h4>
+<ul>
+<li><code>graph</code> <em>PackedGraph</em> - :math:<code>n</code> graph(s)</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<ul>
+<li><code>graph</code> <em>PackedGraph</em> - the spatial line graph</li>
+</ul>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">def forward(self, graph): ...
+</code></pre>
+<h2 id="construct_line_graph">construct_line_graph</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/GearNet_layer.py#L233">Show source in GearNet_layer.py:233</a></p>
+<p>Construct a packed line graph of this packed graph.
+The node features of the line graphs are inherited from the edge features of the original graphs.</p>
+<p>In the line graph, each node corresponds to an edge in the original graph.
+For a pair of edges (a, b) and (b, c) that share the same intermediate node in the original graph,
+there is a directed edge (a, b) -&gt; (b, c) in the line graph.</p>
+<h4 id="returns_1">Returns</h4>
+<p>PackedGraph</p>
+<h4 id="signature_14">Signature</h4>
+<pre><code class="language-python">def construct_line_graph(graph): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../GearNet/" class="btn btn-neutral float-left" title="Gearnet"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../GeoSSL_DDM/" class="btn btn-neutral float-right" title="Geossl Ddm">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../GearNet/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../GeoSSL_DDM/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

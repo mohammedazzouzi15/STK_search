@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Equiformer Type 0 - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Equiformer Type 0";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/Equiformer/equiformer_type_0.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+          <li class="breadcrumb-item">Equiformer</li>
+      <li class="breadcrumb-item active">Equiformer Type 0</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="equiformer-type-0">Equiformer Type 0</h1>
+<p><a href="../../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../../#stk-search">Stk Search</a> / <a href="../../../../#stk-search">Stk Search</a> / <a href="../../#models">Models</a> / <a href="../#equiformer">Equiformer</a> / Equiformer Type 0</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py">src.stk_search.geom3d.models.Equiformer.equiformer_type_0</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#equiformer-type-0">Equiformer Type 0</a></li>
+<li><a href="#attnheads2vec">AttnHeads2Vec</a><ul>
+<li><a href="#attnheads2vec()forward">AttnHeads2Vec().forward</a></li>
+</ul>
+</li>
+<li><a href="#concatirrepstensor">ConcatIrrepsTensor</a><ul>
+<li><a href="#concatirrepstensor()check_sorted">ConcatIrrepsTensor().check_sorted</a></li>
+<li><a href="#concatirrepstensor()forward">ConcatIrrepsTensor().forward</a></li>
+<li><a href="#concatirrepstensor()get_ir_index">ConcatIrrepsTensor().get_ir_index</a></li>
+<li><a href="#concatirrepstensor()get_irreps_dim">ConcatIrrepsTensor().get_irreps_dim</a></li>
+</ul>
+</li>
+<li><a href="#edgedegreeembeddingnetwork">EdgeDegreeEmbeddingNetwork</a><ul>
+<li><a href="#edgedegreeembeddingnetwork()forward">EdgeDegreeEmbeddingNetwork().forward</a></li>
+</ul>
+</li>
+<li><a href="#equiformerenergy">EquiformerEnergy</a><ul>
+<li><a href="#equiformerenergy()build_blocks">EquiformerEnergy().build_blocks</a></li>
+<li><a href="#equiformerenergy()forward">EquiformerEnergy().forward</a></li>
+<li><a href="#equiformerenergy()no_weight_decay">EquiformerEnergy().no_weight_decay</a></li>
+</ul>
+</li>
+<li><a href="#feedforwardnetwork">FeedForwardNetwork</a><ul>
+<li><a href="#feedforwardnetwork()forward">FeedForwardNetwork().forward</a></li>
+</ul>
+</li>
+<li><a href="#fullyconnectedtensorproductrescalenorm">FullyConnectedTensorProductRescaleNorm</a><ul>
+<li><a href="#fullyconnectedtensorproductrescalenorm()forward">FullyConnectedTensorProductRescaleNorm().forward</a></li>
+</ul>
+</li>
+<li><a href="#fullyconnectedtensorproductrescalenormswishgate">FullyConnectedTensorProductRescaleNormSwishGate</a><ul>
+<li><a href="#fullyconnectedtensorproductrescalenormswishgate()forward">FullyConnectedTensorProductRescaleNormSwishGate().forward</a></li>
+</ul>
+</li>
+<li><a href="#fullyconnectedtensorproductrescaleswishgate">FullyConnectedTensorProductRescaleSwishGate</a><ul>
+<li><a href="#fullyconnectedtensorproductrescaleswishgate()forward">FullyConnectedTensorProductRescaleSwishGate().forward</a></li>
+</ul>
+</li>
+<li><a href="#graphattention">GraphAttention</a><ul>
+<li><a href="#graphattention()extra_repr">GraphAttention().extra_repr</a></li>
+<li><a href="#graphattention()forward">GraphAttention().forward</a></li>
+</ul>
+</li>
+<li><a href="#nodeembeddingnetwork">NodeEmbeddingNetwork</a><ul>
+<li><a href="#nodeembeddingnetwork()forward">NodeEmbeddingNetwork().forward</a></li>
+</ul>
+</li>
+<li><a href="#scaledscatter">ScaledScatter</a><ul>
+<li><a href="#scaledscatter()extra_repr">ScaledScatter().extra_repr</a></li>
+<li><a href="#scaledscatter()forward">ScaledScatter().forward</a></li>
+</ul>
+</li>
+<li><a href="#separablefctp">SeparableFCTP</a><ul>
+<li><a href="#separablefctp()forward">SeparableFCTP().forward</a></li>
+</ul>
+</li>
+<li><a href="#smoothleakyrelu">SmoothLeakyReLU</a><ul>
+<li><a href="#smoothleakyrelu()extra_repr">SmoothLeakyReLU().extra_repr</a></li>
+<li><a href="#smoothleakyrelu()forward">SmoothLeakyReLU().forward</a></li>
+</ul>
+</li>
+<li><a href="#transblock">TransBlock</a><ul>
+<li><a href="#transblock()forward">TransBlock().forward</a></li>
+</ul>
+</li>
+<li><a href="#vec2attnheads">Vec2AttnHeads</a><ul>
+<li><a href="#vec2attnheads()forward">Vec2AttnHeads().forward</a></li>
+</ul>
+</li>
+<li><a href="#depthwisetensorproduct">DepthwiseTensorProduct</a></li>
+<li><a href="#equiformer_l2">Equiformer_l2</a></li>
+<li><a href="#equiformer_nonlinear_bessel_l2">Equiformer_nonlinear_bessel_l2</a></li>
+<li><a href="#equiformer_nonlinear_bessel_l2_drop00">Equiformer_nonlinear_bessel_l2_drop00</a></li>
+<li><a href="#equiformer_nonlinear_bessel_l2_drop01">Equiformer_nonlinear_bessel_l2_drop01</a></li>
+<li><a href="#equiformer_nonlinear_l2">Equiformer_nonlinear_l2</a></li>
+<li><a href="#equiformer_nonlinear_l2_e3">Equiformer_nonlinear_l2_e3</a></li>
+<li><a href="#get_mul_0">get_mul_0</a></li>
+<li><a href="#get_norm_layer">get_norm_layer</a></li>
+</ul>
+<h2 id="attnheads2vec">AttnHeads2Vec</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L289">Show source in equiformer_type_0.py:289</a></p>
+<p>Convert vectors of shape [N, num_heads, irreps_head] into
+vectors of shape [N, irreps_head * num_heads].</p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class AttnHeads2Vec(torch.nn.Module):
+    def __init__(self, irreps_head): ...
+</code></pre>
+<h3 id="attnheads2vecforward">AttnHeads2Vec().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L304">Show source in equiformer_type_0.py:304</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h2 id="concatirrepstensor">ConcatIrrepsTensor</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L319">Show source in equiformer_type_0.py:319</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">class ConcatIrrepsTensor(torch.nn.Module):
+    def __init__(self, irreps_1, irreps_2): ...
+</code></pre>
+<h3 id="concatirrepstensorcheck_sorted">ConcatIrrepsTensor().check_sorted</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L364">Show source in equiformer_type_0.py:364</a></p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def check_sorted(self, irreps): ...
+</code></pre>
+<h3 id="concatirrepstensorforward">ConcatIrrepsTensor().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L384">Show source in equiformer_type_0.py:384</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">def forward(self, feature_1, feature_2): ...
+</code></pre>
+<h3 id="concatirrepstensorget_ir_index">ConcatIrrepsTensor().get_ir_index</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L377">Show source in equiformer_type_0.py:377</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def get_ir_index(self, ir, irreps): ...
+</code></pre>
+<h3 id="concatirrepstensorget_irreps_dim">ConcatIrrepsTensor().get_irreps_dim</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L357">Show source in equiformer_type_0.py:357</a></p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">def get_irreps_dim(self, irreps): ...
+</code></pre>
+<h2 id="edgedegreeembeddingnetwork">EdgeDegreeEmbeddingNetwork</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L709">Show source in equiformer_type_0.py:709</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">class EdgeDegreeEmbeddingNetwork(torch.nn.Module):
+    def __init__(
+        self, irreps_node_embedding, irreps_edge_attr, fc_neurons, avg_aggregate_num
+    ): ...
+</code></pre>
+<h3 id="edgedegreeembeddingnetworkforward">EdgeDegreeEmbeddingNetwork().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L725">Show source in equiformer_type_0.py:725</a></p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">def forward(self, node_input, edge_attr, edge_scalars, edge_src, edge_dst, batch): ...
+</code></pre>
+<h2 id="equiformerenergy">EquiformerEnergy</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L736">Show source in equiformer_type_0.py:736</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">class EquiformerEnergy(torch.nn.Module):
+    def __init__(
+        self,
+        irreps_in=&quot;5x0e&quot;,
+        irreps_node_embedding=&quot;128x0e+64x1e+32x2e&quot;,
+        node_class=119,
+        num_layers=6,
+        irreps_node_attr=&quot;1x0e&quot;,
+        irreps_sh=&quot;1x0e+1x1e+1x2e&quot;,
+        max_radius=5.0,
+        number_of_basis=128,
+        basis_type=&quot;gaussian&quot;,
+        fc_neurons=[64, 64],
+        irreps_feature=&quot;512x0e&quot;,
+        irreps_head=&quot;32x0e+16x1o+8x2e&quot;,
+        num_heads=4,
+        irreps_pre_attn=None,
+        rescale_degree=False,
+        nonlinear_message=False,
+        irreps_mlp_mid=&quot;128x0e+64x1e+32x2e&quot;,
+        norm_layer=&quot;layer&quot;,
+        alpha_drop=0.2,
+        proj_drop=0.0,
+        out_drop=0.0,
+        drop_path_rate=0.0,
+        scale=None,
+        atomref=None,
+    ): ...
+</code></pre>
+<h3 id="equiformerenergybuild_blocks">EquiformerEnergy().build_blocks</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L810">Show source in equiformer_type_0.py:810</a></p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">def build_blocks(self): ...
+</code></pre>
+<h3 id="equiformerenergyforward">EquiformerEnergy().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L865">Show source in equiformer_type_0.py:865</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, pos, batch, node_atom, **kwargs) -&gt; torch.Tensor: ...
+</code></pre>
+<h3 id="equiformerenergyno_weight_decay">EquiformerEnergy().no_weight_decay</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L843">Show source in equiformer_type_0.py:843</a></p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">@torch.jit.ignore
+def no_weight_decay(self): ...
+</code></pre>
+<h2 id="feedforwardnetwork">FeedForwardNetwork</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L537">Show source in equiformer_type_0.py:537</a></p>
+<p>Use two (FCTP + Gate)</p>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">class FeedForwardNetwork(torch.nn.Module):
+    def __init__(
+        self,
+        irreps_node_input,
+        irreps_node_attr,
+        irreps_node_output,
+        irreps_mlp_mid=None,
+        proj_drop=0.1,
+    ): ...
+</code></pre>
+<h3 id="feedforwardnetworkforward">FeedForwardNetwork().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L566">Show source in equiformer_type_0.py:566</a></p>
+<h4 id="signature_14">Signature</h4>
+<pre><code class="language-python">def forward(self, node_input, node_attr, **kwargs): ...
+</code></pre>
+<h2 id="fullyconnectedtensorproductrescalenorm">FullyConnectedTensorProductRescaleNorm</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L78">Show source in equiformer_type_0.py:78</a></p>
+<h4 id="signature_15">Signature</h4>
+<pre><code class="language-python">class FullyConnectedTensorProductRescaleNorm(FullyConnectedTensorProductRescale):
+    def __init__(
+        self,
+        irreps_in1,
+        irreps_in2,
+        irreps_out,
+        bias=True,
+        rescale=True,
+        internal_weights=None,
+        shared_weights=None,
+        normalization=None,
+        norm_layer=&quot;graph&quot;,
+    ): ...
+</code></pre>
+<h3 id="fullyconnectedtensorproductrescalenormforward">FullyConnectedTensorProductRescaleNorm().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L92">Show source in equiformer_type_0.py:92</a></p>
+<h4 id="signature_16">Signature</h4>
+<pre><code class="language-python">def forward(self, x, y, batch, weight=None): ...
+</code></pre>
+<h2 id="fullyconnectedtensorproductrescalenormswishgate">FullyConnectedTensorProductRescaleNormSwishGate</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L98">Show source in equiformer_type_0.py:98</a></p>
+<h4 id="signature_17">Signature</h4>
+<pre><code class="language-python">class FullyConnectedTensorProductRescaleNormSwishGate(
+    FullyConnectedTensorProductRescaleNorm
+):
+    def __init__(
+        self,
+        irreps_in1,
+        irreps_in2,
+        irreps_out,
+        bias=True,
+        rescale=True,
+        internal_weights=None,
+        shared_weights=None,
+        normalization=None,
+        norm_layer=&quot;graph&quot;,
+    ): ...
+</code></pre>
+<h4 id="see-also">See also</h4>
+<ul>
+<li><a href="#fullyconnectedtensorproductrescalenorm">FullyConnectedTensorProductRescaleNorm</a></li>
+</ul>
+<h3 id="fullyconnectedtensorproductrescalenormswishgateforward">FullyConnectedTensorProductRescaleNormSwishGate().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L121">Show source in equiformer_type_0.py:121</a></p>
+<h4 id="signature_18">Signature</h4>
+<pre><code class="language-python">def forward(self, x, y, batch, weight=None): ...
+</code></pre>
+<h2 id="fullyconnectedtensorproductrescaleswishgate">FullyConnectedTensorProductRescaleSwishGate</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L128">Show source in equiformer_type_0.py:128</a></p>
+<h4 id="signature_19">Signature</h4>
+<pre><code class="language-python">class FullyConnectedTensorProductRescaleSwishGate(FullyConnectedTensorProductRescale):
+    def __init__(
+        self,
+        irreps_in1,
+        irreps_in2,
+        irreps_out,
+        bias=True,
+        rescale=True,
+        internal_weights=None,
+        shared_weights=None,
+        normalization=None,
+    ): ...
+</code></pre>
+<h3 id="fullyconnectedtensorproductrescaleswishgateforward">FullyConnectedTensorProductRescaleSwishGate().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L151">Show source in equiformer_type_0.py:151</a></p>
+<h4 id="signature_20">Signature</h4>
+<pre><code class="language-python">def forward(self, x, y, weight=None): ...
+</code></pre>
+<h2 id="graphattention">GraphAttention</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L403">Show source in equiformer_type_0.py:403</a></p>
+<ol>
+<li>Message = Alpha * Value</li>
+<li>Two Linear to merge src and dst -&gt; Separable FCTP -&gt; 0e + (0e+1e+...)</li>
+<li>0e -&gt; Activation -&gt; Inner Product -&gt; (Alpha)</li>
+<li>(0e+1e+...) -&gt; (Value)</li>
+</ol>
+<h4 id="signature_21">Signature</h4>
+<pre><code class="language-python">class GraphAttention(torch.nn.Module):
+    def __init__(
+        self,
+        irreps_node_input,
+        irreps_node_attr,
+        irreps_edge_attr,
+        irreps_node_output,
+        fc_neurons,
+        irreps_head,
+        num_heads,
+        irreps_pre_attn=None,
+        rescale_degree=False,
+        nonlinear_message=False,
+        alpha_drop=0.1,
+        proj_drop=0.1,
+    ): ...
+</code></pre>
+<h3 id="graphattentionextra_repr">GraphAttention().extra_repr</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L530">Show source in equiformer_type_0.py:530</a></p>
+<h4 id="signature_22">Signature</h4>
+<pre><code class="language-python">def extra_repr(self): ...
+</code></pre>
+<h3 id="graphattentionforward">GraphAttention().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L482">Show source in equiformer_type_0.py:482</a></p>
+<h4 id="signature_23">Signature</h4>
+<pre><code class="language-python">def forward(
+    self,
+    node_input,
+    node_attr,
+    edge_src,
+    edge_dst,
+    edge_attr,
+    edge_scalars,
+    batch,
+    **kwargs
+): ...
+</code></pre>
+<h2 id="nodeembeddingnetwork">NodeEmbeddingNetwork</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L670">Show source in equiformer_type_0.py:670</a></p>
+<h4 id="signature_24">Signature</h4>
+<pre><code class="language-python">class NodeEmbeddingNetwork(torch.nn.Module):
+    def __init__(self, irreps_node_embedding, max_atom_type, bias=True): ...
+</code></pre>
+<h3 id="nodeembeddingnetworkforward">NodeEmbeddingNetwork().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L682">Show source in equiformer_type_0.py:682</a></p>
+<p><code>node_atom</code> is a LongTensor.</p>
+<h4 id="signature_25">Signature</h4>
+<pre><code class="language-python">def forward(self, node_atom): ...
+</code></pre>
+<h2 id="scaledscatter">ScaledScatter</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L693">Show source in equiformer_type_0.py:693</a></p>
+<h4 id="signature_26">Signature</h4>
+<pre><code class="language-python">class ScaledScatter(torch.nn.Module):
+    def __init__(self, avg_aggregate_num): ...
+</code></pre>
+<h3 id="scaledscatterextra_repr">ScaledScatter().extra_repr</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L705">Show source in equiformer_type_0.py:705</a></p>
+<h4 id="signature_27">Signature</h4>
+<pre><code class="language-python">def extra_repr(self): ...
+</code></pre>
+<h3 id="scaledscatterforward">ScaledScatter().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L699">Show source in equiformer_type_0.py:699</a></p>
+<h4 id="signature_28">Signature</h4>
+<pre><code class="language-python">def forward(self, x, index, **kwargs): ...
+</code></pre>
+<h2 id="separablefctp">SeparableFCTP</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L186">Show source in equiformer_type_0.py:186</a></p>
+<p>Use separable FCTP for spatial convolution.</p>
+<h4 id="signature_29">Signature</h4>
+<pre><code class="language-python">class SeparableFCTP(torch.nn.Module):
+    def __init__(
+        self,
+        irreps_node_input,
+        irreps_edge_attr,
+        irreps_node_output,
+        fc_neurons,
+        use_activation=False,
+        norm_layer=&quot;graph&quot;,
+        internal_weights=False,
+    ): ...
+</code></pre>
+<h3 id="separablefctpforward">SeparableFCTP().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L234">Show source in equiformer_type_0.py:234</a></p>
+<p>Depthwise TP: <code>node_input</code> TP <code>edge_attr</code>, with TP parametrized by
+self.dtp_rad(<code>edge_scalars</code>).</p>
+<h4 id="signature_30">Signature</h4>
+<pre><code class="language-python">def forward(self, node_input, edge_attr, edge_scalars, batch=None, **kwargs): ...
+</code></pre>
+<h2 id="smoothleakyrelu">SmoothLeakyReLU</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L54">Show source in equiformer_type_0.py:54</a></p>
+<h4 id="signature_31">Signature</h4>
+<pre><code class="language-python">class SmoothLeakyReLU(torch.nn.Module):
+    def __init__(self, negative_slope=0.2): ...
+</code></pre>
+<h3 id="smoothleakyreluextra_repr">SmoothLeakyReLU().extra_repr</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L66">Show source in equiformer_type_0.py:66</a></p>
+<h4 id="signature_32">Signature</h4>
+<pre><code class="language-python">def extra_repr(self): ...
+</code></pre>
+<h3 id="smoothleakyreluforward">SmoothLeakyReLU().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L60">Show source in equiformer_type_0.py:60</a></p>
+<h4 id="signature_33">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h2 id="transblock">TransBlock</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L575">Show source in equiformer_type_0.py:575</a></p>
+<ol>
+<li>Layer Norm 1 -&gt; GraphAttention -&gt; Layer Norm 2 -&gt; FeedForwardNetwork</li>
+<li>Use pre-norm architecture</li>
+</ol>
+<h4 id="signature_34">Signature</h4>
+<pre><code class="language-python">class TransBlock(torch.nn.Module):
+    def __init__(
+        self,
+        irreps_node_input,
+        irreps_node_attr,
+        irreps_edge_attr,
+        irreps_node_output,
+        fc_neurons,
+        irreps_head,
+        num_heads,
+        irreps_pre_attn=None,
+        rescale_degree=False,
+        nonlinear_message=False,
+        alpha_drop=0.1,
+        proj_drop=0.1,
+        drop_path_rate=0.0,
+        irreps_mlp_mid=None,
+        norm_layer=&quot;layer&quot;,
+    ): ...
+</code></pre>
+<h3 id="transblockforward">TransBlock().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L639">Show source in equiformer_type_0.py:639</a></p>
+<h4 id="signature_35">Signature</h4>
+<pre><code class="language-python">def forward(
+    self,
+    node_input,
+    node_attr,
+    edge_src,
+    edge_dst,
+    edge_attr,
+    edge_scalars,
+    batch,
+    **kwargs
+): ...
+</code></pre>
+<h2 id="vec2attnheads">Vec2AttnHeads</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L252">Show source in equiformer_type_0.py:252</a></p>
+<p>Reshape vectors of shape [N, irreps_mid] to vectors of shape
+[N, num_heads, irreps_head].</p>
+<h4 id="signature_36">Signature</h4>
+<pre><code class="language-python">class Vec2AttnHeads(torch.nn.Module):
+    def __init__(self, irreps_head, num_heads): ...
+</code></pre>
+<h3 id="vec2attnheadsforward">Vec2AttnHeads().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L272">Show source in equiformer_type_0.py:272</a></p>
+<h4 id="signature_37">Signature</h4>
+<pre><code class="language-python">def forward(self, x): ...
+</code></pre>
+<h2 id="depthwisetensorproduct">DepthwiseTensorProduct</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L157">Show source in equiformer_type_0.py:157</a></p>
+<p>The irreps of output is pre-determined.
+<code>irreps_node_output</code> is used to get certain types of vectors.</p>
+<h4 id="signature_38">Signature</h4>
+<pre><code class="language-python">def DepthwiseTensorProduct(
+    irreps_node_input,
+    irreps_edge_attr,
+    irreps_node_output,
+    internal_weights=False,
+    bias=True,
+): ...
+</code></pre>
+<h2 id="equiformer_l2">Equiformer_l2</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L903">Show source in equiformer_type_0.py:903</a></p>
+<h4 id="signature_39">Signature</h4>
+<pre><code class="language-python">def Equiformer_l2(irreps_in, radius, num_basis, node_class, **kwargs): ...
+</code></pre>
+<h2 id="equiformer_nonlinear_bessel_l2">Equiformer_nonlinear_bessel_l2</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L952">Show source in equiformer_type_0.py:952</a></p>
+<h4 id="signature_40">Signature</h4>
+<pre><code class="language-python">def Equiformer_nonlinear_bessel_l2(
+    irreps_in, radius, num_basis, node_class, **kwargs
+): ...
+</code></pre>
+<h2 id="equiformer_nonlinear_bessel_l2_drop00">Equiformer_nonlinear_bessel_l2_drop00</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L986">Show source in equiformer_type_0.py:986</a></p>
+<h4 id="signature_41">Signature</h4>
+<pre><code class="language-python">def Equiformer_nonlinear_bessel_l2_drop00(
+    irreps_in, radius, num_basis, node_class, **kwargs
+): ...
+</code></pre>
+<h2 id="equiformer_nonlinear_bessel_l2_drop01">Equiformer_nonlinear_bessel_l2_drop01</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L969">Show source in equiformer_type_0.py:969</a></p>
+<h4 id="signature_42">Signature</h4>
+<pre><code class="language-python">def Equiformer_nonlinear_bessel_l2_drop01(
+    irreps_in, radius, num_basis, node_class, **kwargs
+): ...
+</code></pre>
+<h2 id="equiformer_nonlinear_l2">Equiformer_nonlinear_l2</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L919">Show source in equiformer_type_0.py:919</a></p>
+<h4 id="signature_43">Signature</h4>
+<pre><code class="language-python">def Equiformer_nonlinear_l2(irreps_in, radius, num_basis, node_class, **kwargs): ...
+</code></pre>
+<h2 id="equiformer_nonlinear_l2_e3">Equiformer_nonlinear_l2_e3</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L935">Show source in equiformer_type_0.py:935</a></p>
+<h4 id="signature_44">Signature</h4>
+<pre><code class="language-python">def Equiformer_nonlinear_l2_e3(irreps_in, radius, num_basis, node_class, **kwargs): ...
+</code></pre>
+<h2 id="get_mul_0">get_mul_0</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L70">Show source in equiformer_type_0.py:70</a></p>
+<h4 id="signature_45">Signature</h4>
+<pre><code class="language-python">def get_mul_0(irreps): ...
+</code></pre>
+<h2 id="get_norm_layer">get_norm_layer</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/Equiformer/equiformer_type_0.py#L39">Show source in equiformer_type_0.py:39</a></p>
+<h4 id="signature_46">Signature</h4>
+<pre><code class="language-python">def get_norm_layer(norm_type): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../drop/" class="btn btn-neutral float-left" title="Drop"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../equiformer_type_01/" class="btn btn-neutral float-right" title="Equiformer Type 01">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../drop/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../equiformer_type_01/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

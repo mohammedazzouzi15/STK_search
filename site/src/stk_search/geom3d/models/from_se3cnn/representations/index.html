@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Representations - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Representations";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/from_se3cnn/representations.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet/">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+          <li class="breadcrumb-item">From se3cnn</li>
+      <li class="breadcrumb-item active">Representations</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/from_se3cnn/representations.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="representations">Representations</h1>
+<p><a href="../../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../../#stk-search">Stk Search</a> / <a href="../../../../#stk-search">Stk Search</a> / <a href="../../#models">Models</a> / <a href="../#from-se3cnn">From Se3cnn</a> / Representations</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py">src.stk_search.geom3d.models.from_se3cnn.representations</a> module.</p>
+</blockquote>
+<h4 id="attributes">Attributes</h4>
+<ul>
+<li>
+<p><code>y</code> - y = tesseral_harmonics(l, m, theta, phi): sph_har.get_element(l, m, cu_theta, cu_phi).type(torch.float32)</p>
+</li>
+<li>
+<p><a href="#representations">Representations</a></p>
+</li>
+<li><a href="#sphericalharmonics">SphericalHarmonics</a><ul>
+<li><a href="#sphericalharmonics()clear">SphericalHarmonics().clear</a></li>
+<li><a href="#sphericalharmonics()get">SphericalHarmonics().get</a></li>
+<li><a href="#sphericalharmonics()get_element">SphericalHarmonics().get_element</a></li>
+<li><a href="#sphericalharmonics()lpmv">SphericalHarmonics().lpmv</a></li>
+<li><a href="#sphericalharmonics()negative_lpmv">SphericalHarmonics().negative_lpmv</a></li>
+</ul>
+</li>
+<li><a href="#lpmv">lpmv</a></li>
+<li><a href="#pochhammer">pochhammer</a></li>
+<li><a href="#semifactorial">semifactorial</a></li>
+<li><a href="#tesseral_harmonics">tesseral_harmonics</a></li>
+</ul>
+<h2 id="sphericalharmonics">SphericalHarmonics</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L108">Show source in representations.py:108</a></p>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class SphericalHarmonics(object):
+    def __init__(self): ...
+</code></pre>
+<h3 id="sphericalharmonicsclear">SphericalHarmonics().clear</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L112">Show source in representations.py:112</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def clear(self): ...
+</code></pre>
+<h3 id="sphericalharmonicsget">SphericalHarmonics().get</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L193">Show source in representations.py:193</a></p>
+<p>Tesseral harmonic with Condon-Shortley phase.</p>
+<p>The Tesseral spherical harmonics are also known as the real spherical
+harmonics.</p>
+<h4 id="arguments">Arguments</h4>
+<ul>
+<li><code>l</code> - int for degree</li>
+<li><a href="#representations">theta</a> - collatitude or polar angle</li>
+<li><a href="#representations">phi</a> - longitude or azimuth</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p>tensor of shape [<em>theta.shape, 2</em>l+1]</p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">def get(self, l, theta, phi, refresh=True): ...
+</code></pre>
+<h3 id="sphericalharmonicsget_element">SphericalHarmonics().get_element</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L165">Show source in representations.py:165</a></p>
+<p>Tesseral spherical harmonic with Condon-Shortley phase.</p>
+<p>The Tesseral spherical harmonics are also known as the real spherical
+harmonics.</p>
+<h4 id="arguments_1">Arguments</h4>
+<ul>
+<li><code>l</code> - int for degree</li>
+<li><code>m</code> - int for order, where -l &lt;= m &lt; l</li>
+<li><a href="#representations">theta</a> - collatitude or polar angle</li>
+<li><a href="#representations">phi</a> - longitude or azimuth</li>
+</ul>
+<h4 id="returns_1">Returns</h4>
+<p>tensor of shape theta</p>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def get_element(self, l, m, theta, phi): ...
+</code></pre>
+<h3 id="sphericalharmonicslpmv">SphericalHarmonics().lpmv</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L121">Show source in representations.py:121</a></p>
+<p>Associated Legendre function including Condon-Shortley phase.</p>
+<h4 id="arguments_2">Arguments</h4>
+<ul>
+<li><code>m</code> - int order</li>
+<li><code>l</code> - int degree</li>
+<li><code>x</code> - float argument tensor</li>
+</ul>
+<h4 id="returns_2">Returns</h4>
+<p>tensor of x-shape</p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">def lpmv(self, l, m, x): ...
+</code></pre>
+<h3 id="sphericalharmonicsnegative_lpmv">SphericalHarmonics().negative_lpmv</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L115">Show source in representations.py:115</a></p>
+<p>Compute negative order coefficients</p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def negative_lpmv(self, l, m, y): ...
+</code></pre>
+<h2 id="lpmv">lpmv</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L40">Show source in representations.py:40</a></p>
+<p>Associated Legendre function including Condon-Shortley phase.</p>
+<h4 id="arguments_3">Arguments</h4>
+<ul>
+<li><code>m</code> - int order</li>
+<li><code>l</code> - int degree</li>
+<li><code>x</code> - float argument tensor</li>
+</ul>
+<h4 id="returns_3">Returns</h4>
+<p>tensor of x-shape</p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">def lpmv(l, m, x): ...
+</code></pre>
+<h2 id="pochhammer">pochhammer</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L24">Show source in representations.py:24</a></p>
+<p>Compute the pochhammer symbol (x)_k.</p>
+<p>(x)_k = x * (x+1) * (x+2) <em>...</em> (x+k-1)</p>
+<h4 id="arguments_4">Arguments</h4>
+<ul>
+<li><code>x</code> - positive int</li>
+</ul>
+<h4 id="returns_4">Returns</h4>
+<p>float for (x)_k</p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">def pochhammer(x, k): ...
+</code></pre>
+<h2 id="semifactorial">semifactorial</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L8">Show source in representations.py:8</a></p>
+<p>Compute the semifactorial function x!!.</p>
+<p>x!! = x * (x-2) * (x-4) *...</p>
+<h4 id="arguments_5">Arguments</h4>
+<ul>
+<li><code>x</code> - positive int</li>
+</ul>
+<h4 id="returns_5">Returns</h4>
+<p>float for x!!</p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">def semifactorial(x): ...
+</code></pre>
+<h2 id="tesseral_harmonics">tesseral_harmonics</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/from_se3cnn/representations.py#L79">Show source in representations.py:79</a></p>
+<p>Tesseral spherical harmonic with Condon-Shortley phase.</p>
+<p>The Tesseral spherical harmonics are also known as the real spherical
+harmonics.</p>
+<h4 id="arguments_6">Arguments</h4>
+<ul>
+<li><code>l</code> - int for degree</li>
+<li><code>m</code> - int for order, where -l &lt;= m &lt; l</li>
+<li><a href="#representations">theta</a> - collatitude or polar angle</li>
+<li><a href="#representations">phi</a> - longitude or azimuth</li>
+</ul>
+<h4 id="returns_6">Returns</h4>
+<p>tensor of shape theta</p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def tesseral_harmonics(l, m, theta=0.0, phi=0.0): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../cache_file/" class="btn btn-neutral float-left" title="Cache File"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../utils_steerable/" class="btn btn-neutral float-right" title="Utils Steerable">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../cache_file/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../utils_steerable/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

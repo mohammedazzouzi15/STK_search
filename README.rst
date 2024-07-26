@@ -2,22 +2,57 @@
 STK_search
 ==========
 
-to install cd to the directory 
-then 
-once you are using the right environment 
-to install the package, 
+STK_search is a Python package designed for [brief description of what the package does].
 
-conda create -n stk_search python=3.10
+Installation
+============
 
-conda activate stk_search
+To install the package, follow these steps:
 
-pip install -e . # on the folder where pyproject.toml is located
+1. **Navigate to the directory**:
+   
+   Open a terminal and change to the directory where the `pyproject.toml` file is located.
 
-then install the following packages
+   ```sh
+   cd path/to/directory
+2. create a new conda environment
+   ```sh
+   conda create -n stk_search python=3.8
+   ```
+3. activate the environment
+   ```sh
+    conda activate stk_search
+    ```
+4. **Install the package**:
+    
+    Run the following command:
+    
+    ```sh
+    pip install .
+    ```
 
-pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cpu.html
+5. install additional package to use the GNN model:
+    for GPU:
+        pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
+    for CPU:
+        pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cpu.html
 
 
-for cuda users: 
+Usage
+============
+[Provide examples and explanations on how to use the package]
 
-pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
+Contributing
+============
+[Provide guidelines for contributing to the project]
+
+License
+============
+[Specify the license under which the package is distributed]
+
+Contact
+============
+
+[Provide contact information or links to relevant resources]
+
+```

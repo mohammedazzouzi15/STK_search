@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Spherenet - Stk_search</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Spherenet";
+        var mkdocs_page_input_path = "src/stk_search/geom3d/models/SphereNet.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> Stk_search
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Src</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stk search</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../../">Stk Search</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../Objective_function/">Objective Function</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchExp/">Searchexp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchSpace/">Searchspace</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../SearchedSpace/">Searchedspace</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >Geom3d</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >Models</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">Models</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AWARE/">Aware</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../AutoEncoder/">Autoencoder</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../BERT/">Bert</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CDConv/">Cdconv</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../CNN/">Cnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ClofNet/">Clofnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DMPNN/">Dmpnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet/">Dimenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNetPlusPlus/">Dimenetplusplus</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../DimeNet_utils/">Dimenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../EGNN/">Egnn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../ENN/">Enn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS/">Gps</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GPS_layer/">Gps Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GVP/">Gvp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet/">Gearnet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GearNet_layer/">Gearnet Layer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_DDM/">Geossl Ddm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../GeoSSL_PDM/">Geossl Pdm</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../MLP/">Mlp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN/">Painn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../PaiNN_utils/">Painn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer/">Se3 Transformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SE3_Transformer_utils/">Se3 Transformer Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SchNet/">Schnet</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">Spherenet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_periodic/">Spherenet Periodic</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../SphereNet_utils/">Spherenet Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN/">Tfn</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../TFN_utils/">Tfn Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../fibers/">Fibers</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model/">Molecule Gnn Model</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../molecule_gnn_model_simplified/">Molecule Gnn Model Simplified</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">Utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Allegro</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Equiformer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >GemNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >Graphormer</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >NequIP</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >PNA</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >ProNet</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >SEGNN</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >TransformerM</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" >From se3cnn</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">Stk_search</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Src</li>
+          <li class="breadcrumb-item">Stk search</li>
+          <li class="breadcrumb-item">Geom3d</li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Spherenet</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mohammedazzouzi15/STK_search/edit/master/docs/src/stk_search/geom3d/models/SphereNet.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="spherenet">Spherenet</h1>
+<p><a href="../../../../README.md#stk_search-index">Stk_search Index</a> / <code>src</code> / <a href="../../../#stk-search">Stk Search</a> / <a href="../../../#stk-search">Stk Search</a> / <a href="../#models">Models</a> / Spherenet</p>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py">src.stk_search.geom3d.models.SphereNet</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="#spherenet">Spherenet</a></li>
+<li><a href="#spherenet">SphereNet</a><ul>
+<li><a href="#spherenet()forward">SphereNet().forward</a></li>
+<li><a href="#spherenet()reset_parameters">SphereNet().reset_parameters</a></li>
+<li><a href="#spherenet()triplets">SphereNet().triplets</a></li>
+</ul>
+</li>
+<li><a href="#emb">emb</a><ul>
+<li><a href="#emb()forward">emb().forward</a></li>
+<li><a href="#emb()reset_parameters">emb().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#init">init</a><ul>
+<li><a href="#init()forward">init().forward</a></li>
+<li><a href="#init()reset_parameters">init().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#update_e">update_e</a><ul>
+<li><a href="#update_e()forward">update_e().forward</a></li>
+<li><a href="#update_e()reset_parameters">update_e().reset_parameters</a></li>
+</ul>
+</li>
+<li><a href="#update_u">update_u</a><ul>
+<li><a href="#update_u()forward">update_u().forward</a></li>
+</ul>
+</li>
+<li><a href="#update_v">update_v</a><ul>
+<li><a href="#update_v()forward">update_v().forward</a></li>
+<li><a href="#update_v()reset_parameters">update_v().reset_parameters</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="spherenet_1">SphereNet</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L223">Show source in SphereNet.py:223</a></p>
+<p>The spherical message passing neural network SphereNet from the <code>"Spherical Message Passing for 3D Graph Networks" &lt;https://arxiv.org/abs/2102.05013&gt;</code>_ paper.</p>
+<h4 id="arguments">Arguments</h4>
+<ul>
+<li><code>energy_and_force</code> <em>bool, optional</em> - If set to :obj:<code>True</code>, will predict energy and take the negative of the derivative of the energy with respect to the atomic positions as predicted forces. (default: :obj:<code>False</code>)</li>
+<li><code>cutoff</code> <em>float, optional</em> - Cutoff distance for interatomic interactions. (default: :obj:<code>5.0</code>)</li>
+<li><code>num_layers</code> <em>int, optional</em> - Number of building blocks. (default: :obj:<code>4</code>)</li>
+<li><code>hidden_channels</code> <em>int, optional</em> - Hidden embedding size. (default: :obj:<code>128</code>)</li>
+<li><code>out_channels</code> <em>int, optional</em> - Size of each output sample. (default: :obj:<code>1</code>)</li>
+<li><code>int_emb_size</code> <em>int, optional</em> - Embedding size used for interaction triplets. (default: :obj:<code>64</code>)</li>
+<li><code>basis_emb_size_dist</code> <em>int, optional</em> - Embedding size used in the basis transformation of distance. (default: :obj:<code>8</code>)</li>
+<li><code>basis_emb_size_angle</code> <em>int, optional</em> - Embedding size used in the basis transformation of angle. (default: :obj:<code>8</code>)</li>
+<li><code>basis_emb_size_torsion</code> <em>int, optional</em> - Embedding size used in the basis transformation of torsion. (default: :obj:<code>8</code>)</li>
+<li><code>out_emb_channels</code> <em>int, optional</em> - Embedding size used for atoms in the output block. (default: :obj:<code>256</code>)</li>
+<li><code>num_spherical</code> <em>int, optional</em> - Number of spherical harmonics. (default: :obj:<code>7</code>)</li>
+<li><code>num_radial</code> <em>int, optional</em> - Number of radial basis functions. (default: :obj:<code>6</code>)</li>
+<li><code>envelop_exponent</code> <em>int, optional</em> - Shape of the smooth cutoff. (default: :obj:<code>5</code>)</li>
+<li><code>num_before_skip</code> <em>int, optional</em> - Number of residual layers in the interaction blocks before the skip connection. (default: :obj:<code>1</code>)</li>
+<li><code>num_after_skip</code> <em>int, optional</em> - Number of residual layers in the interaction blocks before the skip connection. (default: :obj:<code>2</code>)</li>
+<li><code>num_output_layers</code> <em>int, optional</em> - Number of linear layers for the output blocks. (default: :obj:<code>3</code>)</li>
+<li><code>act</code> - (function, optional): The activation funtion. (default: :obj:<code>swish</code>)</li>
+<li><code>output_init</code> - (str, optional): The initialization fot the output. It could be :obj:<code>GlorotOrthogonal</code> and :obj:<code>zeros</code>. (default: :obj:<code>GlorotOrthogonal</code>)</li>
+</ul>
+<h4 id="signature">Signature</h4>
+<pre><code class="language-python">class SphereNet(torch.nn.Module):
+    def __init__(
+        self,
+        energy_and_force=False,
+        cutoff=5.0,
+        num_layers=4,
+        hidden_channels=128,
+        out_channels=1,
+        int_emb_size=64,
+        basis_emb_size_dist=8,
+        basis_emb_size_angle=8,
+        basis_emb_size_torsion=8,
+        out_emb_channels=256,
+        num_spherical=7,
+        num_radial=6,
+        envelope_exponent=5,
+        num_before_skip=1,
+        num_after_skip=2,
+        num_output_layers=3,
+        act=&quot;swish&quot;,
+        output_init=&quot;GlorotOrthogonal&quot;,
+    ): ...
+</code></pre>
+<h3 id="spherenetforward">SphereNet().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L419">Show source in SphereNet.py:419</a></p>
+<h4 id="signature_1">Signature</h4>
+<pre><code class="language-python">def forward(self, z, pos, batch): ...
+</code></pre>
+<h3 id="spherenetreset_parameters">SphereNet().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L323">Show source in SphereNet.py:323</a></p>
+<h4 id="signature_2">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h3 id="spherenettriplets">SphereNet().triplets</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L332">Show source in SphereNet.py:332</a></p>
+<p>Compute the diatance, angle, and torsion from geometric information.</p>
+<h4 id="arguments_1">Arguments</h4>
+<ul>
+<li><code>pos</code> - Geometric information for every node in the graph.</li>
+<li><code>edgee_index</code> - Edge index of the graph.</li>
+<li><code>number_nodes</code> - Number of nodes in the graph.</li>
+<li><code>use_torsion</code> - If set to :obj:<code>True</code>, will return distance, angle and torsion, otherwise only return distance and angle (also retrun some useful index). (default: :obj:<code>False</code>)</li>
+</ul>
+<h4 id="signature_3">Signature</h4>
+<pre><code class="language-python">def triplets(self, pos, edge_index, num_nodes, use_torsion=False): ...
+</code></pre>
+<h2 id="emb">emb</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L20">Show source in SphereNet.py:20</a></p>
+<h4 id="signature_4">Signature</h4>
+<pre><code class="language-python">class emb(torch.nn.Module):
+    def __init__(self, num_spherical, num_radial, cutoff, envelope_exponent): ...
+</code></pre>
+<h3 id="embforward">emb().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L33">Show source in SphereNet.py:33</a></p>
+<h4 id="signature_5">Signature</h4>
+<pre><code class="language-python">def forward(self, dist, angle, torsion, idx_kj): ...
+</code></pre>
+<h3 id="embreset_parameters">emb().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L30">Show source in SphereNet.py:30</a></p>
+<h4 id="signature_6">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="init">init</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L40">Show source in SphereNet.py:40</a></p>
+<h4 id="signature_7">Signature</h4>
+<pre><code class="language-python">class init(torch.nn.Module):
+    def __init__(self, num_radial, hidden_channels, act=&quot;swish&quot;): ...
+</code></pre>
+<h3 id="initforward">init().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L56">Show source in SphereNet.py:56</a></p>
+<h4 id="signature_8">Signature</h4>
+<pre><code class="language-python">def forward(self, x, emb, i, j): ...
+</code></pre>
+<h3 id="initreset_parameters">init().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L50">Show source in SphereNet.py:50</a></p>
+<h4 id="signature_9">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="update_e">update_e</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L66">Show source in SphereNet.py:66</a></p>
+<h4 id="signature_10">Signature</h4>
+<pre><code class="language-python">class update_e(torch.nn.Module):
+    def __init__(
+        self,
+        hidden_channels,
+        int_emb_size,
+        basis_emb_size_dist,
+        basis_emb_size_angle,
+        basis_emb_size_torsion,
+        num_spherical,
+        num_radial,
+        num_before_skip,
+        num_after_skip,
+        act=&quot;swish&quot;,
+    ): ...
+</code></pre>
+<h3 id="update_eforward">update_e().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L137">Show source in SphereNet.py:137</a></p>
+<h4 id="signature_11">Signature</h4>
+<pre><code class="language-python">def forward(self, x, emb, idx_kj, idx_ji): ...
+</code></pre>
+<h3 id="update_ereset_parameters">update_e().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L112">Show source in SphereNet.py:112</a></p>
+<h4 id="signature_12">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+<h2 id="update_u">update_u</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L214">Show source in SphereNet.py:214</a></p>
+<h4 id="signature_13">Signature</h4>
+<pre><code class="language-python">class update_u(torch.nn.Module):
+    def __init__(self): ...
+</code></pre>
+<h3 id="update_uforward">update_u().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L218">Show source in SphereNet.py:218</a></p>
+<h4 id="signature_14">Signature</h4>
+<pre><code class="language-python">def forward(self, u, v, batch): ...
+</code></pre>
+<h2 id="update_v">update_v</h2>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L172">Show source in SphereNet.py:172</a></p>
+<h4 id="signature_15">Signature</h4>
+<pre><code class="language-python">class update_v(torch.nn.Module):
+    def __init__(
+        self,
+        hidden_channels,
+        out_emb_channels,
+        out_channels,
+        num_output_layers,
+        act,
+        output_init,
+    ): ...
+</code></pre>
+<h3 id="update_vforward">update_v().forward</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L204">Show source in SphereNet.py:204</a></p>
+<h4 id="signature_16">Signature</h4>
+<pre><code class="language-python">def forward(self, e, i): ...
+</code></pre>
+<h3 id="update_vreset_parameters">update_v().reset_parameters</h3>
+<p><a href="https://github.com/mohammedazzouzi15/STK_search/blob/main/src/stk_search/geom3d/models/SphereNet.py#L194">Show source in SphereNet.py:194</a></p>
+<h4 id="signature_17">Signature</h4>
+<pre><code class="language-python">def reset_parameters(self): ...
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SchNet/" class="btn btn-neutral float-left" title="Schnet"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../SphereNet_periodic/" class="btn btn-neutral float-right" title="Spherenet Periodic">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mohammedazzouzi15/STK_search" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../SchNet/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../SphereNet_periodic/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
