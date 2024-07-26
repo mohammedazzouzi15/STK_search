@@ -10,7 +10,7 @@ Installation
 To install the package, follow these steps:
 
 1. Open a terminal and change to the directory where the `pyproject.toml` file is located.
-   cd path/to/directory
+   '''cd path/to/directory
 2. create a new conda environment
    conda create -n stk_search python=3.8 
 3. activate the environment
