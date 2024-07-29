@@ -229,8 +229,8 @@ class Calculate_Precursor():
             stko.XTB(
                 xtb_path=xtb_path,
                 output_dir=output_dir,
-                unlimited_memory=False,
-                num_cores=25,
+                unlimited_memory=True,
+                num_cores=24,
             ),
         )
         polymer = xtb.optimize(polymer)
@@ -273,9 +273,9 @@ class Calculate_Precursor():
             output_dir=os.path.join(
                 xtb_opt_output_dir, get_inchi_key(polymer)
             ),
-            unlimited_memory=False,
+            unlimited_memory=True,
             calculate_ip_and_ea=True,
-            num_cores=25,
+            num_cores=24,
         )
         xtb_results = xtb.get_results(polymer)
         XTB_results = {

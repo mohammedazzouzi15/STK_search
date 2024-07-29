@@ -17,10 +17,11 @@ To install the package, follow these steps:
 3. activate the environment
         conda activate stk_search
 4. Run the following command to install the package:
-        pip install .
+        pip install -e .
 5. install additional package to use the GNN model:
     for GPU:
        pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
+       Make sure the torch version is the right one
     for CPU:
         pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cpu.html
 

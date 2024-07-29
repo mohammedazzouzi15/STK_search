@@ -25,6 +25,20 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class BayesianOptimisation(Search_Algorithm):
+    """
+    
+    This class is to define the Bayesian Optimisation search algorithm.
+    Here the Bayesian Optimisation search algorithm is defined and is a subclass of Search_Algorithm.
+    The Bayesian Optimisation search algorithm is used to optimise the acquisition function and suggest the next element to evaluate.
+    the different step of the algorithm are:
+    1. Prepare input for the BO
+    2. Train the model
+    3. Optimise the acquisition function
+    4. Generate elements to evaluate
+    5. Suggest a new element to evaluate
+    
+    """
+
     def __init__(
         self,
         verbose=False,

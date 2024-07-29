@@ -16,25 +16,122 @@ def get_inchi_key(molecule):
 
 
 class Objective_Function:
+    """
+    Base class for objective functions
+    The objective function is the function that will be used to evaluate the fitness of the molecules in the search
+
+    Functions
+    ---------
+    evaluate_element(element, multiFidelity=False)
+        Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element
+
+    """
+
     def __init__(self):
+        """
+        Initialises the objective function
+        """
         pass
 
     def evaluate_element(self, element, multiFidelity=False):
+        """
+        Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element
+
+        Parameters
+        ----------
+            element: list
+            list of building blocks
+            multiFidelity: bool
+            if True, the function will return the fitness and the fidelity of the element
+
+        Returns
+        -------
+            float
+            the fitness of the element
+            str
+            the identifier of the element
+        """
         for x in element:
             if type(x) == int or type(x) == np.float64:
                 return float(x), "test"
 
 
 class Look_up_table:
+    """
+    Class for look up table objective functions
+    The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database
+
+    """
+
     def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
+        """
+        Initialises the look up table objective function
+
+        Parameters
+        ----------
+
+            df_look_up: pd.DataFrame
+            the dataframe containing the look up table
+            the dataframe should contain the InChIKeys of the fragments in the form of 'InChIKey_0', 'InChIKey_1', etc.
+            and the target column
+            and the InChIKeys of the molecule
+
+            fragment_size: int
+            the size of the fragments
+
+            target_name: str
+            the name of the target column
+
+            aim: int or float
+            the aim of the fitness function
+            if the aim is an int, the fitness function will be the negative absolute difference between the target and the aim
+
+        """
         self.df_look_up = df_look_up
         self.fragment_size = fragment_size
         self.target_name = target_name
         self.aim = aim
+        self.check_database()
+
+    def check_database(self):
+        """
+        Checks the database
+        """
+        if self.df_look_up is None:
+            raise ValueError("No database found")
+        if "InChIKey" not in self.df_look_up.columns:
+            raise ValueError("No InChIKey column found")
+        if self.target_name not in self.df_look_up.columns:
+            raise ValueError("No target column found")
+        if any([
+            f"InChIKey_{i}" not in self.df_look_up.columns for i in range(self.fragment_size)
+        ]):
+            raise ValueError(
+                "No fragment columns found or not enough fragment columns"
+            )
 
     def evaluate_element(self, element, multiFidelity=False):
-        # if type(element) == pd.Series:
-        # element = element.to_frame()
+        """
+        Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element
+
+        Parameters
+        ----------
+            element: list
+            list of building blocks
+            multiFidelity: bool
+            if True, the function will return the fitness and the fidelity of the element
+
+        Returns
+        -------
+            float
+            the fitness of the element
+            str
+            the identifier of the element in the form of an InChIKey
+        """
+
         columns = [f"InChIKey_{i}" for i in range(self.fragment_size)]
         if multiFidelity:
             columns.append("fidelity")
@@ -59,30 +156,147 @@ class Look_up_table:
 
 
 class IP_ES1_fosc(Objective_Function):
-    def __init__(self, oligomer_size):
-        self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
-        self.db_mol = "stk_mohammed_new"
-        self.xtb_path = (
-            "/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb"
-        )
+    """
+    Class for the IP_ES1_fosc objective function
+    The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+    the first excited state energy and the first excited state oscillator strength.
+    The fitness function is defined as:
+    -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
+    where IP is the ionisation potential, Es1 is the first excited state energy and fosc_1 is the first excited state oscillator strength
+    Here the quantum chemical calculation are done using xtb and stda
 
-        self.STDA_bin_path = (
-            "/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/"
-        )
-        self.Db_folder = (
-            "/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers"
-        )
+    Functions
+    ---------
+    evaluate_element(element, multiFidelity=False)
+        Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element
+
+    Build_polymer(element, db)
+        Builds the polymer from the building blocks
+        takes as an input a list of building blocks and a database containing the building blocks
+        returns the polymer
+    run_xtb_opt(polymer, xtb_path, xtb_opt_output_dir, database, collection, client)
+        Runs the xtb optimisation of the polymer
+        takes as an input the polymer, the path to xtb, the output directory, the database and collection name and the client
+        returns the optimised polymer
+    run_xtb_ipea(polymer, xtb_path, xtb_opt_output_dir, database, collection, target, client)
+        Runs the xtb calculation of the ionisation potential
+        takes as an input the polymer, the path to xtb, the output directory, the database and collection name, the target and the client
+        returns the ionisation potential
+    run_stda(polymer, STDA_bin_path, output_dir, property, state, database, collection, client)
+        Runs the stda calculation of the excited state energy and oscillator strength
+        takes as an input the polymer, the path to stda, the output directory, the property, the state, the database and collection name and the client
+        returns the excited state energy or oscillator strength
+
+
+
+    """
+
+    def __init__(
+        self,
+        oligomer_size,
+        client="mongodb://ch-atarzia.ch.ic.ac.uk/",
+        db_mol="stk_mohammed",
+        xtb_path="/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb",
+        STDA_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
+        Db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
+        database_new_calc="stk_mohammed_BO",
+        collection_name=None,
+        host_IP="cx1",
+    ):
+        """
+        Initialises the IP_ES1_fosc objective function
+
+        Parameters
+        ----------
+            oligomer_size: int
+            the size of the oligomer
+            client: str
+            the path to the mongodb client
+            db_mol: str
+            the name of the database containing the building blocks
+            the database should contain the building blocks position matrix and the InChIKey
+            It is normally generated using stk and the stk.MoleculeMongoDb class
+            xtb_path: str
+            the path to the xtb executable
+            STDA_bin_path: str
+            the path to the stda executable
+            Db_folder: str
+            the path to the output directory
+            database_new_calc: str
+            the name of the database containing the new calculations
+            collection_name: str
+            the name of the collection
+            host_IP: str
+            the host IP
+        """
+        self.client = client
+        self.db_mol = db_mol
+        self.xtb_path = xtb_path
+        self.STDA_bin_path = STDA_bin_path
+        self.Db_folder = Db_folder
         os.makedirs(self.Db_folder, exist_ok=True)
-        self.database_new_calc = "stk_mohammed_BO"
-        if oligomer_size == 6:
-            self.collection_name = "BO_exp1"
-        else:
+        self.database_new_calc = database_new_calc
+        self.collection_name = collection_name
+        if self.collection_name is None:
             self.collection_name = f"BO_{oligomer_size}"
-        # print(self.collection_name)
-        self.host_IP = "cx1"
+        self.host_IP = host_IP
         self.oligomer_size = oligomer_size
+        self.test_mongo_db_connection()
+        self.test_xtb_stda_connection()
+
+    def test_mongo_db_connection(self):
+        """
+        Tests the connection to the database
+        """
+        try:
+            client = pymongo.MongoClient(self.client)
+            db_mol = stk.MoleculeMongoDb(
+                client,
+                database=self.db_mol,
+            )
+            print("Connection to the database successful")
+        except Exception as e:
+            print("Connection to the database failed")
+            print(e)
+
+    def test_xtb_stda_connection(self):
+        """
+        Tests the connection to xtb and stda
+        """
+        try:
+            os.system(self.xtb_path + " --version")
+            os.system(self.STDA_bin_path + " --version")
+            print("Connection to xtb and stda successful")
+        except Exception as e:
+            print("Connection to xtb and stda failed")
+            print(e)
 
     def evaluate_element(self, element, multiFidelity=False):
+        """
+        Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element
+        The evaluation here is done by first building the polymer from the building blocks
+        then running the xtb optimisation, the xtb calculation of the ionisation potential and the stda calculation of the excited state energy and oscillator strength
+        The fitness function is defined as:
+        -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10(fosc_1 + 1e-10)
+        where IP is the ionisation potential, Es1 is the first excited state energy and fosc_1 is the first excited state oscillator strength
+
+        Parameters
+        ----------
+            element: list
+            list of building blocks
+            multiFidelity: bool
+            if True, the function will return the fitness and the fidelity of the element
+
+        Returns
+        -------
+            float
+            the fitness of the element
+            str
+            the identifier of the element in the form of an InChIKey
+        """
+
         # initialise the database
         client = pymongo.MongoClient(self.client)
         db_mol = stk.MoleculeMongoDb(
@@ -161,6 +375,24 @@ class IP_ES1_fosc(Objective_Function):
     def Build_polymer(
         self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
     ):
+        """
+        Builds the polymer from the building blocks
+        takes as an input a list of building blocks and a database containing the building blocks
+        returns the polymer
+
+        Parameters
+        ----------
+            element: pd.DataFrame
+            the dataframe containing the building blocks
+            db: stk.MoleculeMongoDb
+            the database containing the building blocks
+
+        Returns
+        -------
+            stk.ConstructedMolecule
+            the polymer
+        """
+
         precursors = []
         genes = "ABCDEFGH"
         genes = genes[: self.oligomer_size]
@@ -195,9 +427,53 @@ class IP_ES1_fosc(Objective_Function):
         collection="test",
         client=None,
     ):
+        """
+        Runs the xtb optimisation of the polymer
+
+        Parameters
+        ----------
+            polymer: stk.ConstructedMolecule
+            the polymer
+            xtb_path: str
+            the path to the xtb executable
+            xtb_opt_output_dir: str
+            the output directory
+            database: str
+            the name of the database
+            collection: str
+            the name of the collection
+            client: pymongo.MongoClient
+            the client
+
+            Returns
+            -------
+            stk.ConstructedMolecule
+            the optimised polymer
+
+        """
+
         def save_xtb_opt_calculation(
             polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
         ):
+            """
+            Saves the xtb optimisation calculation  
+            
+            Parameters
+            ----------
+                polymer: stk.ConstructedMolecule
+                the polymer
+                xtb_opt_output_dir: str
+                the output directory
+                collection: pymongo.collection
+                the collection
+                InchiKey_initial: str
+                the initial InChIKey
+                
+            
+            Returns
+            -------
+            None
+            """
             def get_property_value(data, property_name):
                 for line in data:
                     if property_name in line:
@@ -317,6 +593,31 @@ class IP_ES1_fosc(Objective_Function):
         target="ionisation potential (eV)",
         client=None,
     ):
+        """
+        Runs the xtb calculation of the ionisation potential
+
+        Parameters
+        ----------
+            polymer: stk.ConstructedMolecule
+            the polymer
+            xtb_path: str
+            the path to the xtb executable
+            xtb_opt_output_dir: str
+            the output directory
+            database: str
+            the name of the database
+            collection: str
+            the name of the collection
+            target: str
+            the target
+            client: pymongo.MongoClient
+            the client
+
+        Returns
+        -------
+            float
+            the ionisation potential
+        """
         collection = client[database][collection]
         XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
         if XTB_results is not None:
@@ -364,6 +665,36 @@ class IP_ES1_fosc(Objective_Function):
         collection="test",
         client=None,
     ):
+        """
+        run XTB-stda
+
+        Parameters
+        ----------
+            polymer: stk.ConstructedMolecule
+            the polymer
+            STDA_bin_path: str
+            the path to the STDA xtb executable
+            output_dir: str
+            the output directory
+            Properte: str   
+            the property to output 
+            state: int
+            the excited state for which we output the property
+            database: str
+            the name of the database
+            collection: str
+            the name of the collection
+            target: str
+            the target
+            client: pymongo.MongoClient
+            the client
+
+        Returns
+        -------
+            float
+            The property of interrest
+        """
+        
         collection = client[database][collection]
         STDA_results = collection.find_one(
             {"InChIKey": get_inchi_key(polymer)}
