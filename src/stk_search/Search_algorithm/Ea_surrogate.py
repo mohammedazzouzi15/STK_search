@@ -13,6 +13,18 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class Ea_surrogate(evolution_algorithm):
+
+    """
+    
+    Class to run the surrogate EA algorithm 
+    Compared to the EA, here we need a surrogate model and a molecule representation to run the search
+    the surrogate model applied on the molecule representation is used to select a new molecule to evaluate. 
+    
+    the generation of offspring is the same as in the EA
+    
+    Args
+    
+    """
     def __init__(self):
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.model = None

@@ -188,8 +188,6 @@ class BayesianOptimisation(Search_Algorithm):
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
-        # print('max_acquisition_value is ', max_acquisition_value)
-        # print('min_acquisition_value is ', acquisition_values.min())
         max_counter, max_optimisation_iteration = 0, 100
         while counter < lim_counter:
             counter += 1
@@ -219,25 +217,14 @@ class BayesianOptimisation(Search_Algorithm):
                 descending=True
             )
             max_acquisition_value_current = acquisition_values.max()
-            # print(
-            #  f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value_current}"
-            # )
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
             ):
                 max_acquisition_value = max_acquisition_value_current
-                # print(
-                #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
-                # )
                 counter = 0
             if max_counter > max_optimisation_iteration:
-                # print(
-                #   f"counter is {max_counter}, max_acquisition_value is {max_acquisition_value}"
-                # )
                 break
-        # print("finished acquisition function optimisation")
-        # print(ids_sorted_by_aquisition[:1], df_elements[:1])
         return ids_sorted_by_aquisition, df_elements
 
     def Generate_element_to_evaluate(
@@ -308,7 +295,6 @@ class BayesianOptimisation(Search_Algorithm):
         df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
-            # print("started acquisition function optimisation")
             df_elements = df_elements.merge(
                 df_total,
                 on=[

@@ -260,7 +260,6 @@ class evolution_algorithm(Search_Algorithm):
         """
         import time
         random_seed = int(time.time()*1000) - int(time.time())*1000
-        print(random_seed)
         np.random.seed(random_seed)
         df_search = search_space_df
         df_elements = search_space_df
