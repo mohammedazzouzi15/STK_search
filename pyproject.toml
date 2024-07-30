@@ -12,7 +12,7 @@ dependencies = [
   "pandas",
   "numpy",
   "matplotlib",
-  "torch = 2.3.0", 
+  "torch == 2.3.0", 
   "botorch",
   "gpytorch",
   "stko",
