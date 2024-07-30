@@ -61,7 +61,6 @@ wandb/
 *.png
 *.ckpt
 *.csv
-*.yaml
 *.json
 *.pt
 *.tar
