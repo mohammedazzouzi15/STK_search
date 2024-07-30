@@ -1,17 +1,13 @@
-import os
-import os.path as osp
 from math import pi as PI
 from math import sqrt
 
 import sympy as sym
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.nn import Embedding, Linear
 from torch_cluster import radius_graph
-
-from torch_geometric.utils import scatter
-
 from torch_geometric.typing import SparseTensor
+from torch_geometric.utils import scatter
 
 from .DimeNet_utils import bessel_basis, real_sph_harm
 
@@ -29,7 +25,7 @@ def glorot_orthogonal(tensor, scale):
 
 class Envelope(torch.nn.Module):
     def __init__(self, exponent):
-        super(Envelope, self).__init__()
+        super().__init__()
         self.p = exponent + 1
         self.a = -(self.p + 1) * (self.p + 2) / 2
         self.b = self.p * (self.p + 2)
@@ -45,7 +41,7 @@ class Envelope(torch.nn.Module):
 
 class BesselBasisLayer(torch.nn.Module):
     def __init__(self, num_radial, cutoff=5.0, envelope_exponent=5):
-        super(BesselBasisLayer, self).__init__()
+        super().__init__()
         self.cutoff = cutoff
         self.envelope = Envelope(envelope_exponent)
 
@@ -64,7 +60,7 @@ class BesselBasisLayer(torch.nn.Module):
 
 class SphericalBasisLayer(torch.nn.Module):
     def __init__(self, num_spherical, num_radial, cutoff=5.0, envelope_exponent=5):
-        super(SphericalBasisLayer, self).__init__()
+        super().__init__()
         assert num_radial <= 64
         self.num_spherical = num_spherical
         self.num_radial = num_radial
@@ -97,13 +93,12 @@ class SphericalBasisLayer(torch.nn.Module):
         cbf = torch.stack([f(angle) for f in self.sph_funcs], dim=1)
 
         n, k = self.num_spherical, self.num_radial
-        out = (rbf[idx_kj].view(-1, n, k) * cbf.view(-1, n, 1)).view(-1, n * k)
-        return out
+        return (rbf[idx_kj].view(-1, n, k) * cbf.view(-1, n, 1)).view(-1, n * k)
 
 
 class EmbeddingBlock(torch.nn.Module):
     def __init__(self, node_class, num_radial, hidden_channels, act=swish):
-        super(EmbeddingBlock, self).__init__()
+        super().__init__()
         self.act = act
 
         self.emb = Embedding(node_class, hidden_channels)
@@ -125,7 +120,7 @@ class EmbeddingBlock(torch.nn.Module):
 
 class ResidualLayer(torch.nn.Module):
     def __init__(self, hidden_channels, act=swish):
-        super(ResidualLayer, self).__init__()
+        super().__init__()
         self.act = act
         self.lin1 = Linear(hidden_channels, hidden_channels)
         self.lin2 = Linear(hidden_channels, hidden_channels)
@@ -153,7 +148,7 @@ class InteractionBlock(torch.nn.Module):
         num_after_skip,
         act=swish,
     ):
-        super(InteractionBlock, self).__init__()
+        super().__init__()
         self.act = act
 
         self.lin_rbf = Linear(num_radial, hidden_channels, bias=False)
@@ -215,7 +210,7 @@ class OutputBlock(torch.nn.Module):
     def __init__(
         self, num_radial, hidden_channels, out_channels, num_layers, act=swish
     ):
-        super(OutputBlock, self).__init__()
+        super().__init__()
         self.act = act
 
         self.lin_rbf = Linear(num_radial, hidden_channels, bias=False)
@@ -252,7 +247,9 @@ class DimeNet(nn.Module):
         `examples/qm9_pretrained_DimeNet.py
         <https://github.com/rusty1s/pytorch_geometric/blob/master/examples/
         qm9_pretrained_DimeNet.py>`_.
+
     Args:
+    ----
         hidden_channels (int): Hidden embedding size.
         out_channels (int): Size of each output sample.
         num_blocks (int): Number of building blocks.
@@ -271,6 +268,7 @@ class DimeNet(nn.Module):
             output blocks. (default: :obj:`3`)
         act: (function, optional): The activation funtion.
             (default: :obj:`swish`)
+
     """
 
     def __init__(
@@ -289,7 +287,7 @@ class DimeNet(nn.Module):
         num_output_layers=3,
         act=swish,
     ):
-        super(DimeNet, self).__init__()
+        super().__init__()
 
         self.cutoff = cutoff
 
@@ -326,7 +324,6 @@ class DimeNet(nn.Module):
             ]
         )
         self.reset_parameters()
-        return
 
     def reset_parameters(self):
         self.rbf.reset_parameters()
@@ -335,7 +332,6 @@ class DimeNet(nn.Module):
             out.reset_parameters()
         for interaction in self.interaction_blocks:
             interaction.reset_parameters()
-        return
 
     def triplets(self, edge_index, num_nodes):
         row, col = edge_index  # j->i

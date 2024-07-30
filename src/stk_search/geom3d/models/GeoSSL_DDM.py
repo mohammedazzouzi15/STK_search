@@ -1,15 +1,15 @@
 import numpy as np
-
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch_scatter import  scatter_add
+from torch import nn
+from torch_scatter import scatter_add
+
 
 class MultiLayerPerceptron(nn.Module):
     def __init__(self, input_dim, hidden_dims, activation="relu", dropout=0):
-        super(MultiLayerPerceptron, self).__init__()
+        super().__init__()
 
-        self.dims = [input_dim] + hidden_dims
+        self.dims = [input_dim, *hidden_dims]
         if isinstance(activation, str):
             self.activation = getattr(F, activation)
         else:
@@ -26,7 +26,7 @@ class MultiLayerPerceptron(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self):
-        for i, layer in enumerate(self.layers):
+        for _i, layer in enumerate(self.layers):
             nn.init.xavier_uniform_(layer.weight)
             nn.init.constant_(layer.bias, 0.)
 
@@ -44,7 +44,7 @@ class MultiLayerPerceptron(nn.Module):
 
 class GeoSSL_DDM(torch.nn.Module):
     def __init__(self, emb_dim, sigma_begin, sigma_end, num_noise_level, noise_type, anneal_power):
-        super(GeoSSL_DDM, self).__init__()
+        super().__init__()
 
         self.anneal_power = anneal_power
 
@@ -55,8 +55,7 @@ class GeoSSL_DDM(torch.nn.Module):
         sigmas = torch.tensor(np.exp(np.linspace(np.log(sigma_begin), np.log(sigma_end), num_noise_level)), dtype=torch.float32)
         self.sigmas = nn.Parameter(sigmas, requires_grad=False) # (num_noise_level)
 
-        return
-    
+
     def forward(self, data, node_feature, distance):
         self.device = self.sigmas.device
 
@@ -80,11 +79,10 @@ class GeoSSL_DDM(torch.nn.Module):
         distance_feature = torch.cat([h_row + h_col, distance_emb], dim=-1) # (num_edge, 2*hidden)
         scores = self.output_mlp(distance_feature) # (num_edge, 1)
         scores = scores * (1. / used_sigmas) # f_theta_sigma(x) =  f_theta(x) / sigma, (num_edge, 1)
- 
+
         target = target.view(-1) # (num_edge)
         scores = scores.view(-1) # (num_edge)
         loss =  0.5 * ((scores - target) ** 2) * (used_sigmas.squeeze(-1) ** self.anneal_power) # (num_edge)
         loss = scatter_add(loss, edge2graph) # (num_graph)
 
-        loss = loss.mean()
-        return loss
+        return loss.mean()

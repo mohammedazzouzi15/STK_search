@@ -1,9 +1,8 @@
 from typing import Tuple
-from packaging import version
 
 import torch
-
 from e3nn.util.jit import compile_mode
+from packaging import version
 
 _USE_PYG_SPARSE: bool = False
 

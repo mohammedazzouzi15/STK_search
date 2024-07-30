@@ -1,5 +1,6 @@
-from typing import Sequence, Callable, Union, Optional
 import math
+from typing import Callable, Optional, Sequence, Union
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -18,7 +19,7 @@ class Dense(nn.Linear):
     ):
         self.weight_init = weight_init
         self.bias_init = bias_init
-        super(Dense, self).__init__(in_features, out_features, bias)
+        super().__init__(in_features, out_features, bias)
 
         self.activation = activation
         if self.activation is None:
@@ -31,8 +32,7 @@ class Dense(nn.Linear):
 
     def forward(self, input: torch.Tensor):
         y = F.linear(input, self.weight, self.bias)
-        y = self.activation(y)
-        return y
+        return self.activation(y)
 
 
 def build_mlp(
@@ -46,7 +46,7 @@ def build_mlp(
     if n_hidden is None:
         c_neurons = n_in
         n_neurons = []
-        for i in range(n_layers):
+        for _i in range(n_layers):
             n_neurons.append(c_neurons)
             c_neurons = max(n_out, c_neurons // 2)
         n_neurons.append(n_out)
@@ -56,7 +56,7 @@ def build_mlp(
             n_hidden = [n_hidden] * (n_layers - 1)
         else:
             n_hidden = list(n_hidden)
-        n_neurons = [n_in] + n_hidden + [n_out]
+        n_neurons = [n_in, *n_hidden, n_out]
 
     # assign a Dense layer (with activation function) to each hidden layer
     layers = [
@@ -66,8 +66,7 @@ def build_mlp(
     # assign a Dense layer (without activation function) to the output layer
     layers.append(Dense(n_neurons[-2], n_neurons[-1], activation=None))
     # put all layers together to make the network
-    out_net = nn.Sequential(*layers)
-    return out_net
+    return nn.Sequential(*layers)
 
 
 def scatter_add(
@@ -82,8 +81,7 @@ def _scatter_add(
     shape = list(x.shape)
     shape[dim] = dim_size
     tmp = torch.zeros(shape, dtype=x.dtype, device=x.device)
-    y = tmp.index_add(dim, idx_i, x)
-    return y
+    return tmp.index_add(dim, idx_i, x)
 
 
 def replicate_module(
@@ -99,16 +97,17 @@ def replicate_module(
 class GaussianRBF(nn.Module):
     r"""Gaussian radial basis functions."""
 
-    def __init__(self, n_rbf: int, cutoff: float, start: float=0.0, trainable: bool=False, gamma: float=None):
-        """
-        Args:
+    def __init__(self, n_rbf: int, cutoff: float, start: float=0.0, trainable: bool=False, gamma: Optional[float]=None):
+        r"""Args:
+        ----
             n_rbf: total number of Gaussian functions, :math:`N_g`.
             cutoff: center of last Gaussian function, :math:`\mu_{N_g}`
             start: center of first Gaussian function, :math:`\mu_0`.
             trainable: If True, widths and offset of Gaussian functions
                 are adjusted during training process.
+
         """
-        super(GaussianRBF, self).__init__()
+        super().__init__()
         self.n_rbf = n_rbf
         self.gamma = gamma
 
@@ -128,28 +127,29 @@ class GaussianRBF(nn.Module):
         if self.gamma is not None:
             coeff = - self.gamma
         else:
-            coeff = -0.5 / torch.pow(self.widths, 2)        
+            coeff = -0.5 / torch.pow(self.widths, 2)
         return gaussian_rbf(coeff, inputs, self.offsets)
 
 
 def gaussian_rbf(coeff, inputs, offsets):
     diff = inputs[..., None] - offsets
-    y = torch.exp(coeff * torch.pow(diff, 2))
-    return y
+    return torch.exp(coeff * torch.pow(diff, 2))
 
 
 def cosine_cutoff(input: torch.Tensor, cutoff: torch.Tensor):
-    """ Behler-style cosine cutoff.
-        .. math::
-           f(r) = \begin{cases}
-            0.5 \times \left[1 + \cos\left(\frac{\pi r}{r_\text{cutoff}}\right)\right]
-              & r < r_\text{cutoff} \\
-            0 & r \geqslant r_\text{cutoff} \\
-            \end{cases}
-        Args:
-            cutoff (float, optional): cutoff radius.
-        """
+    r"""Behler-style cosine cutoff.
+    .. math::
+       f(r) = \begin{cases}
+        0.5 \times \\left[1 + \\cos\\left(\frac{\\pi r}{r_\text{cutoff}}\right)\right]
+          & r < r_\text{cutoff} \\
+            0 & r \\geqslant r_\text{cutoff} \\
+            \\end{cases}.
 
+    Args:
+    ----
+        cutoff (float, optional): cutoff radius.
+
+    """
     # Compute values of cutoff function
     input_cut = 0.5 * (torch.cos(input * math.pi / cutoff) + 1.0)
     # Remove contributions beyond the cutoff radius
@@ -158,21 +158,22 @@ def cosine_cutoff(input: torch.Tensor, cutoff: torch.Tensor):
 
 
 class CosineCutoff(nn.Module):
-    r""" Behler-style cosine cutoff module.
+    r"""Behler-style cosine cutoff module.
     .. math::
        f(r) = \begin{cases}
         0.5 \times \left[1 + \cos\left(\frac{\pi r}{r_\text{cutoff}}\right)\right]
           & r < r_\text{cutoff} \\
         0 & r \geqslant r_\text{cutoff} \\
-        \end{cases}
+        \end{cases}.
     """
 
     def __init__(self, cutoff: float):
-        """
-        Args:
+        """Args:
+        ----
             cutoff (float, optional): cutoff radius.
+
         """
-        super(CosineCutoff, self).__init__()
+        super().__init__()
         self.register_buffer("cutoff", torch.FloatTensor([cutoff]))
 
     def forward(self, input: torch.Tensor):

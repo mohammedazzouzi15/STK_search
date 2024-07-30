@@ -1,4 +1,13 @@
+"""A calculator that uses the xTB program to calculate energies.
+
+This module defines a calculator that uses the xTB program to calculate
+energies. The calculator is a subclass of :class:`.XTBEnergy
+<stk.stko.XTBEnergy>`. The calculator is used to calculate the energy
+of a molecule.
+"""
+
 import os
+from pathlib import Path
 import shutil
 import subprocess as sp
 import uuid
@@ -7,9 +16,58 @@ import stko
 
 
 class XTBEnergy2(stko.XTBEnergy):
-    def _run_xtb(self, xyz, out_file, init_dir, output_dir):
-        """
-        Runs GFN-xTB.
+    """A calculator that uses the xTB program to calculate energies.
+
+    Attributes
+    ----------
+    xtb_path : :class:`str`
+        The path to the xTB executable.
+
+    gfn_version : :class:`int`
+        The version of the GFN force field to use.
+
+    num_cores : :class:`int`
+        The number of cores to use.
+
+    electronic_temperature : :class:`float`
+        The electronic temperature to use.
+
+    charge : :class:`int`
+        The charge of the molecule.
+
+    num_unpaired_electrons : :class:`int`
+        The number of unpaired electrons in the molecule.
+
+    solvent : :class:`str`
+        The solvent to use in the calculation.
+
+    solvent_model : :class:`str`
+        The solvent model to use in the calculation.
+
+    calculate_free_energy : :class:`bool`
+        Whether to calculate the free energy.
+
+    calculate_ip_and_ea : :class:`bool`
+        Whether to calculate the ionization potential and electron
+        affinity.
+
+    unlimited_memory : :class:`bool`
+        Whether to use unlimited memory.
+
+    output_dir : :class:`str`
+        The directory in which to write the output files.
+
+    Methods
+    -------
+    calculate(mol)
+        Calculate the energy of a molecule.
+    get_results(mol)
+        Get the results of the calculation.
+
+    """
+
+    def _run_xtb(self, xyz, out_file, init_dir, output_dir) -> None:
+        """Method to run the xTB calculation.
 
         Parameters
         ----------
@@ -31,27 +89,17 @@ class XTBEnergy2(stko.XTBEnergy):
         None : :class:`NoneType`
 
         """
-
         # Modify the memory limit.
-        if self._unlimited_memory:
-            memory = "ulimit -s unlimited ;"
-        else:
-            memory = ""
+        memory = "ulimit -s unlimited ;" if self._unlimited_memory else ""
 
         if self._solvent is not None:
             solvent = f"--{self._solvent_model} {self._solvent} "
         else:
             solvent = ""
 
-        if self._calculate_free_energy:
-            hess = "--hess"
-        else:
-            hess = ""
+        hess = "--hess" if self._calculate_free_energy else ""
 
-        if self._calculate_ip_and_ea:
-            vipea = "--vipea"
-        else:
-            vipea = ""
+        vipea = "--vipea" if self._calculate_ip_and_ea else ""
 
         cmd = (
             f"{memory} {self._xtb_path} "
@@ -65,7 +113,7 @@ class XTBEnergy2(stko.XTBEnergy):
         try:
             os.chdir(output_dir)
             self._write_detailed_control()
-            with open(out_file, "w") as f:
+            with Path(out_file).open(mode="w") as f:
                 # Note that sp.call will hold the program until
                 # completion of the calculation.
                 sp.call(
@@ -78,13 +126,23 @@ class XTBEnergy2(stko.XTBEnergy):
                 )
         finally:
             os.chdir(init_dir)
-
     def calculate(self, mol):
+        """Calculate the xTB energy of a molecule.
+
+        Parameters
+        ----------
+        mol : :class:`.Molecule`
+            The molecule whose energy is to be calculated.
+
+        Yields
+        ------
+        None
+
+        """
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:
             output_dir = self._output_dir
-        # output_dir = os.path.abspath(output_dir)
 
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
@@ -104,12 +162,12 @@ class XTBEnergy2(stko.XTBEnergy):
         )
 
     def get_results(self, mol):
-        """
-        Calculate the xTB properties of `mol`.
+        """Calculate the xTB properties of a molecule.
 
         Parameters
         ----------
         mol : :class:`.Molecule`
+            The molecule whose properties are to be calculated.
             The :class:`.Molecule` whose energy is to be calculated.
 
         Returns
@@ -118,7 +176,6 @@ class XTBEnergy2(stko.XTBEnergy):
             The properties, with units, from xTB calculations.
 
         """
-
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:

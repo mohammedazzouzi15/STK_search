@@ -1,25 +1,19 @@
-"""
-script with the data loading functions
+"""script with the data loading functions
 created by Mohammed Azzouzi
-date: 2023-11-14
+date: 2023-11-14.
 """
 
-import stk
-import pymongo
-import numpy as np
 import os
+
+import numpy as np
 import pandas as pd
-import torch.optim as optim
+import pymongo
+import stk
 import torch
-from tqdm import tqdm
-from torch_geometric.loader import DataLoader
-from torch_geometric.data import Data, Batch
-import torch.nn.functional as Functional
-from lightning.pytorch.callbacks import ModelCheckpoint
-from pathlib import Path
-from stk_search.utils import database_utils
 from stk_search.geom3d.pl_model import Pymodel, model_setup
 from torch_cluster import radius_graph
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
 
 
 def load_data_df(config, df_oligomer, dataset_name="train"):
@@ -33,14 +27,13 @@ def load_data_df(config, df_oligomer, dataset_name="train"):
             dataframe of the precursors
     Returns:
         dataset: list
-            list of the dataset
+            list of the dataset.
 
     to do: add the option to load the dataset from a global dataset file
     """
-
-    if f"dataset_path_{dataset_name}" in config.keys():
+    if f"dataset_path_{dataset_name}" in config:
         if os.path.exists(config[f"dataset_path_{dataset_name}"]):
-            if "device" in config.keys():
+            if "device" in config:
                 dataset = torch.load(
                     config["dataset_path"], map_location=config["device"]
                 )
@@ -48,14 +41,14 @@ def load_data_df(config, df_oligomer, dataset_name="train"):
                 dataset = torch.load(config["dataset_path"])
             return dataset
         else:
-            print("dataset not found")
+            pass
 
     client = pymongo.MongoClient(config["pymongo_client"])
     db = stk.ConstructedMoleculeMongoDb(
         client,
         database=config["database_name"],
     )
-    radius = config["model"]["cutoff"] if "cutoff" in config["model"] else 0.1
+    radius = config["model"].get("cutoff", 0.1)
     dataset = generate_dataset(
         df_oligomer,
         db,
@@ -64,14 +57,12 @@ def load_data_df(config, df_oligomer, dataset_name="train"):
         radius=radius,
     )
 
-    print(f"length of dataset: {len(dataset)}")
 
     # where the new dataset daves
     if config["save_dataset"]:
         name = config["name"]
         os.makedirs(name, exist_ok=True)
         torch.save(dataset, "training/" + name + f"/{len(dataset)}dataset.pt")
-        print(f"dataset saved to {name}/{len(dataset)}dataset.pt")
     return dataset
 
 
@@ -83,9 +74,10 @@ def generate_dataset(
     radius=0,
     target_name="target",
 ):
-    """Generate the dataset from the dataframe and the database
+    """Generate the dataset from the dataframe and the database.
 
     Args:
+    ----
         df_total: pd.DataFrame
             dataframe of the oligomer dataset
         db: stk.ConstructedMoleculeMongoDb
@@ -97,14 +89,8 @@ def generate_dataset(
             list of the dataset
 
     """
-
     if number_of_molecules > len(df_total):
         number_of_molecules = len(df_total)
-        print(
-            "Number of molecules is greater than the number of molecules in the dataset",
-            number_of_molecules,
-            len(df_total),
-        )
     molecule_index = np.random.choice(
         len(df_total), number_of_molecules, replace=False
     )
@@ -133,16 +119,18 @@ def generate_dataset(
 
 
 def load_molecule(InChIKey, target, db):
-    """
-    Load a molecule from the database
+    """Load a molecule from the database.
 
     Args:
+    ----
     - InChIKey (str): the InChIKey of the molecule
     - target (float): the target value of the molecule
     - db (stk.ConstructedMoleculeMongoDb): the database
 
     Returns:
+    -------
     - molecule (Data): the molecule as a Data object
+
     """
     polymer = None
     try:
@@ -150,26 +138,23 @@ def load_molecule(InChIKey, target, db):
         # Print the complete dictionary returned from the database
         # print("Database entry for InChIKey:", polymer)
     except KeyError:
-        print(f"No key found in the database with a key of: {InChIKey}")
+        pass
         # Handle the missing key case (e.g., return a default value or raise an exception)
 
     if polymer is not None:
         dat_list = list(polymer.get_atomic_positions())
         positions = np.vstack(dat_list)
         positions = torch.tensor(positions, dtype=torch.float)
-        atom_types = list(
-            [
+        atom_types = [
                 atom.get_atom().get_atomic_number()
                 for atom in polymer.get_atom_infos()
             ]
-        )
         atom_types = torch.tensor(atom_types, dtype=torch.long)
         y = torch.tensor(target, dtype=torch.float32)
 
-        molecule = Data(
+        return Data(
             x=atom_types, positions=positions, y=y, InChIKey=InChIKey,
         )
-        return molecule
     else:
         return None
 
@@ -181,12 +166,9 @@ def load_frag_dataset_from_file(config, dataset_name="train"):
             configuration file
     Returns:
         dataset: list
-            list of the dataset
+            list of the dataset.
     """
-    print(
-        f"loading dataset from {config[f'frag_dataset_path_{dataset_name}']}"
-    )
-    if "device" in config.keys():
+    if "device" in config:
         dataset = torch.load(
             config[f"frag_dataset_path_{dataset_name}"],
             map_location=config["device"],
@@ -201,7 +183,6 @@ def load_frag_dataset_from_file(config, dataset_name="train"):
         chkpt_path = config["model_embedding_chkpt"]
         checkpoint = torch.load(chkpt_path, map_location=config["device"])
         model, graph_pred_linear = model_setup(config)
-        print("Model loaded: ", config["model_name"])
         # Pass the model and graph_pred_linear to the Pymodel constructor
         pymodel = Pymodel(model, graph_pred_linear, config)
         # Load the state dictionary
@@ -211,7 +192,6 @@ def load_frag_dataset_from_file(config, dataset_name="train"):
 
         return dataset, pymodel
     else:
-        print("model not found and ")
         return None, None
 
 
@@ -230,28 +210,27 @@ def load_data_frag(
         dataset: list
             list of the dataset
         pymodel: Pymodel
-            the model"""
-    if "frag_dataset_path_" + dataset_name in config.keys():
+    the model.
+    """
+    if "frag_dataset_path_" + dataset_name in config:
         if os.path.exists(config["frag_dataset_path_" + dataset_name]):
             dataset, model = load_frag_dataset_from_file(config, dataset_name)
             return dataset, model
         else:
-            print("dataset frag not found")
+            pass
     if os.path.exists(config["dataset_path"]):
-        if "device" in config.keys():
+        if "device" in config:
             dataset_opt = torch.load(
                 config["dataset_path"], map_location=config["device"]
             )
         else:
             dataset_opt = torch.load(config["dataset_path"])
     else:
-        print("opt dataset not found")
+        pass
 
     if dataset_opt is None:
-        print("loading dataset from dataframe")
         generate_function = generate_dataset_frag_pd
     else:
-        print("loading dataset from org dataset")
         generate_function = generate_dataset_frag_dataset
         df_total = dataset_opt
     client = pymongo.MongoClient(config["pymongo_client"])
@@ -264,7 +243,6 @@ def load_data_frag(
         chkpt_path = config["model_embedding_chkpt"]
         checkpoint = torch.load(chkpt_path, map_location=config["device"])
         model, graph_pred_linear = model_setup(config)
-        print("Model loaded: ", config["model_name"])
         # Pass the model and graph_pred_linear to the Pymodel constructor
         pymodel = Pymodel(model, graph_pred_linear, config)
         # Load the state dictionary
@@ -272,8 +250,7 @@ def load_data_frag(
         #pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
         pymodel.to(config["device"])
         model = pymodel.molecule_3D_repr
-    else: 
-        print("model not found")
+    else:
         model, graph_pred_linear = model_setup(config)
         # Pass the model and graph_pred_linear to the Pymodel constructor
         pymodel = Pymodel(model, graph_pred_linear, config)
@@ -320,21 +297,16 @@ def generate_dataset_frag_pd(
             device to use
     Returns:
         data_list: list
-            list of the dataset
+            list of the dataset.
     """
     if number_of_molecules > len(df_total):
         number_of_molecules = len(df_total)
-        print(
-            "Number of molecules is greater than the number of molecules in the dataset",
-            number_of_molecules,
-            len(df_total),
-        )
 
     molecule_index = np.random.choice(
         len(df_total), number_of_molecules, replace=False
     )
     data_list = []
-    radius = config["model"]["cutoff"] if "cutoff" in config["model"] else 0.1
+    radius = config["model"].get("cutoff", 0.1)
     for i in molecule_index:
         moldata = fragment_based_encoding(
             df_total["InChIKey"][i],
@@ -375,7 +347,7 @@ def generate_dataset_frag_dataset(
             device to use
     Returns:
         data_list: list
-            list of the dataset
+            list of the dataset.
     """
     data_list = []
     if len(dataset) < number_of_molecules:
@@ -383,7 +355,7 @@ def generate_dataset_frag_dataset(
     molecule_index = np.random.choice(
         len(dataset), number_of_molecules, replace=False
     )
-    radius = config["model"]["cutoff"] if "cutoff" in config["model"] else 0.1
+    radius = config["model"].get("cutoff", 0.1)
     for i in molecule_index:
         moldata = fragment_based_encoding(
             dataset[i]["InChIKey"],
@@ -422,7 +394,7 @@ def fragment_based_encoding(
             device to use
     Returns:
         frags: list
-            list of the fragments
+            list of the fragments.
     """
     if device is None:
         device = "cuda" if torch.cuda.is_available() else torch.device("cpu")
@@ -431,20 +403,17 @@ def fragment_based_encoding(
     dat_list = list(polymer.get_atomic_positions())
     positions = np.vstack(dat_list)
     positions = torch.tensor(positions, dtype=torch.float, device=device)
-    atom_types = list(
-        [
+    atom_types = [
             atom.get_atom().get_atomic_number()
             for atom in polymer.get_atom_infos()
         ]
-    )
     atom_types = torch.tensor(atom_types, dtype=torch.long, device=device)
     molecule = Data(x=atom_types, positions=positions, device=device)
-    if model_name == "PaiNN":
-        if molecule is not None:
-            radius_edge_index = radius_graph(
-                molecule.positions, r=radius, loop=False
-            )
-            molecule.radius_edge_index = radius_edge_index
+    if model_name == "PaiNN" and molecule is not None:
+        radius_edge_index = radius_graph(
+            molecule.positions, r=radius, loop=False
+        )
+        molecule.radius_edge_index = radius_edge_index
     if len(list(polymer.get_building_blocks())) == number_of_fragement:
         with torch.no_grad():
             if model_name == "PaiNN":
@@ -464,9 +433,7 @@ def fragment_based_encoding(
             positions = torch.tensor(
                 positions, dtype=torch.float, device=device
             )
-            atom_types = list(
-                [atom.get_atomic_number() for atom in molecule_bb.get_atoms()]
-            )
+            atom_types = [atom.get_atomic_number() for atom in molecule_bb.get_atoms()]
             atom_types = torch.tensor(
                 atom_types, dtype=torch.long, device=device
             )
@@ -477,14 +444,14 @@ def fragment_based_encoding(
                 y=opt_geom_encoding,
                 InChIKey=InChIKey,
             )
-            if model_name == "PaiNN":
-                if molecule_frag is not None:
-                    radius_edge_index = radius_graph(
-                        molecule_frag.positions, r=radius, loop=False
-                    )
-                    molecule_frag.radius_edge_index = radius_edge_index
+            if model_name == "PaiNN" and molecule_frag is not None:
+                radius_edge_index = radius_graph(
+                    molecule_frag.positions, r=radius, loop=False
+                )
+                molecule_frag.radius_edge_index = radius_edge_index
             frags.append(molecule_frag)
         return frags
+    return None
 
 
 def updata_frag_dataset(
@@ -502,7 +469,7 @@ def updata_frag_dataset(
             the name of the model
     Returns:
         frag_dataset: list
-            list of the fragment dataset
+            list of the fragment dataset.
     """
     dataset_dict = {data.InChIKey: data for data in dataset}
 
@@ -541,9 +508,8 @@ def updata_dataset(
             the name of the model
     Returns:
         frag_dataset: list
-            list of the fragment dataset
+            list of the fragment dataset.
     """
-
     for data in dataset:
         data.y = None
 
@@ -566,14 +532,14 @@ def generate_dataset_and_dataloader(config):
         dataset_val: list
             list of the validation dataset
         dataset_test: list
-            list of the test dataset
+            list of the test dataset.
     """
 
     def get_dataset_dataloader(config, df_name="train"):
         df_precursors = pd.read_pickle(config["df_precursor"])
-        if f"dataset_path_{df_name}" in config.keys():
+        if f"dataset_path_{df_name}" in config:
             if os.path.exists(config["dataset_path" + f"_{df_name}"]):
-                if "device" in config.keys():
+                if "device" in config:
                     dataset = torch.load(
                         config["dataset_path" + f"_{df_name}"],
                         map_location=config["device"],
@@ -585,7 +551,7 @@ def generate_dataset_and_dataloader(config):
                 data_loader = get_data_loader(dataset, config)
                 return dataset, data_loader
             else:
-                print("dataset not found")
+                pass
         df = pd.read_csv(config["running_dir"] + f"/df_{df_name}.csv")
         dataset = load_data_df(config, df, df_precursors)
         data_loader = get_data_loader(dataset, config)
@@ -613,14 +579,16 @@ def get_data_loader(dataset, config):
         dataset: list
             list of the dataset
         config: dict
-            configuration file
+            configuration file.
 
-    Returns:
+    Returns
+    -------
         loader: torch_geometric.loader.DataLoader
             dataloader for the dataset
+
     """
     # Set dataloaders
-    loader = DataLoader(
+    return DataLoader(
         dataset,
         batch_size=config["batch_size"],
         shuffle=True,
@@ -628,5 +596,4 @@ def get_data_loader(dataset, config):
         drop_last=True,
     )
 
-    return loader
 

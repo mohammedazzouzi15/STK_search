@@ -9,22 +9,19 @@
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
-from .layers.multihead_attention import MultiheadAttention
-from .layers.graphormer_layers import GraphNodeFeature, GraphAttnBias
 from .layers.graphormer_graph_encoder_layer import GraphormerGraphEncoderLayer
-
+from .layers.graphormer_layers import GraphAttnBias, GraphNodeFeature
+from .layers.multihead_attention import MultiheadAttention
 from .modules import FairseqDropout, LayerDropModuleList, LayerNorm
 from .modules.quant_noise import quant_noise as apply_quant_noise_
 
 
 def init_graphormer_params(module):
-    """
-    Initialize the weights specific to the Graphormer Model.
-    """
+    """Initialize the weights specific to the Graphormer Model."""
 
-    def normal_(data):
+    def normal_(data) -> None:
         # with FSDP, module params will be on CUDA, so we cast them back to CPU
         # so that the RNG is consistent with and without FSDP
         data.copy_(data.cpu().normal_(mean=0.0, std=0.02).to(data.device))
@@ -66,7 +63,7 @@ class GraphormerGraphEncoder(nn.Module):
         pre_layernorm: bool = False,
         apply_init: bool = False,
         activation_fn: str = "gelu",
-        embed_scale: float = None,
+        embed_scale: Optional[float] = None,
         freeze_embeddings: bool = False,
         n_trans_layers_to_freeze: int = 0,
         export: bool = False,
@@ -151,13 +148,14 @@ class GraphormerGraphEncoder(nn.Module):
         if self.apply_init:
             self.apply(init_graphormer_params)
 
-        def freeze_module_params(m):
+        def freeze_module_params(m) -> None:
             if m is not None:
                 for p in m.parameters():
                     p.requires_grad = False
 
         if freeze_embeddings:
-            raise NotImplementedError("Freezing embeddings is not implemented yet.")
+            msg = "Freezing embeddings is not implemented yet."
+            raise NotImplementedError(msg)
 
         for layer in range(n_trans_layers_to_freeze):
             freeze_module_params(self.layers[layer])
@@ -198,7 +196,6 @@ class GraphormerGraphEncoder(nn.Module):
         token_embeddings: Optional[torch.Tensor] = None,
         attn_mask: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        is_tpu = False
         # compute padding mask. This is needed for multi-head attention
         data_x = batched_data["x"]
         n_graph, n_node = data_x.size()[:2]

@@ -1,14 +1,17 @@
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from e3nn.nn import BatchNorm
 from e3nn.o3 import Irreps, spherical_harmonics
-from torch_geometric.nn import (MessagePassing, global_add_pool,
-                                global_mean_pool)
+from torch import nn
 from torch_geometric.data import Data
+from torch_geometric.nn import (
+    MessagePassing,
+    global_add_pool,
+    global_mean_pool,
+)
 
-from .balanced_irreps import BalancedIrreps, WeightBalancedIrreps
+from .balanced_irreps import WeightBalancedIrreps
 from .instance_norm import InstanceNorm
 from .node_attribute_network import NodeAttributeNetwork
 from .o3_building_blocks import O3TensorProduct, O3TensorProductSwishGate
@@ -16,17 +19,17 @@ from .o3_building_blocks import O3TensorProduct, O3TensorProductSwishGate
 
 class SEGNNModel(nn.Module):
     def __init__(self, input_features, output_features, hidden_features, N, norm, lmax_h, lmax_pos=None, pool="avg", edge_inference=False):
-        super(SEGNNModel, self).__init__()
+        super().__init__()
         self.num_classes = input_features
 
-        if lmax_pos == None:
+        if lmax_pos is None:
             lmax_pos = lmax_h
         self.pool = pool
 
         # Irreps for the node features (scalar type)
-        node_in_irreps_scalar = Irreps("{0}x0e".format(input_features))         # This is the type of the input
-        node_hidden_irreps_scalar = Irreps("{0}x0e".format(hidden_features))    # For the output layers
-        node_out_irreps_scalar = Irreps("{0}x0e".format(output_features))       # This is the type on the output
+        node_in_irreps_scalar = Irreps(f"{input_features}x0e")         # This is the type of the input
+        node_hidden_irreps_scalar = Irreps(f"{hidden_features}x0e")    # For the output layers
+        node_out_irreps_scalar = Irreps(f"{output_features}x0e")       # This is the type on the output
 
         # Irreps for the edge and node attributes
         attr_irreps = Irreps.spherical_harmonics(lmax_pos)
@@ -49,7 +52,7 @@ class SEGNNModel(nn.Module):
 
         # The main layers
         self.layers = []
-        for i in range(N):
+        for _i in range(N):
             self.layers.append(SEGNN(node_hidden_irreps,  # in
                                      node_hidden_irreps,  # hidden
                                      node_hidden_irreps,  # out
@@ -84,7 +87,7 @@ class SEGNNModel(nn.Module):
         # construct the node and edge attributes
         rel_pos = pos[edge_index[0]] - pos[edge_index[1]]  # pos_j - pos_i (note in edge_index stores tuples like (j,i))
         edge_dist = rel_pos.pow(2).sum(-1, keepdims=True)
-        edge_attr = spherical_harmonics(self.attr_irreps, rel_pos, normalize=True, normalization='component')
+        edge_attr = spherical_harmonics(self.attr_irreps, rel_pos, normalize=True, normalization="component")
         node_attr = self.node_attribute_net(edge_index, edge_attr)
 
         # A fix for isolated nodes (which are set to zero)
@@ -118,11 +121,10 @@ class SEGNNModel(nn.Module):
             x = global_add_pool(x, batch)
 
         x = self.head_post_pool_layer_1(x)
-        x = self.head_post_pool_layer_2(x)
-        return x
+        return self.head_post_pool_layer_2(x)
 
     def forward_with_gathered_index(self, x, pos, edge_index, batch, periodic_index_mapping, graph):
-        
+
         if x.dim() > 1:
             x = x[:, 0]
         x = F.one_hot(x, num_classes=self.num_classes).float()
@@ -135,7 +137,7 @@ class SEGNNModel(nn.Module):
         # construct the node and edge attributes
         rel_pos = pos[edge_index[0]] - pos[edge_index[1]]  # pos_j - pos_i (note in edge_index stores tuples like (j,i))
         edge_dist = rel_pos.pow(2).sum(-1, keepdims=True)
-        edge_attr = spherical_harmonics(self.attr_irreps, rel_pos, normalize=True, normalization='component')
+        edge_attr = spherical_harmonics(self.attr_irreps, rel_pos, normalize=True, normalization="component")
         node_attr = self.node_attribute_net(edge_index, edge_attr)
 
         # A fix for isolated nodes (which are set to zero)
@@ -167,17 +169,14 @@ class SEGNNModel(nn.Module):
             x = global_add_pool(x, batch)
 
         x = self.head_post_pool_layer_1(x)
-        x = self.head_post_pool_layer_2(x)
-        return x
+        return self.head_post_pool_layer_2(x)
 
 
 class SEGNN(MessagePassing):
-    """
-        E(3) equivariant message passing layer.
-    """
+    """E(3) equivariant message passing layer."""
 
     def __init__(self, node_in_irreps, node_hidden_irreps, node_out_irreps, attr_irreps, norm, edge_inference):
-        super(SEGNN, self).__init__(node_dim=-2, aggr="add")
+        super().__init__(node_dim=-2, aggr="add")
 
         self.norm = norm
         self.edge_inference = edge_inference
@@ -213,7 +212,7 @@ class SEGNN(MessagePassing):
             self.inference_layer = O3TensorProduct(node_hidden_irreps, Irreps("1x0e"), attr_irreps)
 
     def forward(self, x, pos, edge_index, edge_dist, edge_attr, node_attr, batch):
-        """ Propagate messages along edges """
+        """Propagate messages along edges."""
         x, pos = self.propagate(edge_index, x=x, pos=pos, edge_dist=edge_dist,
                                 node_attr=node_attr, edge_attr=edge_attr)
 
@@ -227,7 +226,7 @@ class SEGNN(MessagePassing):
         return x, pos
 
     def message(self, x_i, x_j, edge_dist, edge_attr):
-        """ Create messages """
+        """Create messages."""
         message = self.message_layer_1(torch.cat((x_i, x_j, edge_dist), dim=-1), edge_attr)
         message = self.message_layer_2(message, edge_attr)
 
@@ -239,7 +238,7 @@ class SEGNN(MessagePassing):
         return message
 
     def update(self, message, x, pos, node_attr):
-        """ Update note features """
+        """Update note features."""
         update = self.update_layer_1(torch.cat((x, message), dim=-1), node_attr)
         update = self.update_layer_2(update, node_attr)
         x += update  # Residual connection

@@ -2,24 +2,20 @@
 # https://github.com/TUM-DAML/GemNet_pytorch/blob/master/GemNet/model/layers/basis_utils.py
 # https://github.com/TUM-DAML/GemNet_pytorch/blob/master/GemNet/model/layers/basis_layers.py
 
-import torch
-import sympy as sym
 import numpy as np
-from scipy.optimize import brentq
+import sympy as sym
+import torch
 from scipy import special as sp
+from scipy.optimize import brentq
 
 
 def Jn(r, n):
-    """
-    numerical spherical bessel functions of order n
-    """
+    """Numerical spherical bessel functions of order n."""
     return sp.spherical_jn(n, r)
 
 
 def Jn_zeros(n, k):
-    """
-    Compute the first k zeros of the spherical bessel functions up to order n (excluded)
-    """
+    """Compute the first k zeros of the spherical bessel functions up to order n (excluded)."""
     zerosj = np.zeros((n, k), dtype="float32")
     zerosj[0] = np.arange(1, k + 1) * np.pi
     points = np.arange(1, k + n) * np.pi
@@ -35,9 +31,7 @@ def Jn_zeros(n, k):
 
 
 def spherical_bessel_formulas(n):
-    """
-    Computes the sympy formulas for the spherical bessel functions up to order n (excluded)
-    """
+    """Computes the sympy formulas for the spherical bessel functions up to order n (excluded)."""
     x = sym.symbols("x")
     # j_i = (-x)^i * (1/x * d/dx)^î * sin(x)/x
     j = [sym.sin(x) / x]  # j_0
@@ -50,13 +44,15 @@ def spherical_bessel_formulas(n):
 
 
 def bessel_basis(n, k):
-    """
-    Compute the sympy formulas for the normalized and rescaled spherical bessel functions up to
+    """Compute the sympy formulas for the normalized and rescaled spherical bessel functions up to
     order n (excluded) and maximum frequency k (excluded).
-    Returns:
+
+    Returns
+    -------
         bess_basis: list
             Bessel basis formulas taking in a single argument x.
             Has length n where each element has length k. -> In total n*k many.
+
     """
     zeros = Jn_zeros(n, k)
     normalizer = []
@@ -86,15 +82,18 @@ def bessel_basis(n, k):
 
 def sph_harm_prefactor(l, m):
     """Computes the constant pre-factor for the spherical harmonic of degree l and order m.
+
     Parameters
     ----------
         l: int
             Degree of the spherical harmonic. l >= 0
         m: int
             Order of the spherical harmonic. -l <= m <= l
+
     Returns
     -------
         factor: float
+
     """
     # sqrt((2*l+1)/4*pi * (l-m)!/(l+m)! )
     return (
@@ -107,6 +106,7 @@ def sph_harm_prefactor(l, m):
 
 def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
     """Computes string formulas of the associated legendre polynomials up to degree L (excluded).
+
     Parameters
     ----------
         L: int
@@ -115,10 +115,12 @@ def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
             If True only calculate the polynomials for the polynomials where m=0.
         pos_m_only: bool
             If True only calculate the polynomials for the polynomials where m>=0. Overwritten by zero_m_only.
+
     Returns
     -------
         polynomials: list
             Contains the sympy functions of the polynomials (in total L many if zero_m_only is True else L^2 many).
+
     """
     # calculations from http://web.cmb.usc.edu/people/alber/Software/tomominer/docs/cpp/group__legendre__polynomials.html
     z = sym.symbols("z")
@@ -141,7 +143,7 @@ def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
                     (1 - 2 * l) * (1 - z ** 2) ** 0.5 * P_l_m[l - 1][l - 1]
                 )  # P_00, P_11, P_22, P_33
 
-            for m in range(0, L - 1):
+            for m in range(L - 1):
                 P_l_m[m + 1][m] = sym.simplify(
                     (2 * m + 1) * z * P_l_m[m][m]
                 )  # P_10, P_21, P_32, P_43
@@ -168,12 +170,13 @@ def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
                         )
 
             return P_l_m
+    return None
 
 
 def real_sph_harm(L, spherical_coordinates, zero_m_only=True):
-    """
-    Computes formula strings of the the real part of the spherical harmonics up to degree L (excluded).
+    """Computes formula strings of the the real part of the spherical harmonics up to degree L (excluded).
     Variables are either spherical coordinates phi and theta (or cartesian coordinates x,y,z) on the UNIT SPHERE.
+
     Parameters
     ----------
         L: int
@@ -183,6 +186,7 @@ def real_sph_harm(L, spherical_coordinates, zero_m_only=True):
             - False: Expects the input of the formula strings to be x, y and z.
         zero_m_only: bool
             If True only calculate the harmonics where m=0.
+
     Returns
     -------
         Y_lm_real: list
@@ -190,6 +194,7 @@ def real_sph_harm(L, spherical_coordinates, zero_m_only=True):
             to degree L (where degree L is not excluded).
             In total L^2 many sph harm exist up to degree L (excluded). However, if zero_m_only only is True then
             the total count is reduced to be only L many.
+
     """
     z = sym.symbols("z")
     P_l_m = associated_legendre_polynomials(L, zero_m_only)
@@ -252,7 +257,7 @@ def real_sph_harm(L, spherical_coordinates, zero_m_only=True):
 
 class d_angle_emb(torch.nn.Module):
     def __init__(self, num_radial, num_spherical, cutoff=8.0):
-        super(d_angle_emb, self).__init__()
+        super().__init__()
         assert num_radial <= 64
         self.num_spherical = num_spherical
         self.num_radial = num_radial
@@ -287,13 +292,12 @@ class d_angle_emb(torch.nn.Module):
         rbf = torch.stack([f(dist) for f in self.bessel_funcs], dim=1)
         sbf = torch.stack([f(angle) for f in self.sph_funcs], dim=1)
         n, k = self.num_spherical, self.num_radial
-        out = (rbf.view(-1, n, k) * sbf.view(-1, n, 1)).view(-1, n * k)
-        return out
+        return (rbf.view(-1, n, k) * sbf.view(-1, n, 1)).view(-1, n * k)
 
 
 class d_theta_phi_emb(torch.nn.Module):
     def __init__(self, num_radial, num_spherical, cutoff=8.0):
-        super(d_theta_phi_emb, self).__init__()
+        super().__init__()
         assert num_radial <= 64
         self.num_radial = num_radial
         self.num_spherical = num_spherical
@@ -341,5 +345,4 @@ class d_theta_phi_emb(torch.nn.Module):
         n, k = self.num_spherical, self.num_radial
         rbf = rbf.view((-1, n, k)).repeat_interleave(self.degreeInOrder, dim=1).view((-1, n ** 2 * k))
         sbf = sbf.repeat_interleave(k, dim=1)
-        out = rbf * sbf
-        return out
+        return rbf * sbf

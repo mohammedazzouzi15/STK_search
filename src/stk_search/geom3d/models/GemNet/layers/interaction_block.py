@@ -1,16 +1,16 @@
 import torch
 
-from .base_layers import ResidualLayer, Dense
-from .embedding_block import EdgeEmbedding
-import numpy as np
-from .scaling import ScalingFactor
 from .atom_update_block import AtomUpdateBlock
-from .efficient import EfficientInteractionHadamard, EfficientInteractionBilinear
+from .base_layers import Dense, ResidualLayer
+from .efficient import (
+    EfficientInteractionBilinear,
+)
+from .embedding_block import EdgeEmbedding
+from .scaling import ScalingFactor
 
 
 class InteractionBlock(torch.nn.Module):
-    """
-    Interaction block for GemNet-Q/dQ.
+    """Interaction block for GemNet-Q/dQ.
 
     Parameters
     ----------
@@ -44,6 +44,7 @@ class InteractionBlock(torch.nn.Module):
             Name of the activation function to use in the dense layers (except for the final dense layer).
         scale_file: str
             Path to the json file containing the scaling factors.
+
     """
 
     def __init__(
@@ -155,7 +156,7 @@ class InteractionBlock(torch.nn.Module):
         self.inv_sqrt_2 = 1 / (2.0 ** 0.5)
         self.inv_sqrt_3 = 1 / (3.0 ** 0.5)
 
-    def forward(self, 
+    def forward(self,
             h,
             m,
             rbf4,
@@ -174,13 +175,13 @@ class InteractionBlock(torch.nn.Module):
             rbf_h,
             id_c,
             id_a):
-        """
-        Returns
+        """Returns
         -------
             h: Tensor, shape=(nEdges, emb_size_atom)
                 Atom embeddings.
             m: Tensor, shape=(nEdges, emb_size_edge)
                 Edge embeddings (c->a).
+
         """
         # Initial transformation
         x_ca_skip = self.dense_ca(m)  # (nEdges, emb_size_edge)
@@ -204,7 +205,7 @@ class InteractionBlock(torch.nn.Module):
 
         ## --------------------------------------- Update Edge Embeddings ---------------------------------------- ##
         # Transformations before skip connection
-        for i, layer in enumerate(self.layers_before_skip):
+        for _i, layer in enumerate(self.layers_before_skip):
             x = layer(x)  # (nEdges, emb_size_edge)
 
         # Skip connection
@@ -212,7 +213,7 @@ class InteractionBlock(torch.nn.Module):
         m = m * self.inv_sqrt_2
 
         # Transformations after skip connection
-        for i, layer in enumerate(self.layers_after_skip):
+        for _i, layer in enumerate(self.layers_after_skip):
             m = layer(m)  # (nEdges, emb_size_edge)
 
         ## --------------------------------------- Update Atom Embeddings ---------------------------------------- ##
@@ -225,7 +226,7 @@ class InteractionBlock(torch.nn.Module):
         ## ----------------------------- Update Edge Embeddings with Atom Embeddings ----------------------------- ##
         m2 = self.concat_layer(h, m, id_c, id_a)  # (nEdges, emb_size_edge)
 
-        for i, layer in enumerate(self.residual_m):
+        for _i, layer in enumerate(self.residual_m):
             m2 = layer(m2)  # (nEdges, emb_size_edge)
 
         # Skip connection
@@ -235,8 +236,7 @@ class InteractionBlock(torch.nn.Module):
 
 
 class InteractionBlockTripletsOnly(torch.nn.Module):
-    """
-    Interaction block for GemNet-T/dT.
+    """Interaction block for GemNet-T/dT.
 
     Parameters
     ----------
@@ -264,6 +264,7 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
             Name of the activation function to use in the dense layers (except for the final dense layer).
         scale_file: str
             Path to the json file containing the scaling factors.
+
     """
 
     def __init__(
@@ -360,7 +361,7 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
 
         self.inv_sqrt_2 = 1 / (2.0 ** 0.5)
 
-    def forward(self, 
+    def forward(self,
             h,
             m,
             rbf3,
@@ -373,13 +374,13 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
             id_c,
             id_a,
             **kwargs):
-        """
-        Returns
+        """Returns
         -------
             h: Tensor, shape=(nEdges, emb_size_atom)
                 Atom embeddings.
             m: Tensor, shape=(nEdges, emb_size_edge)
                 Edge embeddings (c->a).
+
         """
         # Initial transformation
         x_ca_skip = self.dense_ca(m)  # (nEdges, emb_size_edge)
@@ -392,7 +393,7 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
 
         ## ---------------------------------------- Update Edge Embeddings --------------------------------------- ##
         # Transformations before skip connection
-        for i, layer in enumerate(self.layers_before_skip):
+        for _i, layer in enumerate(self.layers_before_skip):
             x = layer(x)  # (nEdges, emb_size_edge)
 
         # Skip connection
@@ -400,7 +401,7 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
         m = m * self.inv_sqrt_2
 
         # Transformations after skip connection
-        for i, layer in enumerate(self.layers_after_skip):
+        for _i, layer in enumerate(self.layers_after_skip):
             m = layer(m)  # (nEdges, emb_size_edge)
 
         ## ---------------------------------------- Update Atom Embeddings --------------------------------------- ##
@@ -413,7 +414,7 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
         ## ----------------------------- Update Edge Embeddings with Atom Embeddings ----------------------------- ##
         m2 = self.concat_layer(h, m, id_c, id_a)  # (nEdges, emb_size_edge)
 
-        for i, layer in enumerate(self.residual_m):
+        for _i, layer in enumerate(self.residual_m):
             m2 = layer(m2)  # (nEdges, emb_size_edge)
 
         # Skip connection
@@ -423,8 +424,7 @@ class InteractionBlockTripletsOnly(torch.nn.Module):
 
 
 class QuadrupletInteraction(torch.nn.Module):
-    """
-    Quadruplet-based message passing block.
+    """Quadruplet-based message passing block.
 
     Parameters
     ----------
@@ -444,6 +444,7 @@ class QuadrupletInteraction(torch.nn.Module):
             Name of the activation function to use in the dense layers (except for the final dense layer).
         scale_file: str
             Path to the json file containing the scaling factors.
+
     """
 
     def __init__(
@@ -514,7 +515,7 @@ class QuadrupletInteraction(torch.nn.Module):
 
         self.inv_sqrt_2 = 1 / (2.0 ** 0.5)
 
-    def forward(self, 
+    def forward(self,
             m,
             rbf,
             cbf,
@@ -524,11 +525,11 @@ class QuadrupletInteraction(torch.nn.Module):
             id4_reduce_ca,
             id4_expand_intm_db,
             id4_expand_abd):
-        """
-        Returns
+        """Returns
         -------
             m: Tensor, shape=(nEdges, emb_size_edge)
                 Edge embeddings (c->a).
+
         """
         x_db = self.dense_db(m)  # (nEdges, emb_size_edge)
 
@@ -561,14 +562,12 @@ class QuadrupletInteraction(torch.nn.Module):
         # Merge interaction of c->a and a->c
         x_ac = x_ac[id_swap]  # swap to add to edge a->c and not c->a
         x4 = x_ca + x_ac
-        x4 = x4 * self.inv_sqrt_2
+        return x4 * self.inv_sqrt_2
 
-        return x4
 
 
 class TripletInteraction(torch.nn.Module):
-    """
-    Triplet-based message passing block.
+    """Triplet-based message passing block.
 
     Parameters
     ----------
@@ -586,6 +585,7 @@ class TripletInteraction(torch.nn.Module):
             Name of the activation function to use in the dense layers (except for the final dense layer).
         scale_file: str
             Path to the json file containing the scaling factors.
+
     """
 
     def __init__(
@@ -650,19 +650,19 @@ class TripletInteraction(torch.nn.Module):
 
         self.inv_sqrt_2 = 1 / (2.0) ** 0.5
 
-    def forward(self, 
-            m, 
-            rbf3, 
+    def forward(self,
+            m,
+            rbf3,
             cbf3,
-            Kidx3, 
-            id_swap, 
-            id3_expand_ba, 
+            Kidx3,
+            id_swap,
+            id3_expand_ba,
             id3_reduce_ca):
-        """
-        Returns
+        """Returns
         -------
             m: Tensor, shape=(nEdges, emb_size_edge)
                 Edge embeddings (c->a).
+
         """
         # Dense transformation
         x_ba = self.dense_ba(m)  # (nEdges, emb_size_edge)
@@ -692,5 +692,4 @@ class TripletInteraction(torch.nn.Module):
         # Merge interaction of c->a and a->c
         x_ac = x_ac[id_swap]  # swap to add to edge a->c and not c->a
         x3 = x_ca + x_ac
-        x3 = x3 * self.inv_sqrt_2
-        return x3
+        return x3 * self.inv_sqrt_2

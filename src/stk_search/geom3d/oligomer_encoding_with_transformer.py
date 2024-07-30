@@ -1,36 +1,38 @@
-"""
-this script is to encode the representation of the oligomer from the representation of the fragments
-"""
+"""this script is to encode the representation of the oligomer from the representation of the fragments."""
 
-import numpy as np
-import os
-import wandb
-import torch
-import lightning.pytorch as pl
-import torch.nn.functional as Functional
-from lightning.pytorch.loggers import WandbLogger
-from lightning.pytorch.callbacks import ModelCheckpoint
-from lightning.pytorch.callbacks import LearningRateMonitor, EarlyStopping
-from stk_search.geom3d.transformer_utils import TransformerPredictor
-from stk_search.utils.config_utils import  save_config
-from torch_geometric.data import Data
-from stk_search.geom3d.pl_model import Pymodel, model_setup
 import glob
+import os
 
+import lightning.pytorch as pl
+import torch
+import torch.nn.functional as Functional
+from lightning.pytorch.callbacks import (
+    EarlyStopping,
+    LearningRateMonitor,
+    ModelCheckpoint,
+)
+from lightning.pytorch.loggers import WandbLogger
+from stk_search.geom3d.pl_model import Pymodel, model_setup
+from stk_search.geom3d.transformer_utils import TransformerPredictor
+from stk_search.utils.config_utils import save_config
+from torch_geometric.data import Data
+
+import wandb
 
 
 def run_encoding_training(config, train_loader, val_loader):
     """Load the model and train it using the given data loaders.
 
     Args:
+    ----
         config (dict): The configuration of the model.
         train_loader (DataLoader): The data loader for the training data.
         val_loader (DataLoader): The data loader for the validation data.
+
     """
     max_iters = config["max_epochs"] * len(train_loader)
     # model_config = config["model"]
     EncodingModel = initialise_model(config, max_iters)
-    print(" config name", config["name"])
     wandb_logger = WandbLogger(
         log_model=True,
         project="encoding_" + config["name"].split("__")[0],
@@ -74,7 +76,7 @@ def save_encoding_dataset(dataset, config, dataset_name="",save_folder=""):
     Args:
         dataset (DataLoader): The data loader for the training data.
         config (dict): The configuration of the model.
-        dataset_name (str): The name of the dataset
+        dataset_name (str): The name of the dataset.
 
     """
     Checkpoint_dir = config["running_dir"] + "/transformer"
@@ -108,7 +110,6 @@ def save_encoding_dataset(dataset, config, dataset_name="",save_folder=""):
             data_list.append(molecule_frag.detach().cpu())
         counter += 1
         if counter % 1000 == 0:
-            print(counter)
             if save_folder == "":
                 torch.save(
                     data_list,
@@ -142,8 +143,11 @@ def initialise_model(config, max_iters=10):
     Args:
         config (dict): The configuration of the model.
         max_iters (int): The maximum number of iterations.
-    Returns:
+
+    Returns
+    -------
         Fragment_encoder: The initialised model.
+
     """
     # config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
     model, graph_pred_linear = model_setup(config)
@@ -152,7 +156,6 @@ def initialise_model(config, max_iters=10):
     if os.path.exists(config["model_embedding_chkpt"]):
         chkpt_path = config["model_embedding_chkpt"]
         checkpoint = torch.load(chkpt_path, map_location=config["device"])
-        print("Model loaded: ", config["model_embedding_chkpt"])
         # Pass the model and graph_pred_linear to the Pymodel constructor
         # Load the state dictionary
         pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
@@ -163,7 +166,6 @@ def initialise_model(config, max_iters=10):
         num_classes = config["model"]["n_atom_basis"]
     else:
         num_classes = config["model"]["emb_dim"]
-    print("lr", config["lr"])
     EncodingModel = Fragment_encoder(
         input_dim=num_classes * max_oligomer_size,
         model_dim=num_classes,
@@ -185,22 +187,17 @@ def initialise_model(config, max_iters=10):
         and config["model_transformer_chkpt"] != ""
     ):
         try:
-            print(
-                "loading model from checkpoint",
-                f"{config['model_transformer_chkpt']}",
-            )
             state_dict = torch.load(
                 f"{config['model_transformer_chkpt']}",
                 map_location=config["device"],
             )
             EncodingModel.load_state_dict(state_dict["state_dict"])
-        except Exception as e:
-            print("loading model from checkpoint failed")
-            print(e)
+        except Exception:
+            pass
             # delete the checkpoint
             # os.remove(config["model_transformer_chkpt"])
     else:
-        print("no checkpoint found for encoding model")
+        pass
     # print(EncodingModel.hparams.model_dim)
     return EncodingModel
 
@@ -219,12 +216,13 @@ class Fragment_encoder(TransformerPredictor):
             param.requires_grad = False
 
     def forward(self, batch, mask=None, add_positional_encoding=True):
-        """
-        Args:
+        """Args:
+        ----
             x: Input features of shape [Batch, SeqLen, input_dim]
             mask: Mask to apply on the attention outputs (optional)
             add_positional_encoding: If True, we add the positional encoding to the input.
                                       Might not be desired for some tasks.
+
         """
         if self.model_encoder is not None:
             x = torch.zeros(
@@ -258,16 +256,20 @@ class Fragment_encoder(TransformerPredictor):
         if add_positional_encoding:
             x = self.positional_encoding(x)
         x = self.transformer(x, mask=mask)
-        x = self.output_net(x)
-        return x
+        return self.output_net(x)
 
     def _calculate_loss(self, batch, mode="train"):
         """Calculate the loss for the given batch.
+
         Args:
+        ----
             batch: The batch of data.
             mode: The mode of the model (train, val, test).
-            Returns:
+
+        Returns:
+        -------
             loss: The loss for the given batch.
+
         """
         # Fetch data and transform categories to one-hot vectors
         inp_data, labels = batch, batch[0].y.squeeze()
@@ -283,25 +285,24 @@ class Fragment_encoder(TransformerPredictor):
         loss2 = Functional.mse_loss(
             preds.view(-1, preds.size(-1)), labels
         )
-        loss = loss1 + 10*loss2 
+        loss = loss1 + 10*loss2
         # print (labels.shape, preds.argmax(dim=-1).shape)
         # acc = (preds.argmax(dim=-1) == labels).float().mean()
 
         # Logging
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_loss1" % mode, loss1)
-        self.log("%s_loss2" % mode, loss2)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_loss1", loss1)
+        self.log(f"{mode}_loss2", loss2)
 
         return loss
 
     def training_step(self, batch, batch_idx):
-        loss = self._calculate_loss(batch, mode="train")
-        return loss
+        return self._calculate_loss(batch, mode="train")
 
     def validation_step(self, batch, batch_idx):
-        loss = self._calculate_loss(batch, mode="val")
+        self._calculate_loss(batch, mode="val")
 
     def test_step(self, batch, batch_idx):
-        loss = self._calculate_loss(batch, mode="test")
+        self._calculate_loss(batch, mode="test")
 
 

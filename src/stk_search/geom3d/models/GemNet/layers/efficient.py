@@ -1,10 +1,10 @@
-from ..initializers import he_orthogonal_init
 import torch
+
+from ..initializers import he_orthogonal_init
 
 
 class EfficientInteractionDownProjection(torch.nn.Module):
-    """
-    Down projection in the efficient reformulation.
+    """Down projection in the efficient reformulation.
 
     Parameters
     ----------
@@ -14,6 +14,7 @@ class EfficientInteractionDownProjection(torch.nn.Module):
             Same as the setting in the basis layers.
         emb_size_interm: int
             Intermediate embedding size (down-projection size).
+
     """
 
     def __init__(
@@ -39,14 +40,14 @@ class EfficientInteractionDownProjection(torch.nn.Module):
         he_orthogonal_init(self.weight)
 
     def forward(self, tbf):
-        """
-        Returns
+        """Returns
         -------
             (rbf_W1, sph): tuple
             - rbf_W1: Tensor, shape=(nEdges, emb_size_interm, num_spherical)
             - sph: Tensor, shape=(nEdges, Kmax, num_spherical)
+
         """
-        rbf_env, sph = tbf  
+        rbf_env, sph = tbf
         # (num_spherical, nEdges, num_radial), (nEdges, Kmax, num_spherical) ;  Kmax = maximum number of neighbors of the edges
 
         # MatMul: mul + sum over num_radial
@@ -58,8 +59,7 @@ class EfficientInteractionDownProjection(torch.nn.Module):
 
 
 class EfficientInteractionHadamard(torch.nn.Module):
-    """
-    Efficient reformulation of the hadamard product and subsequent summation.
+    """Efficient reformulation of the hadamard product and subsequent summation.
 
     Parameters
     ----------
@@ -67,6 +67,7 @@ class EfficientInteractionHadamard(torch.nn.Module):
             Intermediate embedding size (down-projection size).
         emb_size: int
             Embedding size.
+
     """
 
     def __init__(self, emb_size_interm: int, emb_size: int, name="EfficientHadamard"):
@@ -83,11 +84,11 @@ class EfficientInteractionHadamard(torch.nn.Module):
         he_orthogonal_init(self.weight)
 
     def forward(self, basis, m, id_reduce, Kidx):
-        """
-        Returns
+        """Returns
         -------
             m_ca: Tensor, shape=(nEdges, emb_size)
                 Edge embeddings.
+
         """
         # quadruplets: m = m_db , triplets: m = m_ba
         # num_spherical is actually num_spherical**2 for quadruplets
@@ -99,7 +100,7 @@ class EfficientInteractionHadamard(torch.nn.Module):
         if sph.shape[2]==0:
             Kmax = 0
         else:
-            Kmax = torch.max(torch.max(Kidx + 1), torch.tensor(0))  
+            Kmax = torch.max(torch.max(Kidx + 1), torch.tensor(0))
         m2 = torch.zeros(nEdges, Kmax, self.emb_size, device=self.weight.device, dtype=m.dtype)
         m2[id_reduce, Kidx] = m  # (nQuadruplets or nTriplets, emb_size) -> (nEdges, Kmax, emb_size)
 
@@ -112,14 +113,12 @@ class EfficientInteractionHadamard(torch.nn.Module):
 
         # MatMul: mul + sum over emb_size_interm
         m_ca = torch.matmul(self.weight, rbf_W1_sum_k.permute(2, 1, 0))[:, 0]  # (emb_size, nEdges)
-        m_ca = torch.transpose(m_ca, 0, 1)  # (nEdges, emb_size)
+        return torch.transpose(m_ca, 0, 1)  # (nEdges, emb_size)
 
-        return m_ca
 
 
 class EfficientInteractionBilinear(torch.nn.Module):
-    """
-    Efficient reformulation of the bilinear layer and subsequent summation.
+    """Efficient reformulation of the bilinear layer and subsequent summation.
 
     Parameters
     ----------
@@ -131,6 +130,7 @@ class EfficientInteractionBilinear(torch.nn.Module):
             Embedding output size of the bilinear layer.
         kernel_initializer: callable
             Initializer of the weight matrix.
+
     """
 
     def __init__(
@@ -157,11 +157,11 @@ class EfficientInteractionBilinear(torch.nn.Module):
         he_orthogonal_init(self.weight)
 
     def forward(self, basis, m, id_reduce, Kidx):
-        """
-        Returns
+        """Returns
         -------
             m_ca: Tensor, shape=(nEdges, units_out)
                 Edge embeddings.
+
         """
         # quadruplets: m = m_db , triplets: m = m_ba
         # num_spherical is actually num_spherical**2 for quadruplets
@@ -170,7 +170,7 @@ class EfficientInteractionBilinear(torch.nn.Module):
 
         # Create (zero-padded) dense matrix of the neighboring edge embeddings.
         # maximum number of neighbors, catch empty id_reduce_ji with maximum
-        Kmax = 0 if sph.shape[2]==0 else torch.max(torch.max(Kidx + 1), torch.tensor(0))  
+        Kmax = 0 if sph.shape[2]==0 else torch.max(torch.max(Kidx + 1), torch.tensor(0))
         m2 = torch.zeros(nEdges, Kmax, self.emb_size, device=self.weight.device, dtype=m.dtype)
         m2[id_reduce, Kidx] = m  # (nQuadruplets or nTriplets, emb_size) -> (nEdges, Kmax, emb_size)
 
@@ -185,5 +185,4 @@ class EfficientInteractionBilinear(torch.nn.Module):
         m_ca = torch.matmul(
             rbf_W1_sum_k.permute(2, 0, 1), self.weight
         )  # (emb_size, nEdges, units_out)
-        m_ca = torch.sum(m_ca, dim=0)  # (nEdges, units_out)
-        return m_ca
+        return torch.sum(m_ca, dim=0)  # (nEdges, units_out)

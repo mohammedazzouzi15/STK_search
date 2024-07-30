@@ -1,10 +1,11 @@
-import torch
 import math
+
+import torch
 
 
 class CosineCutoff(torch.nn.Module):
     def __init__(self, cutoff_lower=0.0, cutoff_upper=5.0):
-        super(CosineCutoff, self).__init__()
+        super().__init__()
         self.cutoff_lower = cutoff_lower
         self.cutoff_upper = cutoff_upper
 
@@ -24,19 +25,17 @@ class CosineCutoff(torch.nn.Module):
             )
             # remove contributions below the cutoff radius
             cutoffs = cutoffs * (distances < self.cutoff_upper).float()
-            cutoffs = cutoffs * (distances > self.cutoff_lower).float()
-            return cutoffs
+            return cutoffs * (distances > self.cutoff_lower).float()
         else:
             cutoffs = 0.5 * (torch.cos(distances * math.pi / self.cutoff_upper) + 1.0)
             # remove contributions beyond the cutoff radius
-            cutoffs = cutoffs * (distances < self.cutoff_upper).float()
-            return cutoffs
+            return cutoffs * (distances < self.cutoff_upper).float()
 
 
 # https://github.com/torchmd/torchmd-net/blob/main/torchmdnet/models/utils.py#L111
 class ExpNormalSmearing(torch.nn.Module):
     def __init__(self, cutoff_lower=0.0, cutoff_upper=5.0, num_rbf=50, trainable=False):
-        super(ExpNormalSmearing, self).__init__()
+        super().__init__()
         self.cutoff_lower = cutoff_lower
         self.cutoff_upper = cutoff_upper
         self.num_rbf = num_rbf

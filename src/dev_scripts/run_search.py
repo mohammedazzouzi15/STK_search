@@ -1,25 +1,26 @@
-from stk_search import SearchExp
-from stk_search.Search_algorithm import Search_algorithm
-from stk_search.Search_algorithm import Bayesian_Optimisation
-from stk_search.Search_algorithm import (
-    Representation_slatm,
-    RepresentationPrecursor,
-    Represenation_3D,
-)
-from stk_search.Objective_function import IP_ES1_fosc
 import pandas as pd
-from stk_search.utils import database_utils
-from stk_search import SearchedSpace
+import pymongo
 import stk
 import torch
-import pymongo
-from stk_search.geom3d.test_train import read_config, Pymodel
+from stk_search import SearchExp
 from stk_search.geom3d.frag_encoding_with_transformer import Fragment_encoder
 from stk_search.geom3d.models import SchNet
+from stk_search.geom3d.test_train import Pymodel, read_config
+from stk_search.Objective_function import IP_ES1_fosc
+from stk_search.Search_algorithm import (
+    Bayesian_Optimisation,
+    Represenation_3D,
+    Representation_slatm,
+    RepresentationPrecursor,
+    Search_algorithm,
+)
+from stk_search.utils import database_utils
+
+
 # %%
 def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",search_space_loc = "data/input/search_space/test/search_space1.pkl"):
     # Load the searched space
-    df_path = 'data/output/Full_dataset/df_total_2023_11_09.csv'
+    df_path = "data/output/Full_dataset/df_total_2023_11_09.csv"
     df_precursors_path = "data/output/Prescursor_data/calculation_data_precursor_071123_clean.pkl"  #'Data/output/Prescursor_data/calculation_data_precursor_310823_clean.pkl'
     df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
@@ -50,9 +51,9 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
             df_precursors_old, frag_properties
         )
         search_algorithm = BO
-    elif case == 'random':
+    elif case == "random":
         search_algorithm = Search_algorithm.random_search()
-    elif case == 'evolution_algorithm':
+    elif case == "evolution_algorithm":
         search_algorithm = Search_algorithm.evolution_algorithm()
     elif case == "graph_frag":
         ## load model
@@ -80,8 +81,8 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
             max_iters=config["max_epochs"] ,
         )
         EncodingModel.add_encoder(model)
-        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device('cpu'))
-        EncodingModel.load_state_dict(state_dict['state_dict'])
+        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device("cpu"))
+        EncodingModel.load_state_dict(state_dict["state_dict"])
         ## load search algorithm
         BO = Bayesian_Optimisation.Bayesian_Optimisation()
         client = pymongo.MongoClient(config["pymongo_client"])
@@ -98,12 +99,12 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
         BO.device = "cpu"#"cuda:0" if torch.cuda.is_available() else "cpu"
         BO.Representation = Represenation_3D.Representation3DFrag_transformer(EncodingModel,df_total,db_poly=db_poly,db_frag=db_frag,device=BO.device)
         search_algorithm = BO
-    elif case == 'ea_surrogate':
+    elif case == "ea_surrogate":
         from stk_search.Search_algorithm import Ea_surrogate
         ## load model
         config_dir = "/rds/general/user/ma11115/home/Geom3D/Geom3D/training/SchNet_Trans_80K"
         config = read_config(config_dir)
-        
+
         model_config = config["model"]
         graph_pred_linear = torch.nn.Linear(
                 model_config["emb_dim"], model_config["num_tasks"]
@@ -118,8 +119,8 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
             node_class=model_config["node_class"],
         )
         pymodel = Pymodel(model, graph_pred_linear)
-        state_dict = torch.load(config["model_embedding_chkpt"],map_location=torch.device('cpu'))
-        pymodel.load_state_dict(state_dict['state_dict'])
+        state_dict = torch.load(config["model_embedding_chkpt"],map_location=torch.device("cpu"))
+        pymodel.load_state_dict(state_dict["state_dict"])
         EncodingModel = Fragment_encoder(
             input_dim = config["emb_dim"]*config["number_of_fragement"],
             model_dim=config["emb_dim"],
@@ -132,8 +133,8 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
             max_iters=config["max_epochs"] ,
         )
         EncodingModel.add_encoder(model)
-        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device('cpu'))
-        EncodingModel.load_state_dict(state_dict['state_dict'])
+        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device("cpu"))
+        EncodingModel.load_state_dict(state_dict["state_dict"])
         ## load search algorithm
         ea_surrogate = Ea_surrogate.Ea_surrogate()
         client = pymongo.MongoClient(config["pymongo_client"])
@@ -153,7 +154,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
         search_algorithm = ea_surrogate
     else:
         raise ValueError("case not recognised")
-    
+
     number_of_iterations = num_iteration
     verbose = True
     num_elem_initialisation = num_elem_initialisation

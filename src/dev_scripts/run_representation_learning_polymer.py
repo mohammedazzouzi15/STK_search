@@ -1,16 +1,19 @@
-from stk_search.geom3d import polymer_GNN_architecture_utils
-from stk_search.utils.config_utils import read_config, save_config
-from stk_search.geom3d import pl_model
-import torch.nn.functional as Functional
-from stk_search.geom3d import train_models
-import torch
-import pandas as pd
 import os
+
+import pandas as pd
+import torch
+from stk_search.geom3d import (
+    pl_model,
+    polymer_GNN_architecture_utils,
+    train_models,
+)
+from stk_search.utils.config_utils import read_config
+
 
 def main(config_dir):
     config = read_config(config_dir)
     bbs_dict = polymer_GNN_architecture_utils.get_bbs_dict(
-        config['pymongo_client'] , config['precursor_database_name']
+        config["pymongo_client"] , config["precursor_database_name"]
     )
 
     (
@@ -48,7 +51,7 @@ def main(config_dir):
     pymodel.eval()
     print("Model loaded")
     with open(output_file, "a") as file:
-        file.write(f"Model loaded\n")
+        file.write("Model loaded\n")
     df_train_pred = evaluate_model_prediction(
         train_loader, pymodel, config_dir, name_df="train"
     )
@@ -60,7 +63,7 @@ def main(config_dir):
     )
     print("Model evaluation done")
     with open(output_file, "a") as file:
-        file.write(f"Model evaluation done\n")
+        file.write("Model evaluation done\n")
 
     mae_train, mse_train, r2_train = evaluale_model_performance(df_train_pred)
     mae_val, mse_val, r2_val = evaluale_model_performance(df_val_pred)

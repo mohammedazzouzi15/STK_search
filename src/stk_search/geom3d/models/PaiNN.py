@@ -1,28 +1,33 @@
-'''
-credit to https://github.com/atomistic-machine-learning/SchNetpack/blob/dev/src/SchNetpack/representation/PaiNN.py
-'''
-from typing import Callable, Dict, Optional
+"""credit to https://github.com/atomistic-machine-learning/SchNetpack/blob/dev/src/SchNetpack/representation/PaiNN.py."""
+from typing import Callable, Optional
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 from torch_geometric.utils import scatter
 
-
-from .PaiNN_utils import Dense, scatter_add, replicate_module, GaussianRBF, CosineCutoff, build_mlp
+from .PaiNN_utils import (
+    CosineCutoff,
+    Dense,
+    GaussianRBF,
+    build_mlp,
+    replicate_module,
+    scatter_add,
+)
 
 
 class PaiNNInteraction(nn.Module):
     r"""PaiNN interaction block for modeling equivariant interactions of atomistic systems."""
 
     def __init__(self, n_atom_basis: int, activation: Callable):
-        """
-        Args:
+        """Args:
+        ----
             n_atom_basis: number of features to describe atomic environments.
             activation: if None, no activation function is used.
             epsilon: stability constant added in norm to prevent numerical instabilities
+
         """
-        super(PaiNNInteraction, self).__init__()
+        super().__init__()
         self.n_atom_basis = n_atom_basis
 
         self.interatomic_context_net = nn.Sequential(
@@ -41,7 +46,9 @@ class PaiNNInteraction(nn.Module):
         n_atoms: int,
     ):
         """Compute interaction output.
+
         Args:
+        ----
             q: scalar input values
             mu: vector input values
             Wij: filter
@@ -49,6 +56,7 @@ class PaiNNInteraction(nn.Module):
             idx_j: index of neighbors j
         Returns:
             atom features after interaction
+
         """
         # inter-atomic
         x = self.interatomic_context_net(q)
@@ -71,13 +79,14 @@ class PaiNNMixing(nn.Module):
     r"""PaiNN interaction block for mixing on atom features."""
 
     def __init__(self, n_atom_basis: int, activation: Callable, epsilon: float = 1e-8):
-        """
-        Args:
+        """Args:
+        ----
             n_atom_basis: number of features to describe atomic environments.
             activation: if None, no activation function is used.
             epsilon: stability constant added in norm to prevent numerical instabilities
+
         """
-        super(PaiNNMixing, self).__init__()
+        super().__init__()
         self.n_atom_basis = n_atom_basis
 
         self.intraatomic_context_net = nn.Sequential(
@@ -91,11 +100,14 @@ class PaiNNMixing(nn.Module):
 
     def forward(self, q: torch.Tensor, mu: torch.Tensor):
         """Compute intraatomic mixing.
+
         Args:
+        ----
             q: scalar input values
             mu: vector input values
         Returns:
             atom features after interaction
+
         """
         ## intra-atomic
         mu_mix = self.mu_channel_mix(mu)
@@ -120,7 +132,7 @@ class PaiNN(nn.Module):
     References:
     .. [#PaiNN1] Schütt, Unke, Gastegger:
        Equivariant message passing for the prediction of tensorial properties and molecular spectra.
-       ICML 2021, http://proceedings.mlr.press/v139/schutt21a.html
+       ICML 2021, http://proceedings.mlr.press/v139/schutt21a.html.
     """
 
     def __init__(
@@ -131,8 +143,8 @@ class PaiNN(nn.Module):
         cutoff: float,
         n_out: int,
         readout: str,
-        gamma: float=None,
-        n_out_hidden: int=None,
+        gamma: Optional[float]=None,
+        n_out_hidden: Optional[int]=None,
         n_out_layers: int = 2,
         activation: Optional[Callable] = F.silu,
         max_z: int = 100,
@@ -140,8 +152,8 @@ class PaiNN(nn.Module):
         shared_filters: bool = False,
         epsilon: float = 1e-8,
     ):
-        """
-        Args:
+        """Args:
+        ----
             n_atom_basis: number of features to describe atomic environments.
                 This determines the size of each embedding vector; i.e. embeddings_dim.
             n_interactions: number of interaction blocks.
@@ -153,8 +165,9 @@ class PaiNN(nn.Module):
             shared_interactions: if True, share the weights across
                 filter-generating networks.
             epsilon: stability constant added in norm to prevent numerical instabilities
+
         """
-        super(PaiNN, self).__init__()
+        super().__init__()
 
         self.n_atom_basis = n_atom_basis
         self.n_interactions = n_interactions
@@ -168,7 +181,7 @@ class PaiNN(nn.Module):
         self.cutoff = cutoff
         self.cutoff_fn = cutoff_fn
         self.radial_basis = radial_basis
-        
+
         self.readout = readout
 
         self.embedding = nn.Embedding(max_z, n_atom_basis, padding_idx=0)
@@ -200,32 +213,31 @@ class PaiNN(nn.Module):
             self.n_interactions,
             shared_interactions,
         )
-        return
 
     def create_output_layers(self):
-        outnet = build_mlp(
+        return build_mlp(
             n_in=self.n_atom_basis,
             n_out=self.n_out,
             n_hidden=self.n_out_hidden,
             n_layers=self.n_out_layers,
             activation=self.activation,
         )
-        return outnet
 
     def forward(self, x, positions, radius_edge_index, batch, return_latent=False, return_vector=False):
-        """
-        Compute atomic representations/embeddings.
+        """Compute atomic representations/embeddings.
+
         Args:
+        ----
             inputs (dict of torch.Tensor): SchNetPack dictionary of input tensors.
+
         Returns:
+        -------
             torch.Tensor: atom-wise representation.
             list of torch.Tensor: intermediate atom-wise representations, if
             return_intermediate=True was used.
+
         """
-        if x.dim() == 2:
-            atomic_numbers = x[:, 0]
-        else:
-            atomic_numbers = x
+        atomic_numbers = x[:, 0] if x.dim() == 2 else x
         n_atoms = atomic_numbers.size()[0]
 
         idx_i, idx_j = radius_edge_index[0], radius_edge_index[1]
@@ -236,7 +248,7 @@ class PaiNN(nn.Module):
         dir_ij = r_ij / d_ij
         phi_ij = self.radial_basis(d_ij)
         fcut = self.cutoff_fn(d_ij)
-    
+
         filters = self.filter_net(phi_ij) * fcut[..., None]
         if self.share_filters:
             filter_list = [filters] * self.n_interactions
@@ -253,7 +265,7 @@ class PaiNN(nn.Module):
 
         q = q.squeeze(1)
         h = q
-        
+
         h = scatter(h, batch, dim=0, reduce=self.readout)
         if return_vector and return_latent:
             return h, q, mu
@@ -275,7 +287,7 @@ class PaiNN(nn.Module):
         dir_ij = r_ij / d_ij
         phi_ij = self.radial_basis(d_ij)
         fcut = self.cutoff_fn(d_ij)
-    
+
         filters = self.filter_net(phi_ij) * fcut[..., None]
         if self.share_filters:
             filter_list = [filters] * self.n_interactions
@@ -293,7 +305,7 @@ class PaiNN(nn.Module):
 
         q = q.squeeze(1)
         h = q
-        
+
         h = scatter(h, gathered_batch, dim=0, reduce=self.readout)
         if return_vector and return_latent:
             return h, q, mu

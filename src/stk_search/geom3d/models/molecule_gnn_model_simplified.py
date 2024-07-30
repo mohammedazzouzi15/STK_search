@@ -1,40 +1,41 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import (GlobalAttention, MessagePassing, Set2Set,
-                                global_add_pool, global_max_pool,
-                                global_mean_pool)
+from ogb.graphproppred.mol_encoder import (
+    full_atom_feature_dims,
+    full_bond_feature_dims,
+)
+from torch import nn
+from torch_geometric.nn import (
+    MessagePassing,
+)
 from torch_geometric.nn.inits import glorot, zeros
-from torch_geometric.utils import add_self_loops, degree, softmax
-from torch_scatter import scatter_add
-from ogb.graphproppred.mol_encoder import full_atom_feature_dims , full_bond_feature_dims 
+from torch_geometric.utils import degree, softmax
 
 
 class GINConv(MessagePassing):
     def __init__(self, emb_dim):
-        super(GINConv, self).__init__(aggr="add")
+        super().__init__(aggr="add")
 
         self.mlp = torch.nn.Sequential(torch.nn.Linear(emb_dim, 2*emb_dim), torch.nn.BatchNorm1d(2*emb_dim), torch.nn.ReLU(), torch.nn.Linear(2*emb_dim, emb_dim))
         self.eps = torch.nn.Parameter(torch.Tensor([0]))
-        
+
         self.bond_encoder = nn.Embedding(full_bond_feature_dims[0], emb_dim)
 
     def forward(self, x, edge_index, edge_attr):
-        edge_embedding = self.bond_encoder(edge_attr)    
-        out = self.mlp((1 + self.eps) *x + self.propagate(edge_index, x=x, edge_attr=edge_embedding))
-    
-        return out
+        edge_embedding = self.bond_encoder(edge_attr)
+        return self.mlp((1 + self.eps) *x + self.propagate(edge_index, x=x, edge_attr=edge_embedding))
+
 
     def message(self, x_j, edge_attr):
         return F.relu(x_j + edge_attr)
-        
+
     def update(self, aggr_out):
         return aggr_out
 
 
 class GCNConv(MessagePassing):
     def __init__(self, emb_dim):
-        super(GCNConv, self).__init__(aggr='add')
+        super().__init__(aggr="add")
 
         self.linear = torch.nn.Linear(emb_dim, emb_dim)
         self.root_emb = torch.nn.Embedding(1, emb_dim)
@@ -49,7 +50,7 @@ class GCNConv(MessagePassing):
         #edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
         deg = degree(row, x.size(0), dtype = x.dtype) + 1
         deg_inv_sqrt = deg.pow(-0.5)
-        deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
+        deg_inv_sqrt[deg_inv_sqrt == float("inf")] = 0
 
         norm = deg_inv_sqrt[row] * deg_inv_sqrt[col]
 
@@ -64,7 +65,7 @@ class GCNConv(MessagePassing):
 
 class GATConv(MessagePassing):
     def __init__(self, emb_dim, heads=2, negative_slope=0.2, aggr="add"):
-        super(GATConv, self).__init__(node_dim=0)
+        super().__init__(node_dim=0)
         self.aggr = aggr
         self.heads = heads
         self.emb_dim = emb_dim
@@ -99,7 +100,7 @@ class GATConv(MessagePassing):
         alpha = softmax(alpha, edge_index[0])
 
         return x_j * alpha.view(-1, self.heads, 1)
-        
+
     def update(self, aggr_out):
         aggr_out = aggr_out.mean(dim=1)
         aggr_out += self.bias
@@ -108,7 +109,7 @@ class GATConv(MessagePassing):
 
 class GraphSAGEConv(MessagePassing):
     def __init__(self, emb_dim, aggr="mean"):
-        super(GraphSAGEConv, self).__init__()
+        super().__init__()
 
         self.emb_dim = emb_dim
         self.linear = torch.nn.Sequential(torch.nn.Linear(emb_dim, emb_dim), torch.nn.BatchNorm1d(emb_dim), torch.nn.ReLU(), torch.nn.Linear(emb_dim, emb_dim))
@@ -131,19 +132,20 @@ class GraphSAGEConv(MessagePassing):
 
 class GNNSimplified(nn.Module):
     def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin"):
-        super(GNNSimplified, self).__init__()
+        super().__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
         self.JK = JK
 
         if self.num_layer < 2:
-            raise ValueError("Number of GNN layers must be greater than 1.")
+            msg = "Number of GNN layers must be greater than 1."
+            raise ValueError(msg)
 
         self.atom_encoder = nn.Embedding(full_atom_feature_dims[0], emb_dim)
 
         ###List of MLPs
         self.gnns = nn.ModuleList()
-        for layer in range(num_layer):
+        for _layer in range(num_layer):
             if gnn_type == "GIN":
                 self.gnns.append(GINConv(emb_dim))
             elif gnn_type == "GCN":
@@ -155,7 +157,7 @@ class GNNSimplified(nn.Module):
 
         ###List of batchnorms
         self.batch_norms = nn.ModuleList()
-        for layer in range(num_layer):
+        for _layer in range(num_layer):
             self.batch_norms.append(nn.BatchNorm1d(emb_dim))
 
     # def forward(self, x, edge_index, edge_attr):
@@ -166,7 +168,8 @@ class GNNSimplified(nn.Module):
             data = argv[0]
             x, edge_index, edge_attr = data.x, data.edge_index, data.edge_attr
         else:
-            raise ValueError("unmatched number of arguments.")
+            msg = "unmatched number of arguments."
+            raise ValueError(msg)
 
         x = self.atom_encoder(x)
 

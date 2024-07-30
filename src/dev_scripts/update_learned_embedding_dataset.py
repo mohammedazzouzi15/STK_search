@@ -1,16 +1,13 @@
-import os  #
-from pathlib import Path  #
+from argparse import ArgumentParser
+
 import pandas as pd
 import torch
-import numpy as np
-from stk_search.utils.config_utils import read_config, save_config
 from stk_search.utils import update_datasets
-from argparse import ArgumentParser
+from stk_search.utils.config_utils import read_config, save_config
 
 
 def main(config_dir, dataset_all_frag_path=None, df_total_path=None):
-    """
-    check the input dataset for the learned embedding model and add missing molecules to the dataset
+    """Check the input dataset for the learned embedding model and add missing molecules to the dataset
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     config = read_config(config_dir)
@@ -29,13 +26,13 @@ def main(config_dir, dataset_all_frag_path=None, df_total_path=None):
         "length of new dataset learned embedding",
         len(dataset_learned_embedding_update),
     )
-    config[f"dataset_learned_embedding_all"] = (
+    config["dataset_learned_embedding_all"] = (
         config["ephemeral_path"]
         + f"/{config['name'].replace('_','/')}/dataset_representation_all.pt"
     )
     torch.save(
         dataset_learned_embedding_update,
-        config[f"dataset_learned_embedding_all"],
+        config["dataset_learned_embedding_all"],
     )
     save_config(config, config_dir)
     return config
@@ -58,4 +55,3 @@ if __name__ == "__main__":
     )
     args = args.parse_args()
     main(args.config_dir, args.dataset_all_frag_path, args.df_total_path)
-    #

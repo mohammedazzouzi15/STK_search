@@ -1,4 +1,5 @@
 import math
+
 import torch
 
 
@@ -19,8 +20,7 @@ def cosine_cutoff(x: torch.Tensor, r_max: torch.Tensor, r_start_cos_ratio: float
 def polynomial_cutoff(
     x: torch.Tensor, r_max: torch.Tensor, p: float = 6.0
 ) -> torch.Tensor:
-    """Polynomial cutoff, as proposed in DimeNet: https://arxiv.org/abs/2003.03123
-
+    """Polynomial cutoff, as proposed in DimeNet: https://arxiv.org/abs/2003.03123.
 
     Parameters
     ----------
@@ -29,6 +29,7 @@ def polynomial_cutoff(
 
     p : int
         Power used in envelope function
+
     """
     assert p >= 2.0
     r_max, x = torch.broadcast_tensors(r_max.unsqueeze(-1), x.unsqueeze(0))

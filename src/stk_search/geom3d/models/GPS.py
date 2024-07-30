@@ -1,10 +1,9 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
-from torch_geometric.nn import global_mean_pool
-
 from stk_search.geom3d.models.GPS_layer import GPSLayer
+from torch import nn
+from torch_geometric.nn import global_mean_pool
 
 
 class SANGraphHead(nn.Module):
@@ -43,8 +42,8 @@ class GPSModel(torch.nn.Module):
         self.atom_encoder = AtomEncoder(dim_in)
         self.bond_encoder = BondEncoder(dim_in)
 
-        local_gnn_type = 'GENConv'
-        global_model_type = 'Transformer'
+        local_gnn_type = "GENConv"
+        global_model_type = "Transformer"
 
         layers = []
         for _ in range(gt_layers):
@@ -62,16 +61,13 @@ class GPSModel(torch.nn.Module):
         self.layers = torch.nn.Sequential(*layers)
 
         self.post_mp = SANGraphHead(dim_in=dim_in, dim_out=num_tasks)
-        return
 
     def forward(self, batch):
         batch.x = self.atom_encoder(batch.x)
         batch.edge_attr = self.bond_encoder(batch.edge_attr)
         batch = self.layers(batch)
-        batch = self.post_mp(batch)
-        return batch
+        return self.post_mp(batch)
 
 
 if __name__ == "__main__":
     model = GPSModel(dim_in=300, num_tasks=1)
-    print(model)

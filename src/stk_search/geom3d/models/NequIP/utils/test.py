@@ -1,17 +1,15 @@
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
 import torch
 from e3nn import o3
-from e3nn.util.test import equivariance_error, FLOAT_TOLERANCE
-
-from NequIP.nn import GraphModuleMixin
+from e3nn.util.test import FLOAT_TOLERANCE, equivariance_error
 from NequIP.data import (
+    _EDGE_FIELDS,
+    _NODE_FIELDS,
     AtomicData,
     AtomicDataDict,
-    _NODE_FIELDS,
-    _EDGE_FIELDS,
 )
-
+from NequIP.nn import GraphModuleMixin
 
 PERMUTATION_FLOAT_TOLERANCE = {torch.float32: 1e-5, torch.float64: 1e-10}
 
@@ -36,8 +34,10 @@ def assert_permutation_equivariant(
     Raises ``AssertionError`` if issues are found.
 
     Args:
+    ----
         func: the module or model to test
         data_in: the example input data to test with
+
     """
     # Prevent pytest from showing this function in the traceback
     __tracebackhide__ = True
@@ -74,7 +74,7 @@ def assert_permutation_equivariant(
     # interpreted as a map is a map from "to" to "from".
 
     perm_data_in = {}
-    for k in data_in.keys():
+    for k in data_in:
         if k in node_permute_fields:
             perm_data_in[k] = data_in[k][node_perm]
         elif k in edge_permute_fields:
@@ -94,7 +94,7 @@ def assert_permutation_equivariant(
     ), "Permutation changed the set of fields returned by model"
 
     problems = []
-    for k in out_orig.keys():
+    for k in out_orig:
         if k in node_permute_fields:
             if not torch.allclose(out_orig[k][node_perm], out_perm[k], atol=atol):
                 err = (out_orig[k][node_perm] - out_perm[k]).abs().max()
@@ -109,27 +109,23 @@ def assert_permutation_equivariant(
                 )
         elif k == AtomicDataDict.EDGE_INDEX_KEY:
             pass
-        else:
-            # Assume invariant
-            if out_orig[k].dtype == torch.bool:
-                if not torch.all(out_orig[k] == out_perm[k]):
-                    problems.append(
-                        f"edge/node permutation invariance violated for field {k} ({k} was assumed to be invariant, should it have been marked as equivariant?)"
-                    )
-            else:
-                if not torch.allclose(out_orig[k], out_perm[k], atol=atol):
-                    err = (out_orig[k] - out_perm[k]).abs().max()
-                    problems.append(
-                        f"edge/node permutation invariance violated for field {k}; maximum componentwise error: {err:e}. (`{k}` was assumed to be invariant, should it have been marked as equivariant?)"
-                    )
+        elif out_orig[k].dtype == torch.bool:
+            if not torch.all(out_orig[k] == out_perm[k]):
+                problems.append(
+                    f"edge/node permutation invariance violated for field {k} ({k} was assumed to be invariant, should it have been marked as equivariant?)"
+                )
+        elif not torch.allclose(out_orig[k], out_perm[k], atol=atol):
+            err = (out_orig[k] - out_perm[k]).abs().max()
+            problems.append(
+                f"edge/node permutation invariance violated for field {k}; maximum componentwise error: {err:e}. (`{k}` was assumed to be invariant, should it have been marked as equivariant?)"
+            )
     msg = "\n".join(problems)
     if len(problems) == 0:
-        return
+        return None
+    elif raise_error:
+        raise AssertionError(msg)
     else:
-        if raise_error:
-            raise AssertionError(msg)
-        else:
-            return msg
+        return msg
 
 
 def assert_AtomicData_equivariant(
@@ -149,12 +145,15 @@ def assert_AtomicData_equivariant(
     Raises ``AssertionError`` if issues are found.
 
     Args:
+    ----
         func: the module or model to test
         data_in: the example input data(s) to test with. Only the first is used for permutation testing.
         **kwargs: passed to ``e3nn.util.test.assert_equivariant``
 
     Returns:
+    -------
         A string description of the errors.
+
     """
     # Prevent pytest from showing this function in the traceback
     __tracebackhide__ = True
@@ -207,7 +206,7 @@ def assert_AtomicData_equivariant(
             irreps_out[k] = stress_cart_tensor
 
     def wrapper(*args):
-        arg_dict = {k: v for k, v in zip(irreps_in, args)}
+        arg_dict = dict(zip(irreps_in, args))
         # cell is a special case
         for key in (AtomicDataDict.CELL_KEY,):
             if key in arg_dict:
@@ -264,11 +263,7 @@ def assert_AtomicData_equivariant(
             return (
                 permutation_problems + "\n" if permutation_problems is not None else ""
             ) + "\n".join(
-                "(parity_k={:d}, did_translate={}) -> max error={:.3e}".format(
-                    int(k[0]),
-                    bool(k[1]),
-                    float(v),
-                )
+                f"(parity_k={int(k[0]):d}, did_translate={bool(k[1])}) -> max error={float(v):.3e}"
                 for k, v in errors.items()
             )
 
@@ -283,16 +278,14 @@ def assert_AtomicData_equivariant(
         all_errs = []
         for case, err in errs.items():
             for key, this_err in zip(irreps_out.keys(), err):
-                all_errs.append(case + (key, this_err))
+                all_errs.append((*case, key, this_err))
         problems = [e for e in all_errs if e[-1] > o3_tolerance]
 
         def _describe(errors):
             return (
                 permutation_problems + "\n" if permutation_problems is not None else ""
             ) + "\n".join(
-                "   (parity_k={:1d}, did_translate={:5}, field={:20}) -> max error={:.3e}".format(
-                    int(k[0]), str(bool(k[1])), str(k[2]), float(k[3])
-                )
+                f"   (parity_k={int(k[0]):1d}, did_translate={bool(k[1])!s:5}, field={k[2]!s:20}) -> max error={float(k[3]):.3e}"
                 for k in errors
             )
 
@@ -311,12 +304,12 @@ def set_irreps_debug(enabled: bool = False) -> None:
     r"""Add debugging hooks to ``forward()`` that check data-irreps consistancy.
 
     Args:
+    ----
         enabled: whether to set debug mode as enabled or disabled
+
     """
     global _DEBUG_HOOKS
-    if _DEBUG_HOOKS is None and not enabled:
-        return
-    elif _DEBUG_HOOKS is not None and enabled:
+    if _DEBUG_HOOKS is None and not enabled or _DEBUG_HOOKS is not None and enabled:
         return
     elif _DEBUG_HOOKS is not None and not enabled:
         for hook in _DEBUG_HOOKS:
@@ -329,64 +322,74 @@ def set_irreps_debug(enabled: bool = False) -> None:
     import torch.nn.modules
     from NequIP.utils.torch_geometric import Data
 
-    def pre_hook(mod: GraphModuleMixin, inp):
+    def pre_hook(mod: GraphModuleMixin, inp) -> None:
         __tracebackhide__ = True
         if not isinstance(mod, GraphModuleMixin):
             return
         mname = type(mod).__name__
         if len(inp) > 1:
+            msg = f"Module {mname} should have received a single argument, but got {len(inp)}"
             raise ValueError(
-                f"Module {mname} should have received a single argument, but got {len(inp)}"
+                msg
             )
         elif len(inp) == 0:
+            msg = f"Module {mname} didn't get any arguments; this case is correctly handled with an empty dict."
             raise ValueError(
-                f"Module {mname} didn't get any arguments; this case is correctly handled with an empty dict."
+                msg
             )
         inp = inp[0]
-        if not (isinstance(inp, dict) or isinstance(inp, Data)):
+        if not (isinstance(inp, (dict, Data))):
+            msg = f"Module {mname} should have received a dict or a torch_geometric Data, instead got a {type(inp).__name__}"
             raise TypeError(
-                f"Module {mname} should have received a dict or a torch_geometric Data, instead got a {type(inp).__name__}"
+                msg
             )
         for k, ir in mod.irreps_in.items():
             if k not in inp:
+                msg = f"Field {k} with irreps {ir} expected to be input to {mname}; not present"
                 raise KeyError(
-                    f"Field {k} with irreps {ir} expected to be input to {mname}; not present"
+                    msg
                 )
             elif isinstance(inp[k], torch.Tensor) and isinstance(ir, o3.Irreps):
                 if inp[k].ndim == 1:
+                    msg = f"Field {k} in input to module {mname} has only one dimension (assumed to be batch-like); it must have a second irreps dimension even if irreps.dim == 1 (i.e. a single per atom scalar must have shape [N_at, 1], not [N_at])"
                     raise ValueError(
-                        f"Field {k} in input to module {mname} has only one dimension (assumed to be batch-like); it must have a second irreps dimension even if irreps.dim == 1 (i.e. a single per atom scalar must have shape [N_at, 1], not [N_at])"
+                        msg
                     )
                 elif inp[k].shape[-1] != ir.dim:
+                    msg = f"Field {k} in input to module {mname} has last dimension {inp[k].shape[-1]} but its irreps {ir} indicate last dimension {ir.dim}"
                     raise ValueError(
-                        f"Field {k} in input to module {mname} has last dimension {inp[k].shape[-1]} but its irreps {ir} indicate last dimension {ir.dim}"
+                        msg
                     )
         return
 
     h1 = torch.nn.modules.module.register_module_forward_pre_hook(pre_hook)
 
-    def post_hook(mod: GraphModuleMixin, _, out):
+    def post_hook(mod: GraphModuleMixin, _, out) -> None:
         __tracebackhide__ = True
         if not isinstance(mod, GraphModuleMixin):
             return
         mname = type(mod).__name__
-        if not (isinstance(out, dict) or isinstance(out, Data)):
+        if not (isinstance(out, (dict, Data))):
+            msg = f"Module {mname} should have returned a dict or a torch_geometric Data, instead got a {type(out).__name__}"
             raise TypeError(
-                f"Module {mname} should have returned a dict or a torch_geometric Data, instead got a {type(out).__name__}"
+                msg
             )
         for k, ir in mod.irreps_out.items():
             if k not in out:
+                msg = f"Field {k} with irreps {ir} expected to be in output from {mname}; not present"
                 raise KeyError(
-                    f"Field {k} with irreps {ir} expected to be in output from {mname}; not present"
+                    msg
                 )
             elif isinstance(out[k], torch.Tensor) and isinstance(ir, o3.Irreps):
                 if out[k].ndim == 1:
+                    msg = f"Field {k} in output from module {mname} has only one dimension (assumed to be batch-like); it must have a second irreps dimension even if irreps.dim == 1 (i.e. a single per atom scalar must have shape [N_at, 1], not [N_at])"
                     raise ValueError(
-                        f"Field {k} in output from module {mname} has only one dimension (assumed to be batch-like); it must have a second irreps dimension even if irreps.dim == 1 (i.e. a single per atom scalar must have shape [N_at, 1], not [N_at])"
+                        msg
                     )
                 elif out[k].shape[-1] != ir.dim:
+                    msg = f"Field {k} in output from {mname} has last dimension {out[k].shape[-1]} but its irreps {ir} indicate last dimension {ir.dim}"
                     raise ValueError(
-                        f"Field {k} in output from {mname} has last dimension {out[k].shape[-1]} but its irreps {ir} indicate last dimension {ir.dim}"
+                        msg
                     )
         return
 

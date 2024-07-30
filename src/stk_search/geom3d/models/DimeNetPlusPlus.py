@@ -1,27 +1,24 @@
-"""
-Copyright (c) Facebook, Inc. and its affiliates.
+"""Copyright (c) Facebook, Inc. and its affiliates.
 
 This source code is licensed under the MIT license found in the
 LICENSE file in the root directory of this source tree.
 """
 
+
 import torch
 from torch import nn
-
-from torch_geometric.utils import scatter
-from torch_geometric.typing import SparseTensor
-import os
-import os.path as osp
-from math import pi as PI
-from math import sqrt
-
-import sympy as sym
-import torch.nn as nn
-from torch.nn import Embedding, Linear
 from torch_geometric.nn import radius_graph
+from torch_geometric.typing import SparseTensor
+from torch_geometric.utils import scatter
 
-
-from .DimeNet import (BesselBasisLayer, EmbeddingBlock, ResidualLayer, SphericalBasisLayer, glorot_orthogonal, swish)
+from .DimeNet import (
+    BesselBasisLayer,
+    EmbeddingBlock,
+    ResidualLayer,
+    SphericalBasisLayer,
+    glorot_orthogonal,
+    swish,
+)
 
 
 class InteractionPPBlock(torch.nn.Module):
@@ -36,7 +33,7 @@ class InteractionPPBlock(torch.nn.Module):
         num_after_skip,
         act=swish,
     ):
-        super(InteractionPPBlock, self).__init__()
+        super().__init__()
         self.act = act
 
         # Transformations of Bessel and spherical basis representations.
@@ -129,7 +126,7 @@ class OutputPPBlock(torch.nn.Module):
         num_layers,
         act=swish,
     ):
-        super(OutputPPBlock, self).__init__()
+        super().__init__()
         self.act = act
 
         self.lin_rbf = nn.Linear(num_radial, hidden_channels, bias=False)
@@ -163,7 +160,9 @@ class OutputPPBlock(torch.nn.Module):
 
 class DimeNetPlusPlus(torch.nn.Module):
     r"""DimeNet++ implementation based on https://github.com/klicperajo/DimeNet.
+
     Args:
+    ----
         hidden_channels (int): Hidden embedding size.
         out_channels (int): Size of each output sample.
         num_blocks (int): Number of building blocks.
@@ -184,6 +183,7 @@ class DimeNetPlusPlus(torch.nn.Module):
             output blocks. (default: :obj:`3`)
         act: (function, optional): The activation funtion.
             (default: :obj:`swish`)
+
     """
 
     def __init__(
@@ -205,7 +205,7 @@ class DimeNetPlusPlus(torch.nn.Module):
         act=swish,
         readout="add",
     ):
-        super(DimeNetPlusPlus, self).__init__()
+        super().__init__()
 
         self.cutoff = cutoff
 
@@ -360,9 +360,9 @@ class DimeNetPlusPlus(torch.nn.Module):
         # representation if extract_representation=True
         # energy if extract_representation=False
         P /= (self.num_blocks + 1)
-        
+
         out = scatter(P, gathered_batch, dim=0, reduce=self.readout)
-        
+
         if return_latent:
             return out, P
         return out

@@ -2,7 +2,6 @@ import time
 
 import numpy as np
 import torch
-from scipy.special import lpmv as lpmv_scipy
 
 
 def semifactorial(x):
@@ -11,9 +10,11 @@ def semifactorial(x):
     x!! = x * (x-2) * (x-4) *...
 
     Args:
+    ----
         x: positive int
     Returns:
         float for x!!
+
     """
     y = 1.0
     for n in range(x, 1, -2):
@@ -27,9 +28,11 @@ def pochhammer(x, k):
     (x)_k = x * (x+1) * (x+2) *...* (x+k-1)
 
     Args:
+    ----
         x: positive int
     Returns:
         float for (x)_k
+
     """
     xf = float(x)
     for n in range(x + 1, x + k):
@@ -41,11 +44,13 @@ def lpmv(l, m, x):
     """Associated Legendre function including Condon-Shortley phase.
 
     Args:
+    ----
         m: int order
         l: int degree
         x: float argument tensor
     Returns:
         tensor of x-shape
+
     """
     m_abs = abs(m)
     if m_abs > l:
@@ -57,10 +62,7 @@ def lpmv(l, m, x):
     )
 
     # Compute P_{m+1}^m
-    if m_abs != l:
-        y = x * (2 * m_abs + 1) * yold
-    else:
-        y = yold
+    y = x * (2 * m_abs + 1) * yold if m_abs != l else yold
 
     # Compute P_{l}^m from recursion in P_{l-1}^m and P_{l-2}^m
     for i in range(m_abs + 2, l + 1):
@@ -83,12 +85,14 @@ def tesseral_harmonics(l, m, theta=0.0, phi=0.0):
     harmonics.
 
     Args:
+    ----
         l: int for degree
         m: int for order, where -l <= m < l
         theta: collatitude or polar angle
         phi: longitude or azimuth
     Returns:
         tensor of shape theta
+
     """
     assert abs(m) <= l, "absolute value of order m must be <= degree l"
 
@@ -105,7 +109,7 @@ def tesseral_harmonics(l, m, theta=0.0, phi=0.0):
     return Y
 
 
-class SphericalHarmonics(object):
+class SphericalHarmonics:
     def __init__(self):
         self.leg = {}
 
@@ -113,7 +117,7 @@ class SphericalHarmonics(object):
         self.leg = {}
 
     def negative_lpmv(self, l, m, y):
-        """Compute negative order coefficients"""
+        """Compute negative order coefficients."""
         if m < 0:
             y *= (-1) ** m / pochhammer(l + m + 1, -2 * m)
         return y
@@ -122,11 +126,13 @@ class SphericalHarmonics(object):
         """Associated Legendre function including Condon-Shortley phase.
 
         Args:
+        ----
             m: int order
             l: int degree
             x: float argument tensor
         Returns:
             tensor of x-shape
+
         """
         # Check memoized versions
         m_abs = abs(m)
@@ -169,12 +175,14 @@ class SphericalHarmonics(object):
         harmonics.
 
         Args:
+        ----
             l: int for degree
             m: int for order, where -l <= m < l
             theta: collatitude or polar angle
             phi: longitude or azimuth
         Returns:
             tensor of shape theta
+
         """
         assert abs(m) <= l, "absolute value of order m must be <= degree l"
 
@@ -197,11 +205,13 @@ class SphericalHarmonics(object):
         harmonics.
 
         Args:
+        ----
             l: int for degree
             theta: collatitude or polar angle
             phi: longitude or azimuth
         Returns:
             tensor of shape [*theta.shape, 2*l+1]
+
         """
         results = []
         if refresh:
@@ -239,15 +249,10 @@ if __name__ == "__main__":
 
             error = np.mean(np.abs((y.cpu().numpy() - z) / z))
             max_error = max(max_error, error)
-            print(f"l: {l}, m: {m} ", error)
 
         # start = time.time()
         # sph_har.get(l, theta, phi)
         # s2 += time.time() - start
 
-        print("#################")
 
-    print(f"Max error: {max_error}")
-    print(f"Time diff: {s0/s1}")
-    print(f"Total time: {s0}")
     # print(f"Time diff: {s2/s1}")

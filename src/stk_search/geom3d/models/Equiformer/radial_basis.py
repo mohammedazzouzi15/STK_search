@@ -1,5 +1,6 @@
 
 import math
+from typing import Optional
 
 import numpy as np
 import torch
@@ -8,12 +9,13 @@ from stk_search.geom3d.models.SchNet import GaussianSmearing
 
 
 class PolynomialEnvelope(torch.nn.Module):
-    """
-    Polynomial envelope function that ensures a smooth cutoff.
+    """Polynomial envelope function that ensures a smooth cutoff.
+
     Parameters
     ----------
         exponent: int
             Exponent of the envelope function.
+
     """
 
     def __init__(self, exponent):
@@ -35,11 +37,10 @@ class PolynomialEnvelope(torch.nn.Module):
 
 
 class ExponentialEnvelope(torch.nn.Module):
-    """
-    Exponential envelope function that ensures a smooth cutoff,
+    """Exponential envelope function that ensures a smooth cutoff,
     as proposed in Unke, Chmiela, Gastegger, Schütt, Sauceda, Müller 2021.
     SpookyNet: Learning Force Fields with Electronic Degrees of Freedom
-    and Nonlocal Effects
+    and Nonlocal Effects.
     """
 
     def __init__(self):
@@ -53,14 +54,15 @@ class ExponentialEnvelope(torch.nn.Module):
 
 
 class SphericalBesselBasis(torch.nn.Module):
-    """
-    1D spherical Bessel basis
+    """1D spherical Bessel basis.
+
     Parameters
     ----------
     num_radial: int
         Controls maximum frequency.
     cutoff: float
         Cutoff distance in Angstrom.
+
     """
 
     def __init__(
@@ -89,11 +91,11 @@ class SphericalBesselBasis(torch.nn.Module):
 
 
 class BernsteinBasis(torch.nn.Module):
-    """
-    Bernstein polynomial basis,
+    """Bernstein polynomial basis,
     as proposed in Unke, Chmiela, Gastegger, Schütt, Sauceda, Müller 2021.
     SpookyNet: Learning Force Fields with Electronic Degrees of Freedom
-    and Nonlocal Effects
+    and Nonlocal Effects.
+
     Parameters
     ----------
     num_radial: int
@@ -102,6 +104,7 @@ class BernsteinBasis(torch.nn.Module):
         Initial value of exponential coefficient gamma.
         Default: gamma = 0.5 * a_0**-1 = 0.94486,
         inverse softplus -> pregamma = log e**gamma - 1 = 0.45264
+
     """
 
     def __init__(
@@ -137,8 +140,7 @@ class BernsteinBasis(torch.nn.Module):
 
 
 class RadialBasis(torch.nn.Module):
-    """
-    Parameters
+    """Parameters
     ----------
     num_radial: int
         Controls maximum frequency.
@@ -148,15 +150,20 @@ class RadialBasis(torch.nn.Module):
         Basis function and its hyperparameters.
     envelope: dict = {"name": "polynomial", "exponent": 5}
         Envelope function and its hyperparameters.
+
     """
 
     def __init__(
         self,
         num_radial: int,
         cutoff: float,
-        rbf: dict = {"name": "gaussian"},
-        envelope: dict = {"name": "polynomial", "exponent": 5},
+        rbf: Optional[dict] = None,
+        envelope: Optional[dict] = None,
     ):
+        if envelope is None:
+            envelope = {"name": "polynomial", "exponent": 5}
+        if rbf is None:
+            rbf = {"name": "gaussian"}
         super().__init__()
         self.inv_cutoff = 1 / cutoff
 
@@ -169,7 +176,8 @@ class RadialBasis(torch.nn.Module):
         elif env_name == "exponential":
             self.envelope = ExponentialEnvelope(**env_hparams)
         else:
-            raise ValueError(f"Unknown envelope function '{env_name}'.")
+            msg = f"Unknown envelope function '{env_name}'."
+            raise ValueError(msg)
 
         rbf_name = rbf["name"].lower()
         rbf_hparams = rbf.copy()
@@ -187,7 +195,8 @@ class RadialBasis(torch.nn.Module):
         elif rbf_name == "bernstein":
             self.rbf = BernsteinBasis(num_radial=num_radial, **rbf_hparams)
         else:
-            raise ValueError(f"Unknown radial basis function '{rbf_name}'.")
+            msg = f"Unknown radial basis function '{rbf_name}'."
+            raise ValueError(msg)
 
     def forward(self, d):
         d_scaled = d * self.inv_cutoff

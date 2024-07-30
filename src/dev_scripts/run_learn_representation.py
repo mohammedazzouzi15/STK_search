@@ -1,9 +1,8 @@
-from stk_search.geom3d import oligomer_encoding_with_transformer
-from stk_search.utils.config_utils import save_config, read_config
-from stk_search.geom3d import train_models
-import glob
-import os
 import argparse
+import glob
+
+from stk_search.geom3d import oligomer_encoding_with_transformer, train_models
+from stk_search.utils.config_utils import read_config, save_config
 
 
 def run_training(
@@ -36,7 +35,7 @@ def run_training(
     config["df_total"] = df_path
     config["save_dataset"] = False
     config["num_molecules"] = num_molecules
-    config["running_dir"] = running_dir + f"/SchNet_frag/"
+    config["running_dir"] = running_dir + "/SchNet_frag/"
     config["train_ratio"] = 0.8
     config["test_dataset_path"] = ""
     config["save_dataset_frag"] = True

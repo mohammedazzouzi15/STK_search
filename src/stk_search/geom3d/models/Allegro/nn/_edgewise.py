@@ -1,13 +1,11 @@
 from typing import Optional
-import math
 
 import torch
-from stk_search.geom3d.models.NequIP.utils import scatter
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.utils import scatter
 
-from .. import _keys
+from models.Allegro import _keys
 
 
 class EdgewiseReduce(GraphModuleMixin, torch.nn.Module):
@@ -22,9 +20,11 @@ class EdgewiseReduce(GraphModuleMixin, torch.nn.Module):
         normalize_edge_reduce: bool = True,
         avg_num_neighbors: Optional[float] = None,
         reduce="sum",
-        irreps_in={},
+        irreps_in=None,
     ):
         """Sum edges into nodes."""
+        if irreps_in is None:
+            irreps_in = {}
         super().__init__()
         assert reduce in ("sum", "mean", "min", "max")
         self.reduce = reduce
@@ -77,9 +77,11 @@ class EdgewiseEnergySum(GraphModuleMixin, torch.nn.Module):
         avg_num_neighbors: Optional[float] = None,
         normalize_edge_energy_sum: bool = True,
         per_edge_species_scale: bool = False,
-        irreps_in={},
+        irreps_in=None,
     ):
         """Sum edges into nodes."""
+        if irreps_in is None:
+            irreps_in = {}
         super().__init__()
         self._init_irreps(
             irreps_in=irreps_in,

@@ -1,16 +1,14 @@
-""" Interaction Block """
-from typing import Optional, Dict, Callable
+"""Interaction Block."""
+from typing import Callable, Dict, Optional
 
 import torch
-
-from stk_search.geom3d.models.NequIP.utils import scatter
-
 from e3nn import o3
 from e3nn.nn import FullyConnectedNet
-from e3nn.o3 import TensorProduct, Linear, FullyConnectedTensorProduct
-
+from e3nn.o3 import FullyConnectedTensorProduct, Linear, TensorProduct
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
+from stk_search.geom3d.models.NequIP.utils import scatter
+
 from ._graph_mixin import GraphModuleMixin
 
 
@@ -26,10 +24,9 @@ class InteractionBlock(GraphModuleMixin, torch.nn.Module):
         invariant_neurons=8,
         avg_num_neighbors=None,
         use_sc=True,
-        nonlinearity_scalars: Dict[int, Callable] = {"e": "ssp"},
+        nonlinearity_scalars: Optional[Dict[int, Callable]] = None,
     ) -> None:
-        """
-        InteractionBlock.
+        """InteractionBlock.
 
         :param irreps_node_attr: Nodes attribute irreps
         :param irreps_edge_attr: Edge attribute irreps
@@ -41,6 +38,8 @@ class InteractionBlock(GraphModuleMixin, torch.nn.Module):
         :param irreps_in: Input Features, default = None
         :param use_sc: bool, use self-connection or not
         """
+        if nonlinearity_scalars is None:
+            nonlinearity_scalars = {"e": "ssp"}
         super().__init__()
 
         self._init_irreps(
@@ -143,8 +142,7 @@ class InteractionBlock(GraphModuleMixin, torch.nn.Module):
             )
 
     def forward(self, data: AtomicDataDict.Type) -> AtomicDataDict.Type:
-        """
-        Evaluate interaction Block with ResNet (self-connection).
+        """Evaluate interaction Block with ResNet (self-connection).
 
         :param node_input:
         :param node_attr:

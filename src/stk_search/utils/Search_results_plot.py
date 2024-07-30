@@ -1,25 +1,11 @@
-import pickle
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import glob
-
-import os
-
-import numpy as np
-import matplotlib.pyplot as plt
 import pickle
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-import torch
 import seaborn as sns
-from sklearn.decomposition import PCA
-from scipy.interpolate import splrep, BSpline
-from stk_search.utils import oligomer_scaffold_split
-import pandas as pd
 from sklearn.cluster import HDBSCAN
-import glob
-import pickle
-
 
 #plt.matplotlib.style.use(
 #    "https://gist.githubusercontent.com/JonnyCBB/c464d302fefce4722fe6cf5f461114ea/raw/64a78942d3f7b4b5054902f2cee84213eaff872f/matplotlibrc"
@@ -60,18 +46,21 @@ def plot_simple_regret(
     color=search_to_color["BO"],
     label="BO",
     target_name="target",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
 ):
-    """
-    Plot the maximum value acquired up to this point
+    """Plot the maximum value acquired up to this point.
 
     Args:
+    ----
         res (list): The results of the search
         nb_iterations (int): The number of iterations
         axs (matplotlib.pyplot): The axis to plot
         color (str): The color of the plot
+
     """
+    if df_total is None:
+        df_total = []
     target_value = np.max(df_total[target_name].values)
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_max_mu = -10 * np.ones(nb_iterations)
@@ -98,7 +87,7 @@ def plot_simple_regret(
     axs.fill_between(
         nb_iterations_range,
         y_max_mu - y_max_sig_bot,
-        y_max_mu + y_max_sig_top,  #
+        y_max_mu + y_max_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -114,37 +103,39 @@ def plot_target_MFBO(
     title="",
     target_name="target",
     df_total=None,
-    colours=['blue','red','green','yellow']
-):  
-    nb_iterations = len(res[0]['fitness_acquired']) - 1
+    colours=None
+):
+    if colours is None:
+        colours = ["blue", "red", "green", "yellow"]
+    nb_iterations = len(res[0]["fitness_acquired"]) - 1
     fitness_list = res[0]["fitness_acquired"]
-    df_sample = res[0]['searched_space_df']
-    if 'fidelity' in df_sample.columns:
-        fidelities = list(dict.fromkeys(df_sample['fidelity'].values))
+    df_sample = res[0]["searched_space_df"]
+    if "fidelity" in df_sample.columns:
+        fidelities = list(dict.fromkeys(df_sample["fidelity"].values))
         fidelities.sort()
         maximum_target=[]
         for fidelity in fidelities:
             fidelity_target=[]
             fidelity_iteration=[]
-            for i in range(0, nb_iterations):
-                if (df_sample.at[i, 'fidelity'] == fidelity):
+            for i in range(nb_iterations):
+                if (df_sample.at[i, "fidelity"] == fidelity):
                     fidelity_target.append(fitness_list[i])
                     fidelity_iteration.append(i)
-            maximum_target.append(max(df_total[df_total['fidelity']==fidelity]['target']))
-            legend_text = f'Fidelity: {fidelity}'
+            maximum_target.append(max(df_total[df_total["fidelity"]==fidelity]["target"]))
+            legend_text = f"Fidelity: {fidelity}"
             axs.scatter(fidelity_iteration, fidelity_target, label=legend_text, color=colours[fidelities.index(fidelity)])
-        plt.axhline(y=maximum_target[-1], color='black', linestyle='--', label='Global Max for Best Fidelity')
+        plt.axhline(y=maximum_target[-1], color="black", linestyle="--", label="Global Max for Best Fidelity")
 
     else:
-        axs.scatter(np.arange(nb_iterations+1), fitness_list, label='Evaluated Element', color=colours[0])
-        plt.axhline(y=max(df_total['target']), color='black', linestyle='--', label='Global Maximum')
+        axs.scatter(np.arange(nb_iterations+1), fitness_list, label="Evaluated Element", color=colours[0])
+        plt.axhline(y=max(df_total["target"]), color="black", linestyle="--", label="Global Maximum")
     axs.legend(loc="lower right")
     axs.set_xlabel("Iteration Number")
     axs.set_ylabel("Target")
     axs.set_ylim([min(fitness_list)-2, 0])
     axs.set_title(title)
     return max(fitness_list)
-    
+
 def plot_inst_regret(
     res,
     nb_iterations=100,
@@ -152,18 +143,21 @@ def plot_inst_regret(
     color=search_to_color["BO"],
     label="BO",
     target_name="target",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
 ):
-    """
-    Plot the maximum value acquired up to this point
+    """Plot the maximum value acquired up to this point.
 
     Args:
+    ----
         res (list): The results of the search
         nb_iterations (int): The number of iterations
         axs (matplotlib.pyplot): The axis to plot
         color (str): The color of the plot
+
     """
+    if df_total is None:
+        df_total = []
     target_value = np.max(df_total[target_name].values)
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_max_mu = -10 * np.ones(nb_iterations)
@@ -185,7 +179,7 @@ def plot_inst_regret(
     axs.fill_between(
         nb_iterations_range,
         y_max_mu - y_max_sig_bot,
-        y_max_mu + y_max_sig_top,  #
+        y_max_mu + y_max_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -203,18 +197,21 @@ def plot_cumulative_regret(
     color=search_to_color["BO"],
     label="BO",
     target_name="target",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
 ):
-    """
-    Plot the maximum value acquired up to this point
+    """Plot the maximum value acquired up to this point.
 
     Args:
+    ----
         res (list): The results of the search
         nb_iterations (int): The number of iterations
         axs (matplotlib.pyplot): The axis to plot
         color (str): The color of the plot
+
     """
+    if df_total is None:
+        df_total = []
     target_value = np.max(df_total[target_name].values)
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_max_mu = -10 * np.ones(nb_iterations)
@@ -242,7 +239,7 @@ def plot_cumulative_regret(
     axs.fill_between(
         nb_iterations_range,
         y_max_mu - y_max_sig_bot,
-        y_max_mu + y_max_sig_top,  #
+        y_max_mu + y_max_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -259,18 +256,21 @@ def plot_y_max(
     color=search_to_color["BO"],
     label="BO",
     target_name="target",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
 ):
-    """
-    Plot the maximum value acquired up to this point
+    """Plot the maximum value acquired up to this point.
 
     Args:
+    ----
         res (list): The results of the search
         nb_iterations (int): The number of iterations
         axs (matplotlib.pyplot): The axis to plot
         color (str): The color of the plot
+
     """
+    if df_total is None:
+        df_total = []
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_max_mu = -10 * np.ones(nb_iterations)
     y_max_sig_bot = -10 * np.ones(nb_iterations)
@@ -297,7 +297,7 @@ def plot_y_max(
     axs.fill_between(
         nb_iterations_range,
         y_max_mu - y_max_sig_bot,
-        y_max_mu + y_max_sig_top,  #
+        y_max_mu + y_max_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -322,9 +322,11 @@ def plot_all_y_max(
     color=search_to_color["BO"],
     label="BO",
     target_name="target",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
 ):
+    if df_total is None:
+        df_total = []
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_maxes = np.ones((len(res), nb_iterations))
     y_max_mu = -10 * np.ones(nb_iterations)
@@ -359,7 +361,7 @@ def plot_all_y_max(
     axs.fill_between(
         nb_iterations_range,
         y_max_mu - y_max_sig_bot,
-        y_max_mu + y_max_sig_top,  #
+        y_max_mu + y_max_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -385,8 +387,10 @@ def plot_all_y_max_diff(
     label="BO",
     nb_initialisation=0,
     target_name="target",
-    df_total=[],
+    df_total=None,
 ):
+    if df_total is None:
+        df_total = []
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_maxes = np.ones((len(res), nb_iterations))
     y_max_mu = -10 * np.ones(nb_iterations)
@@ -422,7 +426,7 @@ def plot_all_y_max_diff(
     axs.fill_between(
         nb_iterations_range,
         y_max_mu - y_max_sig_bot ,
-        y_max_mu + y_max_sig_top ,  #
+        y_max_mu + y_max_sig_top ,
         alpha=0.2,
         ec="None",
         color=color,
@@ -439,10 +443,12 @@ def plot_y_mean(
     color=search_to_color["BO"],
     label="BO",
     target_name="target",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
 ):
 
+    if df_total is None:
+        df_total = []
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_mean_mu_BO = -10 * np.ones(nb_iterations)
     nb_runs = len(res)
@@ -481,10 +487,12 @@ def plot_number_of_molecule_discovered(
     axs=None,
     color=search_to_color["BO"],
     label="BO",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
     target_name="target",
-):  
+):
+    if df_total is None:
+        df_total = []
     topKmol = int(df_total.shape[0]*0.01)
     min_target = -np.sort(-df_total[target_name].values)[topKmol]
     nb_iterations_range = np.arange(nb_iterations) + 1
@@ -516,7 +524,7 @@ def plot_number_of_molecule_discovered(
     axs.fill_between(
         nb_iterations_range,
         y_elm - y_elm_sig_bot,
-        y_elm + y_elm_sig_top,  #
+        y_elm + y_elm_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -535,12 +543,14 @@ def plot_number_of_molecule_discovered_sum(
     axs=None,
     color=search_to_color["BO"],
     label="BO",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
     target_name="target",
     number_of_results=25,
     min_target=0,
-):  
+):
+    if df_total is None:
+        df_total = []
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
     df_results = pd.concat(
@@ -554,7 +564,7 @@ def plot_number_of_molecule_discovered_sum(
     )
 
     df_results["InChIKey"] = df_results["InchiKey_acquired"]
-    df_results.drop_duplicates(subset=["InChIKey"], inplace=True)
+    df_results = df_results.drop_duplicates(subset=["InChIKey"])
     df_max = df_total[df_total[target_name] > min_target].copy()
 
     df_max_found = df_max.merge(df_results, on="InChIKey", how="inner")
@@ -570,7 +580,7 @@ def plot_number_of_molecule_discovered_sum(
         ].shape[0]
     axs.plot(np.arange(nb_iterations), max_mol_found, label=label, color=color)
     axs.set_xlabel("# evaluated oligomers")
-    axs.set_ylabel(f"Number of unique top \n" + f" {topKmol} molecules found")
+    axs.set_ylabel("Number of unique top \n" + f" {topKmol} molecules found")
     return max(max_mol_found)
 
 def plot_simple_regret_batch(
@@ -580,12 +590,14 @@ def plot_simple_regret_batch(
     axs=None,
     color=search_to_color["BO"],
     label="BO",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
     target_name="target",
     number_of_results=25,
     min_target=0,
-):  
+):
+    if df_total is None:
+        df_total = []
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
     df_results = pd.concat(
@@ -599,7 +611,7 @@ def plot_simple_regret_batch(
     )
 
     df_results["InChIKey"] = df_results["InchiKey_acquired"]
-    df_results.drop_duplicates(subset=["InChIKey"], inplace=True)
+    df_results = df_results.drop_duplicates(subset=["InChIKey"])
     df_max = df_total[df_total[target_name] > min_target].copy()
 
     df_max_found = df_max.merge(df_results, on="InChIKey", how="inner")
@@ -611,7 +623,7 @@ def plot_simple_regret_batch(
         ][target_name].max() - df_max_found[target_name].max()
     axs.plot(np.arange(nb_iterations), max_mol_found, label=label, color=color)
     axs.set_xlabel("# evaluated oligomers")
-    axs.set_ylabel(f"Simple regret")
+    axs.set_ylabel("Simple regret")
     return max(max_mol_found)
 
 
@@ -622,15 +634,16 @@ def plot_total_rate_of_discovery(
     axs=None,
     color=search_to_color["BO"],
     label="BO",
-    df_total=[],
+    df_total=None,
     nb_initialisation=0,
     target_name="target",
     number_of_results=25,
     min_target=0,
 ):
+    if df_total is None:
+        df_total = []
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
-    print( 'min_target is ', min_target)
     df_results = pd.concat(
         list(
             generate_datafame_from_search_results(
@@ -641,7 +654,7 @@ def plot_total_rate_of_discovery(
         )
     )
     df_results["InChIKey"] = df_results["InchiKey_acquired"]
-    df_results.drop_duplicates(subset=["InChIKey"], inplace=True)
+    df_results = df_results.drop_duplicates(subset=["InChIKey"])
     df_max = df_total[df_total[target_name] > min_target].copy()
     df_max_found = df_max.merge(df_results, on="InChIKey", how="inner")
     df_results = df_total.merge(df_results, on="InChIKey", how="inner")
@@ -661,7 +674,7 @@ def plot_total_rate_of_discovery(
         color=color,
     )
     axs.set_xlabel("# evaluated oligomers")
-    axs.set_ylabel(f"Rate of discovery of \n top molecules for batch (%)")
+    axs.set_ylabel("Rate of discovery of \n top molecules for batch (%)")
     return max(max_mol_found / (total_found+1) * 100)
 
 
@@ -672,12 +685,14 @@ def plot_rate_of_discovery(
     axs=None,
     color="C0",
     label="BO",
-    df_total=[],
+    df_total=None,
     target_name="target",
     min_target=0,
     nb_initialisation=50,
     prop=1,
 ):
+    if df_total is None:
+        df_total = []
     topKmol = int(df_total.shape[0]*0.01)
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
@@ -703,20 +718,20 @@ def plot_rate_of_discovery(
     #y_elm_sig_bot = np.std(y_results[y_results < y_elm], axis=1)
     #y_elm_sig_top = np.std(y_results[y_results > y_elm], axis=1)
     y_elm_sig_bot = np.array([np.std(row[row < y_elm[i]]) for i, row in enumerate(y_results)])
-    y_elm_sig_top = np.array([np.std(row[row > y_elm[i]]) for i, row in enumerate(y_results)])  
+    y_elm_sig_top = np.array([np.std(row[row > y_elm[i]]) for i, row in enumerate(y_results)])
 
     nb_iterations_range = np.arange(0, nb_iterations)
     axs.plot(nb_iterations_range, y_elm, label=label, color=color)
     axs.fill_between(
         nb_iterations_range,
         y_elm - y_elm_sig_bot,
-        y_elm + y_elm_sig_top,  #
+        y_elm + y_elm_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
     )
     axs.set_xlabel("# evaluated oligomers")
-    axs.set_ylabel(f"Rate of discovery \n of top molecules (%)")
+    axs.set_ylabel("Rate of discovery \n of top molecules (%)")
     return max(y_elm)
 
 
@@ -735,7 +750,6 @@ def plot_hist_mol_found(
         )
     INchikeys_found = np.concatenate(INchikeys_found)
     df_total_found = df_total[df_total["InChIKey"].isin(INchikeys_found)]
-    print("mol_found", df_total_found.shape[0])
     df_total_found[target_name].hist(
         ax=axs,
         bins=20,
@@ -781,7 +795,7 @@ def plot_exploration_evolution(
         df_total=df_total,
         nb_initialisation=0,
     )
-    y_mean_mu_BO = plot_y_mean(
+    plot_y_mean(
         BOresults,
         nb_iterations=nb_iteration,
         axs=axs[1],
@@ -818,8 +832,6 @@ def plot_exploration_evolution(
     )
 
 
-import glob
-import pickle
 
 
 def load_search_data(search_type, date, test_name, min_eval=100):
@@ -841,19 +853,20 @@ def load_search_data(search_type, date, test_name, min_eval=100):
                 max_num_eval = max(
                     max_num_eval, len(results["fitness_acquired"])
                 )
-    print(len(BOresults), max_num_eval)
     return BOresults
 
 
 def generate_datafame_from_search_results(
     search_results, max_iteration=200, num_initialisation=0
 ):
-    """Generate a dataframe from the search results
+    """Generate a dataframe from the search results.
 
     Args:
+    ----
         search_results (list): A list of search results
         max_iteration (int): The maximum number of iterations
         num_initialisation (int): The number of initialisation
+
     """
     for dict_org in search_results:
         dict = dict_org.copy()
@@ -873,16 +886,17 @@ def get_df_max_found(
     num_initialisation=0,
     target_name="target",
 ):
-    """Get the dataframe of the maximum found molecules
+    """Get the dataframe of the maximum found molecules.
 
     Args:
+    ----
         search_results (list): The search results
         df_total (pd.DataFrame): The dataframe of the total molecules
         max_iteration (int): The maximum number of iterations
         topKmol (int): The number of top molecules
         num_initialisation (int): The number of initialisation
-    """
 
+    """
     df_results = pd.concat(
         list(
             generate_datafame_from_search_results(
@@ -893,8 +907,8 @@ def get_df_max_found(
         )
     )
     df_results["InChIKey"] = df_results["InchiKey_acquired"]
-    df_results.drop_duplicates(subset=["InChIKey"], inplace=True)
-    df_total.sort_values(target_name, inplace=True, ascending=False)
+    df_results = df_results.drop_duplicates(subset=["InChIKey"])
+    df_total = df_total.sort_values(target_name, ascending=False)
     df_max = df_total.iloc[0:topKmol]
     df_max_found = df_max.merge(df_results, on="InChIKey", how="inner")
     df_results = df_total.merge(df_results, on="InChIKey", how="inner")
@@ -909,16 +923,17 @@ def get_df_max_target_found(
     num_initialisation=0,
     target_name="target",
 ):
-    """Get the dataframe of the maximum found molecules
+    """Get the dataframe of the maximum found molecules.
 
     Args:
+    ----
         search_results (list): The search results
         df_total (pd.DataFrame): The dataframe of the total molecules
         max_iteration (int): The maximum number of iterations
         topKmol (int): The number of top molecules
         num_initialisation (int): The number of initialisation
-    """
 
+    """
     df_results = pd.concat(
         list(
             generate_datafame_from_search_results(
@@ -929,8 +944,8 @@ def get_df_max_target_found(
         )
     )
     df_results["InChIKey"] = df_results["InchiKey_acquired"]
-    df_results.drop_duplicates(subset=["InChIKey"], inplace=True)
-    df_total.sort_values(target_name, inplace=True, ascending=False)
+    df_results = df_results.drop_duplicates(subset=["InChIKey"])
+    df_total = df_total.sort_values(target_name, ascending=False)
     df_max = df_total[df_total[target_name] > min_target].copy()
     df_max_found = df_max.merge(df_results, on="InChIKey", how="inner")
     df_results = df_total.merge(df_results, on="InChIKey", how="inner")
@@ -976,7 +991,6 @@ def oligomer_cluster_plot(
         df = get_clusters(df)
     for cluster in df["Cluster"].unique():
         df_total_cluster = df[df["Cluster"] == cluster]
-        print(f"Cluster {cluster} has {df_total_cluster.shape[0]} molecules")
         df_total_cluster.hist(
             column=target_name,
             bins=100,
@@ -1029,7 +1043,6 @@ def load_search_data(search_type, date, test_name, min_eval=100):
                 max_num_eval = max(
                     max_num_eval, len(results["fitness_acquired"])
                 )
-    print(len(BOresults), max_num_eval)
     return BOresults
 
 
@@ -1069,7 +1082,7 @@ def plot_BO_results_in_space(BOresults, ax, title_label, df_rep):
         ax.set_xticklabels([])
         return cax
 
-    cax = plot_pca_space_results(
+    plot_pca_space_results(
         df_rep, df_plot_results, "target", "Morgan fingerprints"
     )
     ax.set_title(title_label)
@@ -1111,7 +1124,7 @@ def plot_df_results_in_space(pd_results, ax, title_label, df_rep):
         ax.set_xticklabels([])
         return cax
 
-    cax = plot_pca_space_results(
+    plot_pca_space_results(
         df_rep, df_plot_results, "target", "Morgan fingerprints"
     )
     ax.set_title(title_label)
@@ -1126,7 +1139,7 @@ def plot_df_max_in_space(pd_results, ax, title_label, df_rep):
 
     def plot_pca_space_results(
         df_tot_plot, df_plot_results, property_name, added_text=""
-    ):
+    ) -> None:
 
         # ax.scatter(df_all_plot_morgan['PCA1'], df_all_plot_morgan['PCA2'], c='black', s=20, alpha=0.9, label='random generation')
 
@@ -1166,7 +1179,7 @@ def plot_pca_space(df_tot_plot, property_name, added_text="", ax=None):
         cmap="viridis",
         s=1,
         alpha=0.8,
-        
+
     )
     ax.set_title(f"Chemical space , {added_text}")
 
