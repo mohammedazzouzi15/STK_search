@@ -16,9 +16,8 @@ def get_inchi_key(molecule):
 
 
 class Objective_Function:
-    """
-    Base class for objective functions
-    The objective function is the function that will be used to evaluate the fitness of the molecules in the search
+    """Base class for objective functions
+    The objective function is the function that will be used to evaluate the fitness of the molecules in the search.
 
     Functions
     ---------
@@ -29,15 +28,11 @@ class Objective_Function:
     """
 
     def __init__(self):
-        """
-        Initialises the objective function
-        """
-        pass
+        """Initialises the objective function."""
 
     def evaluate_element(self, element, multiFidelity=False):
-        """
-        Evaluates the fitness of the element
-        takes as an input a list of building blocks and returns the fitness of the element
+        """Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element.
 
         Parameters
         ----------
@@ -52,26 +47,25 @@ class Objective_Function:
             the fitness of the element
             str
             the identifier of the element
+
         """
         for x in element:
             if type(x) == int or type(x) == np.float64:
                 return float(x), "test"
+        return None
 
 
 class Look_up_table:
-    """
-    Class for look up table objective functions
-    The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database
+    """Class for look up table objective functions
+    The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database.
 
     """
 
     def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
-        """
-        Initialises the look up table objective function
+        """Initialises the look up table objective function.
 
         Parameters
         ----------
-
             df_look_up: pd.DataFrame
             the dataframe containing the look up table
             the dataframe should contain the InChIKeys of the fragments in the form of 'InChIKey_0', 'InChIKey_1', etc.
@@ -96,26 +90,25 @@ class Look_up_table:
         self.check_database()
 
     def check_database(self):
-        """
-        Checks the database
-        """
+        """Checks the database."""
         if self.df_look_up is None:
-            raise ValueError("No database found")
+            msg = "No database found"
+            raise ValueError(msg)
         if "InChIKey" not in self.df_look_up.columns:
-            raise ValueError("No InChIKey column found")
+            msg = "No InChIKey column found"
+            raise ValueError(msg)
         if self.target_name not in self.df_look_up.columns:
-            raise ValueError("No target column found")
-        if any([
-            f"InChIKey_{i}" not in self.df_look_up.columns for i in range(self.fragment_size)
-        ]):
+            msg = "No target column found"
+            raise ValueError(msg)
+        if any(f"InChIKey_{i}" not in self.df_look_up.columns for i in range(self.fragment_size)):
+            msg = "No fragment columns found or not enough fragment columns"
             raise ValueError(
-                "No fragment columns found or not enough fragment columns"
+                msg
             )
 
     def evaluate_element(self, element, multiFidelity=False):
-        """
-        Evaluates the fitness of the element
-        takes as an input a list of building blocks and returns the fitness of the element
+        """Evaluates the fitness of the element
+        takes as an input a list of building blocks and returns the fitness of the element.
 
         Parameters
         ----------
@@ -130,8 +123,8 @@ class Look_up_table:
             the fitness of the element
             str
             the identifier of the element in the form of an InChIKey
-        """
 
+        """
         columns = [f"InChIKey_{i}" for i in range(self.fragment_size)]
         if multiFidelity:
             columns.append("fidelity")
@@ -141,13 +134,12 @@ class Look_up_table:
             how="left",
         )
 
-        results.drop_duplicates(
+        results = results.drop_duplicates(
             subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
-            inplace=True,
         )
         if results[self.target_name].isna().any():
-            print("missing data")
-            raise ValueError("missing data")
+            msg = "missing data"
+            raise ValueError(msg)
         if isinstance(self.aim, (int, float)):
             target = -np.abs(results[self.target_name][0] - self.aim)
         else:
@@ -156,14 +148,13 @@ class Look_up_table:
 
 
 class IP_ES1_fosc(Objective_Function):
-    """
-    Class for the IP_ES1_fosc objective function
+    """Class for the IP_ES1_fosc objective function
     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
     the first excited state energy and the first excited state oscillator strength.
     The fitness function is defined as:
     -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
     where IP is the ionisation potential, Es1 is the first excited state energy and fosc_1 is the first excited state oscillator strength
-    Here the quantum chemical calculation are done using xtb and stda
+    Here the quantum chemical calculation are done using xtb and stda.
 
     Functions
     ---------
@@ -204,8 +195,7 @@ class IP_ES1_fosc(Objective_Function):
         collection_name=None,
         host_IP="cx1",
     ):
-        """
-        Initialises the IP_ES1_fosc objective function
+        """Initialises the IP_ES1_fosc objective function.
 
         Parameters
         ----------
@@ -229,6 +219,7 @@ class IP_ES1_fosc(Objective_Function):
             the name of the collection
             host_IP: str
             the host IP
+
         """
         self.client = client
         self.db_mol = db_mol
@@ -246,41 +237,32 @@ class IP_ES1_fosc(Objective_Function):
         self.test_xtb_stda_connection()
 
     def test_mongo_db_connection(self):
-        """
-        Tests the connection to the database
-        """
+        """Tests the connection to the database."""
         try:
             client = pymongo.MongoClient(self.client)
-            db_mol = stk.MoleculeMongoDb(
+            stk.MoleculeMongoDb(
                 client,
                 database=self.db_mol,
             )
-            print("Connection to the database successful")
-        except Exception as e:
-            print("Connection to the database failed")
-            print(e)
+        except Exception:
+            pass
 
     def test_xtb_stda_connection(self):
-        """
-        Tests the connection to xtb and stda
-        """
+        """Tests the connection to xtb and stda."""
         try:
             os.system(self.xtb_path + " --version")
             os.system(self.STDA_bin_path + " --version")
-            print("Connection to xtb and stda successful")
-        except Exception as e:
-            print("Connection to xtb and stda failed")
-            print(e)
+        except Exception:
+            pass
 
     def evaluate_element(self, element, multiFidelity=False):
-        """
-        Evaluates the fitness of the element
+        """Evaluates the fitness of the element
         takes as an input a list of building blocks and returns the fitness of the element
         The evaluation here is done by first building the polymer from the building blocks
         then running the xtb optimisation, the xtb calculation of the ionisation potential and the stda calculation of the excited state energy and oscillator strength
         The fitness function is defined as:
         -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10(fosc_1 + 1e-10)
-        where IP is the ionisation potential, Es1 is the first excited state energy and fosc_1 is the first excited state oscillator strength
+        where IP is the ionisation potential, Es1 is the first excited state energy and fosc_1 is the first excited state oscillator strength.
 
         Parameters
         ----------
@@ -295,8 +277,8 @@ class IP_ES1_fosc(Objective_Function):
             the fitness of the element
             str
             the identifier of the element in the form of an InChIKey
-        """
 
+        """
         # initialise the database
         client = pymongo.MongoClient(self.client)
         db_mol = stk.MoleculeMongoDb(
@@ -375,10 +357,9 @@ class IP_ES1_fosc(Objective_Function):
     def Build_polymer(
         self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
     ):
-        """
-        Builds the polymer from the building blocks
+        """Builds the polymer from the building blocks
         takes as an input a list of building blocks and a database containing the building blocks
-        returns the polymer
+        returns the polymer.
 
         Parameters
         ----------
@@ -391,8 +372,8 @@ class IP_ES1_fosc(Objective_Function):
         -------
             stk.ConstructedMolecule
             the polymer
-        """
 
+        """
         precursors = []
         genes = "ABCDEFGH"
         genes = genes[: self.oligomer_size]
@@ -408,7 +389,7 @@ class IP_ES1_fosc(Objective_Function):
                 mol, functional_groups=[stk.BromoFactory()]
             )
             precursors.append(bb)
-        polymer = stk.ConstructedMolecule(
+        return stk.ConstructedMolecule(
             stk.polymer.Linear(
                 building_blocks=precursors,
                 repeating_unit=repeating_unit,
@@ -416,7 +397,6 @@ class IP_ES1_fosc(Objective_Function):
                 # optimizer=stk.MCHammer()
             )
         )
-        return polymer
 
     def run_xtb_opt(
         self,
@@ -427,8 +407,7 @@ class IP_ES1_fosc(Objective_Function):
         collection="test",
         client=None,
     ):
-        """
-        Runs the xtb optimisation of the polymer
+        """Runs the xtb optimisation of the polymer.
 
         Parameters
         ----------
@@ -445,8 +424,8 @@ class IP_ES1_fosc(Objective_Function):
             client: pymongo.MongoClient
             the client
 
-            Returns
-            -------
+        Returns
+        -------
             stk.ConstructedMolecule
             the optimised polymer
 
@@ -454,9 +433,8 @@ class IP_ES1_fosc(Objective_Function):
 
         def save_xtb_opt_calculation(
             polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
-        ):
-            """
-            Saves the xtb optimisation calculation  
+        ) -> None:
+            """Saves the xtb optimisation calculation.
             
             Parameters
             ----------
@@ -473,12 +451,13 @@ class IP_ES1_fosc(Objective_Function):
             Returns
             -------
             None
+
             """
             def get_property_value(data, property_name):
                 for line in data:
                     if property_name in line:
                         if property_name == "cpu-time":
-                            property_value = (
+                            return (
                                 re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-3]
                                 + " h "
                                 + re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-2]
@@ -486,11 +465,10 @@ class IP_ES1_fosc(Objective_Function):
                                 + re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-1]
                                 + " s "
                             )
-                            return property_value
-                        property_value = float(
+                        return float(
                             re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-1]
                         )  # float(words[3]) #
-                        return property_value
+                return None
 
             polymer_xtb_opt_calc = {
                 "InChIKey": stk.InchiKey().get_key(polymer),
@@ -504,7 +482,6 @@ class IP_ES1_fosc(Objective_Function):
                 os.path.join(
                     polymer_xtb_opt_calc["cal_folder"], "optimization_1.output"
                 ),
-                "r",
                 encoding="utf8",
             )
             data = outfile.readlines()
@@ -535,9 +512,8 @@ class IP_ES1_fosc(Objective_Function):
                 client,
                 database=database,
             )
-            polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
+            return db_polymer.get({"InChIKey": get_inchi_key(polymer)})
             # print(get_inchi_key(polymer), ' opt geom already calculated')
-            return polymer
         if (
             collection.find_one({"InChIKey_initial": get_inchi_key(polymer)})
             is not None
@@ -552,8 +528,7 @@ class IP_ES1_fosc(Objective_Function):
             )
             # print(get_inchi_key(polymer), ' opt geom already calculated with old geom')
 
-            polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
-            return polymer
+            return db_polymer.get({"InChIKey": data["InChIKey"]})
         output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
         InchiKey_initial = get_inchi_key(polymer)
         xtb = stko.OptimizerSequence(
@@ -593,8 +568,7 @@ class IP_ES1_fosc(Objective_Function):
         target="ionisation potential (eV)",
         client=None,
     ):
-        """
-        Runs the xtb calculation of the ionisation potential
+        """Runs the xtb calculation of the ionisation potential.
 
         Parameters
         ----------
@@ -617,6 +591,7 @@ class IP_ES1_fosc(Objective_Function):
         -------
             float
             the ionisation potential
+
         """
         collection = client[database][collection]
         XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
@@ -665,8 +640,7 @@ class IP_ES1_fosc(Objective_Function):
         collection="test",
         client=None,
     ):
-        """
-        run XTB-stda
+        """Run XTB-stda.
 
         Parameters
         ----------
@@ -693,8 +667,8 @@ class IP_ES1_fosc(Objective_Function):
         -------
             float
             The property of interrest
+
         """
-        
         collection = client[database][collection]
         STDA_results = collection.find_one(
             {"InChIKey": get_inchi_key(polymer)}

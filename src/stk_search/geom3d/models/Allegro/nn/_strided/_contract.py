@@ -1,15 +1,13 @@
-from typing import List, Optional, Tuple
 from math import sqrt
+from typing import List, Optional, Tuple
 
 import torch
-from torch import fx
-
 from e3nn import o3
-from e3nn.util.jit import compile
-from e3nn.util import prod
 from e3nn.o3 import Instruction
-
+from e3nn.util import prod
+from e3nn.util.jit import compile
 from opt_einsum_fx import jitable, optimize_einsums_full
+from torch import fx
 
 from ._layout import StridedLayout
 from ._spmm import ExplicitGradSpmm
@@ -180,7 +178,7 @@ def codegen_strided_tensor_product_forward(
             )
         w3j = (
             w3j.to_dense()
-            .reshape(((num_paths,) if num_paths > 1 else tuple()) + kij_shape)
+            .reshape(((num_paths,) if num_paths > 1 else ()) + kij_shape)
             .contiguous()
         )
         del kij_shape
@@ -207,11 +205,11 @@ def codegen_strided_tensor_product_forward(
         if num_paths > 1:
             # ^ if there's only one weighted path, the einsum simplifies without the p dimension
             weight_label = weight_label + "p"
-            weight_shape = weight_shape + (num_paths,)
+            weight_shape = (*weight_shape, num_paths)
         if not shared_weights:
-            weight_shape = (-1,) + weight_shape
+            weight_shape = (-1, *weight_shape)
     else:
-        weight_shape = tuple()
+        weight_shape = ()
 
     # generate actual code
     graph_out = fx.Graph()
@@ -268,35 +266,34 @@ def codegen_strided_tensor_product_forward(
                 + (num_paths, layout_out.base_dim)
             )
             out = torch.einsum(f"z{uv}pk,{z}{weight_label}->z{w}k", contracted, ws_out)
+    elif sparse_mode is None:
+        # use einsum for the full contract
+        einstr = f"z{u}i,z{v}{j},{'p' if num_paths > 1 else ''}k{ij}->z{w}k"
+        out = torch.einsum(einstr, x1s_out, x2s_out, w3j_proxy)
     else:
-        if sparse_mode is None:
-            # use einsum for the full contract
-            einstr = f"z{u}i,z{v}{j},{'p' if num_paths > 1 else ''}k{ij}->z{w}k"
-            out = torch.einsum(einstr, x1s_out, x2s_out, w3j_proxy)
-        else:
-            outer = torch.einsum(f"z{u}i,z{v}{j}->z{uv}{ij}", x1s_out, x2s_out)
-            # \/ has shape [k][ij] * [ij][zuv] = [pk][zuv]
-            out = Proxy(
-                graph_out.call_module(
-                    "_w3j_mm",
-                    (
-                        outer.reshape(
-                            -1,
-                            (
-                                layout_in1.base_dim
-                                if w3j_is_ij_diagonal
-                                else layout_in1.base_dim * layout_in2.base_dim
-                            ),
-                        ).T.node,
-                    ),
-                )
-            ).T.reshape(
+        outer = torch.einsum(f"z{u}i,z{v}{j}->z{uv}{ij}", x1s_out, x2s_out)
+        # \/ has shape [k][ij] * [ij][zuv] = [pk][zuv]
+        out = Proxy(
+            graph_out.call_module(
+                "_w3j_mm",
                 (
-                    -1,
-                    layout_in1.mul,  # its only uuu for now
-                    layout_out.base_dim,
-                )
+                    outer.reshape(
+                        -1,
+                        (
+                            layout_in1.base_dim
+                            if w3j_is_ij_diagonal
+                            else layout_in1.base_dim * layout_in2.base_dim
+                        ),
+                    ).T.node,
+                ),
             )
+        ).T.reshape(
+            (
+                -1,
+                layout_in1.mul,  # its only uuu for now
+                layout_out.base_dim,
+            )
+        )
 
     graph_out.output(out.node)
 
@@ -410,7 +407,8 @@ def Contracter(
         pad_to_alignment=pad_to_alignment,
     )
     if mod is None:
-        raise ValueError("Couldn't use strided for given layout")
+        msg = "Couldn't use strided for given layout"
+        raise ValueError(msg)
     if sparse_mode is None:
         mod = compile(mod)
     return mod

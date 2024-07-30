@@ -1,12 +1,10 @@
-"""
-this script is to encode the representation of the oligomer from the representation of the fragments
-"""
+"""this script is to encode the representation of the oligomer from the representation of the fragments."""
 
 import numpy as np
-import torch
-from torch_geometric.data import Data, Batch
 import pymongo
-from pymongo import InsertOne, DeleteMany, ReplaceOne, UpdateOne
+import torch
+from pymongo import UpdateOne
+from torch_geometric.data import Data
 
 
 class Representation_3d_from_fragment:
@@ -20,15 +18,17 @@ class Representation_3d_from_fragment:
         device=None,
     ):
         """Initialise the class.
+
         Args:
+        ----
             model_encoding (torch.nn.Module): model used to encode the representation of the fragments
             df_results (pd.dataframe): table of building blocks nmaed with their InChIKey
             data (list): list of data containing the representation of the fragments
             db_poly (stk.ConstructedMoleculeMongoDb): database containing the polymers
             db_frag (stk.MoleculeMongoDb): database containing the fragments
             device (str): device to be used for the encoding
-        """
 
+        """
         if device is None:
             self.device = (
                 "cuda" if torch.cuda.is_available() else torch.device("cpu")
@@ -50,7 +50,8 @@ class Representation_3d_from_fragment:
             self.dataset = None
             self.db_poly = db_poly
         else:
-            raise ValueError("Please provide either data or db_poly")
+            msg = "Please provide either data or db_poly"
+            raise ValueError(msg)
         self.db_frag = db_frag
         self.name = "Representation_3d_from_fragment"
         self.save_dataset_path = ""
@@ -58,12 +59,14 @@ class Representation_3d_from_fragment:
 
     def generate_repr(self, elements):
         """Generate the representation of the elements.
+
         Args:
+        ----
             elements (pd.dataframe): table of building blocks nmaed with their InChIKey
         Returns:
             torch.tensor: representation of the constructed molecule
-        """
 
+        """
         elements_copy = elements.copy()
         opt_geom_encoding = []
         if self.dataset is not None:
@@ -113,11 +116,14 @@ class Representation_3d_from_fragment:
 
     def _getinfo_db(self, elements):
         """Get the information from the database.
+
         Args:
+        ----
             elements (list): list of InChIKeys
         Returns:
             list: list of data containing the representation of the fragments
             str: InChIKey of the molecule
+
         """
         frags = []
         key = ""
@@ -132,9 +138,7 @@ class Representation_3d_from_fragment:
             positions = torch.tensor(
                 positions, dtype=torch.float, device=self.device
             )
-            atom_types = list(
-                [atom.get_atomic_number() for atom in molecule_bb.get_atoms()]
-            )
+            atom_types = [atom.get_atomic_number() for atom in molecule_bb.get_atoms()]
             atom_types = torch.tensor(
                 atom_types, dtype=torch.long, device=self.device
             )
@@ -151,40 +155,45 @@ class Representation_3d_from_fragment:
 
     def _find_elem_InchiKey(self, elements):
         """Find the InChIKey of the elements.
+
         Args:
+        ----
             elements (pd.dataframe): table of building blocks nmaed with their InChIKey
         Returns:
             list: list of InChIKeys
-        """
 
+        """
         num_fragment = elements.shape[1]
         results = elements.merge(
             self.df_total,
             on=[f"InChIKey_{i}" for i in range(num_fragment)],
             how="left",
         )
-        results.drop_duplicates(
-            subset=[f"InChIKey_{i}" for i in range(num_fragment)], inplace=True
+        results = results.drop_duplicates(
+            subset=[f"InChIKey_{i}" for i in range(num_fragment)]
         )
         if results.shape[0] != elements.shape[0]:
-            print(results.shape[0], elements.shape[0])
-            raise ValueError("InChIKey not found in database")
+            msg = "InChIKey not found in database"
+            raise ValueError(msg)
 
         return results["InChIKey"].values
 
     def save_dataset_local(self):
         """Save the dataset_local."""
         if self.save_dataset_path == "":
-            print("Please provide a path to save the dataset")
+            pass
         else:
             torch.save(self.dataset_local, self.save_dataset_path)
 
     def add_representation_to_local_dataset(self, elements):
         """Add the representation to the local dataset.
+
         Args:
+        ----
             elements (pd.dataframe): table of building blocks nmaed with their InChIKey
             Returns:
             dict: dictionary containing the representation of the elements
+
         """
         df_element = elements.copy()
         client = pymongo.MongoClient("mongodb://ch-atarzia.ch.ic.ac.uk/")
@@ -192,7 +201,7 @@ class Representation_3d_from_fragment:
         collection = db[self.db_name]
         df_element["key"] = df_element.apply(lambda x: "".join(x), axis=1)
         keys = df_element["key"].to_list()
-        keys = [x for x in keys if x not in self.dataset_local.keys()]
+        keys = [x for x in keys if x not in self.dataset_local]
         for document in collection.find({"key": {"$in": keys}}):
             self.dataset_local[document["key"]] = torch.tensor(
                 document["representation"]
@@ -216,7 +225,7 @@ class Representation_3d_from_fragment:
                     },
                     upsert=True,
                 )
-                for key in local_dataset_new.keys()
+                for key in local_dataset_new
             ]
         )
         return local_dataset_new

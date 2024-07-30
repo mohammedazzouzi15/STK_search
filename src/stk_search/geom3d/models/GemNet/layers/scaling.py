@@ -1,13 +1,13 @@
-import torch
-import numpy as np
-from ..utils import read_value_json, update_json
 import logging
+
+import numpy as np
+import torch
+
+from ..utils import read_value_json, update_json
 
 
 class AutomaticFit:
-    """
-    All added variables are processed in the order of creation.
-    """
+    """All added variables are processed in the order of creation."""
 
     activeVar = None
     queue = None
@@ -43,20 +43,19 @@ class AutomaticFit:
         AutomaticFit.reset()
         AutomaticFit.fitting_mode = True
 
-    def _add2queue(self):
+    def _add2queue(self) -> None:
         logging.debug(f"Add {self._name} to queue.")
         # check that same variable is not added twice
         for var in AutomaticFit.queue:
             if self._name == var._name:
+                msg = f"Variable with the same name ({self._name}) was already added to queue!"
                 raise ValueError(
-                    f"Variable with the same name ({self._name}) was already added to queue!"
+                    msg
                 )
         AutomaticFit.queue += [self]
 
     def set_next_active(self):
-        """
-        Set the next variable in the queue that should be fitted.
-        """
+        """Set the next variable in the queue that should be fitted."""
         queue = AutomaticFit.queue
         if len(queue) == 0:
             logging.debug("Processed all variables.")
@@ -66,9 +65,7 @@ class AutomaticFit:
         AutomaticFit.activeVar = queue.pop(0)
 
     def load_maybe(self):
-        """
-        Load variable from file or set to initial value of the variable.
-        """
+        """Load variable from file or set to initial value of the variable."""
         value = read_value_json(self.scale_file, self._name)
         if value is None:
             logging.info(
@@ -82,8 +79,7 @@ class AutomaticFit:
 
 
 class AutoScaleFit(AutomaticFit):
-    """
-    Class to automatically fit the scaling factors depending on the observed variances.
+    """Class to automatically fit the scaling factors depending on the observed variances.
 
     Parameters
     ----------
@@ -91,6 +87,7 @@ class AutoScaleFit(AutomaticFit):
             Variable to fit.
         scale_file: str
             Path to the json file where to store/load from the scaling factors.
+
     """
 
     def __init__(self, variable, scale_file, name):
@@ -99,15 +96,14 @@ class AutoScaleFit(AutomaticFit):
         if not self._fitted:
             self._init_stats()
 
-    def _init_stats(self):
+    def _init_stats(self) -> None:
         self.variance_in = 0
         self.variance_out = 0
         self.nSamples = 0
 
     def observe(self, x, y):
-        """
-        Observe variances for inut x and output y.
-        The scaling factor alpha is calculated s.t. Var(alpha * y) ~ Var(x)
+        """Observe variances for inut x and output y.
+        The scaling factor alpha is calculated s.t. Var(alpha * y) ~ Var(x).
         """
         if self._fitted:
             return
@@ -120,13 +116,12 @@ class AutoScaleFit(AutomaticFit):
             self.nSamples += nSamples
 
     def fit(self):
-        """
-        Fit the scaling factor based on the observed variances.
-        """
+        """Fit the scaling factor based on the observed variances."""
         if AutomaticFit.activeVar == self:
             if self.variance_in == 0:
+                msg = f"Did not track the variable {self._name}. Add observe calls to track the variance before and after."
                 raise ValueError(
-                    f"Did not track the variable {self._name}. Add observe calls to track the variance before and after."
+                    msg
                 )
 
             # calculate variance preserving scaling factor
@@ -148,8 +143,7 @@ class AutoScaleFit(AutomaticFit):
 
 
 class ScalingFactor(torch.nn.Module):
-    """
-    Scale the output y of the layer s.t. the (mean) variance wrt. to the reference input x_ref is preserved.
+    """Scale the output y of the layer s.t. the (mean) variance wrt. to the reference input x_ref is preserved.
 
     Parameters
     ----------
@@ -157,6 +151,7 @@ class ScalingFactor(torch.nn.Module):
             Path to the json file where to store/load from the scaling factors.
         name: str
             Name of the scaling factor
+
     """
 
     def __init__(self, scale_file, name, device=None):

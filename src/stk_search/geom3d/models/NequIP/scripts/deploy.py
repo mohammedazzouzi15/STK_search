@@ -4,28 +4,25 @@ if sys.version_info[1] >= 8:
     from typing import Final
 else:
     from typing_extensions import Final
-from typing import Tuple, Dict, Union
 import argparse
-import pathlib
 import logging
-import yaml
+import pathlib
+from typing import Dict, Tuple, Union
+
+import ase.data
 
 # This is a weird hack to avoid Intel MKL issues on the cluster when this is called as a subprocess of a process that has itself initialized PyTorch.
 # Since numpy gets imported later anyway for dataset stuff, this shouldn't affect performance.
 import numpy as np  # noqa: F401
-
 import torch
-
-import ase.data
-
+import yaml
 from e3nn.util.jit import script
-
 from NequIP.model import model_from_config
+from NequIP.scripts.train import default_config
 from NequIP.train import Trainer
 from NequIP.utils import Config
-from NequIP.utils.versions import check_code_version, get_config_code_versions
-from NequIP.scripts.train import default_config
 from NequIP.utils._global_options import _set_global_options
+from NequIP.utils.versions import check_code_version, get_config_code_versions
 
 CONFIG_KEY: Final[str] = "config"
 NEQUIP_VERSION_KEY: Final[str] = "NequIP_version"
@@ -71,22 +68,27 @@ def load_deployed_model(
     r"""Load a deployed model.
 
     Args:
+    ----
         model_path: the path to the deployed model's ``.pth`` file.
 
     Returns:
+    -------
         model, metadata dictionary
+
     """
     metadata = {k: "" for k in _ALL_METADATA_KEYS}
     try:
         model = torch.jit.load(model_path, map_location=device, _extra_files=metadata)
     except RuntimeError as e:
+        msg = f"{model_path} does not seem to be a deployed NequIP model file. Did you forget to deploy it using `NequIP-deploy`? \n\n(Underlying error: {e})"
         raise ValueError(
-            f"{model_path} does not seem to be a deployed NequIP model file. Did you forget to deploy it using `NequIP-deploy`? \n\n(Underlying error: {e})"
+            msg
         )
     # Confirm NequIP made it
     if metadata[NEQUIP_VERSION_KEY] == "":
+        msg = f"{model_path} does not seem to be a deployed NequIP model file"
         raise ValueError(
-            f"{model_path} does not seem to be a deployed NequIP model file"
+            msg
         )
     # Confirm its TorchScript
     assert isinstance(model, torch.jit.ScriptModule)
@@ -172,14 +174,14 @@ def main(args=None):
         model, metadata = load_deployed_model(args.model_path, set_global_options=False)
         del model
         config = metadata.pop(CONFIG_KEY)
-        metadata_str = "\n".join("  %s: %s" % e for e in metadata.items())
+        metadata_str = "\n".join("  {}: {}".format(*e) for e in metadata.items())
         logging.info(f"Loaded TorchScript model with metadata:\n{metadata_str}\n")
         logging.info("Model was built with config:")
-        print(config)
 
     elif args.command == "build":
         if args.model and args.train_dir:
-            raise ValueError("--model and --train-dir cannot both be specified.")
+            msg = "--model and --train-dir cannot both be specified."
+            raise ValueError(msg)
         if args.train_dir is not None:
             logging.info("Loading best_model from training session...")
             config = Config.from_file(str(args.train_dir / "config.yaml"))
@@ -187,7 +189,8 @@ def main(args=None):
             logging.info("Building model from config...")
             config = Config.from_file(str(args.model), defaults=default_config)
         else:
-            raise ValueError("one of --train-dir or --model must be given")
+            msg = "one of --train-dir or --model must be given"
+            raise ValueError(msg)
 
         _set_global_options(config)
         check_code_version(config)
@@ -244,7 +247,6 @@ def main(args=None):
     else:
         raise ValueError
 
-    return
 
 
 if __name__ == "__main__":

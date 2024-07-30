@@ -2,19 +2,23 @@ from typing import Optional, Tuple
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .layers.multihead_attention import MultiheadAttention
-from .layers.transformer_m_layers import AtomFeature, MoleculeAttnBias, Molecule3DBias, AtomTaskHead
 from .layers.transformer_m_encoder_layer import TransformerMEncoderLayer
-
+from .layers.transformer_m_layers import (
+    AtomFeature,
+    AtomTaskHead,
+    Molecule3DBias,
+    MoleculeAttnBias,
+)
 from .modules import FairseqDropout, LayerDropModuleList, LayerNorm
 from .modules.quant_noise import quant_noise as apply_quant_noise_
 
 
 def init_params(module):
 
-    def normal_(data):
+    def normal_(data) -> None:
         # with FSDP, module params will be on CUDA, so we cast them back to CPU
         # so that the RNG is consistent with and without FSDP
         data.copy_(
@@ -62,7 +66,7 @@ class TransformerMEncoder(nn.Module):
         apply_init: bool = False,
         activation_fn: str = "relu",
         learned_pos_embedding: bool = True,
-        embed_scale: float = None,
+        embed_scale: Optional[float] = None,
         export: bool = False,
         traceable: bool = False,
         q_noise: float = 0.0,
@@ -90,7 +94,7 @@ class TransformerMEncoder(nn.Module):
         self.mode_prob = mode_prob
 
         try:
-            mode_prob = [float(item) for item in mode_prob.split(',')]
+            mode_prob = [float(item) for item in mode_prob.split(",")]
             assert len(mode_prob) == 3
             assert sum(mode_prob) == 1.0
         except:
@@ -221,7 +225,6 @@ class TransformerMEncoder(nn.Module):
         token_embeddings: Optional[torch.Tensor] = None,
         attn_mask: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        is_tpu = False
         # compute padding mask. This is needed for multi-head attention
 
         data_x = batched_data["x"]
@@ -234,7 +237,7 @@ class TransformerMEncoder(nn.Module):
         mask_2d = mask_3d = None
         if self.training:
             mask_choice = np.random.choice(np.arange(3), n_mol, p=self.mode_prob)
-            mask = torch.tensor([mask_dict[i] for i in mask_choice]).to(batched_data['pos'])
+            mask = torch.tensor([mask_dict[i] for i in mask_choice]).to(batched_data["pos"])
             mask_2d = mask[:, 0]
             mask_3d = mask[:, 1]
 
@@ -255,7 +258,7 @@ class TransformerMEncoder(nn.Module):
             attn_bias_3d, merged_edge_features, delta_pos = self.molecule_3d_bias(batched_data)
             if mask_3d is not None:
                 merged_edge_features, delta_pos = merged_edge_features * mask_3d[:, None, None], delta_pos * mask_3d[:, None, None, None]
-                attn_bias_3d = attn_bias_3d.masked_fill_(((attn_bias_3d != float('-inf')) * (1 - mask_3d[:, None, None, None])).bool(), 0.0)
+                attn_bias_3d = attn_bias_3d.masked_fill_(((attn_bias_3d != float("-inf")) * (1 - mask_3d[:, None, None, None])).bool(), 0.0)
             attn_bias[:, :, 1:, 1:] = attn_bias[:, :, 1:, 1:] + attn_bias_3d
             x[:, 1:, :] = x[:, 1:, :] + merged_edge_features * 0.01
 

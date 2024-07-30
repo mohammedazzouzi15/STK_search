@@ -1,9 +1,8 @@
 from typing import Optional
 
 import torch
-
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
 from stk_search.geom3d.models.NequIP.utils import Config
-from stk_search.geom3d.models.NequIP.data import AtomicDataset, AtomicDataDict
 
 
 def _add_avg_num_neighbors_helper(data):
@@ -32,10 +31,12 @@ def add_avg_num_neighbors(
     var_nn = config.get(var_nn_key, None)
     if ann == "auto":
         if not initialize:
-            raise ValueError("avg_num_neighbors = auto but initialize is False")
+            msg = "avg_num_neighbors = auto but initialize is False"
+            raise ValueError(msg)
         if dataset is None:
+            msg = "When avg_num_neighbors = auto, the dataset is required to build+initialize a model"
             raise ValueError(
-                "When avg_num_neighbors = auto, the dataset is required to build+initialize a model"
+                msg
             )
         ann, var_nn = dataset.statistics(
             fields=[_add_avg_num_neighbors_helper],
@@ -77,10 +78,12 @@ def add_avg_num_atoms(
     var_na = config.get(var_na_key, None)
     if ana == "auto":
         if not initialize:
-            raise ValueError("avg_num_atoms = auto but initialize is False")
+            msg = "avg_num_atoms = auto but initialize is False"
+            raise ValueError(msg)
         if dataset is None:
+            msg = "When avg_num_atoms = auto, the dataset is required to build+initialize a model"
             raise ValueError(
-                "When avg_num_atoms = auto, the dataset is required to build+initialize a model"
+                msg
             )
         ana, var_na = dataset.statistics(
             fields=[_add_avg_num_atoms_helper],

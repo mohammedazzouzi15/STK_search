@@ -1,20 +1,20 @@
-import numpy as np
 import os
+
+import numpy as np
 
 #os.chdir("/home/ma11115/github_folder/STK_search")
 #os.chdir("C:\\Users\\ma11115\\OneDrive - Imperial College London\\github_folder\\STK_SEARCH")
 os.chdir("/rds/general/user/ma11115/home/STK_Search/STK_search")
 # %pip install pytorch-lightning
-import pandas as pd
-from src.stk_search import Database_utils
-import torch
-from torch import nn
-import torch.nn.functional as F
 import pytorch_lightning as pl
-from torch.utils.data import Dataset, DataLoader
+import torch
+import torch.nn.functional as F
 from pytorch_lightning.loggers import WandbLogger
-import wandb
+from torch import nn
+from torch.utils.data import DataLoader
 
+import wandb
+from src.stk_search import Database_utils
 
 
 # %%
@@ -67,30 +67,30 @@ class LitAutoEncoder(pl.LightningModule):
         # training_step defines the train loop.
         loss = self._get_preds_loss_accuracy(batch)
 
-        self.log('train_loss', loss)
+        self.log("train_loss", loss)
         return loss
 
-    
+
     def validation_step(self, batch, batch_idx):
-        '''used for logging metrics'''
+        """Used for logging metrics"""
         loss = self._get_preds_loss_accuracy(batch)
 
         # Log loss and metric
-        self.log('val_loss', loss)
+        self.log("val_loss", loss)
         return loss
-    
+
     def _get_preds_loss_accuracy(self, batch):
-        '''convenience function since train/valid/test steps are similar'''
+        """Convenience function since train/valid/test steps are similar"""
         x, y = batch
         x = x.view(x.size(0), -1)
         z = self.encoder(x)
         loss = F.mse_loss(z, y)
         return loss
-    
+
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
-    
+
 
 def generate_repr(slatm_name_precursor, slatm_rpr_precursor, df_total, slatm_rpr):
     slatm_rpr_precursor = slatm_rpr_precursor[
@@ -132,7 +132,7 @@ def generate_data_loader(init_slatm_rpr, slatm_rpr_new, batch_size=100):
     validation_loader = DataLoader(val_set, batch_size=batch_size, shuffle = False)
     return train_loader, validation_loader
 
-def train_model(): 
+def train_model():
     wandb.login()
     df_total, df_precursors, slatm_rpr_precursor, slatm_name_precursor, slatm_rpr, slatm_name = load_data()
     init_slatm_rpr, slatm_rpr_new = generate_repr(slatm_name_precursor, slatm_rpr_precursor, df_total,slatm_rpr)

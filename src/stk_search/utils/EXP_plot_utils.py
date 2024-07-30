@@ -1,12 +1,17 @@
 # # post analysis of the specific experiment
+from __future__ import annotations
+
 import pickle
+from typing import TYPE_CHECKING
 
 import ipywidgets as widgets
-import pandas as pd
 from ipywidgets import (
     VBox,
     interactive,
 )
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 # plot the results of the experiment

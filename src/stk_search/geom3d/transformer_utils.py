@@ -1,15 +1,15 @@
 """Utilities for the Transformer model."""
 
 # PyTorch
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 # Standard libraries
 import math
+
 # PyTorch Lightning
 import lightning as L
 import numpy as np
+import torch
+import torch.nn.functional as F
+from torch import nn, optim
 
 
 class EncoderBlock(nn.Module):
@@ -17,10 +17,12 @@ class EncoderBlock(nn.Module):
         """EncoderBlock.
 
         Args:
+        ----
             input_dim: Dimensionality of the input
             num_heads: Number of heads to use in the attention block
             dim_feedforward: Dimensionality of the hidden layer in the MLP
             dropout: Dropout probability to use in the dropout layers
+
         """
         super().__init__()
 
@@ -49,9 +51,8 @@ class EncoderBlock(nn.Module):
         # MLP part
         linear_out = self.linear_net(x)
         x = x + self.dropout(linear_out)
-        x = self.norm2(x)
+        return self.norm2(x)
 
-        return x
 
 
 class CosineWarmupScheduler(optim.lr_scheduler._LRScheduler):
@@ -97,8 +98,10 @@ class PositionalEncoding(nn.Module):
         """Positional Encoding.
 
         Args:
+        ----
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
+
         """
         super().__init__()
 
@@ -119,8 +122,7 @@ class PositionalEncoding(nn.Module):
         self.register_buffer("pe", pe, persistent=False)
 
     def forward(self, x):
-        x = x + self.pe[:, : x.size(1)]
-        return x
+        return x + self.pe[:, : x.size(1)]
 
 
 class MultiheadAttention(nn.Module):
@@ -141,7 +143,7 @@ class MultiheadAttention(nn.Module):
 
         self._reset_parameters()
 
-    def _reset_parameters(self):
+    def _reset_parameters(self) -> None:
         # Original Transformer initialization, see PyTorch documentation
         nn.init.xavier_uniform_(self.qkv_proj.weight)
         self.qkv_proj.bias.data.fill_(0)
@@ -188,6 +190,7 @@ class TransformerPredictor(L.LightningModule):
         """TransformerPredictor.
 
         Args:
+        ----
             input_dim: Hidden dimensionality of the input
             model_dim: Hidden dimensionality to use inside the Transformer
             num_classes: Number of classes to predict per sequence element
@@ -198,12 +201,13 @@ class TransformerPredictor(L.LightningModule):
             max_iters: Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
             dropout: Dropout to apply inside the model
             input_dropout: Dropout to apply on the input features
+
         """
         super().__init__()
         self.save_hyperparameters()
         self._create_model()
 
-    def _create_model(self):
+    def _create_model(self) -> None:
         # Input dim -> Model dim
         self.input_net = nn.Sequential(
             nn.Dropout(self.hparams.input_dropout),
@@ -230,21 +234,21 @@ class TransformerPredictor(L.LightningModule):
             nn.Linear(self.hparams.model_dim, self.hparams.num_classes),
         )
         self.model_encoder = None
- 
+
     def forward(self, x, mask=None, add_positional_encoding=True):
-        """
-        Args:
+        """Args:
+        ----
             x: Input features of shape [Batch, SeqLen, input_dim]
             mask: Mask to apply on the attention outputs (optional)
             add_positional_encoding: If True, we add the positional encoding to the input.
                                       Might not be desired for some tasks.
+
         """
         x = self.input_net(x)
         if add_positional_encoding:
             x = self.positional_encoding(x)
         x = self.transformer(x, mask=mask)
-        x = self.output_net(x)
-        return x
+        return self.output_net(x)
 
     @torch.no_grad()
     def get_attention_maps(self, x, mask=None, add_positional_encoding=True):
@@ -255,8 +259,7 @@ class TransformerPredictor(L.LightningModule):
         x = self.input_net(x)
         if add_positional_encoding:
             x = self.positional_encoding(x)
-        attention_maps = self.transformer.get_attention_maps(x, mask=mask)
-        return attention_maps
+        return self.transformer.get_attention_maps(x, mask=mask)
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.hparams.lr)

@@ -1,24 +1,24 @@
-from stk_search import SearchExp
-from stk_search.Search_algorithm import Search_algorithm
-from stk_search.Search_algorithm import Bayesian_Optimisation
-from stk_search.Search_algorithm import (
-    Representation_slatm,
-    RepresentationPrecursor,
-    Represenation_3D,
-)
-from stk_search.Objective_function import Look_up_table
-import pandas as pd
-from stk_search.utils import database_utils
-from stk_search import SearchedSpace
+import pymongo
 import stk
 import torch
-import pymongo
-from stk_search.geom3d.pl_model import  Pymodel
-from stk_search.geom3d.utils.config_utils import read_config
-from stk_search.geom3d.oligomer_encoding_with_transformer import initialise_model
+from stk_search import SearchExp
 from stk_search.geom3d.models import SchNet
-from stk_search.geom3d.dataloader import load_data_frag
-from stk_search.Search_algorithm import Ea_surrogate
+from stk_search.geom3d.oligomer_encoding_with_transformer import (
+    initialise_model,
+)
+from stk_search.geom3d.pl_model import Pymodel
+from stk_search.geom3d.utils.config_utils import read_config
+from stk_search.Objective_function import Look_up_table
+from stk_search.Search_algorithm import (
+    Bayesian_Optimisation,
+    Ea_surrogate,
+    Represenation_3D,
+    Representation_slatm,
+    RepresentationPrecursor,
+    Search_algorithm,
+)
+from stk_search.utils import database_utils
+
 
 # %%
 def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",target_name="target",config_dir ="",aim=0,which_acquisition="EI",
@@ -84,11 +84,11 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
         BO.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         BO.normalise_input = False
         search_algorithm = BO
-    elif case == 'random':
+    elif case == "random":
         search_algorithm = Search_algorithm.random_search()
-    elif case == 'evolution_algorithm':
+    elif case == "evolution_algorithm":
         search_algorithm = Search_algorithm.evolution_algorithm()
-    elif case == 'ea_surrogate':
+    elif case == "ea_surrogate":
         ## load model
         ## load search algorithm
         ea_surrogate = Ea_surrogate.Ea_surrogate()
@@ -99,7 +99,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
         search_algorithm = ea_surrogate
     else:
         raise ValueError("case not recognised")
-    
+
     number_of_iterations = num_iteration
     verbose = True
     num_elem_initialisation = num_elem_initialisation
@@ -115,7 +115,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
     S_exp.benchmark = True
     S_exp.df_total = df_total
     S_exp.run_seach()
-    if case == 'graph_geom' or case == 'graph_frag' or case == 'ea_surrogate':
+    if case == "graph_geom" or case == "graph_frag" or case == "ea_surrogate":
         save_represention_dataset(config_dir,search_algorithm.Representation)
 
 
@@ -147,7 +147,7 @@ def load_representation_BO_graph_frag(config_dir,df_total):
     return Representation
 
 def load_representation_model_SUEA(config_dir,df_total):
-    config = read_config(config_dir) 
+    config = read_config(config_dir)
     representation_dir = f"{config['running_dir']}/{config['name']}" + "_frag_" + str(config["number_of_fragement"])
     data_list = torch.load( representation_dir + "/dataset_representation.pt")
     model_config = config["model"]
@@ -164,8 +164,8 @@ def load_representation_model_SUEA(config_dir,df_total):
         node_class=model_config["node_class"],
     )
     pymodel = Pymodel(model, graph_pred_linear)
-    state_dict = torch.load(config["model_embedding_chkpt"],map_location=torch.device('cpu'))
-    pymodel.load_state_dict(state_dict['state_dict'])
+    state_dict = torch.load(config["model_embedding_chkpt"],map_location=torch.device("cpu"))
+    pymodel.load_state_dict(state_dict["state_dict"])
     EncodingModel = initialise_model(config)
     ## load search algorithm
     ea_surrogate = Ea_surrogate.Ea_surrogate()

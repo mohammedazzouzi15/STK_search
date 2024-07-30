@@ -1,7 +1,8 @@
 
+from typing import Callable
+
 import torch
 import torch.nn.functional as F
-from typing import Callable
 
 
 def softmax(x, dim: int, onnx_trace: bool = False):
@@ -12,7 +13,7 @@ def softmax(x, dim: int, onnx_trace: bool = False):
 
 
 def get_activation_fn(activation: str) -> Callable:
-    """Returns the activation function corresponding to `activation`"""
+    """Returns the activation function corresponding to `activation`."""
     # from fairseq.modules import gelu, gelu_accurate
 
     if activation == "relu":
@@ -35,4 +36,5 @@ def get_activation_fn(activation: str) -> Callable:
     elif activation == "swish":
         return torch.nn.SiLU
     else:
-        raise RuntimeError("--activation-fn {} not supported".format(activation))
+        msg = f"--activation-fn {activation} not supported"
+        raise RuntimeError(msg)

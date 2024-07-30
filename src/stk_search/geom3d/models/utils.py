@@ -1,6 +1,4 @@
-"""
-Credit to https://github.com/FabianFuchsML/se3-transformer-public
-"""
+"""Credit to https://github.com/FabianFuchsML/se3-transformer-public."""
 
 import torch
 
@@ -8,8 +6,10 @@ from .from_se3cnn import utils_steerable
 
 
 def get_basis(cloned_d, max_degree):
-    """Precompute the SE(3)-equivariant weight basis, W_J^lk(x)
+    """Precompute the SE(3)-equivariant weight basis, W_J^lk(x).
+
     Args:
+    ----
         G: DGL graph instance of type dgl.DGLGraph
         max_degree: non-negative int for degree of highest feature type
     Returns:
@@ -17,6 +17,7 @@ def get_basis(cloned_d, max_degree):
         tensors of shape (batch_size, 1, 2*d_out+1, 1, 2*d_in+1, number_of_bases)
         where the 1's will later be broadcast to the number of output and input
         channels
+
     """
     with torch.no_grad():
         # Relative positional encodings (vector)

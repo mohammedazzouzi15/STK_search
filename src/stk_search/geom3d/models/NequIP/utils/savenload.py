@@ -1,23 +1,21 @@
-"""
-utilities that involve file searching and operations (i.e. save/load)
-"""
-from typing import Union, List, Tuple, Optional, Callable
-import sys
-import logging
+"""utilities that involve file searching and operations (i.e. save/load)."""
 import contextlib
 import contextvars
+import logging
+import os
+import shutil
+import sys
 import tempfile
 from pathlib import Path
-import shutil
-import os
-import yaml
+from typing import Callable, List, Optional, Tuple, Union
 
+import yaml
 
 # accumulate writes to group for renaming
 _MOVE_SET = contextvars.ContextVar("_move_set", default=None)
 
 
-def _delete_files_if_exist(paths):
+def _delete_files_if_exist(paths) -> None:
     # clean up
     # better for python 3.8 >
     if sys.version_info[1] >= 8:
@@ -30,8 +28,8 @@ def _delete_files_if_exist(paths):
                 f.unlink()
 
 
-def _process_moves(moves: List[Tuple[bool, Path, Path]]):
-    """blocking to copy (possibly across filesystems) to temp name; then atomic rename to final name"""
+def _process_moves(moves: List[Tuple[bool, Path, Path]]) -> None:
+    """Blocking to copy (possibly across filesystems) to temp name; then atomic rename to final name."""
     try:
         for _, from_name, to_name in moves:
             # blocking copy to temp file in same filesystem
@@ -57,7 +55,7 @@ if _ASYNC_ENABLED:
 
     # Because we use a queue, later writes will always (correctly)
     # overwrite earlier writes
-    def _moving_thread(queue):
+    def _moving_thread(queue) -> None:
         while True:
             moves = queue.get()
             _process_moves(moves)
@@ -65,7 +63,7 @@ if _ASYNC_ENABLED:
             logging.debug(f"Finished writing {', '.join(m[2].name for m in moves)}")
             queue.task_done()
 
-    def _submit_move(from_name, to_name, blocking: bool):
+    def _submit_move(from_name, to_name, blocking: bool) -> None:
         global _MOVE_QUEUE
         global _MOVE_THREAD
         global _MOVE_SET
@@ -80,7 +78,8 @@ if _ASYNC_ENABLED:
         # check on health of copier thread
         if not _MOVE_THREAD.is_alive():
             _MOVE_THREAD.join()  # will raise exception
-            raise RuntimeError("Writer thread failed.")
+            msg = "Writer thread failed."
+            raise RuntimeError(msg)
 
         # submit this move
         obj = (blocking, from_name, to_name)
@@ -102,7 +101,7 @@ if _ASYNC_ENABLED:
             # submit along with outermost context manager
             yield
             return
-        token = _MOVE_SET.set(list())
+        token = _MOVE_SET.set([])
         # run the saves
         yield
         _MOVE_QUEUE.put(_MOVE_SET.get())  # send it off
@@ -120,7 +119,7 @@ if _ASYNC_ENABLED:
 
 else:
 
-    def _submit_move(from_name, to_name, blocking: bool):
+    def _submit_move(from_name, to_name, blocking: bool) -> None:
         global _MOVE_SET
         obj = (blocking, from_name, to_name)
         if _MOVE_SET.get() is None:
@@ -137,7 +136,7 @@ else:
             # don't nest them
             yield
             return
-        token = _MOVE_SET.set(list())
+        token = _MOVE_SET.set([])
         yield
         _process_moves(_MOVE_SET.get())  # do it
         _MOVE_SET.reset(token)
@@ -172,7 +171,7 @@ def atomic_write(
                 yield files[0]
             else:
                 yield files
-        except:  # noqa
+        except:
             # ^ noqa cause we want to delete them no matter what if there was a failure
             # only remove them if there was an error
             _delete_files_if_exist([Path(f.name) for f in files])
@@ -186,13 +185,10 @@ def save_file(
     item,
     supported_formats: dict,
     filename: str,
-    enforced_format: str = None,
+    enforced_format: Optional[str] = None,
     blocking: bool = True,
 ):
-    """
-    Save file. It can take yaml, json, pickle, json, npz and torch save
-    """
-
+    """Save file. It can take yaml, json, pickle, json, npz and torch save."""
     # check whether folder exist
     path = os.path.dirname(os.path.realpath(filename))
     if not os.path.isdir(path):
@@ -237,18 +233,19 @@ def save_file(
 
             np.savez(write_to, item)
         else:
-            raise NotImplementedError(
+            msg = (
                 f"Output format {format} not supported:"
                 f" try from {supported_formats.keys()}"
+            )
+            raise NotImplementedError(
+                msg
             )
 
     return filename
 
 
-def load_file(supported_formats: dict, filename: str, enforced_format: str = None):
-    """
-    Load file. Current support form
-    """
+def load_file(supported_formats: dict, filename: str, enforced_format: Optional[str] = None):
+    """Load file. Current support form."""
     if enforced_format is None:
         format = match_suffix(supported_formats=supported_formats, filename=filename)
     else:
@@ -256,7 +253,8 @@ def load_file(supported_formats: dict, filename: str, enforced_format: str = Non
 
     if not os.path.isfile(filename):
         abs_path = str(Path(filename).resolve())
-        raise OSError(f"file {filename} at {abs_path} is not found")
+        msg = f"file {filename} at {abs_path} is not found"
+        raise OSError(msg)
 
     if format == "json":
         import json
@@ -282,8 +280,9 @@ def load_file(supported_formats: dict, filename: str, enforced_format: str = Non
 
         return np.load(filename, allow_pickle=True)
     else:
+        msg = f"Input format not supported:" f" try from {supported_formats.keys()}"
         raise NotImplementedError(
-            f"Input format not supported:" f" try from {supported_formats.keys()}"
+            msg
         )
 
 
@@ -292,17 +291,15 @@ def load_callable(obj: Union[str, Callable], prefix: Optional[str] = None) -> Ca
     if callable(obj):
         pass
     elif isinstance(obj, str):
-        print("obj", obj)
-        print("prefix", prefix)
-        prefix = "Geom3D.models.{}".format(prefix)
-        print("prefix", prefix)
+        prefix = f"Geom3D.models.{prefix}"
         if "." not in obj:
             # It's an unqualified name
             if prefix is not None:
                 obj = prefix + "." + obj
             else:
                 # You can't have an unqualified name without a prefix
-                raise ValueError(f"Cannot load unqualified name {obj}.")
+                msg = f"Cannot load unqualified name {obj}."
+                raise ValueError(msg)
         obj = yaml.load(f"!!python/name:{obj}", Loader=yaml.Loader)
     else:
         raise TypeError
@@ -311,20 +308,19 @@ def load_callable(obj: Union[str, Callable], prefix: Optional[str] = None) -> Ca
 
 
 def adjust_format_name(
-    supported_formats: dict, filename: str, enforced_format: str = None
+    supported_formats: dict, filename: str, enforced_format: Optional[str] = None
 ):
-    """
-    Recognize whether proper suffix is added to the filename.
-    If not, add it and return the formatted file name
+    """Recognize whether proper suffix is added to the filename.
+    If not, add it and return the formatted file name.
 
     Args:
-
+    ----
         supported_formats (dict): list of supported formats and corresponding suffix
         filename (str): initial filename
         enforced_format (str): default format
 
     Returns:
-
+    -------
         newformat (str): the chosen format
         newname (str): the adjusted filename
 
@@ -355,16 +351,15 @@ def adjust_format_name(
 
 
 def match_suffix(supported_formats: str, filename: str):
-    """
-    Recognize format based on suffix
+    """Recognize format based on suffix.
 
     Args:
-
+    ----
         supported_formats (dict): list of supported formats and corresponding suffix
         filename (str): initial filename
 
     Returns:
-
+    -------
         format (str): the recognized format
 
     """
@@ -373,8 +368,7 @@ def match_suffix(supported_formats: str, filename: str):
             for suff in suffs:
                 if filename.lower().endswith(f".{suff}"):
                     return form
-        else:
-            if filename.lower().endswith(f".{suffs}"):
-                return form
+        elif filename.lower().endswith(f".{suffs}"):
+            return form
 
-    return list(supported_formats.keys())[0]
+    return next(iter(supported_formats.keys()))

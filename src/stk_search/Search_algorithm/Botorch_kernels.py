@@ -1,10 +1,10 @@
 from botorch.models import SingleTaskGP
 from gpytorch import kernels
-from gpytorch.kernels import ScaleKernel
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import ScaleKernel
 from gpytorch.means import ConstantMean
 from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
+
 
 # We define our custom GP surrogate model using the Tanimoto kernel
 class TanimotoGP(SingleTaskGP):
@@ -12,9 +12,12 @@ class TanimotoGP(SingleTaskGP):
     Here the Surrogate model is defined using the Tanimoto kernel and is a subclass of SingleTaskGP.
 
     Args:
+    ----
         train_X (torch.tensor): training input
         train_Y (torch.tensor): training output
+
     """
+
     def __init__(self, train_X, train_Y):
         super().__init__(train_X, train_Y)
         self.mean_module = ConstantMean()
@@ -28,16 +31,16 @@ class TanimotoGP(SingleTaskGP):
 
 
 class MaternKernel(SingleTaskGP):
-
-    """
-    
-    This class is to define the surrogate model using the Matern kernel.
+    """This class is to define the surrogate model using the Matern kernel.
     Here the Surrogate model is defined using the Matern kernel from GPYtorch and is a subclass of SingleTaskGP.
 
     Args:
+    ----
         train_X (torch.tensor): training input
         train_Y (torch.tensor): training output
+
     """
+
     def __init__(self, train_X, train_Y):
         super().__init__(train_X, train_Y)
         self.mean_module = ConstantMean()
@@ -56,16 +59,17 @@ class MaternKernel(SingleTaskGP):
 
 
 class RBFKernel(SingleTaskGP):
-
-    """
-    This class is to define the surrogate model using the RBF kernel.
+    """This class is to define the surrogate model using the RBF kernel.
     
     Here the Surrogate model is defined using the RBF kernel from GPYtorch and is a subclass of SingleTaskGP.
 
     Args:
+    ----
         train_X (torch.tensor): training input
         train_Y (torch.tensor): training output
+
     """
+
     def __init__(self, train_X, train_Y):
         super().__init__(train_X, train_Y)
         self.mean_module = ConstantMean()

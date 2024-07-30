@@ -1,11 +1,10 @@
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def quant_noise(module, p, block_size):
-    """
-    Wraps modules and applies quantization noise to the weights for
+    """Wraps modules and applies quantization noise to the weights for
     subsequent quantization with Iterative Product Quantization as
     described in "Training with Quantization Noise for Extreme Model Compression"
     Args:
@@ -18,9 +17,8 @@ def quant_noise(module, p, block_size):
         - For more detail on how to quantize by blocks with convolutional weights,
           see "And the Bit Goes Down: Revisiting the Quantization of Neural Networks"
         - We implement the simplest form of noise here as stated in the paper
-          which consists in randomly dropping blocks
+          which consists in randomly dropping blocks.
     """
-
     # if no quantization noise, don't register hook
     if p <= 0:
         return module
@@ -38,18 +36,16 @@ def quant_noise(module, p, block_size):
         ), "Input features must be a multiple of block sizes"
 
     # 4D matrix
+    elif module.kernel_size == (1, 1):
+        assert (
+            module.in_channels % block_size == 0
+        ), "Input channels must be a multiple of block sizes"
+    # regular convolutions
     else:
-        # 1x1 convolutions
-        if module.kernel_size == (1, 1):
-            assert (
-                module.in_channels % block_size == 0
-            ), "Input channels must be a multiple of block sizes"
-        # regular convolutions
-        else:
-            k = module.kernel_size[0] * module.kernel_size[1]
-            assert k % block_size == 0, "Kernel size must be a multiple of block size"
+        k = module.kernel_size[0] * module.kernel_size[1]
+        assert k % block_size == 0, "Kernel size must be a multiple of block size"
 
-    def _forward_pre_hook(mod, input):
+    def _forward_pre_hook(mod, input) -> None:
         # no noise for evaluation
         if mod.training:
             if not is_conv:

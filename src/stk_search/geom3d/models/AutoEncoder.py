@@ -1,7 +1,6 @@
 import torch
-from torch import nn
 import torch.nn.functional as F
-import torch.distributions as distrib
+from torch import nn
 
 
 def L1_loss(p, z, average=True):
@@ -31,20 +30,20 @@ def cosine_similarity(p, z, average=True):
 
 class AutoEncoder(torch.nn.Module):
     def __init__(self, emb_dim, loss, detach_target, beta=1):
-        super(AutoEncoder, self).__init__()
+        super().__init__()
         self.emb_dim = emb_dim
         self.loss = loss
         self.detach_target = detach_target
         self.beta = beta
 
         self.criterion = None
-        if loss == 'l1':
+        if loss == "l1":
             self.criterion = nn.L1Loss()
             # self.criterion = L1_loss
-        elif loss == 'l2':
+        elif loss == "l2":
             self.criterion = nn.MSELoss()
             # self.criterion = L2_loss
-        elif loss == 'cosine':
+        elif loss == "cosine":
             self.criterion = cosine_similarity
 
         self.decoder = nn.Sequential(
@@ -53,7 +52,6 @@ class AutoEncoder(torch.nn.Module):
             nn.ReLU(),
             nn.Linear(self.emb_dim, self.emb_dim),
         )
-        return
 
     def forward(self, x, y):
         if self.detach_target:
@@ -62,28 +60,26 @@ class AutoEncoder(torch.nn.Module):
         z = x
         y_hat = self.decoder(z)
 
-        reconstruction_loss = self.criterion(y_hat, y)
+        return self.criterion(y_hat, y)
 
-        loss = reconstruction_loss
-        return loss
 
 
 class VariationalAutoEncoder(torch.nn.Module):
     def __init__(self, emb_dim, loss, detach_target, beta=1):
-        super(VariationalAutoEncoder, self).__init__()
+        super().__init__()
         self.emb_dim = emb_dim
         self.loss = loss
         self.detach_target = detach_target
         self.beta = beta
 
         self.criterion = None
-        if loss == 'l1':
+        if loss == "l1":
             self.criterion = nn.L1Loss()
             # self.criterion = L1_loss
-        elif loss == 'l2':
+        elif loss == "l2":
             self.criterion = nn.MSELoss()
             # self.criterion = L2_loss
-        elif loss == 'cosine':
+        elif loss == "cosine":
             self.criterion = cosine_similarity
 
         self.fc_mu = nn.Linear(self.emb_dim, self.emb_dim)
@@ -95,7 +91,6 @@ class VariationalAutoEncoder(torch.nn.Module):
             nn.ReLU(),
             nn.Linear(self.emb_dim, self.emb_dim),
         )
-        return
 
     def encode(self, x):
         mu = self.fc_mu(x)
@@ -119,6 +114,5 @@ class VariationalAutoEncoder(torch.nn.Module):
         kl_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
 
         # negative reconstruction + KL
-        loss = reconstruction_loss + self.beta * kl_loss
+        return reconstruction_loss + self.beta * kl_loss
 
-        return loss

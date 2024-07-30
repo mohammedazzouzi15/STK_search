@@ -1,11 +1,11 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 
 class AWARE(nn.Module):
     def __init__(self, emb_dim, r_prime, max_walk_len, num_layers, out_dim, use_bond=False):
-        super(AWARE, self).__init__()
+        super().__init__()
         self.r_prime = r_prime
         self.emb_dim = emb_dim
         self.num_layers = num_layers
@@ -36,9 +36,6 @@ class AWARE(nn.Module):
                 nn.SiLU(),
                 nn.Linear(self.r_prime, 1),
             )
-        print('MODEL:\n', self)
-        print()
-        return
 
     def forward(self, node_attribute_matrix, adjacent_matrix, adj_attr_matrix):
         F_1 = self.activation(self.Wv(node_attribute_matrix))  # (B, max_node, dim)
@@ -47,7 +44,7 @@ class AWARE(nn.Module):
         f_1 = torch.sum(self.activation(self.Wg(F_n)), dim=1)  # (B, dim)
         f_T = [f_1]
 
-        for n in range(self.max_walk_len - 1):
+        for _n in range(self.max_walk_len - 1):
             S = torch.bmm(self.Ww(F_n), torch.transpose(F_n, 1, 2))  # (B, max_node, max_node)
             masked_S = S.masked_fill(adjacent_matrix == 0, -1e8)
             A_S = self.softmax(masked_S)  # (B, max_node, max_node)

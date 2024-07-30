@@ -13,10 +13,9 @@ from .SO3 import irr_repr, torch_default_dtype
 
 
 def get_matrix_kernel(A, eps=1e-10):
-    """
-    Compute an orthonormal basis of the kernel (x_1, x_2, ...)
+    """Compute an orthonormal basis of the kernel (x_1, x_2, ...)
     A x_i = 0
-    scalar_product(x_i, x_j) = delta_ij
+    scalar_product(x_i, x_j) = delta_ij.
 
     :param A: matrix
     :return: matrix where each row is a basis vector of the kernel of A
@@ -24,14 +23,11 @@ def get_matrix_kernel(A, eps=1e-10):
     _u, s, v = torch.svd(A)
 
     # A = u @ torch.diag(s) @ v.t()
-    kernel = v.t()[s < eps]
-    return kernel
+    return v.t()[s < eps]
 
 
 def get_matrices_kernel(As, eps=1e-10):
-    """
-    Computes the commun kernel of all the As matrices
-    """
+    """Computes the commun kernel of all the As matrices."""
     return get_matrix_kernel(torch.cat(As, dim=0), eps)
 
 
@@ -39,8 +35,7 @@ def get_matrices_kernel(As, eps=1e-10):
 def _basis_transformation_Q_J(
     J, order_in, order_out, version=3
 ):  # pylint: disable=W0613
-    """
-    :param J: order of the spherical harmonics
+    """:param J: order of the spherical harmonics
     :param order_in: order of the input representation
     :param order_out: order of the output representation
     :return: one part of the Q^-1 matrix of the article
@@ -51,7 +46,7 @@ def _basis_transformation_Q_J(
             return kron(irr_repr(order_out, a, b, c), irr_repr(order_in, a, b, c))
 
         def _sylvester_submatrix(J, a, b, c):
-            """generate Kronecker product matrix for solving the Sylvester equation in subspace J"""
+            """Generate Kronecker product matrix for solving the Sylvester equation in subspace J."""
             R_tensor = _R_tensor(a, b, c)  # [m_out * m_in, m_out * m_in]
             R_irrep_J = irr_repr(J, a, b, c)  # [m, m]
             return kron(R_tensor, torch.eye(R_irrep_J.size(0))) - kron(
@@ -206,9 +201,8 @@ def test_coordinate_conversion():
 
 
 def spherical_harmonics(order, alpha, beta, dtype=None):
-    """
-    spherical harmonics
-    - compatible with irr_repr and compose
+    """Spherical harmonics
+    - compatible with irr_repr and compose.
 
     computation time: excecuting 1000 times with array length 1 took 0.29 seconds;
     executing it once with array of length 1000 took 0.0022 seconds
@@ -221,8 +215,7 @@ def spherical_harmonics(order, alpha, beta, dtype=None):
 
 # @profile
 def kron(a, b):
-    """
-    A part of the pylabyk library: numpytorch.py at https://github.com/yulkang/pylabyk
+    """A part of the pylabyk library: numpytorch.py at https://github.com/yulkang/pylabyk.
 
     Kronecker product of matrices a and b with leading batch dimensions.
     Batch dimensions are broadcast. The number of them mush
@@ -237,9 +230,8 @@ def kron(a, b):
 
 
 def get_maximum_order_unary_only(per_layer_orders_and_multiplicities):
-    """
-    determine what spherical harmonics we need to pre-compute. if we have the
-    unary term only, we need to compare all adjacent layers
+    """Determine what spherical harmonics we need to pre-compute. if we have the
+    unary term only, we need to compare all adjacent layers.
 
     the spherical harmonics function depends on J (irrep order) purely, which is dedfined by
     order_irreps = list(range(abs(order_in - order_out), order_in + order_out + 1))
@@ -249,7 +241,6 @@ def get_maximum_order_unary_only(per_layer_orders_and_multiplicities):
     :param per_layer_orders_and_multiplicities: nested list of lists of 2-tuples
     :return: integer indicating maximum order J
     """
-
     n_layers = len(per_layer_orders_and_multiplicities)
 
     # extract orders only
@@ -270,9 +261,8 @@ def get_maximum_order_unary_only(per_layer_orders_and_multiplicities):
 
 
 def get_maximum_order_with_pairwise(per_layer_orders_and_multiplicities):
-    """
-    determine what spherical harmonics we need to pre-compute. for pairwise
-    interactions, this will just be twice the maximum order
+    """Determine what spherical harmonics we need to pre-compute. for pairwise
+    interactions, this will just be twice the maximum order.
 
     the spherical harmonics function depends on J (irrep order) purely, which is defined by
     order_irreps = list(range(abs(order_in - order_out), order_in + order_out + 1))
@@ -282,7 +272,6 @@ def get_maximum_order_with_pairwise(per_layer_orders_and_multiplicities):
     :param per_layer_orders_and_multiplicities: nested list of lists of 2-tuples
     :return: integer indicating maximum order J
     """
-
     n_layers = len(per_layer_orders_and_multiplicities)
 
     track_max = 0
@@ -290,21 +279,18 @@ def get_maximum_order_with_pairwise(per_layer_orders_and_multiplicities):
         cur = per_layer_orders_and_multiplicities[i]
         # extract orders only
         orders = [o for (m, o) in cur]
-        track_max = max(track_max, max(orders))
+        track_max = max(track_max, *orders)
 
     return 2 * track_max
 
 
 def precompute_sh(r_ij, max_J):
-    """
-    pre-comput spherical harmonics up to order max_J
+    """pre-comput spherical harmonics up to order max_J.
 
     :param r_ij: relative positions
     :param max_J: maximum order used in entire network
     :return: dict where each entry has shape [B,N,K,2J+1]
     """
-
-    i_distance = 0
     i_alpha = 1
     i_beta = 2
 
@@ -324,8 +310,7 @@ def precompute_sh(r_ij, max_J):
 
 class ScalarActivation3rdDim(torch.nn.Module):
     def __init__(self, n_dim, activation, bias=True):
-        """
-        Can be used only with scalar fields [B, N, s] on last dimension
+        """Can be used only with scalar fields [B, N, s] on last dimension.
 
         :param n_dim: number of scalar fields to apply activation to
         :param bool bias: add a bias before the applying the activation
@@ -340,16 +325,12 @@ class ScalarActivation3rdDim(torch.nn.Module):
             self.bias = None
 
     def forward(self, input):
-        """
-        :param input: [B, N, s]
-        """
-
+        """:param input: [B, N, s]"""
         assert len(np.array(input.shape)) == 3
 
         if self.bias is not None:
             x = input + self.bias.view(1, 1, -1)
         else:
             x = input
-        x = self.activation(x)
+        return self.activation(x)
 
-        return x

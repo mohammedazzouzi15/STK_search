@@ -1,28 +1,31 @@
-from stk_search import SearchExp
-from stk_search.Search_algorithm import Search_algorithm
-from stk_search.Search_algorithm import BayesianOptimisation
-from stk_search.Search_algorithm import MultifidelityBayesianOptimisation
-from stk_search.Representation import (
-    Representation_from_fragment,
-    Representation_3d_from_fragment,
-)
-from stk_search.Objective_function import IP_ES1_fosc, Look_up_table
+import json
+import os
+import pickle
+import subprocess
+
+import numpy as np
 import pandas as pd
+import pymongo
 import stk
 import torch
-import pymongo
-from stk_search.geom3d.pl_model import Pymodel
-from stk_search.utils.config_utils import read_config
+from stk_search import SearchExp
+from stk_search.geom3d.models import SchNet
 from stk_search.geom3d.oligomer_encoding_with_transformer import (
     initialise_model,
 )
-from stk_search.geom3d.models import SchNet
-from stk_search.Search_algorithm import Ea_surrogate
-import os
-import numpy as np
-import subprocess
-import json
-import pickle
+from stk_search.geom3d.pl_model import Pymodel
+from stk_search.Objective_function import IP_ES1_fosc, Look_up_table
+from stk_search.Representation import (
+    Representation_3d_from_fragment,
+    Representation_from_fragment,
+)
+from stk_search.Search_algorithm import (
+    BayesianOptimisation,
+    Ea_surrogate,
+    MultifidelityBayesianOptimisation,
+    Search_algorithm,
+)
+from stk_search.utils.config_utils import read_config
 
 
 # %%
@@ -346,9 +349,10 @@ def load_representation_model(config_dir):
             path to the config file
             Returns:
             representation: Representation_poly_3d
-            pymodel: Pymodel"""
-    from stk_search.Representation import Representation_poly_3d
+    pymodel: Pymodel
+    """
     from stk_search.geom3d import pl_model
+    from stk_search.Representation import Representation_poly_3d
 
     config = read_config(config_dir)
     chkpt_path = config["model_embedding_chkpt"]

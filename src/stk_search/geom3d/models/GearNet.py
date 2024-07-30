@@ -3,9 +3,7 @@ from collections.abc import Sequence
 
 import torch
 from torch import nn
-from torch.nn import functional as F
 from torch_scatter import scatter_add
-
 
 from .GearNet_layer import GeometricRelationalGraphConv, SpatialLineGraph
 
@@ -13,13 +11,13 @@ from .GearNet_layer import GeometricRelationalGraphConv, SpatialLineGraph
 class GearNet(nn.Module):
     def __init__(self, input_dim, hidden_dims, num_relation, edge_input_dim=None, num_angle_bin=None,
                  short_cut=False, batch_norm=False, activation="relu", concat_hidden=False, readout="sum"):
-        super(GearNet, self).__init__()
+        super().__init__()
 
         if not isinstance(hidden_dims, Sequence):
             hidden_dims = [hidden_dims]
         self.input_dim = input_dim
         self.output_dim = sum(hidden_dims) if concat_hidden else hidden_dims[-1]
-        self.dims = [input_dim] + list(hidden_dims)
+        self.dims = [input_dim, *list(hidden_dims)]
         self.edge_dims = [edge_input_dim] + self.dims[:-1]
         self.num_relation = num_relation
         self.num_angle_bin = num_angle_bin
@@ -48,7 +46,8 @@ class GearNet(nn.Module):
         elif readout == "mean":
             self.readout = scatter_mean
         else:
-            raise ValueError("Unknown readout `%s`" % readout)
+            msg = f"Unknown readout `{readout}`"
+            raise ValueError(msg)
 
     def forward(self, graph, input, all_loss=None, metric=None):
         hiddens = []
@@ -81,7 +80,7 @@ class GearNet(nn.Module):
             node_feature = torch.cat(hiddens, dim=-1)
         else:
             node_feature = hiddens[-1]
-        
+
         graph_feature = self.readout(node_feature, graph.node2graph, dim=0)
 
         return {

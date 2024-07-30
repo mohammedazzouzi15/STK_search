@@ -1,18 +1,16 @@
 # class to setup and run a search experiment
 import os
 import pickle
+import uuid
 from datetime import datetime
-from stk_search.SearchSpace import SearchSpace
 
 # from Scripts.Search_algorithm import Search_Algorithm
 from stk_search.Objective_function import Objective_Function
-import uuid
+from stk_search.SearchSpace import SearchSpace
 
 
 class SearchExp:
-
-    """
-    Class to setup and run a search experiment
+    """Class to setup and run a search experiment.
 
     Parameters
     ----------
@@ -95,6 +93,7 @@ class SearchExp:
 
 
     """
+
     def __init__(
         self,
         searchspace: SearchSpace,
@@ -127,16 +126,16 @@ class SearchExp:
 
 
     def run_seach(self):
-        """
-        Run the search experiment
+        """Run the search experiment
         the search experiment will initialise the search space, get the initial elements, evaluate the elements, \
             run the search algorithm and suggest the next element to evaluate
-            for the moment we cannot rerun a same search experiment
+            for the moment we cannot rerun a same search experiment.
             
-            Returns
-            -------
+        Returns
+        -------
             results_dict : dict
                 The results of the search experiment    
+
         """
         # get initial elements
         if self.ids_acquired ==[]:
@@ -152,7 +151,8 @@ class SearchExp:
             if (self.search_algorithm.budget is not None) and (
                 self.search_algorithm.budget < 0
             ):
-                raise Exception("Budget exhausted by Initial Sample")
+                msg = "Budget exhausted by Initial Sample"
+                raise Exception(msg)
 
             self.df_search_space = df_search_space
             for id in range(len(ids_acquired)):
@@ -162,12 +162,10 @@ class SearchExp:
                     objective_function=self.objective_function,
                 )
             if self.verbose:
-                print(f"max fitness acquired: {max(self.fitness_acquired)}")
-                print(f"min fitness acquired: {min(self.fitness_acquired)}")
+                pass
         # run the search
         number_of_iterations_run = len(self.ids_acquired)-self.num_elem_initialisation
         if number_of_iterations_run > self.number_of_iterations:
-            print( ' number of iteration max already run')
             return None
         for id in range(number_of_iterations_run, self.number_of_iterations):
             # suggest the next element
@@ -198,20 +196,16 @@ class SearchExp:
             # save the results
             self.save_results()
             if self.verbose:
-                print(f"iteration {id} completed")
-                print(f"max fitness acquired: {max(self.fitness_acquired)}")
-                print(f"min fitness acquired: {min(self.fitness_acquired)}")
                 # print(f"ids acquired: {self.ids_acquired}")
-                print(f"new fitness acquired: {self.fitness_acquired[-1]}")
+                pass
         # save the results
-        results_dict = self.save_results()
-        return results_dict
+        return self.save_results()
 
     def evaluate_element(
         self,
         element_id: int,
         objective_function: Objective_Function = None,
-    ):  
+    ):
         # get the element
         element = self.df_search_space.loc[[element_id], :]
         time_calc = datetime.now()
@@ -222,12 +216,11 @@ class SearchExp:
                 multiFidelity=self.search_algorithm.multiFidelity,
             )
             if self.verbose:
-                print(f"element Inchikey suggested: {InchiKey}, Eval: {Eval}")
+                pass
             if self.search_algorithm.multiFidelity:
-                print(f"fitness suggested: {element['fidelity']}")
+                pass
             if Eval is None:
                 self.bad_ids.append(element_id)
-                print(f"element {element_id} failed")
 
                 return None, None
             self.fitness_acquired.append(Eval)
@@ -236,15 +229,13 @@ class SearchExp:
             self.time_calc.append(datetime.now() - time_calc)
             self.overall_time.append(datetime.now())
             return Eval, InchiKey
-        except Exception as e:
+        except Exception:
             self.bad_ids.append(element_id)
-            print(f"element {element_id} failed")
-            print(e)
             return None, None
 
     def save_search_experiment(self):
         # save the search experiment
-        time_now = datetime.now().strftime("%Y%m%d_%H%M%S")
+        datetime.now().strftime("%Y%m%d_%H%M%S")
         date_now = datetime.now().strftime("%Y%m%d")
         os.makedirs(self.output_folder + f"/{date_now}", exist_ok=True)
         with open(

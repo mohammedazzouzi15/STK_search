@@ -9,10 +9,15 @@
 from typing import Callable, Optional
 
 import torch
-import torch.nn as nn
+from stk_search.geom3d.models.TransformerM.modules import (
+    FairseqDropout,
+    LayerNorm,
+    quant_noise,
+    utils,
+)
+from torch import nn
 
 from .multihead_attention import MultiheadAttention
-from stk_search.geom3d.models.TransformerM.modules import FairseqDropout, LayerNorm, quant_noise, utils
 
 
 class GraphormerGraphEncoderLayer(nn.Module):
@@ -28,7 +33,7 @@ class GraphormerGraphEncoderLayer(nn.Module):
         export: bool = False,
         q_noise: float = 0.0,
         qn_block_size: int = 8,
-        init_fn: Callable = None,
+        init_fn: Optional[Callable] = None,
         pre_layernorm: bool = False,
     ) -> None:
         super().__init__()
@@ -112,8 +117,7 @@ class GraphormerGraphEncoderLayer(nn.Module):
         self_attn_mask: Optional[torch.Tensor] = None,
         self_attn_padding_mask: Optional[torch.Tensor] = None,
     ):
-        """
-        LayerNorm is applied either before or after the self-attention/ffn
+        """LayerNorm is applied either before or after the self-attention/ffn
         modules similar to the original Transformer implementation.
         """
         # x: T x B x C

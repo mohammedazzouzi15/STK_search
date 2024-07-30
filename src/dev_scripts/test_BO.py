@@ -1,23 +1,18 @@
-import numpy as np
-import os
 import pandas as pd
-from stk_search.utils import database_utils
+import torch
 from botorch.models.gp_regression import SingleTaskGP
-from stk_search.tanimoto_kernel import TanimotoKernel
+from gpytorch import kernels
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import ScaleKernel
 from gpytorch.likelihoods import GaussianLikelihood
 from gpytorch.means import ConstantMean
-from gpytorch import kernels
+from sklearn.decomposition import PCA
 from stk_search.Search_algorithm import (
+    Bayesian_Optimisation,
     Representation_slatm,
     RepresentationPrecursor,
 )
-from stk_search.Search_algorithm import Bayesian_Optimisation
-from stk_search import SearchedSpace
-from sklearn.decomposition import PCA
-
-import torch
+from stk_search.utils import database_utils
 
 
 # %%
@@ -36,7 +31,7 @@ def load_data():
     )
     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
     fitness_acquired = searched_space_df["target"].values
-    searched_space_df_InChIKey = searched_space_df[['InChIKey']]
+    searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
     searched_space_df = searched_space_df[[f"InChIKey_{x}" for x in range(6)]]
     return df_total, df_precursors, searched_space_df, fitness_acquired, searched_space_df_InChIKey
 
@@ -116,7 +111,7 @@ def run_training_BO_torch(
         torch.tensor(data["y_train"], dtype=torch.float64),
         data["X_test"],
         torch.tensor(data["y_test"], dtype=torch.float64),
-        data['y_scaler'],
+        data["y_scaler"],
     )
     fig_name = (
         f"pca{pca_N}_{case}_trainsize_"
@@ -194,10 +189,10 @@ def run_training_gpytorch(
     y_pred = posterior_test.mean.cpu()
     y_pred_train = posterior_train.mean.cpu()
     y_var = posterior_test.variance.cpu()
-    y_pred = data['y_scaler'].inverse_transform(y_pred)
-    y_pred_train = data['y_scaler'].inverse_transform(y_pred_train)
-    y_test = data['y_scaler'].inverse_transform(y_test)
-    y_train = data['y_scaler'].inverse_transform(y_train)
+    y_pred = data["y_scaler"].inverse_transform(y_pred)
+    y_pred_train = data["y_scaler"].inverse_transform(y_pred_train)
+    y_test = data["y_scaler"].inverse_transform(y_test)
+    y_train = data["y_scaler"].inverse_transform(y_train)
     scores_test, scores_train = BO.plot_prediction(
         y_pred,
         y_test,
@@ -213,12 +208,7 @@ def run_training_gpytorch(
 
 
 def prepare_data(case, X_train, X_test,PCA_n=100):
-    if case == "slatm":
-        pca = PCA(n_components=PCA_n)
-        pca.fit(X_test[:5000])
-        X_train = pca.transform(X_train)
-        X_test = pca.transform(X_test)
-    elif case == "slatm_org":
+    if case == "slatm" or case == "slatm_org":
         pca = PCA(n_components=PCA_n)
         pca.fit(X_test[:5000])
         X_train = pca.transform(X_train)
@@ -258,7 +248,7 @@ def run_full_test():
         y_explored = torch.tensor(
             fitness_acquired, dtype=torch.float32, device=BO.device
         )
-        
+
         for test_set_size in [0.995, 0.99, 0.98]:  # ,0.99,0.98]:
 
             (
@@ -283,7 +273,7 @@ def run_full_test():
                 }
                 for kernel_name in [
                     kernels.MaternKernel(),
-                
+
                 ]: #kernels.RBFKernel(), TanimotoKernel(),
                     test_model_dict, count = run_training_BO_torch(
                         BO, kernel_name, test_model_dict, count,searched_space_df,test_set_size, case, data,pca_N

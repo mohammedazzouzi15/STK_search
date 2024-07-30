@@ -70,6 +70,10 @@ documentation = "https://stk_search.readthedocs.io"
 line-length = 79
 extend-select = ["I"]
 
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["ANN101", "ANN401", "COM812", "ISC001","ANN001","ANN201","E501","ANN204","W"]
+extend-unsafe-fixes = ["N"]
 [tool.black]
 line-length = 79
 

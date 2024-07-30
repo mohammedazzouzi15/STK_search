@@ -1,11 +1,10 @@
 import torch
 import torch.nn.functional
-
 from e3nn.o3 import Irreps
 from e3nn.util.jit import compile_mode
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
-from .._graph_mixin import GraphModuleMixin
+
+from models.NequIP.nn._graph_mixin import GraphModuleMixin
 
 
 @compile_mode("script")
@@ -13,7 +12,9 @@ class OneHotAtomEncoding(GraphModuleMixin, torch.nn.Module):
     """Copmute a one-hot floating point encoding of atoms' discrete atom types.
 
     Args:
+    ----
         set_features: If ``True`` (default), ``node_features`` will be set in addition to ``node_attrs``.
+
     """
 
     num_types: int

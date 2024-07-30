@@ -1,11 +1,10 @@
-"""
-Class to holde a bunch of hyperparameters associate with either training or a model.
+"""Class to holde a bunch of hyperparameters associate with either training or a model.
 
 The interface is inteneded to be as close to the wandb.config class as possible. But it does not have any locked
 entries as in wandb.config
 
-Examples:
-
+Examples
+--------
     Initialization
     ```
     config = Config()
@@ -35,14 +34,16 @@ Examples:
 
 """
 import inspect
-
 from copy import deepcopy
 from typing import Optional
 
-from stk_search.geom3d.models.NequIP.utils.savenload import save_file, load_file
+from stk_search.geom3d.models.NequIP.utils.savenload import (
+    load_file,
+    save_file,
+)
 
 
-class Config(object):
+class Config:
     def __init__(
         self,
         config: Optional[dict] = None,
@@ -50,9 +51,9 @@ class Config(object):
         exclude_keys: Optional[list] = None,
     ):
 
-        object.__setattr__(self, "_items", dict())
-        object.__setattr__(self, "_item_types", dict())
-        object.__setattr__(self, "_allow_list", list())
+        object.__setattr__(self, "_items", {})
+        object.__setattr__(self, "_item_types", {})
+        object.__setattr__(self, "_allow_list", [])
         object.__setattr__(self, "_allow_all", True)
 
         if allow_list is not None:
@@ -88,23 +89,23 @@ class Config(object):
 
             key: name of the variable
         """
-
         return self._item_types.get(key, None)
 
     def set_type(self, key, typehint):
-        """set typehint for a variable
+        """Set typehint for a variable.
 
         Args:
-
+        ----
             key: name of the variable
             typehint: type of the variable
-        """
 
+        """
         self._item_types[key] = typehint
 
-    def add_allow_list(self, keys, default_values={}):
-        """add key to allow_list"""
-
+    def add_allow_list(self, keys, default_values=None):
+        """Add key to allow_list."""
+        if default_values is None:
+            default_values = {}
         object.__setattr__(self, "_allow_all", False)
         object.__setattr__(
             self, "_allow_list", list(set(self._allow_list).union(set(keys)))
@@ -124,6 +125,7 @@ class Config(object):
                 return None
 
             self._item_types[k] = val
+            return None
 
         # normal value
         else:
@@ -137,9 +139,12 @@ class Config(object):
             try:
                 val = typehint(val) if typehint is not None else val
             except Exception:
-                raise TypeError(
+                msg = (
                     f"Wrong Type: Parameter {key} should be {typehint} type."
                     f"But {type(val)} is given"
+                )
+                raise TypeError(
+                    msg
                 )
 
             self._items[key] = deepcopy(val)
@@ -165,20 +170,20 @@ class Config(object):
         prefix: str,
         allow_val_change=None,
     ):
-        """Mock of wandb.config function
+        """Mock of wandb.config function.
 
         Add a dictionary of parameters to the
         The key of the parameter cannot be started as "_"
 
         Args:
-
+        ----
             dictionary (dict): dictionary of parameters and their typehint to update
             allow_val_change (None): mock for wandb.config, not used.
 
         Returns:
+        -------
 
         """
-
         # override with prefix
         l_prefix = len(prefix) + 1
         prefix_dict = {
@@ -197,21 +202,21 @@ class Config(object):
         return keys
 
     def update(self, dictionary: dict, allow_val_change=None):
-        """Mock of wandb.config function
+        """Mock of wandb.config function.
 
         Add a dictionary of parameters to the config
         The key of the parameter cannot be started as "_"
 
         Args:
-
+        ----
             dictionary (dict): dictionary of parameters and their typehint to update
             allow_val_change (None): mock for wandb.config, not used.
 
         Returns:
+        -------
             keys (set): set of keys being udpated
 
         """
-
         keys = []
 
         # first log in all typehints or hidden variables
@@ -224,26 +229,22 @@ class Config(object):
             if not k.startswith("_"):
                 keys += [self.__setitem__(k, value)]
 
-        return set(keys) - set([None])
+        return set(keys) - {None}
 
     def get(self, *args):
         return self._items.get(*args)
 
     def persist(self):
-        """mock wandb.config function"""
-        pass
+        """Mock wandb.config function."""
 
     def setdefaults(self, d):
-        """mock wandb.config function"""
-        pass
+        """Mock wandb.config function."""
 
     def update_locked(self, d, user=None):
-        """mock wandb.config function"""
-        pass
+        """Mock wandb.config function."""
 
     def save(self, filename: str, format: Optional[str] = None):
         """Print config to file."""
-
         supported_formats = {"yaml": ("yml", "yaml"), "json": "json"}
         return save_file(
             item=dict(self),
@@ -253,9 +254,10 @@ class Config(object):
         )
 
     @staticmethod
-    def from_file(filename: str, format: Optional[str] = None, defaults: dict = {}):
-        """Load arguments from file"""
-
+    def from_file(filename: str, format: Optional[str] = None, defaults: Optional[dict] = None):
+        """Load arguments from file."""
+        if defaults is None:
+            defaults = {}
         supported_formats = {"yaml": ("yml", "yaml"), "json": "json"}
         dictionary = load_file(
             supported_formats=supported_formats,
@@ -265,25 +267,27 @@ class Config(object):
         return Config.from_dict(dictionary, defaults)
 
     @staticmethod
-    def from_dict(dictionary: dict, defaults: dict = {}):
+    def from_dict(dictionary: dict, defaults: Optional[dict] = None):
+        if defaults is None:
+            defaults = {}
         c = Config(defaults)
         c.update(dictionary)
         return c
 
     @staticmethod
     def from_class(class_type, remove_kwargs: bool = False):
-        """return Config class instance based on init function of the input class
+        """Return Config class instance based on init function of the input class
         the instance will only allow to store init function related variables
-        the type hints are all set to None, so no automatic format conversion is applied
+        the type hints are all set to None, so no automatic format conversion is applied.
 
         class_type: torch.module children class type, i.e. .NequIP.Nequip
         remove_kwargs (optional, bool): the same as Config.from_function
 
-        Returns:
-
+        Returns
+        -------
         config (Config):
-        """
 
+        """
         if inspect.isclass(class_type):
             return Config.from_function(
                 class_type.__init__, remove_kwargs=remove_kwargs
@@ -291,18 +295,19 @@ class Config(object):
         elif callable(class_type):
             return Config.from_function(class_type, remove_kwargs=remove_kwargs)
         else:
+            msg = f"from_class only takes class type or callable, but got {class_type}"
             raise ValueError(
-                f"from_class only takes class type or callable, but got {class_type}"
+                msg
             )
 
     @staticmethod
     def from_function(function, remove_kwargs=False):
-        """return Config class instance based on the function of the input class
+        """Return Config class instance based on the function of the input class
         the instance will only allow to store init function related variables
-        the type hints are all set to None, so no automatic format conversion is applied
+        the type hints are all set to None, so no automatic format conversion is applied.
 
         Args:
-
+        ----
         function: function name
         remove_kwargs (optional, bool): if True, kwargs are removed from the keys
              and the returned instance will only takes the init params of the class_type.
@@ -310,10 +315,10 @@ class Config(object):
              but it can take any other keys
 
         Returns:
-
+        -------
         config (Config):
-        """
 
+        """
         sig = inspect.signature(function)
 
         default_params = {

@@ -1,10 +1,10 @@
 import torch
+
 from ..initializers import he_orthogonal_init
 
 
 class Dense(torch.nn.Module):
-    """
-    Combines dense layer and scaling for swish activation.
+    """Combines dense layer and scaling for swish activation.
 
     Parameters
     ----------
@@ -14,6 +14,7 @@ class Dense(torch.nn.Module):
             Name of the activation function to use.
         bias: bool
             True if use bias.
+
     """
 
     def __init__(
@@ -33,8 +34,9 @@ class Dense(torch.nn.Module):
         elif activation is None:
             self._activation = torch.nn.Identity()
         else:
+            msg = "Activation function not implemented for GemNet (yet)."
             raise NotImplementedError(
-                "Activation function not implemented for GemNet (yet)."
+                msg
             )
 
     def reset_parameters(self):
@@ -44,8 +46,7 @@ class Dense(torch.nn.Module):
 
     def forward(self, x):
         x = self.linear(x)
-        x = self._activation(x)
-        return x
+        return self._activation(x)
 
 
 class ScaledSiLU(torch.nn.Module):
@@ -59,8 +60,7 @@ class ScaledSiLU(torch.nn.Module):
 
 
 class ResidualLayer(torch.nn.Module):
-    """
-    Residual block with output scaled by 1/sqrt(2).
+    """Residual block with output scaled by 1/sqrt(2).
 
     Parameters
     ----------
@@ -70,6 +70,7 @@ class ResidualLayer(torch.nn.Module):
             Number of dense layers.
         activation: str
             Name of the activation function to use.
+
     """
 
     def __init__(self, units: int, nLayers: int = 2, activation=None, name=None):
@@ -85,5 +86,4 @@ class ResidualLayer(torch.nn.Module):
     def forward(self, inputs):
         x = self.dense_mlp(inputs)
         x = inputs + x
-        x = x * self.inv_sqrt_2
-        return x
+        return x * self.inv_sqrt_2

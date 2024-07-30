@@ -9,23 +9,27 @@ except ImportError:
 import torch
 from torch_geometric.utils import scatter
 
-
-from .layers.embedding_block import EdgeEmbedding, AtomEmbedding
-from .layers.base_layers import Dense
-from .layers.basis_layers import BesselBasisLayer, SphericalBasisLayer, TensorBasisLayer
-from .layers.interaction_block import InteractionBlock, InteractionBlockTripletsOnly
-from .layers.efficient import EfficientInteractionDownProjection
 from .layers.atom_update_block import OutputBlock
-from .layers.scaling import ScalingFactor, AutomaticFit
+from .layers.base_layers import Dense
+from .layers.basis_layers import (
+    BesselBasisLayer,
+    SphericalBasisLayer,
+    TensorBasisLayer,
+)
+from .layers.efficient import EfficientInteractionDownProjection
+from .layers.embedding_block import AtomEmbedding, EdgeEmbedding
+from .layers.interaction_block import (
+    InteractionBlock,
+    InteractionBlockTripletsOnly,
+)
+from .layers.scaling import AutomaticFit
 
-
-'''
+"""
 Credit to https://github.com/TUM-DAML/GemNet_pytorch/blob/master/GemNet/model/GemNet.py
-'''
+"""
 
 class GemNet(torch.nn.Module):
-    """
-    Parameters
+    """Parameters
     ----------
         num_spherical: int
             Controls maximum frequency.
@@ -82,6 +86,7 @@ class GemNet(torch.nn.Module):
             Name of the activation function.
         scale_file: str
             Path to the json file containing the scaling factors.
+
     """
 
     def __init__(
@@ -266,8 +271,7 @@ class GemNet(torch.nn.Module):
 
     @staticmethod
     def calculate_interatomic_vectors(R, id_s, id_t):
-        """
-        Parameters
+        """Parameters
         ----------
             R: Tensor, shape = (nAtoms,3)
                 Atom positions.
@@ -283,6 +287,7 @@ class GemNet(torch.nn.Module):
                     Distance from atom t to s.
                 V_st: Tensor, shape = (nEdges,)
                     Unit direction from atom t to s.
+
         """
         Rt = R[id_t]
         Rs = R[id_s]
@@ -306,20 +311,19 @@ class GemNet(torch.nn.Module):
         -------
             angle_cab: Tensor, shape = (N,)
                 Angle between atoms c <- a -> b.
+
         """
         # cos(alpha) = (u * v) / (|u|*|v|)
         x = torch.sum(R_ac * R_ab, dim=1)  # shape = (N,)
         # sin(alpha) = |u x v| / (|u|*|v|)
         y = torch.cross(R_ac, R_ab).norm(dim=-1)  # shape = (N,)
         # avoid that for y == (0,0,0) the gradient wrt. y becomes NaN
-        y = torch.max(y, torch.tensor(1e-9))  
-        angle = torch.atan2(y, x)
-        return angle
+        y = torch.max(y, torch.tensor(1e-9))
+        return torch.atan2(y, x)
 
     @staticmethod
     def vector_rejection(R_ab, P_n):
-        """
-        Project the vector R_ab onto a plane with normal vector P_n.
+        """Project the vector R_ab onto a plane with normal vector P_n.
 
         Parameters
         ----------
@@ -332,6 +336,7 @@ class GemNet(torch.nn.Module):
         -------
             R_ab_proj: Tensor, shape = (N,3)
                 Projected vector (orthogonal to P_n).
+
         """
         a_x_b = torch.sum(R_ab * P_n, dim=-1)
         b_x_b = torch.sum(P_n * P_n, dim=-1)
@@ -386,6 +391,7 @@ class GemNet(torch.nn.Module):
                 Angle between atoms a <- b -> d.
             angle_cabd: Tensor, shape = (nQuadruplets,)
                 Angle between atoms c <- a-b -> d.
+
         """
         # ---------------------------------- a - b <- d ---------------------------------- #
         Ra = R[id4_int_a[id4_expand_intm_ab]]  # a       (intmTriplets,3)
@@ -444,6 +450,7 @@ class GemNet(torch.nn.Module):
         -------
             angle_cab: Tensor, shape = (nTriplets,)
                 Angle between atoms c <- a -> b.
+
         """
         Rc = R[id_c[id3_reduce_ca]]
         Ra = R[id_a[id3_reduce_ca]]
@@ -458,7 +465,7 @@ class GemNet(torch.nn.Module):
 
     def forward(self, z, positions, inputs):
         Z, R = z, positions
-        id_a, id_c, id_undir, id_swap = (
+        id_a, id_c, _id_undir, id_swap = (
             inputs["id_a"],
             inputs["id_c"],
             inputs["id_undir"],
@@ -472,7 +479,7 @@ class GemNet(torch.nn.Module):
                 inputs["Kidx3"],
             )
             id4_int_b, id4_int_a = inputs["id4_int_b"], inputs["id4_int_a"]
-            id4_reduce_ca, id4_expand_db = (
+            id4_reduce_ca, _id4_expand_db = (
                 inputs["id4_reduce_ca"],
                 inputs["id4_expand_db"],
             )
@@ -491,7 +498,7 @@ class GemNet(torch.nn.Module):
         else:
             batch, Kidx4, Kidx3 = inputs["batch"], None, inputs["Kidx3"]
             id4_int_b, id4_int_a = None, None
-            id4_reduce_ca, id4_expand_db = None, None
+            id4_reduce_ca, _id4_expand_db = None, None
             id4_reduce_cab, id4_expand_abd = None, None
             id4_reduce_intm_ca, id4_expand_intm_db = None, None
             id4_reduce_intm_ab, id4_expand_intm_ab = None, None
@@ -547,7 +554,7 @@ class GemNet(torch.nn.Module):
         rbf_h = self.mlp_rbf_h(rbf)
         rbf_out = self.mlp_rbf_out(rbf)
 
-        E_a, F_ca = self.out_blocks[0](h, m, rbf_out, id_a)  
+        E_a, F_ca = self.out_blocks[0](h, m, rbf_out, id_a)
         # (nAtoms, num_targets), (nEdges, num_targets)
 
         for i in range(self.num_blocks):
@@ -580,17 +587,17 @@ class GemNet(torch.nn.Module):
 
         nMolecules = torch.max(batch) + 1
         if self.extensive:
-            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="add")  
+            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="add")
             # (nMolecules, num_targets)
         else:
-            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="mean")  
+            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="mean")
             # (nMolecules, num_targets)
 
         return E_a
 
     def forward_with_gathered_index(self, z, positions, inputs, batch, periodic_index_mapping):
         Z, R = z, positions
-        id_a, id_c, id_undir, id_swap = (
+        id_a, id_c, _id_undir, id_swap = (
             inputs["id_a"],
             inputs["id_c"],
             inputs["id_undir"],
@@ -623,11 +630,11 @@ class GemNet(torch.nn.Module):
         #     )
         # else:
         Kidx4, Kidx3 = None, inputs["Kidx3"]
-        id4_int_b, id4_int_a = None, None
-        id4_reduce_ca, id4_expand_db = None, None
-        id4_reduce_cab, id4_expand_abd = None, None
-        id4_reduce_intm_ca, id4_expand_intm_db = None, None
-        id4_reduce_intm_ab, id4_expand_intm_ab = None, None
+        _id4_int_b, _id4_int_a = None, None
+        id4_reduce_ca, _id4_expand_db = None, None
+        _id4_reduce_cab, id4_expand_abd = None, None
+        _id4_reduce_intm_ca, id4_expand_intm_db = None, None
+        _id4_reduce_intm_ab, _id4_expand_intm_ab = None, None
 
         # Calculate distances
         D_ca, V_ca = self.calculate_interatomic_vectors(R, id_c, id_a)
@@ -677,7 +684,7 @@ class GemNet(torch.nn.Module):
         rbf_h = self.mlp_rbf_h(rbf)
         rbf_out = self.mlp_rbf_out(rbf)
 
-        E_a, F_ca = self.out_blocks[0](h, m, rbf_out, id_a)  
+        E_a, F_ca = self.out_blocks[0](h, m, rbf_out, id_a)
         # (nAtoms, num_targets), (nEdges, num_targets)
 
         for i in range(self.num_blocks):
@@ -710,9 +717,9 @@ class GemNet(torch.nn.Module):
 
         nMolecules = torch.max(batch) + 1
         if self.extensive:
-            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="add")  
+            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="add")
         else:
-            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="mean")  
+            E_a = scatter(E_a, batch, dim=0, dim_size=nMolecules, reduce="mean")
 
         return E_a
 
@@ -724,6 +731,6 @@ class GemNet(torch.nn.Module):
 
     def load_weights(self, path):
         self.load_state_dict(torch.load(path))
-    
+
     def save_weights(self, path):
         torch.save(self.state_dict(), path)

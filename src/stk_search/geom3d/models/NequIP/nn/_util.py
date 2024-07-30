@@ -1,5 +1,4 @@
 import torch
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 
@@ -10,8 +9,10 @@ class SaveForOutput(torch.nn.Module, GraphModuleMixin):
     Copy a field and disconnect it from the autograd graph, storing it under another key for inspection as part of the models output.
 
     Args:
+    ----
         field: the field to save
         out_field: the key to put the saved copy in
+
     """
 
     field: str

@@ -1,21 +1,17 @@
-from stk_search.Search_algorithm import Bayesian_Optimisation
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pymongo
+import stk
+import torch
+from stk_search.geom3d.oligomer_encoding_with_transformer import (
+    initialise_model,
+)
+from stk_search.geom3d.train_models import Pymodel, model_setup
+from stk_search.geom3d.utils import database_utils
 from stk_search.Search_algorithm import (
     Represenation_3D,
 )
-from stk_search.geom3d.train_models import model_setup, Pymodel, read_config
-from stk_search.geom3d.utils.config_utils import read_config, save_config
-from stk_search.geom3d.utils import database_utils
-from stk_search.geom3d.oligomer_encoding_with_transformer import Fragment_encoder, initialise_model
-from stk_search.geom3d.models import SchNet
-import torch
-import stk
-import pymongo
-from pathlib import Path
-import stk_search
-from stk_search import SearchedSpace
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from torch_geometric.loader import DataLoader
 
 
@@ -52,7 +48,6 @@ def load_models(config, chkpt_path=None):
         # to get the try and except start indent here
         checkpoint = torch.load(chkpt_path,map_location=config["device"])
         model, graph_pred_linear = model_setup(config)
-        print("Model loaded: ", config["model_name"])
         #config["device"] = "cuda:0" if torch.cuda.is_available() else "cpu"
         # Pass the model and graph_pred_linear to the Pymodel constructor
 
@@ -191,13 +186,13 @@ def generate_test_val_data(
 
 # plot train
 from sklearn.metrics import (
-    mean_squared_error,
     mean_absolute_error,
+    mean_squared_error,
     r2_score,
 )
 
 
-def plot_inference_test(y_explored, X_explored_frag, X_explored_org, 
+def plot_inference_test(y_explored, X_explored_frag, X_explored_org,
                         model_inferrence, ax):
     y_true = y_explored.cpu().numpy()
     Y_pred = (
@@ -252,24 +247,18 @@ def plot_inference_test(y_explored, X_explored_frag, X_explored_org,
         ax.text(0.4, 0.1, f"learned MAE: {score:.2f}", transform=ax.transAxes)
         score_list.append(score)
         return score_list
-    except ValueError as e:
-        print(e)
-        print("ValueError")
+    except ValueError:
         return []
 
 
-from gpytorch.likelihoods import GaussianLikelihood
-from gpytorch import kernels
-
-from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
-from stk_search.Search_algorithm import Bayesian_Optimisation
 from botorch.models.gp_regression import SingleTaskGP
+from gpytorch import kernels
 
 # from stk_search.tanimoto_kernel import TanimotoKernel
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import ScaleKernel
 from gpytorch.means import ConstantMean
-
+from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
 
 
 # We define our custom GP surrogate model using the Tanimoto kernel
@@ -353,8 +342,8 @@ def plot_prediction(
         )
         return {"mae": score_mae, "mse": score_mse, "r2": score_r2}
 
-    scores_test = plot_prediction(y_pred, y_test, axs[0], label="test set")
-    scores_train = plot_prediction(
+    plot_prediction(y_pred, y_test, axs[0], label="test set")
+    plot_prediction(
         y_pred_train, y_train, axs[1], label="train set"
     )
     y_var = np.array(y_var.detach().numpy())
@@ -413,10 +402,8 @@ def run_training_BO_torch(
         return y, y_mean, y_std
 
     def unnorm_output(y, y_mean, y_std):
-        y = y * y_std + y_mean
-        return y
+        return y * y_std + y_mean
 
-    print(kernel)
     BO.kernel = kernel
     X_train = X_explored_train.cpu().type(torch.float64)
     y_train = y_explored_train.cpu().type(torch.float64).reshape(-1, 1)
@@ -441,7 +428,7 @@ def run_training_BO_torch(
         data["X_test"],
     )
     fig_name = (
-        f"trainsize_"
+        "trainsize_"
         + str(data["X_train"].shape[0])
         + "_testSi_"
         + str(data["X_test"].shape[0])

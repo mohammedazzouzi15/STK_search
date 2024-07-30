@@ -1,38 +1,33 @@
-"""
-PyTorch Lightning model for 3D molecular representation learning.
-"""
+"""PyTorch Lightning model for 3D molecular representation learning."""
 
-import torch.optim as optim
-import torch
 import lightning.pytorch as pl
+import torch
 import torch.nn.functional as Functional
-
 from stk_search.geom3d.models import (
-    SchNet,
     DimeNet,
     DimeNetPlusPlus,
-    GemNet,
-    SphereNet,
-    SphereNetPeriodic,
-    PaiNN,
     EquiformerEnergy,
+    GemNet,
+    PaiNN,
+    SchNet,
+    SphereNet,
 )
+from torch import optim
 
 
 class PrintLearningRate(pl.Callback):
     def on_train_epoch_start(self, trainer, pl_module):
-        lr = trainer.optimizers[0].param_groups[0]["lr"]
-        print(f"Learning Rate for Epoch {trainer.current_epoch}: {lr:.5e}")
+        trainer.optimizers[0].param_groups[0]["lr"]
 
 
 class Pymodel(pl.LightningModule):
-    """
-    PyTorch Lightning model for 3D molecular representation learning.
+    """PyTorch Lightning model for 3D molecular representation learning.
     The loss function is the mean squared error (MSE) loss.
     The learning rate scheduler can be chosen from CosineAnnealingLR, CosineAnnealingWarmRestarts, and StepLR.
     The initial learning rate and the learning rate scheduler parameters can be set in the configuration file.
 
     Args:
+    ----
     - model (nn.Module): 3D molecular representation learning model
     - graph_pred_linear (nn.Module): linear layer for graph prediction
     - config (dict): dictionary containing the configuration
@@ -69,7 +64,7 @@ class Pymodel(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        """used for logging metrics"""
+        """Used for logging metrics."""
         with torch.cuda.amp.autocast(
             enabled=self.trainer.precision == 16
         ):  # 16-bit precision for mixed precision training, activated only when self.trainer.precision == 16
@@ -80,7 +75,7 @@ class Pymodel(pl.LightningModule):
         return loss
 
     def _get_preds_loss_accuracy(self, batch):
-        """convenience function since train/valid/test steps are similar"""
+        """Convenience function since train/valid/test steps are similar."""
         batch = batch.to(self.device)
         z = self.forward(batch)
 
@@ -98,27 +93,23 @@ class Pymodel(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=config["lr"])
 
         lr_scheduler = None
-        monitor = None
 
         if config["lr_scheduler"] == "CosineAnnealingLR":
             lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 optimizer, config["max_epochs"]
             )
-            print("Apply lr scheduler CosineAnnealingLR")
         elif config["lr_scheduler"] == "CosineAnnealingWarmRestarts":
             lr_scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
                 optimizer, config["max_epochs"], eta_min=1e-4
             )
-            print("Apply lr scheduler CosineAnnealingWarmRestarts")
         elif config["lr_scheduler"] == "StepLR":
             lr_scheduler = optim.lr_scheduler.StepLR(
                 optimizer,
                 step_size=config["lr_decay_step_size"],
                 gamma=config["lr_decay_factor"],
             )
-            print("Apply lr scheduler StepLR")
         else:
-            print("lr scheduler {} is not included.")
+            pass
 
         return [optimizer], [lr_scheduler]
 
@@ -145,24 +136,24 @@ class Pymodel(pl.LightningModule):
                     batch.x, batch.positions, batch.batch
                 )
                 z = self.graph_pred_linear(z)
+        elif model_name == "GemNet":
+            z = self.molecule_3D_repr(
+                batch.x, batch.positions, batch
+            ).squeeze()
+        elif model_name == "Equiformer":
+            z = self.molecule_3D_repr(
+                node_atom=batch.x, pos=batch.positions, batch=batch.batch
+            ).squeeze()
         else:
-            if model_name == "GemNet":
-                z = self.molecule_3D_repr(
-                    batch.x, batch.positions, batch
-                ).squeeze()
-            elif model_name == "Equiformer":
-                z = self.molecule_3D_repr(
-                    node_atom=batch.x, pos=batch.positions, batch=batch.batch
-                ).squeeze()
-            else:
-                z = self.molecule_3D_repr(
-                    batch.x, batch.positions, batch.batch
-                ).squeeze()
+            z = self.molecule_3D_repr(
+                batch.x, batch.positions, batch.batch
+            ).squeeze()
         return z
 
 
 class Pymodel_new(pl.LightningModule):
-    """lightning model taking into account two different oligomer representations"""
+    """lightning model taking into account two different oligomer representations."""
+
     def __init__(self, model, graph_pred_linear, config):
         super().__init__()
 
@@ -197,7 +188,7 @@ class Pymodel_new(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        """used for logging metrics"""
+        """Used for logging metrics."""
         with torch.cuda.amp.autocast(
             enabled=self.trainer.precision == 16
         ):  # 16-bit precision for mixed precision training, activated only when self.trainer.precision == 16
@@ -210,12 +201,12 @@ class Pymodel_new(pl.LightningModule):
         return loss
 
     def _get_preds_loss_accuracy(self, batch):
-        """convenience function since train/valid/test steps are similar"""
+        """Convenience function since train/valid/test steps are similar."""
         batch = batch.to(self.device)
         z, z_opt, z_repr, z_repr_opt = self.forward_train(batch)
 
         if self.graph_pred_linear is not None:
-            loss1 = Functional.mse_loss(z_opt, batch.y.unsqueeze(1)) 
+            loss1 = Functional.mse_loss(z_opt, batch.y.unsqueeze(1))
             loss2 = Functional.mse_loss(z_repr, z_repr_opt)
             # loss = loss + Functional.mse_loss(z, batch.y.unsqueeze(1))
             a = torch.tensor(0.5, requires_grad=True)
@@ -243,8 +234,9 @@ class Pymodel_new(pl.LightningModule):
                     ).squeeze()
                 else:
                     z_repr = self.molecule_3D_repr(x, positions, batch.batch)
-                    
+
                 return z_repr
+            return None
 
         z_repr = get_Z(batch.x, batch.positions, model_name, batch)
         z_repr_opt = get_Z(
@@ -263,27 +255,23 @@ class Pymodel_new(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=config["lr"])
 
         lr_scheduler = None
-        monitor = None
 
         if config["lr_scheduler"] == "CosineAnnealingLR":
             lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 optimizer, config["max_epochs"]
             )
-            print("Apply lr scheduler CosineAnnealingLR")
         elif config["lr_scheduler"] == "CosineAnnealingWarmRestarts":
             lr_scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
                 optimizer, config["max_epochs"], eta_min=1e-4
             )
-            print("Apply lr scheduler CosineAnnealingWarmRestarts")
         elif config["lr_scheduler"] == "StepLR":
             lr_scheduler = optim.lr_scheduler.StepLR(
                 optimizer,
                 step_size=config["lr_decay_step_size"],
                 gamma=config["lr_decay_factor"],
             )
-            print("Apply lr scheduler StepLR")
         else:
-            print("lr scheduler {} is not included.")
+            pass
 
         return [optimizer], [lr_scheduler]
 
@@ -310,35 +298,35 @@ class Pymodel_new(pl.LightningModule):
                 )
             z = self.transform_to_opt(z)
             z = self.graph_pred_linear(z)
+        elif model_name == "GemNet":
+            z = self.molecule_3D_repr(
+                batch.x, batch.positions, batch
+            ).squeeze()
+        elif model_name == "Equiformer":
+            z = self.molecule_3D_repr(
+                node_atom=batch.x, pos=batch.positions, batch=batch.batch
+            ).squeeze()
         else:
-            if model_name == "GemNet":
-                z = self.molecule_3D_repr(
-                    batch.x, batch.positions, batch
-                ).squeeze()
-            elif model_name == "Equiformer":
-                z = self.molecule_3D_repr(
-                    node_atom=batch.x, pos=batch.positions, batch=batch.batch
-                ).squeeze()
-            else:
-                z = self.molecule_3D_repr(
-                    batch.x, batch.positions, batch.batch
-                ).squeeze()
+            z = self.molecule_3D_repr(
+                batch.x, batch.positions, batch.batch
+            ).squeeze()
         return z
 
 
 def model_setup(config, trial=None):
-    """
-    Setup the model based on the configuration file.
+    """Setup the model based on the configuration file.
 
     Args:
+    ----
     - config (dict): configuration file
     - trial (optuna.trial): optuna trial object
 
     Returns:
+    -------
     - model (nn.Module): model
     - graph_pred_linear (nn.Module): output layer for the model
-    """
 
+    """
     model_config = config["model"]
 
     if trial:
@@ -512,6 +500,7 @@ def model_setup(config, trial=None):
         graph_pred_linear = None
 
     else:
-        raise ValueError("Invalid model name")
+        msg = "Invalid model name"
+        raise ValueError(msg)
 
     return model, graph_pred_linear

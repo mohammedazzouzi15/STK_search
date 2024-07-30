@@ -9,7 +9,7 @@
 import math
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 def init_params(module, n_layers):
@@ -22,14 +22,12 @@ def init_params(module, n_layers):
 
 
 class GraphNodeFeature(nn.Module):
-    """
-    Compute node features for each node in the graph.
-    """
+    """Compute node features for each node in the graph."""
 
     def __init__(
         self, num_heads, num_atoms, num_in_degree, num_out_degree, hidden_dim, n_layers
     ):
-        super(GraphNodeFeature, self).__init__()
+        super().__init__()
         self.num_heads = num_heads
         self.num_atoms = num_atoms
 
@@ -66,15 +64,12 @@ class GraphNodeFeature(nn.Module):
 
         graph_token_feature = self.graph_token.weight.unsqueeze(0).repeat(n_graph, 1, 1)
 
-        graph_node_feature = torch.cat([graph_token_feature, node_feature], dim=1)
+        return torch.cat([graph_token_feature, node_feature], dim=1)
 
-        return graph_node_feature
 
 
 class GraphAttnBias(nn.Module):
-    """
-    Compute attention bias for each head.
-    """
+    """Compute attention bias for each head."""
 
     def __init__(
         self,
@@ -88,7 +83,7 @@ class GraphAttnBias(nn.Module):
         multi_hop_max_dist,
         n_layers,
     ):
-        super(GraphAttnBias, self).__init__()
+        super().__init__()
         self.num_heads = num_heads
         self.multi_hop_max_dist = multi_hop_max_dist
 
@@ -105,8 +100,8 @@ class GraphAttnBias(nn.Module):
         self.apply(lambda module: init_params(module, n_layers=n_layers))
 
     def forward(self, batched_data):
-        attn_bias, spatial_pos, x = batched_data['attn_bias'], batched_data['spatial_pos'], batched_data['x']
-        edge_input, attn_edge_type = batched_data['edge_input'], batched_data['attn_edge_type']
+        attn_bias, spatial_pos, x = batched_data["attn_bias"], batched_data["spatial_pos"], batched_data["x"]
+        edge_input, attn_edge_type = batched_data["edge_input"], batched_data["attn_edge_type"]
 
         n_graph, n_node = x.size()[:2]
         graph_attn_bias = attn_bias.clone()
@@ -123,7 +118,7 @@ class GraphAttnBias(nn.Module):
         graph_attn_bias[:, :, 0, :] = graph_attn_bias[:, :, 0, :] + t
 
         # edge feature
-        if self.edge_type == 'multi_hop':
+        if self.edge_type == "multi_hop":
             spatial_pos_ = spatial_pos.clone()
             spatial_pos_[spatial_pos_ == 0] = 1  # set pad to 1
             # set 1 to 1, x > 1 to x - 1
@@ -150,6 +145,5 @@ class GraphAttnBias(nn.Module):
 
         graph_attn_bias[:, :, 1:, 1:] = graph_attn_bias[:, :, 1:, 1:] + edge_input
 
-        graph_attn_bias = graph_attn_bias + attn_bias.unsqueeze(1)  # reset
+        return graph_attn_bias + attn_bias.unsqueeze(1)  # reset
 
-        return graph_attn_bias

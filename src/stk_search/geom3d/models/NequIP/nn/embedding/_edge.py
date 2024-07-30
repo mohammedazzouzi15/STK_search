@@ -1,14 +1,13 @@
 from typing import Union
 
 import torch
-
 from e3nn import o3
 from e3nn.util.jit import compile_mode
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
-from .._graph_mixin import GraphModuleMixin
-from ..radial_basis import BesselBasis
-from ..cutoffs import PolynomialCutoff
+
+from models.NequIP.nn._graph_mixin import GraphModuleMixin
+from models.NequIP.nn.cutoffs import PolynomialCutoff
+from models.NequIP.nn.radial_basis import BesselBasis
 
 
 @compile_mode("script")
@@ -18,10 +17,12 @@ class SphericalHarmonicEdgeAttrs(GraphModuleMixin, torch.nn.Module):
     Parameters follow ``e3nn.o3.spherical_harmonics``.
 
     Args:
+    ----
         irreps_edge_sh (int, str, or o3.Irreps): if int, will be treated as lmax for o3.Irreps.spherical_harmonics(lmax)
         edge_sh_normalization (str): the normalization scheme to use
         edge_sh_normalize (bool, default: True): whether to normalize the spherical harmonics
         out_field (str, default: AtomicDataDict.EDGE_ATTRS_KEY: data/irreps field
+
     """
 
     out_field: str
@@ -65,11 +66,15 @@ class RadialBasisEdgeEncoding(GraphModuleMixin, torch.nn.Module):
         self,
         basis=BesselBasis,
         cutoff=PolynomialCutoff,
-        basis_kwargs={},
-        cutoff_kwargs={},
+        basis_kwargs=None,
+        cutoff_kwargs=None,
         out_field: str = AtomicDataDict.EDGE_EMBEDDING_KEY,
         irreps_in=None,
     ):
+        if cutoff_kwargs is None:
+            cutoff_kwargs = {}
+        if basis_kwargs is None:
+            basis_kwargs = {}
         super().__init__()
         self.basis = basis(**basis_kwargs)
         self.cutoff = cutoff(**cutoff_kwargs)
