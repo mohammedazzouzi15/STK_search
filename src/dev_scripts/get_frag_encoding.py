@@ -64,7 +64,7 @@ def main():  # noqa: PLR0915
     # train the model
     config, min_val_loss = train_models.get_best_embedding_model(config_dir)
     output_file = config_dir + "/info.txt"
-    with Path.open(output_file, "a") as file:
+    with Path(output_file).open(mode="a") as file:
         file.write(f"Best model: {config['model_embedding_chkpt']}\n")
         file.write(f"Best model val loss: {min_val_loss}\n")
     # get frag dataset
@@ -138,7 +138,7 @@ def main():  # noqa: PLR0915
     mae_train, mse_train, r2_train = evaluale_model_performance(df_train_pred)
     mae_val, mse_val, r2_val = evaluale_model_performance(df_val_pred)
     mae_test, mse_test, r2_test = evaluale_model_performance(df_test_pred)
-    with Path.open(output_file, "a") as file:
+    with Path(output_file).open(mode="a") as file:
         file.write(
             f"MAE train: {mae_train:.2f}, MSE train: {mse_train:.2f}, R2 train: {r2_train:.2f}\n"
         )
@@ -217,7 +217,7 @@ def main():  # noqa: PLR0915
     mae_test, mse_test, r2_test = evaluale_model_performance_learned(
         df_test_pred_learned, target_name=config["target_name"]
     )
-    with Path.open(output_file, "a") as file:
+    with Path(output_file).open(mode="a") as file:
         file.write(" Perfomance with learned embedding\n")
         file.write(
             f"MAE train: {mae_train:.2f}, MSE train: {mse_train:.2f}, R2 train: {r2_train:.2f}\n"

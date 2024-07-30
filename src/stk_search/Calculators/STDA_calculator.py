@@ -36,7 +36,7 @@ import re
 import shutil
 import subprocess as sp
 import uuid
-
+from pathlib import Path
 
 
 class sTDA_XTB:
@@ -71,8 +71,8 @@ class sTDA_XTB:
     ):
         """Initialize the class.
         
-        Parameters
-        ----------
+        Args:
+        ----
         STDA_bin_path : str
             The path to the STDA binary file.
         Num_threads : int
@@ -106,27 +106,34 @@ class sTDA_XTB:
             output_dir = str(uuid.uuid4().int)
         else:
             output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+        output_dir = Path
+        Path(output_dir).resolve()
 
-        if os.path.exists(output_dir):
+        if Path(output_dir).exists():
             shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
-
-        init_dir = os.getcwd()
-        xyz = os.path.join(output_dir, "input_structure.xyz")
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        init_dir = Path.cwd()
+        xyz = Path(output_dir) / "input_structure.xyz"
         mol.write(xyz)
-        xyz = os.path.join("input_structure.xyz")
+        xyz = "input_structure.xyz"
         os.chdir(output_dir)
+        env = os.environ.copy()
+        env["XTB4STDAHOME"] = self.stda_bin_path
+        env["OMP_NUM_THREADS"] = str(self.num_threads)
+        env["MKL_NUM_THREADS"] = str(self.num_threads)
+        env["PATH"] = env["PATH"] + ":" + Path(self.stda_bin_path) / "exe"
+
         sp.call(
-            f"export XTB4STDAHOME={self.STDA_bin_path} \n"
-            + f"export OMP_NUM_THREADS={self.Num_threads} \n"
-            + f"export MKL_NUM_THREADS={self.Num_threads} \n"
-            + "export PATH=$PATH:$XTB4STDAHOME/exe \n"
-            + f"xtb4stda {xyz} > gen_wfn.out \n"
-            + f"stda_v1.6.2 -xtb -e {self.maxeV_ExcitedEnergy} > out_stda.out",
-            shell=True,
+            ["xtb4stda", xyz, ">", "gen_wfn.out"],
             stdout=sp.DEVNULL,
             stderr=sp.STDOUT,
+            env=env,
+        )
+        sp.call(
+            ["stda_v1.6.2", "-xtb", "-e", str(self.maxev_excitedenergy), ">", "out_stda.out"],
+            stdout=sp.DEVNULL,
+            stderr=sp.STDOUT,
+            env=env,
         )
 
         os.chdir(init_dir)
@@ -149,26 +156,25 @@ class sTDA_XTB:
             
         """
         output_dir = self.calculate(mol)
-        init_dir = os.getcwd()
+        init_dir = Path.cwd()
         os.chdir(output_dir)
-        outfile = open("out_stda.out", encoding="utf8")
-        data = outfile.readlines()
-        outfile.close()
+        with Path("out_stda.out").open(encoding="utf8", mode="r") as outfile:
+            data = outfile.readlines()
         for i in range(1, len(data)):
             line = data[i]
             if "state    eV " in line:
-                Excited_state_properties = [
+                excited_state_properties = [
                     re.findall(r"[-+]?(?:\d*\.*\d+)", data[i + x + 1])
                     for x in range(10)
                 ]
-                Excited_state_energy = [
-                    float(x[1]) for x in Excited_state_properties
+                excited_state_energy = [
+                    float(x[1]) for x in excited_state_properties
                 ]  # float(words[3]) #
-                Excited_state_osc = [
-                    float(x[3]) for x in Excited_state_properties
+                excited_state_osc = [
+                    float(x[3]) for x in excited_state_properties
                 ]
 
         os.chdir(init_dir)
-        if Excited_state_energy == []:
+        if excited_state_energy == []:
             pass
-        return Excited_state_energy, Excited_state_osc
+        return excited_state_energy, excited_state_osc

@@ -1,172 +1,61 @@
-Calculators\STDA_calculator.py:1:1: INP001 File `Calculators\STDA_calculator.py` is part of an implicit namespace package. Add an `__init__.py`.
-Calculators\STDA_calculator.py:40:1: ERA001 Found commented-out code
+Calculators\STDA_calculator.py:1:1: N999 Invalid module name: 'STDA_calculator'
+Calculators\STDA_calculator.py:42:7: N801 Class name `sTDA_XTB` should use CapWords convention
    |
-38 | import uuid
-39 | 
-40 | #from stko.calculators import Calculator
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
-   |
-   = help: Remove commented-out code
-
-Calculators\STDA_calculator.py:43:7: N801 Class name `sTDA_XTB` should use CapWords convention
-   |
-43 | class sTDA_XTB:
+42 | class sTDA_XTB:
    |       ^^^^^^^^ N801
-44 |     """A class to calculate the excited state properties using sTDA method from xtb output.
+43 |     """A class to calculate the excited state properties using sTDA method from xtb output.
    |
 
-Calculators\STDA_calculator.py:66:9: D417 Missing argument descriptions in the docstring for `__init__`: `maxev_excitedenergy`, `num_threads`, `stda_bin_path`
+Calculators\STDA_calculator.py:65:9: D417 Missing argument descriptions in the docstring for `__init__`: `maxev_excitedenergy`, `num_threads`, `stda_bin_path`
    |
-64 |     """
-65 | 
-66 |     def __init__(
+63 |     """
+64 | 
+65 |     def __init__(
    |         ^^^^^^^^ D417
-67 |         self,
-68 |         stda_bin_path,
+66 |         self,
+67 |         stda_bin_path,
    |
 
-Calculators\STDA_calculator.py:110:22: PTH100 `os.path.abspath()` should be replaced by `Path.resolve()`
+Calculators\STDA_calculator.py:126:9: S603 `subprocess` call: check for execution of untrusted input
     |
-108 |         else:
-109 |             output_dir = self._output_dir
-110 |         output_dir = os.path.abspath(output_dir)
-    |                      ^^^^^^^^^^^^^^^ PTH100
-111 | 
-112 |         if os.path.exists(output_dir):
-    |
-
-Calculators\STDA_calculator.py:112:12: PTH110 `os.path.exists()` should be replaced by `Path.exists()`
-    |
-110 |         output_dir = os.path.abspath(output_dir)
-111 | 
-112 |         if os.path.exists(output_dir):
-    |            ^^^^^^^^^^^^^^ PTH110
-113 |             shutil.rmtree(output_dir)
-114 |         os.mkdir(output_dir)
+124 |         env["PATH"] = env["PATH"] + ":" + Path(self.stda_bin_path) / "exe"
+125 | 
+126 |         sp.call(
+    |         ^^^^^^^ S603
+127 |             ["xtb4stda", xyz, ">", "gen_wfn.out"],
+128 |             stdout=sp.DEVNULL,
     |
 
-Calculators\STDA_calculator.py:114:9: PTH102 `os.mkdir()` should be replaced by `Path.mkdir()`
+Calculators\STDA_calculator.py:127:13: S607 Starting a process with a partial executable path
     |
-112 |         if os.path.exists(output_dir):
-113 |             shutil.rmtree(output_dir)
-114 |         os.mkdir(output_dir)
-    |         ^^^^^^^^ PTH102
-115 | 
-116 |         init_dir = os.getcwd()
-    |
-
-Calculators\STDA_calculator.py:116:20: PTH109 `os.getcwd()` should be replaced by `Path.cwd()`
-    |
-114 |         os.mkdir(output_dir)
-115 | 
-116 |         init_dir = os.getcwd()
-    |                    ^^^^^^^^^ PTH109
-117 |         xyz = os.path.join(output_dir, "input_structure.xyz")
-118 |         mol.write(xyz)
+126 |         sp.call(
+127 |             ["xtb4stda", xyz, ">", "gen_wfn.out"],
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ S607
+128 |             stdout=sp.DEVNULL,
+129 |             stderr=sp.STDOUT,
     |
 
-Calculators\STDA_calculator.py:117:15: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+Calculators\STDA_calculator.py:132:9: S603 `subprocess` call: check for execution of untrusted input
     |
-116 |         init_dir = os.getcwd()
-117 |         xyz = os.path.join(output_dir, "input_structure.xyz")
-    |               ^^^^^^^^^^^^ PTH118
-118 |         mol.write(xyz)
-119 |         xyz = os.path.join("input_structure.xyz")
-    |
-
-Calculators\STDA_calculator.py:119:15: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
-    |
-117 |         xyz = os.path.join(output_dir, "input_structure.xyz")
-118 |         mol.write(xyz)
-119 |         xyz = os.path.join("input_structure.xyz")
-    |               ^^^^^^^^^^^^ PTH118
-120 |         os.chdir(output_dir)
-121 |         sp.call(
+130 |             env=env,
+131 |         )
+132 |         sp.call(
+    |         ^^^^^^^ S603
+133 |             ["stda_v1.6.2", "-xtb", "-e", str(self.maxev_excitedenergy), ">", "out_stda.out"],
+134 |             stdout=sp.DEVNULL,
     |
 
-Calculators\STDA_calculator.py:121:9: S602 `subprocess` call with `shell=True` identified, security issue
+Calculators\STDA_calculator.py:133:13: S607 Starting a process with a partial executable path
     |
-119 |         xyz = os.path.join("input_structure.xyz")
-120 |         os.chdir(output_dir)
-121 |         sp.call(
-    |         ^^^^^^^ S602
-122 |             f"export XTB4STDAHOME={self.STDA_bin_path} \n"
-123 |             + f"export OMP_NUM_THREADS={self.Num_threads} \n"
-    |
-
-Calculators\STDA_calculator.py:122:13: ISC003 Explicitly concatenated string should be implicitly concatenated
-    |
-120 |           os.chdir(output_dir)
-121 |           sp.call(
-122 |               f"export XTB4STDAHOME={self.STDA_bin_path} \n"
-    |  _____________^
-123 | |             + f"export OMP_NUM_THREADS={self.Num_threads} \n"
-    | |_____________________________________________________________^ ISC003
-124 |               + f"export MKL_NUM_THREADS={self.Num_threads} \n"
-125 |               + "export PATH=$PATH:$XTB4STDAHOME/exe \n"
+131 |         )
+132 |         sp.call(
+133 |             ["stda_v1.6.2", "-xtb", "-e", str(self.maxev_excitedenergy), ">", "out_stda.out"],
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ S607
+134 |             stdout=sp.DEVNULL,
+135 |             stderr=sp.STDOUT,
     |
 
-Calculators\STDA_calculator.py:153:20: PTH109 `os.getcwd()` should be replaced by `Path.cwd()`
-    |
-151 |         """
-152 |         output_dir = self.calculate(mol)
-153 |         init_dir = os.getcwd()
-    |                    ^^^^^^^^^ PTH109
-154 |         os.chdir(output_dir)
-155 |         outfile = open("out_stda.out", encoding="utf8")
-    |
-
-Calculators\STDA_calculator.py:155:19: SIM115 Use context handler for opening files
-    |
-153 |         init_dir = os.getcwd()
-154 |         os.chdir(output_dir)
-155 |         outfile = open("out_stda.out", encoding="utf8")
-    |                   ^^^^ SIM115
-156 |         data = outfile.readlines()
-157 |         outfile.close()
-    |
-
-Calculators\STDA_calculator.py:155:19: PTH123 `open()` should be replaced by `Path.open()`
-    |
-153 |         init_dir = os.getcwd()
-154 |         os.chdir(output_dir)
-155 |         outfile = open("out_stda.out", encoding="utf8")
-    |                   ^^^^ PTH123
-156 |         data = outfile.readlines()
-157 |         outfile.close()
-    |
-
-Calculators\STDA_calculator.py:161:17: N806 Variable `Excited_state_properties` in function should be lowercase
-    |
-159 |             line = data[i]
-160 |             if "state    eV " in line:
-161 |                 Excited_state_properties = [
-    |                 ^^^^^^^^^^^^^^^^^^^^^^^^ N806
-162 |                     re.findall(r"[-+]?(?:\d*\.*\d+)", data[i + x + 1])
-163 |                     for x in range(10)
-    |
-
-Calculators\STDA_calculator.py:165:17: N806 Variable `Excited_state_energy` in function should be lowercase
-    |
-163 |                     for x in range(10)
-164 |                 ]
-165 |                 Excited_state_energy = [
-    |                 ^^^^^^^^^^^^^^^^^^^^ N806
-166 |                     float(x[1]) for x in Excited_state_properties
-167 |                 ]  # float(words[3]) #
-    |
-
-Calculators\STDA_calculator.py:168:17: N806 Variable `Excited_state_osc` in function should be lowercase
-    |
-166 |                     float(x[1]) for x in Excited_state_properties
-167 |                 ]  # float(words[3]) #
-168 |                 Excited_state_osc = [
-    |                 ^^^^^^^^^^^^^^^^^ N806
-169 |                     float(x[3]) for x in Excited_state_properties
-170 |                 ]
-    |
-
-Calculators\XTBcalculator.py:1:1: INP001 File `Calculators\XTBcalculator.py` is part of an implicit namespace package. Add an `__init__.py`.
+Calculators\XTBcalculator.py:1:1: N999 Invalid module name: 'XTBcalculator'
 Calculators\XTBcalculator.py:1:1: D100 Missing docstring in public module
 Calculators\XTBcalculator.py:9:7: D101 Missing docstring in public class
    |
@@ -339,6 +228,7 @@ Calculators\XTBcalculator.py:115:20: PTH118 `os.path.join()` should be replaced 
 117 |         return stko.XTBResults(
     |
 
+Calculators\__init__.py:1:1: D104 Missing docstring in public package
 Objective_function.py:1:1: N999 Invalid module name: 'Objective_function'
 Objective_function.py:1:1: D100 Missing docstring in public module
 Objective_function.py:14:5: D103 Missing docstring in public function
@@ -51616,4 +51506,4 @@ utils\update_datasets.py:248:8: PTH113 `os.path.isfile()` should be replaced by 
 250 |             config["dataset_all_frag_path"], map_location=config["device"]
     |
 
-Found 5346 errors.
+Found 5336 errors.
