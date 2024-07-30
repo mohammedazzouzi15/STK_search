@@ -4,7 +4,7 @@ Welcome to stk_search's documentation!
 skt_search is a Python library for searching the chemical space of molecules formed by stk. It is built on top of stk and stk_optim.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents:
 
    modules
