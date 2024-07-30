@@ -20,6 +20,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    #'sphinx.ext.autodoc',
 ]
 
 autosummary_imported_members = True
@@ -27,10 +28,7 @@ autosummary_imported_members = True
 autodoc_typehints = "description"
 autodoc_member_order = "groupwise"
 autoclass_content = "class"
-autodoc_type_aliases = {
-    "Properties": "dict[str, Json]",
-    "Json": "Json",
-}
+
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

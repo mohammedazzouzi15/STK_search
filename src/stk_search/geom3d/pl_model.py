@@ -3,6 +3,8 @@
 import lightning.pytorch as pl
 import torch
 import torch.nn.functional as Functional
+from torch import optim
+
 from stk_search.geom3d.models import (
     DimeNet,
     DimeNetPlusPlus,
@@ -12,7 +14,6 @@ from stk_search.geom3d.models import (
     SchNet,
     SphereNet,
 )
-from torch import optim
 
 
 class PrintLearningRate(pl.Callback):
