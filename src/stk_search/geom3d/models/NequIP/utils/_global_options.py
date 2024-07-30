@@ -1,15 +1,13 @@
 import warnings
 
-import torch
-
 import e3nn
 import e3nn.util.jit
-
+import torch
 from stk_search.geom3d.models.NequIP.data import register_fields
-from .misc import dtype_from_name
-from .auto_init import instantiate
-from .test import set_irreps_debug
 
+from .auto_init import instantiate
+from .misc import dtype_from_name
+from .test import set_irreps_debug
 
 # for multiprocessing, we need to keep track of our latest global options so
 # that we can reload/reset them in worker processes. While we could be more careful here,
@@ -31,7 +29,9 @@ def _set_global_options(config, warn_on_override: bool = False) -> None:
     """Configure global options of libraries like `torch` and `e3nn` based on `config`.
 
     Args:
+    ----
         warn_on_override: if True, will try to warn if new options are inconsistant with previously set ones.
+
     """
     # update these options into the latest global config.
     global _latest_global_config
@@ -82,4 +82,3 @@ def _set_global_options(config, warn_on_override: bool = False) -> None:
 
     # Register fields:
     instantiate(register_fields, all_args=config)
-    return

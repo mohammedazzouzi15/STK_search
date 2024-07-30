@@ -16,8 +16,9 @@ def bincount(
         if minlength == 0:
             minlength = length
         if length > minlength:
+            msg = f"minlength {minlength} too small for input with integers up to and including {length}"
             raise ValueError(
-                f"minlength {minlength} too small for input with integers up to and including {length}"
+                msg
             )
 
         # Flatten indexes

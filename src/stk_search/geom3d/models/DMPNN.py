@@ -1,19 +1,17 @@
-'''
-credit to https://github.com/chao1224/BioChemGNN_Dense/blob/master/src/models/DMPNN.py
-credit to https://github.com/chao1224/BioChemGNN/blob/main/BioChemGNN/models/DMPNN.py
-'''
+"""credit to https://github.com/chao1224/BioChemGNN_Dense/blob/master/src/models/DMPNN.py
+credit to https://github.com/chao1224/BioChemGNN/blob/main/BioChemGNN/models/DMPNN.py.
+"""
 from collections import *
-from re import L
+
 import torch
+from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from torch import nn
 from torch.nn import functional as F
-from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from torch_scatter import scatter_add
 
+
 def get_revert_edge_index(num_edge):
-    """
-    Corresponding to this line: https://github.com/chao1224/3D_Benchmark_dev/blob/main/Geom3D/datasets/datasets_utils.py#L90-L92
-    """
+    """Corresponding to this line: https://github.com/chao1224/3D_Benchmark_dev/blob/main/Geom3D/datasets/datasets_utils.py#L90-L92."""
     l = []
     for i in range(int(num_edge / 2)):
         l.extend([i*2+1, i*2])
@@ -22,17 +20,18 @@ def get_revert_edge_index(num_edge):
 
 class DMPNN(nn.Module):
     def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin"):
-        super(DMPNN, self).__init__()
+        super().__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
         self.JK = JK
 
         if self.num_layer < 2:
-            raise ValueError("Number of GNN layers must be greater than 1.")
+            msg = "Number of GNN layers must be greater than 1."
+            raise ValueError(msg)
 
         self.atom_encoder = AtomEncoder(emb_dim)
         self.bond_encoder = BondEncoder(emb_dim)
-        
+
         self.W_input = nn.Linear(emb_dim*2, emb_dim, bias=False)
         self.W_hidden = nn.Linear(emb_dim, emb_dim, bias=False)
         self.W_output = nn.Linear(emb_dim*2, emb_dim)
@@ -49,12 +48,13 @@ class DMPNN(nn.Module):
             data = argv[0]
             x, edge_index, edge_attr = data.x, data.edge_index, data.edge_attr
         else:
-            raise ValueError("unmatched number of arguments.")
+            msg = "unmatched number of arguments."
+            raise ValueError(msg)
 
         x = self.atom_encoder(x)
         edge_attr = self.bond_encoder(edge_attr)
 
-        b_from_a = out_node_index = edge_index[0]
+        b_from_a = edge_index[0]
         b_to_a = in_node_index = edge_index[1]
         message = torch.cat([x[b_to_a], edge_attr], dim=-1)
         message = self.W_input(message)
@@ -74,6 +74,5 @@ class DMPNN(nn.Module):
 
         node_message = scatter_add(message, in_node_index, dim=0, dim_size=num_nodes)
         node_representation = torch.cat([x, node_message], dim=1)
-        node_representation = F.relu(self.W_output(node_representation))
+        return F.relu(self.W_output(node_representation))
 
-        return node_representation

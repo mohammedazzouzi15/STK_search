@@ -18,8 +18,7 @@ class PolynomialCutoff(torch.nn.Module):
     p: float
 
     def __init__(self, r_max: float, p: float = 6):
-        r"""Polynomial cutoff, as proposed in DimeNet: https://arxiv.org/abs/2003.03123
-
+        r"""Polynomial cutoff, as proposed in DimeNet: https://arxiv.org/abs/2003.03123.
 
         Parameters
         ----------
@@ -28,6 +27,7 @@ class PolynomialCutoff(torch.nn.Module):
 
         p : int
             Power used in envelope function
+
         """
         super().__init__()
         assert p >= 2.0
@@ -35,8 +35,7 @@ class PolynomialCutoff(torch.nn.Module):
         self._factor = 1.0 / float(r_max)
 
     def forward(self, x):
-        """
-        Evaluate cutoff function.
+        """Evaluate cutoff function.
 
         x: torch.Tensor, input distance
         """

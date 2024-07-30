@@ -1,9 +1,7 @@
 from typing import List
 
 import torch
-
 from e3nn import o3
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 
@@ -11,7 +9,9 @@ from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 class Concat(GraphModuleMixin, torch.nn.Module):
     """Concatenate multiple fields into one."""
 
-    def __init__(self, in_fields: List[str], out_field: str, irreps_in={}):
+    def __init__(self, in_fields: List[str], out_field: str, irreps_in=None):
+        if irreps_in is None:
+            irreps_in = {}
         super().__init__()
         self.in_fields = list(in_fields)
         self.out_field = out_field

@@ -1,14 +1,16 @@
-import wandb
 import logging
+
+import wandb
 from wandb.util import json_friendly_val
 
 
 def init_n_update(config):
     conf_dict = dict(config)
     # wandb mangles keys (in terms of type) as well, but we can't easily correct that because there are many ambiguous edge cases. (E.g. string "-1" vs int -1 as keys, are they different config keys?)
-    if any(not isinstance(k, str) for k in conf_dict.keys()):
+    if any(not isinstance(k, str) for k in conf_dict):
+        msg = "Due to wandb limitations, only string keys are supported in configurations."
         raise TypeError(
-            "Due to wandb limitations, only string keys are supported in configurations."
+            msg
         )
 
     # download from wandb set up
@@ -25,7 +27,7 @@ def init_n_update(config):
     updated_parameters = dict(wandb.config)
     for k, v_new in updated_parameters.items():
         skip = False
-        if k in config.keys():
+        if k in config:
             # double check the one sanitized by wandb
             v_old = json_friendly_val(config[k])
             if repr(v_new) == repr(v_old):

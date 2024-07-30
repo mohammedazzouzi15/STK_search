@@ -1,10 +1,8 @@
 # pylint: disable=C,E1101,E1102
-"""
-Some functions related to SO3 and his usual representations
+"""Some functions related to SO3 and his usual representations.
 
 Using ZYZ Euler angles parametrisation
 """
-import math
 
 import numpy as np
 import torch
@@ -24,9 +22,7 @@ class torch_default_dtype:
 
 
 def rot_z(gamma):
-    """
-    Rotation around Z axis
-    """
+    """Rotation around Z axis."""
     if not torch.is_tensor(gamma):
         gamma = torch.tensor(gamma, dtype=torch.get_default_dtype())
     return torch.tensor(
@@ -40,9 +36,7 @@ def rot_z(gamma):
 
 
 def rot_y(beta):
-    """
-    Rotation around Y axis
-    """
+    """Rotation around Y axis."""
     if not torch.is_tensor(beta):
         beta = torch.tensor(beta, dtype=torch.get_default_dtype())
     return torch.tensor(
@@ -56,16 +50,12 @@ def rot_y(beta):
 
 
 def rot(alpha, beta, gamma):
-    """
-    ZYZ Eurler angles rotation
-    """
+    """ZYZ Eurler angles rotation."""
     return rot_z(alpha) @ rot_y(beta) @ rot_z(gamma)
 
 
 def x_to_alpha_beta(x):
-    """
-    Convert point (x, y, z) on the sphere into (alpha, beta)
-    """
+    """Convert point (x, y, z) on the sphere into (alpha, beta)."""
     if not torch.is_tensor(x):
         x = torch.tensor(x, dtype=torch.get_default_dtype())
     x = x / torch.norm(x)
@@ -81,9 +71,8 @@ def x_to_alpha_beta(x):
 
 
 def irr_repr(order, alpha, beta, gamma, dtype=None):
-    """
-    irreducible representation of SO3
-    - compatible with compose and spherical_harmonics
+    """Irreducible representation of SO3
+    - compatible with compose and spherical_harmonics.
     """
     # from from_lielearn_SO3.wigner_d import wigner_D_matrix
     from lie_learn.representations.SO3.wigner_d import wigner_D_matrix
@@ -130,9 +119,7 @@ def irr_repr(order, alpha, beta, gamma, dtype=None):
 
 
 def compose(a1, b1, c1, a2, b2, c2):
-    """
-    (a, b, c) = (a1, b1, c1) composed with (a2, b2, c2)
-    """
+    """(a, b, c) = (a1, b1, c1) composed with (a2, b2, c2)."""
     comp = rot(a1, b1, c1) @ rot(a2, b2, c2)
     xyz = comp @ torch.tensor([0, 0, 1.0])
     a, b = x_to_alpha_beta(xyz)
@@ -155,10 +142,9 @@ def kron(x, y):
 
 
 def xyz_vector_basis_to_spherical_basis():
-    """
-    to convert a vector [x, y, z] transforming with rot(a, b, c)
+    """To convert a vector [x, y, z] transforming with rot(a, b, c)
     into a vector transforming with irr_repr(1, a, b, c)
-    see assert for usage
+    see assert for usage.
     """
     with torch_default_dtype(torch.float64):
         A = torch.tensor([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=torch.float64)
@@ -170,19 +156,17 @@ def xyz_vector_basis_to_spherical_basis():
 
 
 def tensor3x3_repr(a, b, c):
-    """
-    representation of 3x3 tensors
-    T --> R T R^t
+    """Representation of 3x3 tensors
+    T --> R T R^t.
     """
     r = rot(a, b, c)
     return kron(r, r)
 
 
 def tensor3x3_repr_basis_to_spherical_basis():
-    """
-    to convert a 3x3 tensor transforming with tensor3x3_repr(a, b, c)
+    """To convert a 3x3 tensor transforming with tensor3x3_repr(a, b, c)
     into its 1 + 3 + 5 component transforming with irr_repr(0, a, b, c), irr_repr(1, a, b, c), irr_repr(3, a, b, c)
-    see assert for usage
+    see assert for usage.
     """
     with torch_default_dtype(torch.float64):
         to1 = torch.tensor(
@@ -237,9 +221,7 @@ def tensor3x3_repr_basis_to_spherical_basis():
 
 
 def test_is_representation(rep):
-    """
-    rep(Z(a1) Y(b1) Z(c1) Z(a2) Y(b2) Z(c2)) = rep(Z(a1) Y(b1) Z(c1)) rep(Z(a2) Y(b2) Z(c2))
-    """
+    """rep(Z(a1) Y(b1) Z(c1) Z(a2) Y(b2) Z(c2)) = rep(Z(a1) Y(b1) Z(c1)) rep(Z(a2) Y(b2) Z(c2))."""
     with torch_default_dtype(torch.float64):
         a1, b1, c1, a2, b2, c2 = torch.rand(6)
 
@@ -252,17 +234,15 @@ def test_is_representation(rep):
         r_ = r1 @ r2
 
         d, r = (r - r_).abs().max(), r.abs().max()
-        print(d.item(), r.item())
         assert d < 1e-10 * r, d / r
 
 
-def _test_spherical_harmonics(order):
-    """
-    This test tests that
+def _test_spherical_harmonics(order) -> None:
+    """This test tests that
     - irr_repr
     - compose
     - spherical_harmonics
-    are compatible
+    are compatible.
 
     Y(Z(alpha) Y(beta) Z(gamma) x) = D(alpha, beta, gamma) Y(x)
     with x = Z(a) Y(b) eta
@@ -278,11 +258,10 @@ def _test_spherical_harmonics(order):
         DrY = irr_repr(order, alpha, beta, gamma) @ Y
 
         d, r = (Yrx - DrY).abs().max(), Y.abs().max()
-        print(d.item(), r.item())
         assert d < 1e-10 * r, d / r
 
 
-def _test_change_basis_wigner_to_rot():
+def _test_change_basis_wigner_to_rot() -> None:
     # from from_lielearn_SO3.wigner_d import wigner_D_matrix
     from lie_learn.representations.SO3.wigner_d import wigner_D_matrix
 
@@ -295,27 +274,22 @@ def _test_change_basis_wigner_to_rot():
         r2 = rot(a, b, c)
 
         d = (r1 - r2).abs().max()
-        print(d.item())
         assert d < 1e-10
 
 
 if __name__ == "__main__":
     from functools import partial
 
-    print("Change of basis")
     xyz_vector_basis_to_spherical_basis()
     test_is_representation(tensor3x3_repr)
     tensor3x3_repr_basis_to_spherical_basis()
 
-    print("Change of basis Wigner <-> rot")
     _test_change_basis_wigner_to_rot()
     _test_change_basis_wigner_to_rot()
     _test_change_basis_wigner_to_rot()
 
-    print("Spherical harmonics are solution of Y(rx) = D(r) Y(x)")
     for l in range(7):
         _test_spherical_harmonics(l)
 
-    print("Irreducible repr are indeed representations")
     for l in range(7):
         test_is_representation(partial(irr_repr, l))

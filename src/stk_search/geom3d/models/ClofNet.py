@@ -1,37 +1,30 @@
-import torch
 import math
-import sys
-
-from torch import nn
-from torch.nn import Linear, Embedding
-from torch_geometric.nn.inits import glorot_orthogonal
-from torch_cluster import radius_graph
-
+from math import pi, sqrt
 from typing import Optional, Tuple, Union
-from torch_geometric.nn.conv import MessagePassing
-from torch import Tensor
-from torch_geometric.typing import Adj, OptTensor, PairTensor
-from torch_geometric.utils import softmax
-from torch_geometric.utils import scatter
 
-from math import sqrt
+import torch
 import torch.nn.functional as F
-from torch_geometric.typing import SparseTensor
+from torch import Tensor, nn
+from torch.nn import Embedding, Linear
+from torch_cluster import radius_graph
 from torch_geometric.nn import MessagePassing
-from math import pi
+from torch_geometric.nn.conv import MessagePassing
+from torch_geometric.nn.inits import glorot_orthogonal
+from torch_geometric.typing import Adj, OptTensor, PairTensor, SparseTensor
+from torch_geometric.utils import scatter, softmax
+
 try:
     import sympy as sym
 except ImportError:
     sym = None
 from math import pi as PI
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class rbf_emb(nn.Module):
-    '''
-    modified: delete cutoff with r
-    '''
+    """modified: delete cutoff with r."""
+
     def __init__(self, num_rbf, rbound_upper, rbf_trainable=False, **kwargs):
         super().__init__()
         self.rbound_upper = rbound_upper
@@ -61,16 +54,14 @@ class rbf_emb(nn.Module):
         rbounds = 0.5 * \
                   (torch.cos(dist * PI / self.rbound_upper) + 1.0)
         rbounds = rbounds * (dist < self.rbound_upper).float()
-        a = self.betas
-        d = self.means
-        c= torch.square((torch.exp(-dist) - self.means))
-        b = torch.exp(-self.betas * torch.square((torch.exp(-dist) - self.means)))
-        return rbounds*torch.exp(-self.betas * torch.square((torch.exp(-dist) - self.means)))
+        torch.square(torch.exp(-dist) - self.means)
+        torch.exp(-self.betas * torch.square(torch.exp(-dist) - self.means))
+        return rbounds*torch.exp(-self.betas * torch.square(torch.exp(-dist) - self.means))
 
 
 class emb(torch.nn.Module):
     def __init__(self, num_radial, cutoff, envelope_exponent):
-        super(emb, self).__init__()
+        super().__init__()
         #self.dist_emb = dist_emb(num_radial, cutoff, envelope_exponent)
         self.dist_emb = rbf_emb(num_radial, cutoff)
         # self.first_emb = dist_emb2(num_radial2, cutoff, envelope_exponent)
@@ -85,17 +76,16 @@ class emb(torch.nn.Module):
         # self.vertical_emb.reset_parameters()
 
     def forward(self, dist):
-        dist_emb = self.dist_emb(dist)
+        return self.dist_emb(dist)
         # first_emb = self.first_emb(first)
         # second_emb = self.first_emb(second)
         # vertical_emb = self.first_emb(vertical)
 
-        return dist_emb  # , first_emb, second_emb, vertical_emb
 
 
 class ResidualLayer(torch.nn.Module):
-    def __init__(self, hidden_channels, act='swish'):
-        super(ResidualLayer, self).__init__()
+    def __init__(self, hidden_channels, act="swish"):
+        super().__init__()
         self.act = act
         self.lin1 = Linear(hidden_channels, hidden_channels)
         self.lin2 = Linear(hidden_channels, hidden_channels)
@@ -113,8 +103,8 @@ class ResidualLayer(torch.nn.Module):
 
 
 class init(torch.nn.Module):
-    def __init__(self, num_radial, hidden_channels, act='swish', use_node_features=True):
-        super(init, self).__init__()
+    def __init__(self, num_radial, hidden_channels, act="swish", use_node_features=True):
+        super().__init__()
         self.act = act
         self.use_node_features = use_node_features
         if self.use_node_features:
@@ -154,8 +144,8 @@ class ClofNet(torch.nn.Module):
             basis_emb_size_dist=8, basis_emb_size_angle=8, basis_emb_size_torsion=8, out_emb_channels=256,
             num_radial=12, num_radial2=80, envelope_exponent=5,
             num_before_skip=1, num_after_skip=2, num_output_layers=3, heads=1,
-            act='swish', output_init='GlorotOrthogonal', use_node_features=True, **kwargs):
-        super(ClofNet, self).__init__()
+            act="swish", output_init="GlorotOrthogonal", use_node_features=True, **kwargs):
+        super().__init__()
         self.hidden_channels = hidden_channels
         self.cutoff = cutoff
         self.energy_and_force = energy_and_force
@@ -197,15 +187,15 @@ class ClofNet(torch.nn.Module):
         self.k_proj = nn.Linear(hidden_channels, hidden_channels, bias=False)
         self.dir_proj = nn.Sequential(
             nn.Linear(4 * hidden_channels + num_radial, hidden_channels), nn.SiLU(inplace=True),
-            nn.Linear(hidden_channels, hidden_channels), )
+            nn.Linear(hidden_channels, hidden_channels) )
         self.edge_proj = nn.Sequential(
              nn.Linear(3, hidden_channels//2),nn.LayerNorm(hidden_channels // 2, elementwise_affine=False), nn.SiLU(inplace=True),
-             nn.Linear(hidden_channels//2, 32), )
+             nn.Linear(hidden_channels//2, 32) )
         self.interaction1 = TransformerConv(hidden_channels, hidden_channels, heads=self.heads,
                                             edge_dim=self.hidden_channels, **kwargs)
 
         self.interactions = nn.ModuleList()
-        for i in range(num_layers-1):
+        for _i in range(num_layers-1):
             self.interactions.append(TransformerConv(hidden_channels * self.heads, hidden_channels, heads=self.heads, edge_dim=self.hidden_channels, **kwargs))
 
         self.mlp = nn.Sequential(nn.LayerNorm(hidden_channels * self.heads, elementwise_affine=False),
@@ -217,19 +207,19 @@ class ClofNet(torch.nn.Module):
         self.emb.reset_parameters()
         self.freq1.data = torch.arange(0, self.freq1.numel()).float().mul_(pi)
 
-    def global_add_pool(x: Tensor, batch: Optional[Tensor],
+    def global_add_pool(self: Tensor, batch: Optional[Tensor],
                         size: Optional[int] = None) -> Tensor:
 
         if batch is None:
-            return x.sum(dim=-2, keepdim=x.dim() == 2)
+            return self.sum(dim=-2, keepdim=self.dim() == 2)
         size = int(batch.max().item() + 1) if size is None else size
-        return scatter(x, batch, dim=-2, dim_size=size, reduce='add')
+        return scatter(self, batch, dim=-2, dim_size=size, reduce="add")
 
     def forward(self, z, pos, batch):
         if self.energy_and_force:
             pos.requires_grad_()
         edge_index = radius_graph(pos, r=self.cutoff, batch=batch)
-        num_nodes = z.size(0)
+        z.size(0)
         z_emb = self.emblin(z)
         z_emb = self.ln_emb(z_emb)
         i,j = edge_index
@@ -271,10 +261,9 @@ class ClofNet(torch.nn.Module):
         scalar3 = (self.lin3(torch.permute(scalrization1, (0,2,1)))+ torch.permute(scalrization1, (0,2,1))[:,:,0].unsqueeze(2))
         scalar4 = (self.lin3(torch.permute(scalrization2, (0,2,1)))+ torch.permute(scalrization2, (0,2,1))[:,:,0].unsqueeze(2))
         #(E,hidden)
-        scalar3 = torch.einsum('ijk,ik->ij', [scalar3, frequency])
+        scalar3 = torch.einsum("ijk,ik->ij", [scalar3, frequency])
         #scalar3 = torch.matmul(scalar3,frequency)
-        scalar4 = torch.einsum('ijk,ik->ij', [scalar4, frequency])
-        #
+        scalar4 = torch.einsum("ijk,ik->ij", [scalar4, frequency])
         scalar5 = (self.lin4(torch.permute(scalrization1, (0, 2, 1))) + torch.permute(scalrization1, (0, 2, 1))).permute((0, 2, 1))
         scalar6 = (self.lin4(torch.permute(scalrization2, (0, 2, 1))) + torch.permute(scalrization2, (0, 2, 1))).permute((0, 2, 1))
 
@@ -288,7 +277,7 @@ class ClofNet(torch.nn.Module):
         edgeweight = f * self.dir_proj(edgeweight)
         edgefeature = self.edge_proj((scalrization1.detach() - scalrization2.detach()).permute(0, 2, 1))
         edgefeature[:, 1, :] = torch.abs(edgefeature[:, 1, :].clone())
-        edgefeature = torch.einsum('ijk,ik->ij', [edgefeature, frequency])* rbounds.unsqueeze(-1)
+        edgefeature = torch.einsum("ijk,ik->ij", [edgefeature, frequency])* rbounds.unsqueeze(-1)
         edgefeature = edgefeature #+ edgefeature1
         z_emb = self.interaction1(z_emb, edge_index, edge_attr=edgefeature, edgeweight=edgeweight)
         i = 0
@@ -298,14 +287,13 @@ class ClofNet(torch.nn.Module):
 
         s = self.mlp(z_emb.view(-1, self.heads * self.hidden_channels)) + self.emblinfinal(z)
         size = int(batch.max().item() + 1)
-        s = scatter(s, batch, dim=-2, dim_size=size, reduce='sum')
-        return s
+        return scatter(s, batch, dim=-2, dim_size=size, reduce="sum")
 
 
 class NeighborEmb(MessagePassing):
 
     def __init__(self, hid_dim: int, **kwargs):  # ln_emb: bool, **kwargs):
-        super(NeighborEmb, self).__init__(aggr='add')
+        super().__init__(aggr="add")
         self.embedding = nn.Embedding(95, hid_dim)
         # self.conv = CFConv()
         self.hid_dim = hid_dim
@@ -317,8 +305,7 @@ class NeighborEmb(MessagePassing):
         s_neighbors = self.propagate(edge_index, x=s_neighbors, norm=embs)
 
         # s_neighbors = self.conv(s_neighbors, mask)
-        s = s + s_neighbors
-        return s
+        return s + s_neighbors
 
     def message(self, x_j, norm):
         return norm.view(-1, self.hid_dim) * x_j
@@ -328,7 +315,7 @@ class CFConvS2V(MessagePassing):
 
     def __init__(self, hid_dim: int, **kwargs):  # ln_s2v: bool,
         # lin1_tailact: bool, nolin1: bool=False, **kwargs):
-        super(CFConvS2V, self).__init__(aggr='add')
+        super().__init__(aggr="add")
         # super().__init__()
         self.hid_dim = hid_dim
         self.lin1 = nn.Sequential(  # nn.Identity() if nolin1 else nn.Sequential(
@@ -340,15 +327,14 @@ class CFConvS2V(MessagePassing):
         #self.lin2 = nn.Linear(3, hid_dim)
 
     def forward(self, s, v, edge_index, emb):
-        '''
-        s (B, N, hid_dim)
+        """S (B, N, hid_dim)
         v (B, N, 3, hid_dim)
         ea (B, N, N)
         ef (B, N, N, ef_dim)
         ev (B, N, N, 3)
         v (BN, 3, 1)
-        emb (BN, hid_dim)
-        '''
+        emb (BN, hid_dim).
+        """
         s = self.lin1(s)
         #v = self.lin2(v)
         # sv = s*v
@@ -386,8 +372,8 @@ class TransformerConv(MessagePassing):
             root_weight: bool = True,
             **kwargs,
     ):
-        kwargs.setdefault('aggr', 'add')
-        super(TransformerConv, self).__init__(node_dim=0, **kwargs)
+        kwargs.setdefault("aggr", "add")
+        super().__init__(node_dim=0, **kwargs)
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -411,7 +397,7 @@ class TransformerConv(MessagePassing):
         if edge_dim is not None:
             self.lin_edge = Linear(edge_dim, heads * out_channels, bias=False)
         else:
-            self.lin_edge = self.register_parameter('lin_edge', None)
+            self.lin_edge = self.register_parameter("lin_edge", None)
 
         if concat:
             self.lin_skip = Linear(in_channels[1], heads * out_channels,
@@ -419,13 +405,13 @@ class TransformerConv(MessagePassing):
             if self.beta:
                 self.lin_beta = Linear(3 * heads * out_channels, 1, bias=False)
             else:
-                self.lin_beta = self.register_parameter('lin_beta', None)
+                self.lin_beta = self.register_parameter("lin_beta", None)
         else:
             self.lin_skip = Linear(in_channels[1], out_channels, bias=bias)
             if self.beta:
                 self.lin_beta = Linear(3 * out_channels, 1, bias=False)
             else:
-                self.lin_beta = self.register_parameter('lin_beta', None)
+                self.lin_beta = self.register_parameter("lin_beta", None)
 
         self.reset_parameters()
 
@@ -477,7 +463,8 @@ class TransformerConv(MessagePassing):
             if isinstance(edge_index, Tensor):
                 return out, (edge_index, alpha)
             elif isinstance(edge_index, SparseTensor):
-                return out, edge_index.set_value(alpha, layout='coo')
+                return out, edge_index.set_value(alpha, layout="coo")
+            return None
         else:
             return out
 
@@ -506,5 +493,5 @@ class TransformerConv(MessagePassing):
         return out
 
     def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}({self.in_channels}, '
-                f'{self.out_channels}, heads={self.heads})')
+        return (f"{self.__class__.__name__}({self.in_channels}, "
+                f"{self.out_channels}, heads={self.heads})")

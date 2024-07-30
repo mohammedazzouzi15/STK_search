@@ -1,6 +1,5 @@
 import torch
-import torch.nn.functional as F
-from torch import einsum, nn
+from torch import nn
 
 from .fibers import Fiber
 from .SE3_Transformer_utils import GSE3Res
@@ -9,7 +8,7 @@ from .utils import get_basis
 
 
 class SE3Transformer(nn.Module):
-    """SE(3) equivariant GCN with attention"""
+    """SE(3) equivariant GCN with attention."""
 
     def __init__(
         self,
@@ -41,7 +40,7 @@ class SE3Transformer(nn.Module):
         # Equivariant layers
         layers = []
         fin = self.fibers["in"]
-        for i in range(self.num_layers):
+        for _i in range(self.num_layers):
             layers.append(
                 GSE3Res(
                     fin,
@@ -62,7 +61,6 @@ class SE3Transformer(nn.Module):
             )
         )
         self.layers = nn.ModuleList(layers)
-        return
 
     def forward(self, x, positions, edge_index, edge_feat=None):
         # Compute equivariant weight basis from relative positions
@@ -83,6 +81,5 @@ class SE3Transformer(nn.Module):
                 basis=basis,
             )
 
-        h = h["0"].squeeze()
+        return h["0"].squeeze()
 
-        return h

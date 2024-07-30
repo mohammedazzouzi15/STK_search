@@ -1,14 +1,12 @@
-'''
-credit to https://github.com/chao1224/BioChemGNN_Dense/blob/master/src/models/enn.py
-'''
+"""credit to https://github.com/chao1224/BioChemGNN_Dense/blob/master/src/models/enn.py."""
 from collections import *
+
 import torch
-from torch import nn
-from torch.nn import functional as F
-from .molecule_gnn_model import GINConv
-from torch_scatter import scatter_max
 from ogb.graphproppred.mol_encoder import AtomEncoder
-from torch_scatter import scatter_add
+from torch import nn
+from torch_scatter import scatter_add, scatter_max
+
+from .molecule_gnn_model import GINConv
 
 
 class GraphSoftmax(nn.Module):
@@ -25,14 +23,13 @@ class GraphSoftmax(nn.Module):
 
 class Set2Set(nn.Module):
     def __init__(self, input_dim, processing_steps, num_layers):
-        super(Set2Set, self).__init__()
+        super().__init__()
         self.input_dim = input_dim
         self.output_dim = input_dim * 2
         self.processing_steps = processing_steps
         self.num_layers = num_layers
         self.lstm = nn.LSTM(self.output_dim, self.input_dim, self.num_layers)
         self.softmax = GraphSoftmax()
-        return
 
     def forward(self, x, batch):
         batch_size = torch.max(batch).item() + 1
@@ -44,14 +41,13 @@ class Set2Set(nn.Module):
         for _ in range(self.processing_steps):
             q, h = self.lstm(q_star.unsqueeze(0), h)
             q = q.squeeze(0)
-            
+
             product = torch.einsum("bd, bd -> b", q[batch], x)
             attention = self.softmax(batch, product)
             attenteion_output = scatter_add(attention.unsqueeze(-1) * x, batch, dim=0, dim_size=batch_size)  # n_graph, dim
             q_star = torch.cat([q, attenteion_output], dim=-1)
 
-        q_star = q_star.squeeze(0)
-        return q_star
+        return q_star.squeeze(0)
 
 
 class ENN_S2S(nn.Module):
@@ -59,7 +55,7 @@ class ENN_S2S(nn.Module):
             self, hidden_dim, gru_layer_num, enn_layer_num,
             set2set_processing_steps, set2set_num_layers, output_dim
     ):
-        super(ENN_S2S, self).__init__()
+        super().__init__()
 
         self.hidden_dim = hidden_dim
         self.gru_layer_num = gru_layer_num
@@ -73,7 +69,6 @@ class ENN_S2S(nn.Module):
 
         self.set2set = Set2Set(input_dim=self.hidden_dim, processing_steps=set2set_processing_steps, num_layers=set2set_num_layers)
         self.fc_layer = nn.Linear(self.hidden_dim*2, self.output_dim)
-        return
 
     def forward(self, data):
         x, edge_index, edge_attr = data.x, data.edge_index, data.edge_attr
@@ -88,5 +83,4 @@ class ENN_S2S(nn.Module):
             x = x.squeeze(0)
 
         x = self.set2set(x, batch)
-        x = self.fc_layer(x)
-        return x
+        return self.fc_layer(x)

@@ -1,11 +1,10 @@
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class LayerDropModuleList(nn.ModuleList):
-    """
-    A LayerDrop implementation based on :class:`torch.nn.ModuleList`.
+    """A LayerDrop implementation based on :class:`torch.nn.ModuleList`.
     We refresh the choice of which layers to drop every time we iterate
     over the LayerDropModuleList instance. During evaluation we always
     iterate over all layers.
@@ -16,10 +15,13 @@ class LayerDropModuleList(nn.ModuleList):
         for layer in layers:  # this might iterate over all layers
             x = layer(x)
         for layer in layers:  # this might not iterate over any layers
-            x = layer(x)
+            x = layer(x).
+
     Args:
+    ----
         p (float): probability of dropping out each layer
         modules (iterable, optional): an iterable of modules to add
+
     """
 
     def __init__(self, p, modules=None):

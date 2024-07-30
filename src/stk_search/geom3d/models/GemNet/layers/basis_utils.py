@@ -1,20 +1,16 @@
 import numpy as np
-from scipy.optimize import brentq
-from scipy import special as sp
 import sympy as sym
+from scipy import special as sp
+from scipy.optimize import brentq
 
 
 def Jn(r, n):
-    """
-    numerical spherical bessel functions of order n
-    """
+    """Numerical spherical bessel functions of order n."""
     return sp.spherical_jn(n, r)
 
 
 def Jn_zeros(n, k):
-    """
-    Compute the first k zeros of the spherical bessel functions up to order n (excluded)
-    """
+    """Compute the first k zeros of the spherical bessel functions up to order n (excluded)."""
     zerosj = np.zeros((n, k), dtype="float32")
     zerosj[0] = np.arange(1, k + 1) * np.pi
     points = np.arange(1, k + n) * np.pi
@@ -30,9 +26,7 @@ def Jn_zeros(n, k):
 
 
 def spherical_bessel_formulas(n):
-    """
-    Computes the sympy formulas for the spherical bessel functions up to order n (excluded)
-    """
+    """Computes the sympy formulas for the spherical bessel functions up to order n (excluded)."""
     x = sym.symbols("x")
     # j_i = (-x)^i * (1/x * d/dx)^î * sin(x)/x
     j = [sym.sin(x) / x]  # j_0
@@ -45,14 +39,15 @@ def spherical_bessel_formulas(n):
 
 
 def bessel_basis(n, k):
-    """
-    Compute the sympy formulas for the normalized and rescaled spherical bessel functions up to
+    """Compute the sympy formulas for the normalized and rescaled spherical bessel functions up to
     order n (excluded) and maximum frequency k (excluded).
 
-    Returns:
+    Returns
+    -------
         bess_basis: list
             Bessel basis formulas taking in a single argument x.
             Has length n where each element has length k. -> In total n*k many.
+
     """
     zeros = Jn_zeros(n, k)
     normalizer = []
@@ -120,6 +115,7 @@ def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
     -------
         polynomials: list
             Contains the sympy functions of the polynomials (in total L many if zero_m_only is True else L^2 many).
+
     """
     # calculations from http://web.cmb.usc.edu/people/alber/Software/tomominer/docs/cpp/group__legendre__polynomials.html
     z = sym.symbols("z")
@@ -142,7 +138,7 @@ def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
                     (1 - 2 * l) * (1 - z ** 2) ** 0.5 * P_l_m[l - 1][l - 1]
                 )  # P_00, P_11, P_22, P_33
 
-            for m in range(0, L - 1):
+            for m in range(L - 1):
                 P_l_m[m + 1][m] = sym.simplify(
                     (2 * m + 1) * z * P_l_m[m][m]
                 )  # P_10, P_21, P_32, P_43
@@ -169,11 +165,11 @@ def associated_legendre_polynomials(L, zero_m_only=True, pos_m_only=True):
                         )
 
             return P_l_m
+    return None
 
 
 def real_sph_harm(L, spherical_coordinates, zero_m_only=True):
-    """
-    Computes formula strings of the the real part of the spherical harmonics up to degree L (excluded).
+    """Computes formula strings of the the real part of the spherical harmonics up to degree L (excluded).
     Variables are either spherical coordinates phi and theta (or cartesian coordinates x,y,z) on the UNIT SPHERE.
 
     Parameters
@@ -193,6 +189,7 @@ def real_sph_harm(L, spherical_coordinates, zero_m_only=True):
             to degree L (where degree L is not excluded).
             In total L^2 many sph harm exist up to degree L (excluded). However, if zero_m_only only is True then
             the total count is reduced to be only L many.
+
     """
     z = sym.symbols("z")
     P_l_m = associated_legendre_polynomials(L, zero_m_only)

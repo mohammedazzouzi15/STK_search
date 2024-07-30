@@ -1,5 +1,6 @@
-import torch
 from typing import Optional
+
+import torch
 
 
 # credit to https://github.com/mir-group/pytorch_runstats/blob/main/torch_runstats/scatter.py
@@ -7,12 +8,11 @@ def _broadcast(src: torch.Tensor, other: torch.Tensor, dim: int):
     if dim < 0:
         dim = other.dim() + dim
     if src.dim() == 1:
-        for _ in range(0, dim):
+        for _ in range(dim):
             src = src.unsqueeze(0)
     for _ in range(src.dim(), other.dim()):
         src = src.unsqueeze(-1)
-    src = src.expand_as(other)
-    return src
+    return src.expand_as(other)
 
 
 @torch.jit.script

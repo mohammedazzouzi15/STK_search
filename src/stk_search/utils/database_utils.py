@@ -1,4 +1,4 @@
-""" script to load data from database or files"""
+"""script to load data from database or files."""
 
 import numpy as np
 import pandas as pd
@@ -10,10 +10,7 @@ def load_data_database(
     df_precursor_loc="Data/calculation_data_precursor_310823_clean.pkl",
     num_fragm=6,
 ):
-    if num_fragm == 6:
-        collection_name = "BO_exp1"
-    else:
-        collection_name = f"BO_{num_fragm}"
+    collection_name = "BO_exp1" if num_fragm == 6 else f"BO_{num_fragm}"
 
     def load_data():
         client = pymongo.MongoClient("mongodb://ch-atarzia.ch.ic.ac.uk/")
@@ -26,7 +23,7 @@ def load_data_database(
         df_CM = pd.DataFrame(list(collection.find()))
         df_total = df_CM.merge(df_STDA, on="InChIKey", how="outer")
         df_total = df_total.merge(df_IPEA, on="InChIKey", how="outer")
-        df_total.dropna(subset=["Excited state energy (eV)"], inplace=True)
+        df_total = df_total.dropna(subset=["Excited state energy (eV)"])
 
         df_total["ES1"] = df_total["Excited state energy (eV)"].apply(
             lambda x: x[0]
@@ -37,7 +34,7 @@ def load_data_database(
         return df_total
 
     df_total_new = load_data()
-    df_total_new.dropna(subset=["fosc1", "BB"], inplace=True)
+    df_total_new = df_total_new.dropna(subset=["fosc1", "BB"])
     df_total_new = df_total_new[df_total_new["fosc1"] > 0]
     df_total_new = df_total_new[df_total_new["fosc1"] < 11]
     df_total_new["target"] = (
@@ -51,13 +48,13 @@ def load_data_database(
         for id, x in df_test.iterrows():
             # print(x)
             if len(x["BB"]) != num_fragm:
-                df_test.drop(id, inplace=True)
+                df_test = df_test.drop(id)
         df_precursors = pd.read_pickle(df_precursor_loc)
         for i in range(num_fragm):
             df_test[f"InChIKey_{i}"] = df_test["BB"].apply(
                 lambda x: str(x[i]["InChIKey"])
             )
-            df_test= df_test[df_test[f'InChIKey_{i}'].isin(df_precursors['InChIKey'])] 
+            df_test= df_test[df_test[f"InChIKey_{i}"].isin(df_precursors["InChIKey"])]
         return df_test, df_precursors
 
     df_total, df_precursors = prepare_df_for_plot(df_total_new)
@@ -73,8 +70,10 @@ def load_data_from_file(
     num_fragm=6,
 ):
     def prepare_df_for_plot(
-        df_total_new: pd.DataFrame = [], features_frag=features_frag
+        df_total_new: pd.DataFrame = None, features_frag=features_frag
     ):
+        if df_total_new is None:
+            df_total_new = []
         df_test = df_total_new
         df_precursors = pd.read_pickle(df_precursors_path)
         if features_frag is None:
@@ -113,9 +112,8 @@ def load_precursors_df(
     df_precursors_path="Data/calculation_data_precursor_310823_clean.pkl",
 ):
 
-    df_precursors = pd.read_pickle(df_precursors_path)
+    return pd.read_pickle(df_precursors_path)
 
-    return df_precursors
 
 
 def save_data(

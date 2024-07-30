@@ -1,26 +1,22 @@
 import copy
-import math
-from typing import Dict, List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 
-class Fiber(object):
-    """A Handy Data Structure for Fibers"""
+class Fiber:
+    """A Handy Data Structure for Fibers."""
 
     def __init__(
         self,
-        num_degrees: int = None,
-        num_channels: int = None,
-        structure: List[Tuple[int, int]] = None,
+        num_degrees: Optional[int] = None,
+        num_channels: Optional[int] = None,
+        structure: Optional[List[Tuple[int, int]]] = None,
         dictionary=None,
     ):
-        """
-        define fiber structure; use one num_degrees & num_channels OR structure
-        OR dictionary
+        """Define fiber structure; use one num_degrees & num_channels OR structure
+        OR dictionary.
 
         :param num_degrees: degrees will be [0, ..., num_degrees-1]
         :param num_channels: number of channels, same for each degree
@@ -39,13 +35,12 @@ class Fiber(object):
         self.structure_dict = {k: v for v, k in self.structure}
         self.dict = self.structure_dict
         self.n_features = np.sum([i[0] * (2 * i[1] + 1) for i in self.structure])
-        return
 
     @staticmethod
     def combine(f1, f2):
         new_dict = copy.deepcopy(f1.structure_dict)
         for k, m in f2.structure_dict.items():
-            if k in new_dict.keys():
+            if k in new_dict:
                 new_dict[k] += m
             else:
                 new_dict[k] = m
@@ -56,7 +51,7 @@ class Fiber(object):
     def combine_max(f1, f2):
         new_dict = copy.deepcopy(f1.structure_dict)
         for k, m in f2.structure_dict.items():
-            if k in new_dict.keys():
+            if k in new_dict:
                 new_dict[k] = max(m, new_dict[k])
             else:
                 new_dict[k] = m

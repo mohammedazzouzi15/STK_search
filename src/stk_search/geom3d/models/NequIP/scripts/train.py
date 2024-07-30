@@ -1,47 +1,43 @@
-""" Train a network."""
-import logging
+"""Train a network."""
 import argparse
+import logging
 import warnings
+from os.path import isdir
+from pathlib import Path
 
 # This is a weird hack to avoid Intel MKL issues on the cluster when this is called as a subprocess of a process that has itself initialized PyTorch.
 # Since numpy gets imported later anyway for dataset stuff, this shouldn't affect performance.
 import numpy as np  # noqa: F401
-
-from os.path import isdir
-from pathlib import Path
-
 import torch
-
-from NequIP.model import model_from_config
-from NequIP.utils import Config
 from NequIP.data import dataset_from_config
-from NequIP.utils import load_file
+from NequIP.model import model_from_config
+from NequIP.scripts._logger import set_up_script_logger
+from NequIP.utils import Config, load_file
+from NequIP.utils._global_options import _set_global_options
 from NequIP.utils.test import assert_AtomicData_equivariant
 from NequIP.utils.versions import check_code_version
-from NequIP.utils._global_options import _set_global_options
-from NequIP.scripts._logger import set_up_script_logger
 
-default_config = dict(
-    root="./",
-    run_name="NequIP",
-    wandb=False,
-    wandb_project="NequIP",
-    model_builders=[
+default_config = {
+    "root": "./",
+    "run_name": "NequIP",
+    "wandb": False,
+    "wandb_project": "NequIP",
+    "model_builders": [
         "SimpleIrrepsConfig",
         "EnergyModel",
         "PerSpeciesRescale",
         "ForceOutput",
         "RescaleEnergyEtc",
     ],
-    dataset_statistics_stride=1,
-    default_dtype="float32",
-    allow_tf32=False,  # TODO: until we understand equivar issues
-    verbose="INFO",
-    model_debug_mode=False,
-    equivariance_test=False,
-    grad_anomaly_mode=False,
-    append=False,
-    _jit_bailout_depth=2,  # avoid 20 iters of pain, see https://github.com/pytorch/pytorch/issues/52286
+    "dataset_statistics_stride": 1,
+    "default_dtype": "float32",
+    "allow_tf32": False,  # TODO: until we understand equivar issues
+    "verbose": "INFO",
+    "model_debug_mode": False,
+    "equivariance_test": False,
+    "grad_anomaly_mode": False,
+    "append": False,
+    "_jit_bailout_depth": 2,  # avoid 20 iters of pain, see https://github.com/pytorch/pytorch/issues/52286
     # Quote from eelison in PyTorch slack:
     # https://pytorch.slack.com/archives/CDZD1FANA/p1644259272007529?thread_ts=1644064449.039479&cid=CDZD1FANA
     # > Right now the default behavior is to specialize twice on static shapes and then on dynamic shapes.
@@ -50,8 +46,8 @@ default_config = dict(
     # > provided broadcasting patterns remain fixed
     # We default to DYNAMIC alone because the number of edges is always dynamic,
     # even if the number of atoms is fixed:
-    _jit_fusion_strategy=[("DYNAMIC", 3)],
-)
+    "_jit_fusion_strategy": [("DYNAMIC", 3)],
+}
 
 
 def main(args=None, running_as_script: bool = True):
@@ -62,9 +58,12 @@ def main(args=None, running_as_script: bool = True):
 
     found_restart_file = isdir(f"{config.root}/{config.run_name}")
     if found_restart_file and not config.append:
-        raise RuntimeError(
+        msg = (
             f"Training instance exists at {config.root}/{config.run_name}; "
             "either set append to True or use a different root or runname"
+        )
+        raise RuntimeError(
+            msg
         )
 
     # for fresh new train
@@ -77,7 +76,6 @@ def main(args=None, running_as_script: bool = True):
     trainer.save()
     trainer.train()
 
-    return
 
 
 def parse_command_line(args=None):
@@ -122,11 +120,12 @@ def fresh_start(config):
 
     # = Make the trainer =
     if config.wandb:
-        import wandb  # noqa: F401
         from NequIP.train.trainer_wandb import TrainerWandB
 
         # download parameters from wandb in case of sweeping
         from NequIP.utils.wandb import init_n_update
+
+        import wandb  # noqa: F401
 
         config = init_n_update(config)
 
@@ -198,23 +197,21 @@ def restart(config):
     # load the dictionary
     restart_file = f"{config.root}/{config.run_name}/trainer.pth"
     dictionary = load_file(
-        supported_formats=dict(torch=["pt", "pth"]),
+        supported_formats={"torch": ["pt", "pth"]},
         filename=restart_file,
         enforced_format="torch",
     )
 
     # compare dictionary to config and update stop condition related arguments
-    for k in config.keys():
+    for k in config:
         if config[k] != dictionary.get(k, ""):
-            if k == "max_epochs":
-                dictionary[k] = config[k]
-                logging.info(f'Update "{k}" to {dictionary[k]}')
-            elif k.startswith("early_stop"):
+            if k == "max_epochs" or k.startswith("early_stop"):
                 dictionary[k] = config[k]
                 logging.info(f'Update "{k}" to {dictionary[k]}')
             elif isinstance(config[k], type(dictionary.get(k, ""))):
+                msg = f'Key "{k}" is different in config and the result trainer.pth file. Please double check'
                 raise ValueError(
-                    f'Key "{k}" is different in config and the result trainer.pth file. Please double check'
+                    msg
                 )
 
     # note, "trainer.pth"/dictionary also store code versions,
@@ -259,12 +256,13 @@ def restart(config):
 
 
 def _check_old_keys(config) -> None:
-    """check ``config`` for old/depricated keys and emit corresponding errors/warnings"""
+    """Check ``config`` for old/depricated keys and emit corresponding errors/warnings."""
     # compile_model
     k = "compile_model"
     if k in config:
         if config[k]:
-            raise ValueError("the `compile_model` option has been removed")
+            msg = "the `compile_model` option has been removed"
+            raise ValueError(msg)
         else:
             warnings.warn("the `compile_model` option has been removed")
 

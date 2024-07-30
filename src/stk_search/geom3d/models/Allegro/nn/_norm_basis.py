@@ -1,5 +1,6 @@
-import torch
+from typing import Optional
 
+import torch
 from stk_search.geom3d.models.NequIP.nn.radial_basis import BesselBasis
 
 
@@ -7,11 +8,13 @@ class NormalizedBasis(torch.nn.Module):
     """Normalized version of a given radial basis.
 
     Args:
+    ----
         basis (constructor): callable to build the underlying basis
         basis_kwargs (dict): parameters for the underlying basis
         n (int, optional): the number of samples to use for the estimated statistics
         r_min (float): the lower bound of the uniform square bump distribution for inputs
         r_max (float): the upper bound of the same
+
     """
 
     num_basis: int
@@ -21,10 +24,12 @@ class NormalizedBasis(torch.nn.Module):
         r_max: float,
         r_min: float = 0.0,
         original_basis=BesselBasis,
-        original_basis_kwargs: dict = {},
+        original_basis_kwargs: Optional[dict] = None,
         n: int = 4000,
         norm_basis_mean_shift: bool = True,
     ):
+        if original_basis_kwargs is None:
+            original_basis_kwargs = {}
         super().__init__()
         self.basis = original_basis(**original_basis_kwargs)
         self.r_min = r_min
@@ -40,7 +45,8 @@ class NormalizedBasis(torch.nn.Module):
             # don't take 0 in case of weirdness like bessel at 0
             rs = torch.linspace(r_min, r_max, n + 1)[1:]
             bs = self.basis(rs)
-            assert bs.ndim == 2 and len(bs) == n
+            assert bs.ndim == 2
+            assert len(bs) == n
             if norm_basis_mean_shift:
                 basis_std, basis_mean = torch.std_mean(bs, dim=0)
             else:

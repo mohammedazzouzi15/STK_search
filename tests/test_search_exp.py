@@ -1,23 +1,24 @@
 import unittest
-from run_search import run_search
-from stk_search import SearchExp
-from stk_search.Search_algorithm import Search_algorithm
-from stk_search.Search_algorithm import Bayesian_Optimisation
-from stk_search.Search_algorithm import (
-    Representation_slatm,
-    RepresentationPrecursor,
-    Represenation_3D,
-)
-from stk_search.Objective_function import Look_up_table
-import pandas as pd
-from stk_search.utils import database_utils
-from stk_search import Searched_space
+
+import pymongo
 import stk
 import torch
-import pymongo
-from stk_search.geom3d.test_train import read_config, Pymodel
+from run_search import run_search
+from stk_search import SearchExp
 from stk_search.geom3d.frag_encoding_with_transformer import Fragment_encoder
 from stk_search.geom3d.models import SchNet
+from stk_search.geom3d.test_train import Pymodel, read_config
+from stk_search.Objective_function import Look_up_table
+from stk_search.Search_algorithm import (
+    Bayesian_Optimisation,
+    Represenation_3D,
+    Representation_slatm,
+    RepresentationPrecursor,
+    Search_algorithm,
+)
+from stk_search.utils import database_utils
+
+
 # %%
 def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
     # Load the searched space
@@ -78,8 +79,8 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
         )
 
         EncodingModel.add_encoder(model)
-        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device('cpu'))
-        EncodingModel.load_state_dict(state_dict['state_dict'])
+        state_dict = torch.load(config["model_transformer_chkpt"],map_location=torch.device("cpu"))
+        EncodingModel.load_state_dict(state_dict["state_dict"])
         BO = Bayesian_Optimisation.Bayesian_Optimisation()
         client = pymongo.MongoClient(config["pymongo_client"])
         db_poly = stk.ConstructedMoleculeMongoDb(
@@ -115,13 +116,13 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
         BO.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         BO.normalise_input = False
         search_algorithm = BO
-    elif case == 'random':
+    elif case == "random":
         search_algorithm = Search_algorithm.random_search()
-    elif case == 'evolution_algorithm':
+    elif case == "evolution_algorithm":
         search_algorithm = Search_algorithm.evolution_algorithm()
     else:
         raise ValueError("case not recognised")
-    
+
     number_of_iterations = num_iteration
     verbose = True
     num_elem_initialisation = num_elem_initialisation
@@ -157,5 +158,5 @@ class TestStkSearch(unittest.TestCase):
         except Exception as e:
             self.fail(f"run_search raised an exception: {e}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

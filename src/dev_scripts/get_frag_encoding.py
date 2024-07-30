@@ -1,26 +1,49 @@
+"""Script to train the model and evaluate it on the datasets.
+
+Evaluate the model on the datasets and save the results in the ephemeral folder.
+
+Args:
+----
+    config_dir (str): The path to the directory containing the
+        configuration file.
+
+to run it from the command line:
+python get_frag_encoding.py --config_dir config_dir.
+"""
+
+
+
+import os
+import Path
 from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import torch
-import numpy as np
+from stk_search.geom3d import (
+    dataloader,
+    oligomer_encoding_with_transformer,
+    train_models,
+)
 from stk_search.utils.config_utils import read_config, save_config
-from stk_search.geom3d import dataloader
-from stk_search.geom3d import train_models
-from stk_search.geom3d import oligomer_encoding_with_transformer
-import os
 
 
-def main(config_dir):
-    """evaluate the model on the datasets and save the results in the ephemeral folder
+def main():  # noqa: PLR0915
+    """Script to train the model and evaluate it on the datasets.
+
+    Evaluate the model on the datasets and save the results in the ephemeral folder.
+
     Args:
-       config_dir (str): The path to the directory containing the
-           configuration file.
+    ----
+        config_dir (str): The path to the directory containing the
+            configuration file.
 
     """
     config = read_config(config_dir)
     (
-        train_loader,
-        val_loader,
-        test_loader,
+        _,
+        _,
+        _,
         dataset_train,
         dataset_val,
         dataset_test,
@@ -32,7 +55,6 @@ def main(config_dir):
             config["dataset_all_path"], map_location=config["device"]
         )
     else:
-        print(" no global dataset found ")
         dataset_all = torch.tensor([])
     # save the dataset in the ephemeral folder
     config = save_datasets(
@@ -42,7 +64,7 @@ def main(config_dir):
     # train the model
     config, min_val_loss = train_models.get_best_embedding_model(config_dir)
     output_file = config_dir + "/info.txt"
-    with open(output_file, "a") as file:
+    with Path.open(output_file, "a") as file:
         file.write(f"Best model: {config['model_embedding_chkpt']}\n")
         file.write(f"Best model val loss: {min_val_loss}\n")
     # get frag dataset
@@ -55,8 +77,7 @@ def main(config_dir):
     dataset_test_frag, pymodel = dataloader.load_data_frag(
         config, dataset_opt=dataset_test, dataset_name="test"
     )
-    if os.path.isfile(config["dataset_all_frag_path"]):
-        print(config["dataset_all_frag_path"])
+    if Path(config["dataset_all_frag_path"]).is_file():
         dataset_all_frag = torch.load(
             config["dataset_all_frag_path"], map_location=config["device"]
         )
@@ -117,7 +138,7 @@ def main(config_dir):
     mae_train, mse_train, r2_train = evaluale_model_performance(df_train_pred)
     mae_val, mse_val, r2_val = evaluale_model_performance(df_val_pred)
     mae_test, mse_test, r2_test = evaluale_model_performance(df_test_pred)
-    with open(output_file, "a") as file:
+    with Path.open(output_file, "a") as file:
         file.write(
             f"MAE train: {mae_train:.2f}, MSE train: {mse_train:.2f}, R2 train: {r2_train:.2f}\n"
         )
@@ -156,7 +177,7 @@ def main(config_dir):
             save_folder=ephemeral_dir,
         )
     )
-    encoding_dataset_all = (
+    (
         oligomer_encoding_with_transformer.save_encoding_dataset(
             dataset_all_frag,
             config,
@@ -196,7 +217,7 @@ def main(config_dir):
     mae_test, mse_test, r2_test = evaluale_model_performance_learned(
         df_test_pred_learned, target_name=config["target_name"]
     )
-    with open(output_file, "a") as file:
+    with Path.open(output_file, "a") as file:
         file.write(" Perfomance with learned embedding\n")
         file.write(
             f"MAE train: {mae_train:.2f}, MSE train: {mse_train:.2f}, R2 train: {r2_train:.2f}\n"
@@ -212,6 +233,21 @@ def main(config_dir):
 def save_datasets(
     config, dataset_train, dataset_val, dataset_test, dataset_all
 ):
+    """Save the datasets in the ephemeral folder.
+
+    Args:
+    ----
+        config (dict): The configuration dictionary.
+        dataset_train (torch.utils.data.Dataset): The training dataset.
+        dataset_val (torch.utils.data.Dataset): The validation dataset.
+        dataset_test (torch.utils.data.Dataset): The test dataset.
+        dataset_all (torch.utils.data.Dataset): The all dataset.
+
+    Returns:
+    -------
+        dict: The updated configuration dictionary.
+
+    """
     name = config["name"]
     ephemeral_dir = config["ephemeral_path"] + f"/{name.replace('_','/')}/"
     Path(ephemeral_dir).mkdir(parents=True, exist_ok=True)

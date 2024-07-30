@@ -1,10 +1,9 @@
-from typing import Dict, Callable
-import torch
 import logging
+from typing import Callable, Dict, Optional
 
+import torch
 from e3nn import o3
 from e3nn.nn import Gate, NormActivation
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import (
     GraphModuleMixin,
@@ -12,7 +11,6 @@ from stk_search.geom3d.models.NequIP.nn import (
 )
 from stk_search.geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
 from stk_search.geom3d.models.NequIP.utils.tp_utils import tp_path_exists
-
 
 acts = {
     "abs": torch.abs,
@@ -23,8 +21,8 @@ acts = {
 
 
 class ConvNetLayer(GraphModuleMixin, torch.nn.Module):
-    """
-    Args:
+    """Args:
+    ----
 
     """
 
@@ -35,13 +33,19 @@ class ConvNetLayer(GraphModuleMixin, torch.nn.Module):
         irreps_in,
         feature_irreps_hidden,
         convolution=InteractionBlock,
-        convolution_kwargs: dict = {},
+        convolution_kwargs: Optional[dict] = None,
         num_layers: int = 3,
         resnet: bool = False,
         nonlinearity_type: str = "gate",
-        nonlinearity_scalars: Dict[int, Callable] = {"e": "ssp", "o": "tanh"},
-        nonlinearity_gates: Dict[int, Callable] = {"e": "ssp", "o": "abs"},
+        nonlinearity_scalars: Optional[Dict[int, Callable]] = None,
+        nonlinearity_gates: Optional[Dict[int, Callable]] = None,
     ):
+        if nonlinearity_gates is None:
+            nonlinearity_gates = {"e": "ssp", "o": "abs"}
+        if nonlinearity_scalars is None:
+            nonlinearity_scalars = {"e": "ssp", "o": "tanh"}
+        if convolution_kwargs is None:
+            convolution_kwargs = {}
         super().__init__()
         # initialization
         assert nonlinearity_type in ("gate", "norm")

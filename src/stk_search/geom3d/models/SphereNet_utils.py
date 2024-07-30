@@ -4,13 +4,15 @@ import sympy as sym
 import torch
 
 from .DimeNet import Envelope
-from .DimeNet_utils import (associated_legendre_polynomials, bessel_basis,
-                            sph_harm_prefactor)
+from .DimeNet_utils import (
+    associated_legendre_polynomials,
+    bessel_basis,
+    sph_harm_prefactor,
+)
 
 
 def real_sph_harm(l, zero_m_only=False, spherical_coordinates=True):
-    """
-    Computes formula strings of the the real part of the spherical harmonics up to order l (excluded).
+    """Computes formula strings of the the real part of the spherical harmonics up to order l (excluded).
     Variables are either cartesian coordinates x,y,z on the unit sphere or spherical coordinates phi and theta.
     """
     if not zero_m_only:
@@ -70,7 +72,7 @@ def real_sph_harm(l, zero_m_only=False, spherical_coordinates=True):
 
 class dist_emb(torch.nn.Module):
     def __init__(self, num_radial, cutoff=5.0, envelope_exponent=5):
-        super(dist_emb, self).__init__()
+        super().__init__()
         self.cutoff = cutoff
         self.envelope = Envelope(envelope_exponent)
 
@@ -88,7 +90,7 @@ class dist_emb(torch.nn.Module):
 
 class angle_emb(torch.nn.Module):
     def __init__(self, num_spherical, num_radial, cutoff=5.0, envelope_exponent=5):
-        super(angle_emb, self).__init__()
+        super().__init__()
         assert num_radial <= 64
         self.num_spherical = num_spherical
         self.num_radial = num_radial
@@ -121,15 +123,14 @@ class angle_emb(torch.nn.Module):
         cbf = torch.stack([f(angle) for f in self.sph_funcs], dim=1)
 
         n, k = self.num_spherical, self.num_radial
-        out = (rbf[idx_kj].view(-1, n, k) * cbf.view(-1, n, 1)).view(-1, n * k)
-        return out
+        return (rbf[idx_kj].view(-1, n, k) * cbf.view(-1, n, 1)).view(-1, n * k)
 
 
 class torsion_emb(torch.nn.Module):
     def __init__(self, num_spherical, num_radial, cutoff=5.0, envelope_exponent=5):
-        super(torsion_emb, self).__init__()
+        super().__init__()
         assert num_radial <= 64
-        self.num_spherical = num_spherical  #
+        self.num_spherical = num_spherical
         self.num_radial = num_radial
         self.cutoff = cutoff
         # self.envelope = Envelope(envelope_exponent)
@@ -163,7 +164,6 @@ class torsion_emb(torch.nn.Module):
         cbf = torch.stack([f(angle, phi) for f in self.sph_funcs], dim=1)
 
         n, k = self.num_spherical, self.num_radial
-        out = (rbf[idx_kj].view(-1, 1, n, k) * cbf.view(-1, n, n, 1)).view(
+        return (rbf[idx_kj].view(-1, 1, n, k) * cbf.view(-1, n, n, 1)).view(
             -1, n * n * k
         )
-        return out

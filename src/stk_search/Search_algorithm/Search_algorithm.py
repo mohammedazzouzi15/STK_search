@@ -1,24 +1,23 @@
 # class to define the search algorithm
+import itertools
 import os
+from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from stk_search.SearchSpace import SearchSpace
-import itertools
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class Search_Algorithm:
-    """
-    Search algorithm  base class
-    
-    
+    """Search algorithm  base class.
+
     Class to define the search algorithm
     
     
-    Attributes:
+    Attributes
+    ----------
         name (str): name of the search algorithm
         multiFidelity (bool): if the search is multiFidelity
         budget (int): budget of the search
@@ -37,38 +36,37 @@ class Search_Algorithm:
     
     """
 
-
     def __init__(self):
         self.name = "default"
         self.multiFidelity = False
         self.budget = None
-        pass
 
     def suggest_element(
         self,
         SP: SearchSpace,
-        search_space_df: pd.DataFrame = [],
-        fitness_acquired: list = [],
-        ids_acquired: list = [],
-        bad_ids: list = [],
+        search_space_df: pd.DataFrame = None,
+        fitness_acquired: Optional[list] = None,
+        ids_acquired: Optional[list] = None,
+        bad_ids: Optional[list] = None,
     ) -> float:
         """Suggest an element to evaluate
         Args:
-            search_space_df (pd.DataFrame): dataframe containing the searched space
+            search_space_df (pd.DataFrame): dataframe containing the searched space.
 
             fitness_acquired (list): list of the fitness of the elements
             ids_acquired (list): list of the ids of the elements
             bad_ids (list): list of the ids of the bad elements
             SP (Search_Space): search space
 
-        Returns:
+        Returns
+        -------
             float: id of the element to evaluate
+
         """
-        pass
 
     def initial_suggestion(
         self,
-        SP: SearchSpace = [],
+        SP: SearchSpace = None,
         num_elem_initialisation: int = 10,
         benchmark=False,
         df_total: pd.DataFrame = None,
@@ -81,7 +79,10 @@ class Search_Algorithm:
             df_total (pd.DataFrame): dataframe containing the results
         Returns:
             list: list of index of the elements
-            pd.DataFrame: dataframe containing the elements"""
+        pd.DataFrame: dataframe containing the elements.
+        """
+        if SP is None:
+            SP = []
         if benchmark:
             searched_space_df = SP.check_df_for_element_from_SP(
                 df_to_check=df_total
@@ -89,26 +90,25 @@ class Search_Algorithm:
             searched_space_df = searched_space_df.sample(
                 num_elem_initialisation
             )
-        else:
-            if df_total is not None:
-                searched_space_df = SP.check_df_for_element_from_SP(
-                    df_to_check=df_total
-                )
-                # add top elements from the search space
-                searched_space_df = searched_space_df.sort_values(
-                    by="target", ascending=False
-                )
-                searched_space_df = pd.concat(
-                    [
-                        searched_space_df.sample(num_elem_initialisation - 10),
-                        searched_space_df[:10],
-                    ]
-                )
+        elif df_total is not None:
+            searched_space_df = SP.check_df_for_element_from_SP(
+                df_to_check=df_total
+            )
+            # add top elements from the search space
+            searched_space_df = searched_space_df.sort_values(
+                by="target", ascending=False
+            )
+            searched_space_df = pd.concat(
+                [
+                    searched_space_df.sample(num_elem_initialisation - 10),
+                    searched_space_df[:10],
+                ]
+            )
 
-            else:
-                searched_space_df = SP.random_generation_df(
-                    num_elem_initialisation
-                )
+        else:
+            searched_space_df = SP.random_generation_df(
+                num_elem_initialisation
+            )
         # reindex the df
         searched_space_df = searched_space_df[
             ["InChIKey_" + str(i) for i in range(SP.number_of_fragments)]
@@ -118,13 +118,13 @@ class Search_Algorithm:
 
 
 class random_search(Search_Algorithm):
-    """
-    Random search algorithm
+    """Random search algorithm.
     
     Class to define the random search algorithm
     Suggest a random molecule to evalutate from the search space
 
-    Attributes:
+    Attributes
+    ----------
         seed (int): seed for the random search
         name (str): name of the search algorithm
         multiFidelity (bool): if the search is multiFidelity
@@ -139,6 +139,7 @@ class random_search(Search_Algorithm):
 
 
     """
+
     def __init__(self, seed=None):
         self.name = "Random"
         self.seed = seed
@@ -158,7 +159,7 @@ class random_search(Search_Algorithm):
     ):
         df_search = search_space_df.copy()
 
-        def add_element(df, element):
+        def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
@@ -178,26 +179,22 @@ class random_search(Search_Algorithm):
             ]
             for id in df_elements.values:
                 if add_element(df_search, id):
-                    print(id)
                     leav_loop = True
                     break
             if leav_loop:
                 break
 
-        print(df_search.shape)
         return len(df_search) - 1, df_search
 
 
 class evolution_algorithm(Search_Algorithm):
-
-    """
-    
-    Evolution algorithm
+    """Evolution algorithm.
     
     Class to define the evolution algorithm
     Suggest a molecule to evaluate from the search space using an evolution algorithm
     
-    Attributes:
+    Attributes
+    ----------
         name (str): name of the search algorithm
         selection_method_mutation (str): selection method for the mutation
         selection_method_cross (str): selection method for the cross
@@ -230,7 +227,7 @@ class evolution_algorithm(Search_Algorithm):
             Generate the elements to evaluate
 
             
-            """
+    """
 
     def __init__(self):
         self.name = "Evolution_algorithm"
@@ -239,7 +236,6 @@ class evolution_algorithm(Search_Algorithm):
         self.number_of_parents = 5
         self.multiFidelity = False
         self.budget = None
-        pass
 
     def suggest_element(
         self,
@@ -249,14 +245,13 @@ class evolution_algorithm(Search_Algorithm):
         SP: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
-    ):  
-        """
-        Suggest an element to evaluate
+    ):
+        """Suggest an element to evaluate
         Start the algorithm by generating a list of offspring from the parents
         the list of offspring is generated by mutation and cross-over of the parents
         the selection of the parents is done using the selection method over the list of molecules in the searched space
         the selection method is defined by the user
-        the selection method can be "roulette", "tournament", "rank" or "top"
+        the selection method can be "roulette", "tournament", "rank" or "top".
         """
         import time
         random_seed = int(time.time()*1000) - int(time.time())*1000
@@ -274,11 +269,11 @@ class evolution_algorithm(Search_Algorithm):
             )
             error_counter =error_counter+1
             if error_counter>10:
-                df_elements.drop_duplicates(inplace=True)
-                print(df_elements.shape)
-                raise ValueError('no new element found')
+                df_elements = df_elements.drop_duplicates()
+                msg = "no new element found"
+                raise ValueError(msg)
 
-        def add_element(df, element):
+        def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
@@ -286,20 +281,18 @@ class evolution_algorithm(Search_Algorithm):
         for element in df_elements.sample(frac=1).values:
             if add_element(df_search, element):
                 break
-            
+
         return len(df_search) - 1, df_search
 
 
     def _check_new_element_in_search_space(self, df_search, df_elements):
-        """
-        Check if the element is already in the search space
-        """
+        """Check if the element is already in the search space."""
         df_search_copy = df_search.copy()
-        df_search_copy = df_search_copy[df_elements.columns]  
-        all_df = pd.merge(df_elements,df_search_copy, how="left",indicator='exists')
-        all_df['exists'] = np.where(all_df.exists == 'both', True, False)
+        df_search_copy = df_search_copy[df_elements.columns]
+        all_df = pd.merge(df_elements,df_search_copy, how="left",indicator="exists")
+        all_df["exists"] = np.where(all_df.exists == "both", True, False)
 
-        return all_df[all_df.exists == False].shape[0] > 0
+        return all_df[all_df.exists is False].shape[0] > 0
 
     def generate_df_elements_to_choose_from(
         self,
@@ -309,12 +302,10 @@ class evolution_algorithm(Search_Algorithm):
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
-        """
-        
-        Generate the dataframe of the elements to choose from   
-
+        """Generate the dataframe of the elements to choose from.
 
         Args:
+        ----
             search_space_df (pd.DataFrame): dataframe containing the searched space
             fitness_acquired (list): list of the fitness of the elements
             SP (Search_Space): search space
@@ -322,6 +313,7 @@ class evolution_algorithm(Search_Algorithm):
             df_total (pd.DataFrame): dataframe containing the results
 
         Returns:
+        -------
             pd.DataFrame: dataframe containing the elements to choose from
             pd.DataFrame: dataframe containing the searched space
 
@@ -347,7 +339,7 @@ class evolution_algorithm(Search_Algorithm):
                 ],  # check this for generalization
                 how="left",
             )
-            df_elements.dropna(subset="target", inplace=True)
+            df_elements = df_elements.dropna(subset="target")
             df_elements = df_elements[
                 [f"InChIKey_{i}" for i in range(elements.shape[1])]
             ]  # check this for generalization
@@ -427,8 +419,9 @@ class evolution_algorithm(Search_Algorithm):
                 fitness_acquired, df_search, self.number_of_parents
             )
         else:
+            msg = f"Unknown selection method: {selection_method}"
             raise ValueError(
-                "Unknown selection method: {}".format(selection_method)
+                msg
             )
         return list_parents
 

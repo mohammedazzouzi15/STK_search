@@ -1,4 +1,3 @@
-import pytest
 import pandas as pd
 from stk_search import SearchedSpace
 

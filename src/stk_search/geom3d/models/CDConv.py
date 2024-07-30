@@ -1,25 +1,24 @@
 #Credit to https://github.com/hehefan/Continuous-Discrete-Convolution/blob/main/models.py#L3
 
 import math
-from typing import Type, Any, Callable, Union, List, Optional
+from typing import List, Optional
 
 import torch
-import torch.nn as nn
-from torch import Tensor
-import torch.nn.functional as F
+from torch import Tensor, nn
 
-from torch_geometric.utils import scatter
 _max, scatter_min, scatter_mean, scatter_sum
-from torch_geometric.typing import SparseTensor, set_diag
-from torch_geometric.data import Data
+from torch_geometric.nn import (
+    MLP,
+    global_mean_pool,
+    radius,
+)
 from torch_geometric.nn.conv import MessagePassing
-from torch_geometric.typing import Adj, OptTensor, PairOptTensor, PairTensor
+from torch_geometric.typing import (
+    OptTensor,
+    SparseTensor,
+    set_diag,
+)
 from torch_geometric.utils import add_self_loops, remove_self_loops
-import torch_geometric.transforms as T
-from torch_geometric.nn import MLP, fps, global_max_pool, global_mean_pool, radius
-from torch_geometric.nn.pool import avg_pool, max_pool
-import torch.optim as optim
-from torch_geometric.loader import DataLoader
 
 
 def kaiming_uniform(tensor, size):
@@ -34,7 +33,7 @@ def kaiming_uniform(tensor, size):
 
 class WeightNet(nn.Module):
     def __init__(self, l: int, kernel_channels):
-        super(WeightNet, self).__init__()
+        super().__init__()
 
         self.l = l
         self.kernel_channels = kernel_channels
@@ -73,7 +72,7 @@ class WeightNet(nn.Module):
 
 class CDConv(MessagePassing):
     def __init__(self, r: float, l: float, kernel_channels, in_channels: int, out_channels: int, add_self_loops: bool = True, **kwargs):
-        kwargs.setdefault('aggr', 'add')
+        kwargs.setdefault("aggr", "add")
         super().__init__(**kwargs)
         self.r = r
         self.l = l
@@ -105,9 +104,8 @@ class CDConv(MessagePassing):
                 edge_index = set_diag(edge_index)
 
         out = self.propagate(edge_index, x=(x, None), pos=(pos, pos), seq=(seq, seq), ori=(ori.reshape((-1, 9)), ori.reshape((-1, 9))), size=None)
-        out = torch.matmul(out, self.W)
+        return torch.matmul(out, self.W)
 
-        return out
 
     def message(self, x_j: Optional[Tensor], pos_i: Tensor, pos_j: Tensor, seq_i: Tensor, seq_j: Tensor, ori_i: Tensor, ori_j: Tensor) -> Tensor:
         # orientation
@@ -118,7 +116,6 @@ class CDConv(MessagePassing):
         pos = torch.matmul(ori_i.reshape((-1, 3, 3)), pos.unsqueeze(2)).squeeze(2)
         ori = torch.sum(input=ori_i.reshape((-1, 3, 3)) * ori_j.reshape((-1, 3, 3)), dim=2, keepdim=False)
 
-        #
         normed_distance = distance / self.r
 
         seq = seq_j - seq_i
@@ -137,23 +134,22 @@ class CDConv(MessagePassing):
         # convolution
         msg = torch.matmul((kernel_weight*smooth).unsqueeze(2), x_j.unsqueeze(1))
 
-        msg = msg.reshape((-1, msg.size(1)*msg.size(2)))
+        return msg.reshape((-1, msg.size(1)*msg.size(2)))
 
-        return msg
 
     def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}(r={self.r}, '
-                f'l={self.l},'
-                f'kernel_channels={self.kernel_channels},'
-                f'in_channels={self.in_channels},'
-                f'out_channels={self.out_channels})')
+        return (f"{self.__class__.__name__}(r={self.r}, "
+                f"l={self.l},"
+                f"kernel_channels={self.kernel_channels},"
+                f"in_channels={self.in_channels},"
+                f"out_channels={self.out_channels})")
 
 class MaxPooling(nn.Module):
     def __init__(self):
         super().__init__()
 
     def forward(self, x, pos, seq, ori, batch):
-        idx = torch.div(seq.squeeze(1), 2, rounding_mode='floor')
+        idx = torch.div(seq.squeeze(1), 2, rounding_mode="floor")
         idx = torch.cat([idx, idx[-1].view((1,))])
 
         idx = (idx[0:-1] != idx[1:]).to(torch.float32)
@@ -161,7 +157,7 @@ class MaxPooling(nn.Module):
         idx = idx.to(torch.int64)
         x = scatter_max(src=x, index=idx, dim=0)[0]
         pos = scatter_mean(src=pos, index=idx, dim=0)
-        seq = scatter_max(src=torch.div(seq, 2, rounding_mode='floor'), index=idx, dim=0)[0]
+        seq = scatter_max(src=torch.div(seq, 2, rounding_mode="floor"), index=idx, dim=0)[0]
         ori = scatter_mean(src=ori, index=idx, dim=0)
         ori = torch.nn.functional.normalize(ori, 2, -1)
         batch = scatter_max(src=batch, index=idx, dim=0)[0]
@@ -173,7 +169,7 @@ class AvgPooling(nn.Module):
         super().__init__()
 
     def forward(self, x, pos, seq, ori, batch):
-        idx = torch.div(seq.squeeze(1), 2, rounding_mode='floor')
+        idx = torch.div(seq.squeeze(1), 2, rounding_mode="floor")
         idx = torch.cat([idx, idx[-1].view((1,))])
 
         idx = (idx[0:-1] != idx[1:]).to(torch.float32)
@@ -181,7 +177,7 @@ class AvgPooling(nn.Module):
         idx = idx.to(torch.int64)
         x = scatter_mean(src=x, index=idx, dim=0)
         pos = scatter_mean(src=pos, index=idx, dim=0)
-        seq = scatter_max(src=torch.div(seq, 2, rounding_mode='floor'), index=idx, dim=0)[0]
+        seq = scatter_max(src=torch.div(seq, 2, rounding_mode="floor"), index=idx, dim=0)[0]
         ori = scatter_mean(src=ori, index=idx, dim=0)
         ori = torch.nn.functional.normalize(ori, 2, -1)
         batch = scatter_max(src=batch, index=idx, dim=0)[0]
@@ -198,7 +194,7 @@ class Linear(nn.Module):
                  bias: bool = False,
                  leakyrelu_negative_slope: float = 0.1,
                  momentum: float = 0.2) -> nn.Module:
-        super(Linear, self).__init__()
+        super().__init__()
 
         module = []
         if batch_norm:
@@ -221,7 +217,7 @@ class MLP(nn.Module):
                  bias: bool = True,
                  leakyrelu_negative_slope: float = 0.2,
                  momentum: float = 0.2) -> nn.Module:
-        super(MLP, self).__init__()
+        super().__init__()
 
         module = []
         if batch_norm:
@@ -262,7 +258,7 @@ class BasicBlock(nn.Module):
                  leakyrelu_negative_slope: float = 0.1,
                  momentum: float = 0.2) -> nn.Module:
 
-        super(BasicBlock, self).__init__()
+        super().__init__()
 
         if in_channels != out_channels:
             self.identity = Linear(in_channels=in_channels,
@@ -297,8 +293,7 @@ class BasicBlock(nn.Module):
         identity = self.identity(x)
         x = self.input(x)
         x = self.conv(x, pos, seq, ori, batch)
-        out = self.output(x) + identity
-        return out
+        return self.output(x) + identity
 
 class CDConv(nn.Module):
     def __init__(self,
@@ -361,6 +356,5 @@ class CDConv(nn.Module):
             elif i % 2 == 1:
                 x, pos, seq, ori, batch = self.local_mean_pool(x, pos, seq, ori, batch)
 
-        out = self.classifier(x)
+        return self.classifier(x)
 
-        return out

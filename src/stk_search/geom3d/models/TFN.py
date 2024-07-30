@@ -1,9 +1,6 @@
-from collections import namedtuple
-from itertools import product
 
 import torch
-import torch.nn.functional as F
-from torch import einsum, nn
+from torch import nn
 
 from .fibers import Fiber
 from .TFN_utils import GConvSE3, GNormSE3
@@ -36,7 +33,7 @@ class TFN(nn.Module):
 
         block0 = []
         fin = self.fibers["in"]
-        for i in range(self.num_layers - 1):
+        for _i in range(self.num_layers - 1):
             block0.append(
                 GConvSE3(
                     fin,
@@ -57,7 +54,6 @@ class TFN(nn.Module):
         )
         self.block0 = nn.ModuleList(block0)
 
-        return
 
     def forward(self, x, positions, edge_index, edge_feat=None):
         # Compute equivariant weight basis from relative positions
@@ -72,6 +68,5 @@ class TFN(nn.Module):
             h = layer(
                 h, edge_index=edge_index, edge_feat=edge_feat, r=radial, basis=basis
             )
-        h = h["0"].squeeze()
+        return h["0"].squeeze()
 
-        return h

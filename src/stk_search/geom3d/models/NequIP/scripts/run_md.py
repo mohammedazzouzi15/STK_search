@@ -1,23 +1,22 @@
+import argparse
 import logging
 import os
 import time
-import argparse
+
 import numpy as np
-
 import torch
-
 from ase import units
 from ase.io import read, write
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
-from ase.md.velocitydistribution import Stationary, ZeroRotation
-
-from NequIP.ase import NequIPCalculator
-from NequIP.ase import NoseHoover
+from ase.md.velocitydistribution import (
+    MaxwellBoltzmannDistribution,
+    Stationary,
+    ZeroRotation,
+)
+from NequIP.ase import NequIPCalculator, NoseHoover
 
 
 def save_to_xyz(atoms, logdir, prefix=""):
-    """
-    Save structure to extended xyz file.
+    """Save structure to extended xyz file.
 
     :param atoms: ase.Atoms object to save
     :param logdir, str, path/to/logging/directory
@@ -41,10 +40,8 @@ def write_ase_md_config(curr_atoms, curr_step, dt):
     parsed_temperature = curr_atoms.get_temperature()
 
     # frame
-    log_txt = "-------------------- \n-Frame: {}".format(str(curr_step))
-    log_txt += " Simulation Time: {:.6f}\t Temperature: {:.8f} K\n\n".format(
-        dt * curr_step, parsed_temperature
-    )
+    log_txt = f"-------------------- \n-Frame: {curr_step!s}"
+    log_txt += f" Simulation Time: {dt * curr_step:.6f}\t Temperature: {parsed_temperature:.8f} K\n\n"
 
     # header
     log_txt += "El \t\t\t\t"
@@ -57,15 +54,15 @@ def write_ase_md_config(curr_atoms, curr_step, dt):
 
     # write atom by atom
     for i in range(len(curr_atoms)):
-        log_txt += "{}\t ".format(str(atomic_numbers[i]))
+        log_txt += f"{atomic_numbers[i]!s}\t "
 
         for j in range(3):
-            log_txt += "{:.8f}  \t".format(positions[i][j])
+            log_txt += f"{positions[i][j]:.8f}  \t"
 
         log_txt += "\t\t"
 
         for j in range(3):
-            log_txt += "{:.8f}  \t".format(forces[i][j])
+            log_txt += f"{forces[i][j]:.8f}  \t"
         log_txt += "\n"
 
     logging.info(log_txt)
@@ -166,7 +163,6 @@ def main(args=None):
         if not i % args.save_frequency:
             save_to_xyz(atoms, logdir=args.logdir, prefix="nvt_")
 
-    print("finished...")
 
 
 if __name__ == "__main__":

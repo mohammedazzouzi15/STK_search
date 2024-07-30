@@ -2,9 +2,7 @@ import torch
 
 
 def _standardize(kernel):
-    """
-    Makes sure that Var(W) = 1 and E[W] = 0
-    """
+    """Makes sure that Var(W) = 1 and E[W] = 0."""
     eps = 1e-6
 
     if len(kernel.shape) == 3:
@@ -13,18 +11,16 @@ def _standardize(kernel):
         axis = 1
 
     var, mean = torch.var_mean(kernel, dim=axis, unbiased=True, keepdim=True)
-    kernel = (kernel - mean) / (var + eps) ** 0.5
-    return kernel
+    return (kernel - mean) / (var + eps) ** 0.5
 
 
 def he_orthogonal_init(tensor):
-    """
-    Generate a weight matrix with variance according to He initialization.
+    """Generate a weight matrix with variance according to He initialization.
     Based on a random (semi-)orthogonal matrix neural networks
     are expected to learn better when features are decorrelated
     (stated by eg. "Reducing overfitting in deep networks by decorrelating representations",
     "Dropout: a simple way to prevent neural networks from overfitting",
-    "Exact solutions to the nonlinear dynamics of learning in deep linear neural networks")
+    "Exact solutions to the nonlinear dynamics of learning in deep linear neural networks").
     """
     tensor = torch.nn.init.orthogonal_(tensor)
 

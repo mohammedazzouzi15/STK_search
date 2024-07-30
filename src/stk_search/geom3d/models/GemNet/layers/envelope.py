@@ -2,13 +2,13 @@ import torch
 
 
 class Envelope(torch.nn.Module):
-    """
-    Envelope function that ensures a smooth cutoff.
+    """Envelope function that ensures a smooth cutoff.
 
     Parameters
     ----------
         p: int
             Exponent of the envelope function.
+
     """
 
     def __init__(self, p, name="envelope"):

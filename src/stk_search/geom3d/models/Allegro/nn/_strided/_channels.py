@@ -1,7 +1,8 @@
+import functools
+import operator
 from math import ceil
 
 import torch
-
 from e3nn.util.jit import compile_mode
 
 
@@ -22,7 +23,7 @@ class MakeWeightedChannels(torch.nn.Module):
         assert multiplicity_out >= 1
         # Each edgewise output multiplicity is a per-irrep weighted sum over the input
         # So we need to apply the weight for the ith irrep to all DOF in that irrep
-        w_index = sum(([i] * ir.dim for i, (mul, ir) in enumerate(irreps_in)), [])
+        w_index = functools.reduce(operator.iadd, ([i] * ir.dim for i, (mul, ir) in enumerate(irreps_in)), [])
         # pad to padded length
         n_pad = (
             int(ceil(irreps_in.dim / pad_to_alignment)) * pad_to_alignment

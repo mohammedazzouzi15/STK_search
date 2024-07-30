@@ -1,25 +1,21 @@
-'''
-credit to https://github.com/lukecavabarrett/PNA/blob/master/models/pytorch_geometric/PNA.py
-and https://github.com/wdimmy/GNN_Molecule_Retrieval/tree/main/PNA
-'''
-from typing import Optional, List, Dict
+"""credit to https://github.com/lukecavabarrett/PNA/blob/master/models/pytorch_geometric/PNA.py
+and https://github.com/wdimmy/GNN_Molecule_Retrieval/tree/main/PNA.
+"""
+from typing import Dict, List, Optional
 
 import torch
-from torch import Tensor
-from typing import Optional
-import torch.nn as nn
-from torch_geometric.typing import OptTensor
-from typing import Dict
-from torch_geometric.nn.conv import MessagePassing
-from .aggregators import AGGREGATORS
-from .scalers import SCALERS
-from torch_geometric.nn.inits import reset
-from torch_geometric.typing import Adj, OptTensor
-from torch_geometric.nn import BatchNorm, global_mean_pool
-from torch_geometric.utils import degree
-from torch.nn import Sequential, ModuleList, Linear, ReLU
 import torch.nn.functional as F
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
+from torch import Tensor, nn
+from torch.nn import Linear, ModuleList, ReLU, Sequential
+from torch_geometric.nn import BatchNorm, global_mean_pool
+from torch_geometric.nn.conv import MessagePassing
+from torch_geometric.nn.inits import reset
+from torch_geometric.typing import Adj, OptTensor
+from torch_geometric.utils import degree
+
+from .aggregators import AGGREGATORS
+from .scalers import SCALERS
 
 
 class PNAConv(MessagePassing):
@@ -28,7 +24,7 @@ class PNAConv(MessagePassing):
                  edge_dim: Optional[int] = None, towers: int = 1,
                  pre_layers: int = 1, post_layers: int = 1,
                  divide_input: bool = False, **kwargs):
-        super(PNAConv, self).__init__(aggr=None, node_dim=0, **kwargs)
+        super().__init__(aggr=None, node_dim=0, **kwargs)
 
         if divide_input:
             assert in_channels % towers == 0
@@ -49,9 +45,9 @@ class PNAConv(MessagePassing):
         total_no_vertices = deg.sum()
         bin_degrees = torch.arange(len(deg))
         self.avg_deg: Dict[str, float] = {
-            'lin': ((bin_degrees * deg).sum() / total_no_vertices).item(),
-            'log': (((bin_degrees + 1).log() * deg).sum() / total_no_vertices).item(),
-            'exp': ((bin_degrees.exp() * deg).sum() / total_no_vertices).item(),
+            "lin": ((bin_degrees * deg).sum() / total_no_vertices).item(),
+            "log": (((bin_degrees + 1).log() * deg).sum() / total_no_vertices).item(),
+            "exp": ((bin_degrees.exp() * deg).sum() / total_no_vertices).item(),
         }
 
         if self.edge_dim is not None:
@@ -130,8 +126,8 @@ class PNA(nn.Module):
         super().__init__()
         self.atom_encoder = AtomEncoder(emb_dim)
 
-        aggregators = ['mean', 'min', 'max', 'std']
-        scalers = ['identity', 'amplification', 'attenuation']
+        aggregators = ["mean", "min", "max", "std"]
+        scalers = ["identity", "amplification", "attenuation"]
         self.convs = nn.ModuleList()
         self.batch_norms = nn.ModuleList()
         self.dropout_ratio = dropout_ratio
@@ -142,7 +138,6 @@ class PNA(nn.Module):
                 deg=deg, edge_dim=self.edge_dim)
             self.convs.append(conv)
             self.batch_norms.append(BatchNorm(emb_dim))
-        return
 
     def get_graph_representation(self, batch):
         x = self.node_emb(batch.x)
@@ -152,8 +147,7 @@ class PNA(nn.Module):
             x = h + x # residual
             x = F.dropout(x, self.dropout_ratio, training=self.training)
 
-        h_graph = global_mean_pool(x, batch.batch)
-        return h_graph
+        return global_mean_pool(x, batch.batch)
 
     def forward(self, *argv):
         if len(argv) == 3:

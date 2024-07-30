@@ -1,6 +1,6 @@
-import torch
-
 import math
+
+import torch
 
 
 @torch.jit.script

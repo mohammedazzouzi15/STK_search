@@ -7,9 +7,8 @@ import stko
 
 
 class XTBEnergy2(stko.XTBEnergy):
-    def _run_xtb(self, xyz, out_file, init_dir, output_dir):
-        """
-        Runs GFN-xTB.
+    def _run_xtb(self, xyz, out_file, init_dir, output_dir) -> None:
+        """Runs GFN-xTB.
 
         Parameters
         ----------
@@ -31,27 +30,17 @@ class XTBEnergy2(stko.XTBEnergy):
         None : :class:`NoneType`
 
         """
-
         # Modify the memory limit.
-        if self._unlimited_memory:
-            memory = "ulimit -s unlimited ;"
-        else:
-            memory = ""
+        memory = "ulimit -s unlimited ;" if self._unlimited_memory else ""
 
         if self._solvent is not None:
             solvent = f"--{self._solvent_model} {self._solvent} "
         else:
             solvent = ""
 
-        if self._calculate_free_energy:
-            hess = "--hess"
-        else:
-            hess = ""
+        hess = "--hess" if self._calculate_free_energy else ""
 
-        if self._calculate_ip_and_ea:
-            vipea = "--vipea"
-        else:
-            vipea = ""
+        vipea = "--vipea" if self._calculate_ip_and_ea else ""
 
         cmd = (
             f"{memory} {self._xtb_path} "
@@ -104,8 +93,7 @@ class XTBEnergy2(stko.XTBEnergy):
         )
 
     def get_results(self, mol):
-        """
-        Calculate the xTB properties of `mol`.
+        """Calculate the xTB properties of `mol`.
 
         Parameters
         ----------
@@ -118,7 +106,6 @@ class XTBEnergy2(stko.XTBEnergy):
             The properties, with units, from xTB calculations.
 
         """
-
         if self._output_dir is None:
             output_dir = str(uuid.uuid4().int)
         else:

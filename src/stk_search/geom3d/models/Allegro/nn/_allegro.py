@@ -1,20 +1,19 @@
-from typing import Optional, List
-import math
 import functools
+import math
+from typing import List, Optional
 
 import torch
-from stk_search.geom3d.models.NequIP.utils import scatter
-
 from e3nn import o3
 from e3nn.util.jit import compile_mode
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
+from stk_search.geom3d.models.NequIP.utils import scatter
 from stk_search.geom3d.models.NequIP.utils.tp_utils import tp_path_exists
 
+from models.Allegro import _keys
+
 from ._fc import ScalarMLPFunction
-from .. import _keys
-from ._strided import Contracter, MakeWeightedChannels, Linear
+from ._strided import Contracter, Linear, MakeWeightedChannels
 from .cutoffs import cosine_cutoff, polynomial_cutoff
 
 
@@ -57,11 +56,11 @@ class Allegro_Module(GraphModuleMixin, torch.nn.Module):
         nonscalars_include_parity: bool = True,
         # MLP parameters:
         two_body_latent=ScalarMLPFunction,
-        two_body_latent_kwargs={},
+        two_body_latent_kwargs=None,
         env_embed=ScalarMLPFunction,
-        env_embed_kwargs={},
+        env_embed_kwargs=None,
         latent=ScalarMLPFunction,
-        latent_kwargs={},
+        latent_kwargs=None,
         latent_resnet: bool = True,
         latent_resnet_update_ratios: Optional[List[float]] = None,
         latent_resnet_update_ratios_learnable: bool = False,
@@ -72,6 +71,12 @@ class Allegro_Module(GraphModuleMixin, torch.nn.Module):
         # Other:
         irreps_in=None,
     ):
+        if latent_kwargs is None:
+            latent_kwargs = {}
+        if env_embed_kwargs is None:
+            env_embed_kwargs = {}
+        if two_body_latent_kwargs is None:
+            two_body_latent_kwargs = {}
         super().__init__()
         SCALAR = o3.Irrep("0e")  # define for convinience
 
@@ -240,7 +245,7 @@ class Allegro_Module(GraphModuleMixin, torch.nn.Module):
             instr = []
             n_scalar_outs: int = 0
             full_out_irreps = []
-            for i_out, (_, ir_out) in enumerate(out_irreps):
+            for _i_out, (_, ir_out) in enumerate(out_irreps):
                 for i_1, (_, ir_1) in enumerate(arg_irreps):
                     for i_2, (_, ir_2) in enumerate(env_embed_irreps):
                         if ir_out in ir_1 * ir_2:
@@ -317,12 +322,12 @@ class Allegro_Module(GraphModuleMixin, torch.nn.Module):
                 self.latents.append(
                     two_body_latent(
                         mlp_input_dimension=(
-                            (
+
                                 # Node invariants for center and neighbor (chemistry)
                                 2 * self.irreps_in[self.node_invariant_field].num_irreps
                                 # Plus edge invariants for the edge (radius).
                                 + self.irreps_in[self.edge_invariant_field].num_irreps
-                            )
+
                         ),
                         mlp_output_dimension=None,
                         **two_body_latent_kwargs,
@@ -332,12 +337,12 @@ class Allegro_Module(GraphModuleMixin, torch.nn.Module):
                 self.latents.append(
                     latent(
                         mlp_input_dimension=(
-                            (
+
                                 # the embedded latent invariants from the previous layer(s)
                                 self.latents[-1].out_features
                                 # and the invariants extracted from the last layer's TP:
                                 + env_embed_multiplicity * n_scalar_outs
-                            )
+
                         ),
                         mlp_output_dimension=None,
                     )
@@ -486,7 +491,8 @@ class Allegro_Module(GraphModuleMixin, torch.nn.Module):
             # But TorchScript doesn't know that, so we need to make it explicitly
             # impossible to make it past so it doesn't throw
             # "cutoff_coeffs_all is not defined in the false branch"
-            assert False, "Invalid cutoff type"
+            msg = "Invalid cutoff type"
+            raise AssertionError(msg)
 
         # !!!! REMEMBER !!!! update final layer if update the code in main loop!!!
         # This goes through layer0, layer1, ..., layer_max-1

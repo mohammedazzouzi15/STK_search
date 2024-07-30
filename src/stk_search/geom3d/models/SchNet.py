@@ -1,19 +1,11 @@
-import os
-import os.path as osp
-import warnings
-from math import pi as PI
 
 import ase
-import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.nn import Embedding, Linear, ModuleList, Sequential
-from torch_geometric.data.makedirs import makedirs
-from torch_geometric.nn import MessagePassing
 from torch_cluster import radius_graph
-
+from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import scatter
-
 
 
 class SchNet(torch.nn.Module):
@@ -32,7 +24,7 @@ class SchNet(torch.nn.Module):
         atomref=None,
         gamma=None,
     ):
-        super(SchNet, self).__init__()
+        super().__init__()
 
         assert readout in ["add", "sum", "mean"]
 
@@ -88,7 +80,8 @@ class SchNet(torch.nn.Module):
 
     def forward(self, z, pos, batch=None, edge_index=None, return_latent=False):
         if z.dim() == 1:
-            assert z.dim() == 1 and z.dtype == torch.long
+            assert z.dim() == 1
+            assert z.dtype == torch.long
             h = self.embedding(z)
         else:  # When the input z is one-hot
             assert z.dim() == 2
@@ -133,7 +126,7 @@ class SchNet(torch.nn.Module):
             return out, h
         return out
 
-    def forward_with_gathered_index(self, gathered_z, pos, batch, edge_index, gathered_batch, periodic_index_mapping, return_latent=False,):
+    def forward_with_gathered_index(self, gathered_z, pos, batch, edge_index, gathered_batch, periodic_index_mapping, return_latent=False):
         gathered_h = self.embedding(gathered_z)
         batch = torch.zeros_like(gathered_z) if batch is None else batch
 
@@ -146,7 +139,7 @@ class SchNet(torch.nn.Module):
         gathered_row = periodic_index_mapping[row]
         gathered_col = periodic_index_mapping[col]
         gathered_edge_index = torch.stack([gathered_row, gathered_col])
-        
+
         for interaction in self.interactions:
             gathered_h = gathered_h + interaction(gathered_h, gathered_edge_index, edge_weight, edge_attr)
 
@@ -173,7 +166,7 @@ class SchNet(torch.nn.Module):
 
 class InteractionBlock(torch.nn.Module):
     def __init__(self, hidden_channels, num_gaussians, num_filters, cutoff):
-        super(InteractionBlock, self).__init__()
+        super().__init__()
         self.mlp = Sequential(
             Linear(num_gaussians, num_filters),
             ShiftedSoftplus(),
@@ -199,13 +192,12 @@ class InteractionBlock(torch.nn.Module):
     def forward(self, x, edge_index, edge_weight, edge_attr):
         x = self.conv(x, edge_index, edge_weight, edge_attr)
         x = self.act(x)
-        x = self.lin(x)
-        return x
+        return self.lin(x)
 
 
 class CFConv(MessagePassing):
     def __init__(self, in_channels, out_channels, num_filters, nn, cutoff):
-        super(CFConv, self).__init__(aggr="add")
+        super().__init__(aggr="add")
         self.lin1 = Linear(in_channels, num_filters, bias=False)
         self.lin2 = Linear(num_filters, out_channels)
         self.nn = nn
@@ -225,8 +217,7 @@ class CFConv(MessagePassing):
         x = self.lin1(x)
         # propagate_type: ( x: Tensor, W: Tensor )
         x = self.propagate(edge_index, x=x, W=W)
-        x = self.lin2(x)
-        return x
+        return self.lin2(x)
 
     def message(self, x_j, W):
         return x_j * W
@@ -234,7 +225,7 @@ class CFConv(MessagePassing):
 
 class GaussianSmearing(torch.nn.Module):
     def __init__(self, start=0.0, stop=5.0, num_gaussians=50, gamma=None):
-        super(GaussianSmearing, self).__init__()
+        super().__init__()
         offset = torch.linspace(start, stop, num_gaussians)
         if gamma is None:
             self.coeff = -0.5 / (offset[1] - offset[0]).item() ** 2
@@ -249,7 +240,7 @@ class GaussianSmearing(torch.nn.Module):
 
 class ShiftedSoftplus(torch.nn.Module):
     def __init__(self):
-        super(ShiftedSoftplus, self).__init__()
+        super().__init__()
         self.shift = torch.log(torch.tensor(2.0)).item()
 
     def forward(self, x):

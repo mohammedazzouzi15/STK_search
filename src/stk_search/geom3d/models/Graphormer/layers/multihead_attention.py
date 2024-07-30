@@ -10,8 +10,12 @@ import math
 from typing import Optional, Tuple
 
 import torch
+from stk_search.geom3d.models.TransformerM.modules import (
+    FairseqDropout,
+    quant_noise,
+    utils,
+)
 from torch import Tensor, nn
-from stk_search.geom3d.models.TransformerM.modules import FairseqDropout, quant_noise, utils
 
 
 class MultiheadAttention(nn.Module):
@@ -106,9 +110,10 @@ class MultiheadAttention(nn.Module):
         before_softmax: bool = False,
         need_head_weights: bool = False,
     ) -> Tuple[Tensor, Optional[Tensor]]:
-        """Input shape: Time x Batch x Channel
+        """Input shape: Time x Batch x Channel.
 
         Args:
+        ----
             key_padding_mask (ByteTensor, optional): mask to exclude
                 keys that are pads, of shape `(batch, src_len)`, where
                 padding elements are indicated by 1s.
@@ -122,6 +127,7 @@ class MultiheadAttention(nn.Module):
             need_head_weights (bool, optional): return the attention
                 weights for each head. Implies *need_weights*. Default:
                 return the average attention weights over all heads.
+
         """
         if need_head_weights:
             need_weights = True
@@ -226,7 +232,7 @@ class MultiheadAttention(nn.Module):
         prefix = name + "." if name != "" else ""
         items_to_add = {}
         keys_to_remove = []
-        for k in state_dict.keys():
+        for k in state_dict:
             if k.endswith(prefix + "in_proj_weight"):
                 # in_proj_weight used to be q + k + v with same dimensions
                 dim = int(state_dict[k].shape[0] / 3)
@@ -237,7 +243,7 @@ class MultiheadAttention(nn.Module):
                 keys_to_remove.append(k)
 
                 k_bias = prefix + "in_proj_bias"
-                if k_bias in state_dict.keys():
+                if k_bias in state_dict:
                     dim = int(state_dict[k].shape[0] / 3)
                     items_to_add[prefix + "q_proj.bias"] = state_dict[k_bias][:dim]
                     items_to_add[prefix + "k_proj.bias"] = state_dict[k_bias][

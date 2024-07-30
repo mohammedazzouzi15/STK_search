@@ -1,14 +1,13 @@
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 import torch
 import torch.nn.functional
-
 from e3nn.o3 import Linear
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.data.transforms import TypeMapper
 from stk_search.geom3d.models.NequIP.utils import scatter
+
 from ._graph_mixin import GraphModuleMixin
 
 
@@ -66,8 +65,10 @@ class AtomwiseReduce(GraphModuleMixin, torch.nn.Module):
         out_field: Optional[str] = None,
         reduce="sum",
         avg_num_atoms=None,
-        irreps_in={},
+        irreps_in=None,
     ):
+        if irreps_in is None:
+            irreps_in = {}
         super().__init__()
         assert reduce in ("sum", "mean", "normalized_sum")
         self.constant = 1.0
@@ -99,6 +100,7 @@ class PerSpeciesScaleShift(GraphModuleMixin, torch.nn.Module):
     """Scale and/or shift a predicted per-atom property based on (learnable) per-species/type parameters.
 
     Args:
+    ----
         field: the per-atom field to scale/shift.
         num_types: the number of types in the model.
         shifts: the initial shifts to use, one per atom type.
@@ -111,6 +113,7 @@ class PerSpeciesScaleShift(GraphModuleMixin, torch.nn.Module):
             But if scales/shifts computed from the training data are used, and are thus in dataset units,
             this should be ``True``.
         out_field: the output field; defaults to ``field``.
+
     """
 
     field: str
@@ -131,8 +134,10 @@ class PerSpeciesScaleShift(GraphModuleMixin, torch.nn.Module):
         out_field: Optional[str] = None,
         scales_trainable: bool = False,
         shifts_trainable: bool = False,
-        irreps_in={},
+        irreps_in=None,
     ):
+        if irreps_in is None:
+            irreps_in = {}
         super().__init__()
         self.num_types = num_types
         self.type_names = type_names
@@ -187,7 +192,7 @@ class PerSpeciesScaleShift(GraphModuleMixin, torch.nn.Module):
         data[self.out_field] = in_field
         return data
 
-    def update_for_rescale(self, rescale_module):
+    def update_for_rescale(self, rescale_module) -> None:
         if hasattr(rescale_module, "related_scale_keys"):
             if self.out_field not in rescale_module.related_scale_keys:
                 return
