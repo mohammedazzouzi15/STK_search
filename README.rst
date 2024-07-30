@@ -2,7 +2,7 @@
 STK_search
 ==========
 
-STK_search is a Python package designed for [brief description of what the package does].
+skt_search is a Python library for searching the chemical space of molecules formed by stk. It is built on top of stk and stk_optim.
 
 Installation
 ============
