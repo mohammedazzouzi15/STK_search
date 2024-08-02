@@ -1839,7 +1839,7 @@ src\dev_scripts\test_BO.py:26:10: F821 Undefined name `Searched_pace`
 src\dev_scripts\test_BO.py:33:24: PD011 Use `.to_numpy()` instead of `.values`
    |
 31 |     )
-32 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+32 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
 33 |     fitness_acquired = searched_space_df["target"].values
    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PD011
 34 |     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
@@ -1848,7 +1848,7 @@ src\dev_scripts\test_BO.py:33:24: PD011 Use `.to_numpy()` instead of `.values`
 
 src\dev_scripts\test_BO.py:34:5: N806 Variable `searched_space_df_InChIKey` in function should be lowercase
    |
-32 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+32 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
 33 |     fitness_acquired = searched_space_df["target"].values
 34 |     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ N806
@@ -8001,11 +8001,11 @@ src\stk_search\SearchSpace.py:72:9: D102 Missing docstring in public method
 74 |         # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
    |
 
-src\stk_search\SearchSpace.py:77:9: N802 Function name `check_df_for_element_from_SP` should be lowercase
+src\stk_search\SearchSpace.py:77:9: N802 Function name `check_df_for_element_from_sp` should be lowercase
    |
 75 |         self.conditions_list[fragment].remove(condition)
 76 | 
-77 |     def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
+77 |     def check_df_for_element_from_sp(self, df_to_check: pd.DataFrame):
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ N802
 78 |         # check if the condition is respected by the search space
 79 |         # show that each fragment respect the condition
@@ -8015,7 +8015,7 @@ src\stk_search\SearchSpace.py:77:9: D102 Missing docstring in public method
    |
 75 |         self.conditions_list[fragment].remove(condition)
 76 | 
-77 |     def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
+77 |     def check_df_for_element_from_sp(self, df_to_check: pd.DataFrame):
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ D102
 78 |         # check if the condition is respected by the search space
 79 |         # show that each fragment respect the condition
@@ -10403,7 +10403,7 @@ src\stk_search\Search_algorithm\Search_algorithm.py:73:9: D205 1 blank line requ
 82 | |         """
    | |___________^ D205
 83 |           if benchmark:
-84 |               searched_space_df = SP.check_df_for_element_from_SP(
+84 |               searched_space_df = SP.check_df_for_element_from_sp(
    |
    = help: Insert single blank line
 
@@ -10424,7 +10424,7 @@ src\stk_search\Search_algorithm\Search_algorithm.py:73:9: D400 First line should
 82 | |         """
    | |___________^ D400
 83 |           if benchmark:
-84 |               searched_space_df = SP.check_df_for_element_from_SP(
+84 |               searched_space_df = SP.check_df_for_element_from_sp(
    |
    = help: Add period
 
@@ -10445,7 +10445,7 @@ src\stk_search\Search_algorithm\Search_algorithm.py:73:9: D401 First line of doc
 82 | |         """
    | |___________^ D401
 83 |           if benchmark:
-84 |               searched_space_df = SP.check_df_for_element_from_SP(
+84 |               searched_space_df = SP.check_df_for_element_from_sp(
    |
 
 src\stk_search\Search_algorithm\Search_algorithm.py:73:9: D415 First line should end with a period, question mark, or exclamation point
@@ -10465,7 +10465,7 @@ src\stk_search\Search_algorithm\Search_algorithm.py:73:9: D415 First line should
 82 | |         """
    | |___________^ D415
 83 |           if benchmark:
-84 |               searched_space_df = SP.check_df_for_element_from_SP(
+84 |               searched_space_df = SP.check_df_for_element_from_sp(
    |
    = help: Add closing punctuation
 
@@ -70641,7 +70641,7 @@ src\stk_search\geom3d\script_plot_inference_BA.py:25:10: F821 Undefined name `Se
 src\stk_search\geom3d\script_plot_inference_BA.py:32:24: PD011 Use `.to_numpy()` instead of `.values`
    |
 30 |     )
-31 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+31 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
 32 |     fitness_acquired = searched_space_df["target"].values
    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PD011
 33 |     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
@@ -70650,7 +70650,7 @@ src\stk_search\geom3d\script_plot_inference_BA.py:32:24: PD011 Use `.to_numpy()`
 
 src\stk_search\geom3d\script_plot_inference_BA.py:33:5: N806 Variable `searched_space_df_InChIKey` in function should be lowercase
    |
-31 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+31 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
 32 |     fitness_acquired = searched_space_df["target"].values
 33 |     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ N806
@@ -70865,7 +70865,7 @@ src\stk_search\geom3d\script_plot_inference_BA.py:148:10: F821 Undefined name `S
 
 src\stk_search\geom3d\script_plot_inference_BA.py:161:14: PD011 Use `.to_numpy()` instead of `.values`
     |
-159 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_dataset)
+159 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_dataset)
 160 | 
 161 |     y_true = searched_space_df[target_name].values
     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PD011
@@ -73331,7 +73331,7 @@ src\stk_search\utils\EXP_plot_utils.py:22:9: N806 Variable `SP` in function shou
 21 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 22 |         SP = pickle.load(open(search_space_loc, "rb"))
    |         ^^ N806
-23 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+23 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 24 |         df_list.append(df_eval)
    |
 
@@ -73341,7 +73341,7 @@ src\stk_search\utils\EXP_plot_utils.py:22:14: S301 `pickle` and modules that wra
 21 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 22 |         SP = pickle.load(open(search_space_loc, "rb"))
    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ S301
-23 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+23 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 24 |         df_list.append(df_eval)
    |
 
@@ -73351,7 +73351,7 @@ src\stk_search\utils\EXP_plot_utils.py:22:26: SIM115 Use context handler for ope
 21 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 22 |         SP = pickle.load(open(search_space_loc, "rb"))
    |                          ^^^^ SIM115
-23 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+23 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 24 |         df_list.append(df_eval)
    |
 
@@ -73361,7 +73361,7 @@ src\stk_search\utils\EXP_plot_utils.py:22:26: PTH123 `open()` should be replaced
 21 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 22 |         SP = pickle.load(open(search_space_loc, "rb"))
    |                          ^^^^ PTH123
-23 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+23 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 24 |         df_list.append(df_eval)
    |
 

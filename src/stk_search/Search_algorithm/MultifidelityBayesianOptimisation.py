@@ -81,14 +81,14 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         if SP is None:
             SP = []
         if benchmark:
-            searched_space_df = SP.check_df_for_element_from_SP(
+            searched_space_df = SP.check_df_for_element_from_sp(
                 df_to_check=df_total
             )
             searched_space_df = searched_space_df.sample(
                 num_elem_initialisation
             )
         elif df_total is not None:
-            searched_space_df = SP.check_df_for_element_from_SP(
+            searched_space_df = SP.check_df_for_element_from_sp(
                 df_to_check=df_total
             )
             # add top elements from the search space
@@ -346,7 +346,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 f"InChIKey_{x}" for x in range(elements.shape[1])
             ],  # check this for generalization
         )
-        df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
+        df_elements = SP.check_df_for_element_from_sp(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(

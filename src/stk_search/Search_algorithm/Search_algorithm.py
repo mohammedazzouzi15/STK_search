@@ -84,14 +84,14 @@ class Search_Algorithm:
         if SP is None:
             SP = []
         if benchmark:
-            searched_space_df = SP.check_df_for_element_from_SP(
+            searched_space_df = SP.check_df_for_element_from_sp(
                 df_to_check=df_total
             )
             searched_space_df = searched_space_df.sample(
                 num_elem_initialisation
             )
         elif df_total is not None:
-            searched_space_df = SP.check_df_for_element_from_SP(
+            searched_space_df = SP.check_df_for_element_from_sp(
                 df_to_check=df_total
             )
             # add top elements from the search space
@@ -168,7 +168,7 @@ class random_search(Search_Algorithm):
         while True:
             leav_loop = False
             if benchmark:
-                df_elements = SP.check_df_for_element_from_SP(
+                df_elements = SP.check_df_for_element_from_sp(
                     df_to_check=df_total
                 )
                 df_elements = df_elements.sample(10)
@@ -291,8 +291,7 @@ class evolution_algorithm(Search_Algorithm):
         df_search_copy = df_search_copy[df_elements.columns]
         all_df = pd.merge(df_elements,df_search_copy, how="left",indicator="exists")
         all_df["exists"] = np.where(all_df.exists == "both", True, False)
-
-        return all_df[all_df.exists is False].shape[0] > 0
+        return all_df[~all_df["exists"]].shape[0] > 0
 
     def generate_df_elements_to_choose_from(
         self,
@@ -329,7 +328,7 @@ class evolution_algorithm(Search_Algorithm):
                 f"InChIKey_{x}" for x in range(elements.shape[1])
             ],  # check this for generalization
         )
-        df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
+        df_elements = SP.check_df_for_element_from_sp(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(

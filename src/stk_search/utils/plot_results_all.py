@@ -33,6 +33,7 @@ def plot_metric(
     for key in keys.values:
         res = results_dict[key][:num_results_min]
         color = df_plot[df_plot["key"] == key]["color"].iloc[0]
+        case_name = df_plot[df_plot["key"] == key]["case_name"].iloc[0]
         if df_total is None:
             df_total = pd.read_csv(
                 df_plot[df_plot["key"] == key]["df_path"].iloc[0], low_memory=False
@@ -47,7 +48,7 @@ def plot_metric(
                 nb_iterations=nb_iterations,
                 axs=ax,
                 color=color,
-                label=key,
+                label=case_name,
                 target_name=target_name,
                 df_total=df_total,
                 nb_initialisation=0,

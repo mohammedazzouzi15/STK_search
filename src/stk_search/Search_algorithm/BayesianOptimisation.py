@@ -295,7 +295,7 @@ class BayesianOptimisation(Search_Algorithm):
                 f"InChIKey_{x}" for x in range(elements.shape[1])
             ],  # check this for generalization
         )
-        df_elements = SP.check_df_for_element_from_SP(df_to_check=df_elements)
+        df_elements = SP.check_df_for_element_from_sp(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(
