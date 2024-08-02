@@ -71,6 +71,9 @@ class BayesianOptimisation(Search_Algorithm):
         self.Representation = Representation
         self.name = "Bayesian_Optimisation"
         self.pred_model = None
+        self.config_dir = ""
+        self.multiFidelity = False
+        self.budget = None
 
     def update_representation(self, Representation):
         self.Representation = Representation
@@ -194,7 +197,7 @@ class BayesianOptimisation(Search_Algorithm):
             counter += 1
             max_counter += 1
             df_elements = self.Generate_element_to_evaluate(
-                acquisition_values.numpy(),
+                acquisition_values.cpu().numpy(),
                 df_elements,
                 SP,
                 benchmark,
@@ -411,3 +414,32 @@ class BayesianOptimisation(Search_Algorithm):
                     X_unsqueezed
                 ).variance.squeeze()
         return acquisition_values
+    
+    def load_representation_model(self):
+        from stk_search.geom3d import pl_model
+        import torch.nn.functional as Functional
+        from stk_search.geom3d import train_models
+        from stk_search.Representation import Representation_poly_3d
+        from stk_search.utils.config_utils import read_config
+        config_dir = self.config_dir
+        config = read_config(config_dir)
+        chkpt_path = config["model_embedding_chkpt"]
+        checkpoint = torch.load(chkpt_path, map_location=config["device"])
+        model, graph_pred_linear = pl_model.model_setup(config)
+        print("Model loaded: ", config["model_name"])
+        # Pass the model and graph_pred_linear to the Pymodel constructor
+        pymodel = pl_model.Pymodel_new(model, graph_pred_linear, config)
+        # Load the state dictionary
+        pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+        # pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+        pymodel.to(config["device"])
+        Representation = Representation_poly_3d.Representation_poly_3d(
+            pymodel,
+            mongo_client=config["pymongo_client"],
+            database=config["database_name"],
+            device=pymodel.device,
+        )
+        self.pred_model = pymodel.graph_pred_linear
+        self.Representation = Representation
+
+        return Representation, pymodel
