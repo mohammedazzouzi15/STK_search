@@ -7,24 +7,29 @@ import pandas as pd
 import torch
 from stk_search.Search_algorithm.Search_algorithm import evolution_algorithm
 from stk_search.SearchSpace import SearchSpace
+from stk_search.geom3d import pl_model
+import torch.nn.functional as Functional
+from stk_search.geom3d import train_models
+from stk_search.Representation import Representation_poly_3d
+from stk_search.utils.config_utils import read_config
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class Ea_surrogate(evolution_algorithm):
+    """
+
+    Class to run the surrogate EA algorithm
+    Compared to the EA, here we need a surrogate model and a molecule representation to run the search
+    the surrogate model applied on the molecule representation is used to select a new molecule to evaluate.
+
+    the generation of offspring is the same as in the EA
+
+    Args
 
     """
-    
-    Class to run the surrogate EA algorithm 
-    Compared to the EA, here we need a surrogate model and a molecule representation to run the search
-    the surrogate model applied on the molecule representation is used to select a new molecule to evaluate. 
-    
-    the generation of offspring is the same as in the EA
-    
-    Args
-    
-    """
+
     def __init__(self):
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.model = None
@@ -37,6 +42,7 @@ class Ea_surrogate(evolution_algorithm):
         self.number_of_parents = 5
         self.multiFidelity = False
         self.budget = None
+        self.config_dir =""
 
     def suggest_element(
         self,
@@ -90,3 +96,27 @@ class Ea_surrogate(evolution_algorithm):
                 # index = id.item()
                 # return df_search_space_frag
         return len(df_search) - 1, df_search
+
+    def load_representation_model(self):
+        config_dir = self.config_dir
+        config = read_config(config_dir)
+        chkpt_path = config["model_embedding_chkpt"]
+        checkpoint = torch.load(chkpt_path, map_location=config["device"])
+        model, graph_pred_linear = pl_model.model_setup(config)
+        print("Model loaded: ", config["model_name"])
+        # Pass the model and graph_pred_linear to the Pymodel constructor
+        pymodel = pl_model.Pymodel_new(model, graph_pred_linear, config)
+        # Load the state dictionary
+        pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+        # pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
+        pymodel.to(config["device"])
+        Representation = Representation_poly_3d.Representation_poly_3d(
+            pymodel,
+            mongo_client=config["pymongo_client"],
+            database=config["database_name"],
+            device=pymodel.device,
+        )
+        self.pred_model = pymodel.graph_pred_linear
+        self.Representation = Representation
+
+        return Representation, pymodel
