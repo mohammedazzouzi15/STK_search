@@ -1,11 +1,18 @@
 import random
-from typing import Dict, Tuple, Callable, Any, Sequence, Union, Mapping, Optional
 from collections import OrderedDict
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import torch
-
 from e3nn import o3
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.utils import instantiate
 
@@ -18,16 +25,17 @@ class GraphModuleMixin:
 
     def _init_irreps(
         self,
-        irreps_in: Dict[str, Any] = {},
-        my_irreps_in: Dict[str, Any] = {},
+        irreps_in: Optional[Dict[str, Any]] = None,
+        my_irreps_in: Optional[Dict[str, Any]] = None,
         required_irreps_in: Sequence[str] = [],
-        irreps_out: Dict[str, Any] = {},
-    ):
+        irreps_out: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Setup the expected data fields and their irreps for this graph module.
 
         ``None`` is a valid irreps in the context for anything that is invariant but not well described by an ``e3nn.o3.Irreps``. An example are edge indexes in a graph, which are invariant but are integers, not ``0e`` scalars.
 
         Args:
+        ----
             irreps_in (dict): maps names of all input fields from previous modules or
                 data to their corresponding irreps
             my_irreps_in (dict): maps names of fields to the irreps they must have for
@@ -36,22 +44,31 @@ class GraphModuleMixin:
                 ``irreps_in``, but that can have any irreps.
             irreps_out (dict): mapping names of fields that are modified/output by
                 this graph module to their irreps.
+
         """
         # Coerce
+        if irreps_out is None:
+            irreps_out = {}
+        if my_irreps_in is None:
+            my_irreps_in = {}
+        if irreps_in is None:
+            irreps_in = {}
         irreps_in = {} if irreps_in is None else irreps_in
         irreps_in = AtomicDataDict._fix_irreps_dict(irreps_in)
         # positions are *always* 1o, and always present
         if AtomicDataDict.POSITIONS_KEY in irreps_in:
             if irreps_in[AtomicDataDict.POSITIONS_KEY] != o3.Irreps("1x1o"):
+                msg = f"Positions must have irreps 1o, got instead `{irreps_in[AtomicDataDict.POSITIONS_KEY]}`"
                 raise ValueError(
-                    f"Positions must have irreps 1o, got instead `{irreps_in[AtomicDataDict.POSITIONS_KEY]}`"
+                    msg
                 )
         irreps_in[AtomicDataDict.POSITIONS_KEY] = o3.Irreps("1o")
         # edges are also always present
         if AtomicDataDict.EDGE_INDEX_KEY in irreps_in:
             if irreps_in[AtomicDataDict.EDGE_INDEX_KEY] is not None:
+                msg = f"Edge indexes must have irreps None, got instead `{irreps_in[AtomicDataDict.EDGE_INDEX_KEY]}`"
                 raise ValueError(
-                    f"Edge indexes must have irreps None, got instead `{irreps_in[AtomicDataDict.EDGE_INDEX_KEY]}`"
+                    msg
                 )
         irreps_in[AtomicDataDict.EDGE_INDEX_KEY] = None
 
@@ -62,14 +79,16 @@ class GraphModuleMixin:
         # with my_irreps_in
         for k in my_irreps_in:
             if k in irreps_in and irreps_in[k] != my_irreps_in[k]:
+                msg = f"The given input irreps {irreps_in[k]} for field '{k}' is incompatible with this configuration {type(self)}; should have been {my_irreps_in[k]}"
                 raise ValueError(
-                    f"The given input irreps {irreps_in[k]} for field '{k}' is incompatible with this configuration {type(self)}; should have been {my_irreps_in[k]}"
+                    msg
                 )
         # with required_irreps_in
         for k in required_irreps_in:
             if k not in irreps_in:
+                msg = f"This {type(self)} requires field '{k}' to be in irreps_in"
                 raise ValueError(
-                    f"This {type(self)} requires field '{k}' to be in irreps_in"
+                    msg
                 )
         # Save stuff
         self.irreps_in = irreps_in
@@ -78,15 +97,15 @@ class GraphModuleMixin:
         new_out.update(irreps_out)
         self.irreps_out = new_out
 
-    def _add_independent_irreps(self, irreps: Dict[str, Any]):
-        """
-        Insert some independent irreps that need to be exposed to the self.irreps_in and self.irreps_out.
+    def _add_independent_irreps(self, irreps: Dict[str, Any]) -> None:
+        """Insert some independent irreps that need to be exposed to the self.irreps_in and self.irreps_out.
         The terms that have already appeared in the irreps_in will be removed.
 
         Args:
+        ----
             irreps (dict): maps names of all new fields
-        """
 
+        """
         irreps = {
             key: irrep for key, irrep in irreps.items() if key not in self.irreps_in
         }
@@ -123,7 +142,9 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
     r"""A ``torch.nn.Sequential`` of ``GraphModuleMixin``s.
 
     Args:
+    ----
         modules (list or dict of ``GraphModuleMixin``s): the sequence of graph modules. If a list, the modules will be named ``"module0", "module1", ...``.
+
     """
 
     def __init__(
@@ -167,6 +188,7 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
           3. ``param`` in ``shared_params``
 
         Args:
+        ----
             shared_params (dict-like): shared parameters from which to pull when instantiating the module
             layers (dict): dictionary mapping unique names of layers to either:
                   1. A callable (such as a class or function) that can be used to ``instantiate`` a module for that layer
@@ -175,41 +197,46 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
             irreps_in (optional dict): ``irreps_in`` for the first module in the sequence.
 
         Returns:
+        -------
             The constructed SequentialGraphNetwork.
+
         """
         # note that dictionary ordered gueranteed in >=3.7, so its fine to do an ordered sequential as a dict.
         built_modules = []
         for name, builder in layers.items():
             if not isinstance(name, str):
-                raise ValueError(f"`'name'` must be a str; got `{name}`")
+                msg = f"`'name'` must be a str; got `{name}`"
+                raise ValueError(msg)
             if isinstance(builder, tuple):
                 builder, params = builder
             else:
                 params = {}
             if not callable(builder):
+                msg = f"The builder has to be a class or a function. got {type(builder)}"
                 raise TypeError(
-                    f"The builder has to be a class or a function. got {type(builder)}"
+                    msg
                 )
 
             instance, _ = instantiate(
                 builder=builder,
                 prefix=name,
                 positional_args=(
-                    dict(
-                        irreps_in=(
+                    {
+                        "irreps_in": (
                             built_modules[-1].irreps_out
                             if len(built_modules) > 0
                             else irreps_in
                         )
-                    )
+                    }
                 ),
                 optional_args=params,
                 all_args=shared_params,
             )
 
             if not isinstance(instance, GraphModuleMixin):
+                msg = f"Builder `{builder}` for layer with name `{name}` did not return a GraphModuleMixin, instead got a {type(instance).__name__}"
                 raise TypeError(
-                    f"Builder `{builder}` for layer with name `{name}` did not return a GraphModuleMixin, instead got a {type(instance).__name__}"
+                    msg
                 )
 
             built_modules.append(instance)
@@ -222,38 +249,42 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
         r"""Append a module to the SequentialGraphNetwork.
 
         Args:
+        ----
             name (str): the name for the module
             module (GraphModuleMixin): the module to append
+
         """
         assert AtomicDataDict._irreps_compatible(self.irreps_out, module.irreps_in)
         self.add_module(name, module)
         self.irreps_out = dict(module.irreps_out)
-        return
 
     def append_from_parameters(
         self,
         shared_params: Mapping,
         name: str,
         builder: Callable,
-        params: Dict[str, Any] = {},
+        params: Optional[Dict[str, Any]] = None,
     ) -> None:
         r"""Build a module from parameters and append it.
 
         Args:
+        ----
             shared_params (dict-like): shared parameters from which to pull when instantiating the module
             name (str): the name for the module
             builder (callable): a class or function to build a module
             params (dict, optional): extra specific parameters for this module that take priority over those in ``shared_params``
+
         """
+        if params is None:
+            params = {}
         instance, _ = instantiate(
             builder=builder,
             prefix=name,
-            positional_args=(dict(irreps_in=self[-1].irreps_out)),
+            positional_args=({"irreps_in": self[-1].irreps_out}),
             optional_args=params,
             all_args=shared_params,
         )
         self.append(name, instance)
-        return
 
     def insert(
         self,
@@ -265,14 +296,16 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
         """Insert a module after the module with name ``after``.
 
         Args:
+        ----
             name: the name of the module to insert
             module: the moldule to insert
             after: the module to insert after
             before: the module to insert before
-        """
 
+        """
         if (before is None) is (after is None):
-            raise ValueError("Only one of before or after argument needs to be defined")
+            msg = "Only one of before or after argument needs to be defined"
+            raise ValueError(msg)
         elif before is None:
             insert_location = after
         else:
@@ -304,35 +337,39 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
             )
 
         # insert the new irreps_out to the later modules
-        for module_id, next_module in enumerate(module_list[idx + 1 :]):
+        for _module_id, next_module in enumerate(module_list[idx + 1 :]):
             next_module._add_independent_irreps(module.irreps_out)
 
         # update the final wrapper irreps_out
         self.irreps_out = dict(module_list[-1].irreps_out)
 
-        return
 
     def insert_from_parameters(
         self,
         shared_params: Mapping,
         name: str,
         builder: Callable,
-        params: Dict[str, Any] = {},
+        params: Optional[Dict[str, Any]] = None,
         after: Optional[str] = None,
         before: Optional[str] = None,
     ) -> None:
         r"""Build a module from parameters and insert it after ``after``.
 
         Args:
+        ----
             shared_params (dict-like): shared parameters from which to pull when instantiating the module
             name (str): the name for the module
             builder (callable): a class or function to build a module
             params (dict, optional): extra specific parameters for this module that take priority over those in ``shared_params``
             after: the name of the module to insert after
             before: the name of the module to insert before
+
         """
+        if params is None:
+            params = {}
         if (before is None) is (after is None):
-            raise ValueError("Only one of before or after argument needs to be defined")
+            msg = "Only one of before or after argument needs to be defined"
+            raise ValueError(msg)
         elif before is None:
             insert_location = after
         else:
@@ -343,12 +380,11 @@ class SequentialGraphNetwork(GraphModuleMixin, torch.nn.Sequential):
         instance, _ = instantiate(
             builder=builder,
             prefix=name,
-            positional_args=(dict(irreps_in=self[idx].irreps_out)),
+            positional_args=({"irreps_in": self[idx].irreps_out}),
             optional_args=params,
             all_args=shared_params,
         )
         self.insert(after=after, before=before, name=name, module=instance)
-        return
 
     # Copied from https://pytorch.org/docs/stable/_modules/torch/nn/modules/container.html#Sequential
     # with type annotations added

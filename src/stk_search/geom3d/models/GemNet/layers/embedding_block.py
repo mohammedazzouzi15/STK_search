@@ -5,13 +5,13 @@ from .base_layers import Dense
 
 
 class AtomEmbedding(torch.nn.Module):
-    """
-    Initial atom embeddings based on the atom type
+    """Initial atom embeddings based on the atom type.
 
     Parameters
     ----------
         emb_size: int
             Atom embeddings size
+
     """
 
     def __init__(self, node_class, emb_size, name=None):
@@ -25,19 +25,17 @@ class AtomEmbedding(torch.nn.Module):
         torch.nn.init.uniform_(self.embeddings.weight, a=-np.sqrt(3), b=np.sqrt(3))
 
     def forward(self, Z):
-        """
-        Returns
+        """Returns
         -------
             h: Tensor, shape=(nAtoms, emb_size)
                 Atom embeddings.
+
         """
-        h = self.embeddings(Z)  # -1 because Z.min()=1 (==Hydrogen)
-        return h
+        return self.embeddings(Z)  # -1 because Z.min()=1 (==Hydrogen)
 
 
 class EdgeEmbedding(torch.nn.Module):
-    """
-    Edge embedding based on the concatenation of atom embeddings and subsequent dense layer.
+    """Edge embedding based on the concatenation of atom embeddings and subsequent dense layer.
 
     Parameters
     ----------
@@ -49,6 +47,7 @@ class EdgeEmbedding(torch.nn.Module):
             Embedding size after the dense layer.
         activation: str
             Activation function used in the dense layer.
+
     """
 
     def __init__(
@@ -58,12 +57,12 @@ class EdgeEmbedding(torch.nn.Module):
         in_features = 2 * atom_features + edge_features
         self.dense = Dense(in_features, out_features, activation=activation, bias=False)
 
-    def forward(self, h, m_rbf, idnb_a, idnb_c,):
-        """
-        Returns
+    def forward(self, h, m_rbf, idnb_a, idnb_c):
+        """Returns
         -------
             m_ca: Tensor, shape=(nEdges, emb_size)
                 Edge embeddings.
+
         """
         # m_rbf: shape (nEdges, nFeatures)
         # in embedding block: m_rbf = rbf ; In interaction block: m_rbf = m_ca
@@ -72,5 +71,4 @@ class EdgeEmbedding(torch.nn.Module):
         h_c = h[idnb_c]  # shape=(nEdges, emb_size)
 
         m_ca = torch.cat([h_a, h_c, m_rbf], dim=-1)  # (nEdges, 2*emb_size+nFeatures)
-        m_ca = self.dense(m_ca)  # (nEdges, emb_size)
-        return m_ca
+        return self.dense(m_ca)  # (nEdges, emb_size)

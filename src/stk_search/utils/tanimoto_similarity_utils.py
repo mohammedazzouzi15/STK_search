@@ -1,35 +1,28 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pymongo
 import stk
 from rdkit import Chem
 
 # helper functions to generate fingerprints and calculate similarity
-from rdkit.Chem import AllChem
-from rdkit.Chem import DataStructs
-from stk_search.utils import database_utils
-import numpy as np
-import torch
-import pymongo
-from sklearn.decomposition import PCA, KernelPCA
-import seaborn as sns
-import pandas as pd
-import matplotlib.pyplot as plt
+from rdkit.Chem import AllChem, DataStructs
 
 
 # Function to generate Morgan fingerprints
 def generate_morgan_fingerprints(molecules, radius=2, n_bits=2048):
-    fingerprints = [
+    return [
         AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
         for mol in molecules
     ]
-    return fingerprints
 
 
 # Function to generate ECFP fingerprints
 def generate_ecfp_fingerprints(molecules, radius=2, n_bits=2048):
-    fingerprints = [
+    return [
         AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
         for mol in molecules
     ]
-    return fingerprints
 
 
 # Function to calculate Tanimoto similarity between fingerprints
@@ -45,7 +38,6 @@ def get_mol_from_df_single(InChIKey):
     client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
 
     database = "stk_mohammed_BO"
-    collection_name = "BO_exp1"
     client = pymongo.MongoClient(client)
     db_polymer = stk.ConstructedMoleculeMongoDb(
         client,
@@ -60,7 +52,6 @@ def get_mol_from_df(df, num_mol):
     client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
 
     database = "stk_mohammed_BO"
-    collection_name = "BO_exp1"
     client = pymongo.MongoClient(client)
     db_polymer = stk.ConstructedMoleculeMongoDb(
         client,
@@ -78,7 +69,6 @@ def get_mol_from_res(results, num_initialisation,db_polymer=None,df_mol_dict=Non
     if db_polymer is None:
         client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
         database = "stk_mohammed_BO"
-        collection_name = "BO_exp1"
         client = pymongo.MongoClient(client)
         db_polymer = stk.ConstructedMoleculeMongoDb(
             client,
@@ -93,7 +83,7 @@ def get_mol_from_res(results, num_initialisation,db_polymer=None,df_mol_dict=Non
         else:
             mol = db_polymer.get({"InChIKey": InChIKey}).to_rdkit_mol()
             Chem.SanitizeMol(mol)
-            
+
             df_mol_dict[InChIKey]=mol
         mol_list_suggested.append(mol)
     for InChIKey in results["InchiKey_acquired"][:num_initialisation]:
@@ -113,7 +103,6 @@ def get_tanimoto_similarity(mol_list):
     morgan_fingerprints = generate_morgan_fingerprints(mol_list)
 
     tanimoto_sim = np.zeros((len(mol_list), len(mol_list)))
-    print("Tanimoto similarity (Morgan):")
     for i in range(len(mol_list)):
         for j in range(len(mol_list)):
             tanimoto_sim[i, j] = calculate_tanimoto_similarity(
@@ -129,16 +118,14 @@ def get_tanimoto_similarity(mol_list):
 def plot_similarity_results_elem_suggested(
     search_results, max_iteration=100, min_iteration=50, group_size=10
 ):
-    """plot the similarity of the molecules found in the search space
+    """Plot the similarity of the molecules found in the search space
     search_results: list of dictionaries with the search results
     num_mol: number of molecules to plot
     num_mol_init: number of molecules in the initialisation
     group_size: number of iterations to group together
-    return: array of the similarity of the molecules found
+    return: array of the similarity of the molecules found.
 
     """
-    print("Extracting molecules from the search results")
-    list_similarity_to_initial = []
     mol_list = []
     for dict_org in search_results:
         dict = dict_org.copy()
@@ -150,11 +137,8 @@ def plot_similarity_results_elem_suggested(
         df = df[df["ids_acquired"] > min_iteration]
         [mol_list.append(x) for x in get_mol_from_df(df, df.shape[0])]
         # Generate Morgan fingerprints for the dataset
-    print("Generating Morgan fingerprints")
     morgan_fingerprints = generate_morgan_fingerprints(mol_list)
-    print("Calculating Tanimoto similarity")
     tanimoto_sim = np.zeros((len(mol_list), len(mol_list)))
-    print("Tanimoto similarity (Morgan):")
     for i in range(1, len(mol_list)):
         for j in range(i, len(mol_list)):
             tanimoto_sim[i, j] = calculate_tanimoto_similarity(
@@ -163,9 +147,8 @@ def plot_similarity_results_elem_suggested(
     tanimoto_sim_off_diag = tanimoto_sim[
         ~np.eye(tanimoto_sim.shape[0], dtype=bool)
     ].flatten()
-    tanimoto_sim_off_diag = tanimoto_sim_off_diag[tanimoto_sim_off_diag > 0]
+    return tanimoto_sim_off_diag[tanimoto_sim_off_diag > 0]
 
-    return tanimoto_sim_off_diag
 
 
 def get_mean_similarity(mol_list_suggested, mol_list_init):
@@ -238,7 +221,6 @@ def plot_similarity_results_elem_suggested_df(
     nb_iterations_range = np.arange(0, nb_iterations)
     client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
     database = "stk_mohammed_BO"
-    collection_name = "BO_exp1"
     client = pymongo.MongoClient(client)
     db_polymer = stk.ConstructedMoleculeMongoDb(
         client,
@@ -257,7 +239,7 @@ def plot_similarity_results_elem_suggested_df(
             sim_matrix = sim_matrix[~np.eye(sim_matrix.shape[0], dtype=bool)].flatten()
             similarity[res_num, i] = np.mean(sim_matrix)
             # std_similarity.append(np.std(tanimoto_sim[:i,])
-      
+
     mean_similarity = np.mean(similarity, axis=0)
     std_similarity = np.std(similarity, axis=0)
     if ax is None:

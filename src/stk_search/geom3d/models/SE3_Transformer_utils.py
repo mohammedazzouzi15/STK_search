@@ -1,14 +1,15 @@
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 from torch_scatter import scatter_add
+
 from .fibers import Fiber, fiber2head
 from .TFN_utils import PairwiseConv
 
 
 class GSE3Res(nn.Module):
-    """Graph attention block with SE(3)-equivariance and skip connection"""
+    """Graph attention block with SE(3)-equivariance and skip connection."""
 
     def __init__(
         self,
@@ -73,7 +74,6 @@ class GSE3Res(nn.Module):
                 assert (
                     self.add.f_out.structure_dict == f_out.structure_dict
                 ), "skip connection would change output structure"
-        return
 
     def forward(self, h, edge_index, **kwargs):
         # Embeddings
@@ -95,7 +95,7 @@ class GSE3Res(nn.Module):
 
 
 class GConvSE3Partial(nn.Module):
-    """Graph SE(3)-equivariant node -> edge layer"""
+    """Graph SE(3)-equivariant node -> edge layer."""
 
     def __init__(self, f_in, f_out, edge_dim: int = 0, x_ij=None):
         """SE(3)-equivariant partial convolution.
@@ -103,9 +103,12 @@ class GConvSE3Partial(nn.Module):
         each input channel, without summing over the result from each input
         channel. This unfolded structure makes it amenable to be used for
         computing the value-embeddings of the attention mechanism.
+
         Args:
+        ----
             f_in: list of tuples [(multiplicities, type),...]
             f_out: list of tuples [(multiplicities, type),...]
+
         """
         super().__init__()
         self.f_out = f_out
@@ -137,20 +140,17 @@ class GConvSE3Partial(nn.Module):
             r: inter-atomic distances
             basis: pre-computed Q * Y
         Returns:
-            tensor with new features [B, n_points, n_features_out]
+            tensor with new features [B, n_points, n_features_out].
         """
         # Add node features to local graph scope
         G = {}
         for k, v in h.items():
             G[k] = v
 
-        if edge_feat is not None:
-            feat = torch.cat([edge_feat, r], -1)
-        else:
-            feat = r
+        feat = torch.cat([edge_feat, r], -1) if edge_feat is not None else r
 
-        for (mi, di) in self.f_in.structure:
-            for (mo, do) in self.f_out.structure:
+        for (_mi, di) in self.f_in.structure:
+            for (_mo, do) in self.f_out.structure:
                 etype = f"({di},{do})"
                 G[etype] = self.kernel_unary[etype](feat, basis)
 
@@ -207,9 +207,12 @@ class G1x1SE3(nn.Module):
 
     def __init__(self, f_in, f_out, learnable=True):
         """SE(3)-equivariant 1x1 convolution.
+
         Args:
+        ----
             f_in: input Fiber() of feature multiplicities and types
             f_out: output Fiber() of feature multiplicities and types
+
         """
         super().__init__()
         self.f_in = f_in
@@ -226,7 +229,7 @@ class G1x1SE3(nn.Module):
     def forward(self, features, **kwargs):
         output = {}
         for k, v in features.items():
-            if str(k) in self.transform.keys():
+            if str(k) in self.transform:
                 output[k] = torch.matmul(self.transform[str(k)], v)
         return output
 
@@ -239,10 +242,13 @@ class GMABSE3(nn.Module):
 
     def __init__(self, f_value, f_key, n_heads):
         """SE(3)-equivariant MAB (multi-headed attention block) layer.
+
         Args:
+        ----
             f_value: Fiber() object for value-embeddings
             f_key: Fiber() object for key-embeddings
             n_heads: number of heads
+
         """
         super().__init__()
         self.f_value = f_value
@@ -257,9 +263,8 @@ class GMABSE3(nn.Module):
             k: dict of key edge-features
             q: dict of query node-features
         Returns:
-            tensor with new features [B, n_points, n_features_out]
+            tensor with new features [B, n_points, n_features_out].
         """
-
         # Add node features to local graph scope
         ## We use the stacked tensor representation for attention
         G = {}
@@ -307,9 +312,12 @@ class GMABSE3(nn.Module):
 class GAttentiveSelfInt(nn.Module):
     def __init__(self, f_in, f_out):
         """SE(3)-equivariant 1x1 convolution.
+
         Args:
+        ----
             f_in: input Fiber() of feature multiplicities and types
             f_out: output Fiber() of feature multiplicities and types
+
         """
         super().__init__()
         self.f_in = f_in
@@ -379,8 +387,10 @@ class GSum(nn.Module):
         """SE(3)-equvariant graph residual sum function.
 
         Args:
+        ----
             f_x: Fiber() object for fiber of summands
             f_y: Fiber() object for fiber of summands
+
         """
         super().__init__()
         self.f_x = f_x
@@ -417,7 +427,7 @@ class GSum(nn.Module):
 
 
 class GCat(nn.Module):
-    """Concat only degrees which are in f_x"""
+    """Concat only degrees which are in f_x."""
 
     def __init__(self, f_x: Fiber, f_y: Fiber):
         super().__init__()

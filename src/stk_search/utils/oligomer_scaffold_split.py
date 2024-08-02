@@ -1,39 +1,35 @@
-""" script to turn a a dataset into custom fragment scaffold split"""
+"""script to turn a a dataset into custom fragment scaffold split."""
 
-import os
 from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from IPython.display import display, HTML
+import torch
+from IPython.display import display
 from rdkit import Chem
 from rdkit.Chem import AllChem, DataStructs, Draw, rdFMCS
-from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
-from sklearn.decomposition import PCA
 from sklearn.cluster import HDBSCAN
-from tqdm import tqdm
-import torch
-
+from sklearn.decomposition import PCA
 from stk_search.utils import database_utils
+from tqdm import tqdm
 
 
 def oligomer_scaffold_splitter(dataset, config):
-    """
-    Split a dataset into a training and test set based on the scaffold of the oligomers.
+    """Split a dataset into a training and test set based on the scaffold of the oligomers.
     The test set contains the oligomers with the specified scaffold.
 
     Args:
+    ----
     - dataset: list of dictionaries
     - config: dictionary with the following
 
     Returns:
+    -------
     - test_set_inchikeys: list of InChIKeys of the oligomers in the test set
 
     """
-
     df_total, df_precursors = load_dataframes(dataset, config)
 
     check_data_exists(df_total, dataset, config)
@@ -46,12 +42,6 @@ def oligomer_scaffold_splitter(dataset, config):
         "oligomer_min_samples"
     ]  # Minimum number of points required to form a core point
 
-    print(
-        "Clustering with min_cluster_size =",
-        min_cluster_size,
-        "and min_samples =",
-        min_samples,
-    )
     # Create a HDBSCAN instance
     hdb_model = HDBSCAN(
         min_cluster_size=min_cluster_size, min_samples=min_samples
@@ -60,7 +50,6 @@ def oligomer_scaffold_splitter(dataset, config):
     cluster_labels = hdb_model.fit_predict(
         df_total[["2d_tani_pca_1", "2d_tani_pca_2"]]
     )
-    print("Clustered", len(cluster_labels), "oligomers")
     # assign the cluster labels to the InChIKeys in df_total
     df_total["Cluster"] = cluster_labels
     cluster_assignments = dict(zip(df_total["InChIKey"], df_total["Cluster"]))
@@ -69,21 +58,19 @@ def oligomer_scaffold_splitter(dataset, config):
     chosen_cluster = config[
         "test_set_oligomer_cluster"
     ]  # Choose the cluster you want to use for the test set
-    print(f"Chosen cluster: {chosen_cluster}")
     cluster_keys = []
     for key, value in cluster_assignments.items():
         if value == chosen_cluster:
             cluster_keys.append(key)
-    print(f"Length of Cluster {chosen_cluster}: {len(cluster_keys)}")
 
     return cluster_keys
 
 
 def cluster_analysis(dataset, config, min_cluster_size=750, min_samples=50):
-    """
-    Perform clustering on the dataset and print the number of clusters and the number of oligomers in each cluster.
+    """Perform clustering on the dataset and print the number of clusters and the number of oligomers in each cluster.
 
     Args:
+    ----
     - dataset: list of dictionaries
     - config: dictionary with the following
     - min_cluster_size: int, minimum size for a cluster to be considered valid
@@ -93,36 +80,27 @@ def cluster_analysis(dataset, config, min_cluster_size=750, min_samples=50):
     df_total, df_precursors = load_dataframes(dataset, config)
     check_data_exists(df_total, dataset, config)
 
-    print(
-        "Clustering with min_cluster_size =",
-        min_cluster_size,
-        "and min_samples =",
-        min_samples,
-    )
     # Create a HDBSCAN instance
     hdb_model = HDBSCAN(
         min_cluster_size=min_cluster_size, min_samples=min_samples
     )
     # Fit the model to the average PCA scores
-    cluster_labels = hdb_model.fit_predict(
+    hdb_model.fit_predict(
         df_total[["2d_tani_pca_1", "2d_tani_pca_2"]]
     )
 
     # print how many clusters there are and how many oligomers are in each cluster
-    print("Number of clusters:", len(set(cluster_labels)))
-    print("Number of oligomers in each cluster:")
-    print(df_total["Cluster"].value_counts())
 
-    return
 
 
 def pca_plot(df_total, config):
-    """
-    Plot the 2D PCA space of the dataset, highlighting the chosen cluster.
+    """Plot the 2D PCA space of the dataset, highlighting the chosen cluster.
 
     Args:
+    ----
     - dataset: list of dictionaries
     - config: dictionary with the following
+
     """
     df_total, df_precursors = load_dataframes(dataset, config)
     check_data_exists(df_total, dataset, config)
@@ -134,12 +112,6 @@ def pca_plot(df_total, config):
         "oligomer_min_samples"
     ]  # Minimum number of points required to form a core point
 
-    print(
-        "Clustering with min_cluster_size =",
-        min_cluster_size,
-        "and min_samples =",
-        min_samples,
-    )
     # Create a HDBSCAN instance
     hdb_model = HDBSCAN(
         min_cluster_size=min_cluster_size, min_samples=min_samples
@@ -178,22 +150,22 @@ def pca_plot(df_total, config):
     plt.ylabel("PC2")
     plt.show()
 
-    return
 
 
 # still to do for oligomer
 def substructure_analysis_oligomers(
     dataset, config, selected_cluster=1, min_cluster_size=750, min_samples=50
 ):
-    """
-    Perform substructure analysis for the specified cluster of oligomers.
+    """Perform substructure analysis for the specified cluster of oligomers.
 
     Args:
+    ----
     - dataset: list of dictionaries
     - config: dictionary with the following
     - selected_cluster: int, the cluster to perform substructure analysis on
     - min_cluster_size: int, minimum size for a cluster to be considered valid
     - min_samples: int, minimum number of points required to form a core point
+
     """
     df_total, df_precursors = load_dataframes(dataset, config)
 
@@ -207,12 +179,6 @@ def substructure_analysis_oligomers(
     min_cluster_size = config["oligomer_min_cluster_size"]
     min_samples = config["oligomer_min_samples"]
 
-    print(
-        "Clustering with min_cluster_size =",
-        min_cluster_size,
-        "and min_samples =",
-        min_samples,
-    )
 
     hdb_model = HDBSCAN(
         min_cluster_size=min_cluster_size, min_samples=min_samples
@@ -230,12 +196,7 @@ def substructure_analysis_oligomers(
         if cluster_id == selected_cluster
     ]
 
-    print(
-        f"Length of Cluster {selected_cluster}: {len(selected_cluster_keys)}"
-    )
-    print("Clustered")
 
-    print("Performing substructure analysis for Cluster", selected_cluster)
 
     # Generate common substructures for each molecule in the cluster
     common_substructures = []
@@ -273,9 +234,7 @@ def substructure_analysis_oligomers(
 
         # Check if there's only one molecule in the cluster
         if len(selected_cluster_keys) < 2:
-            print(
-                f"Oligomer {oligomer_key} (Cluster {selected_cluster}): Not enough fragments for comparison."
-            )
+            pass
         else:
             # Find the common substructure in the combined oligomer
             common_substructure = rdFMCS.FindMCS(
@@ -288,7 +247,6 @@ def substructure_analysis_oligomers(
 
         # visualise only one combined molecule in the cluster in 2D, so its easier to see
         if len(fragments) == 6 and counter == 0:
-            print(f"representative oligomer in cluster {selected_cluster}")
             mol = Chem.MolFromSmiles(oligomer_smiles)
             img = Draw.MolToImage(mol)
             display(img)
@@ -308,15 +266,14 @@ def substructure_analysis_oligomers(
     top_n = min(
         3, len(ranked_substructures)
     )  # Choose the smaller of 3 and the actual number of substructures
-    for i, (substructure, count) in enumerate(ranked_substructures[:top_n]):
-        print(f"Top {i + 1} Substructure (Frequency: {count} oligomers):")
+    for i, (substructure, _count) in enumerate(ranked_substructures[:top_n]):
         img = Draw.MolToImage(Chem.MolFromSmarts(substructure))
         display(img)
 
 
 def load_dataframes(dataset, config):
     seed = config["seed"]
-    num_mols = len(dataset)
+    len(dataset)
     np.random.seed(seed)
 
     df_path = Path(
@@ -341,20 +298,18 @@ def check_data_exists(df_total, dataset, config):
         "2d_tani_pca_1" in df_total.columns
         and "2d_tani_pca_2" in df_total.columns
     ):
-        print("Dataset file found in df_total")
+        pass
 
     else:
         generate_2d_PCA(dataset, config)
 
-    return
 
 
 def calculate_morgan_fingerprints(mols,radius=2,nBits=1024):
-    morgan_fps = [
+    return [
         AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=nBits)
         for mol in mols
     ]
-    return morgan_fps
 
 
 def calculate_tanimoto_similarity(fp1, fp2):
@@ -371,7 +326,7 @@ def generate_repr(df_total, df_precursors, frag_properties, idx=0):
         elements_curr = pd.DataFrame(
             elements_curr, columns=[f"InChIKey_{x}" for x in range(6)]
         )
-    else: 
+    else:
         elements_curr = df_total[[f"InChIKey_{x}" for x in range(6)]].iloc[idx]
     num_frag = elements_curr.shape[1]
     init_rpr = []
@@ -391,25 +346,18 @@ def generate_repr(df_total, df_precursors, frag_properties, idx=0):
                 [init_rpr, df_eval[df_eval.columns[num_frag + 1 :]].values],
                 axis=1,
             )
-    print(init_rpr.shape)
-    X_explored_BO = torch.tensor(
+    return torch.tensor(
         np.array(init_rpr.astype(float)), dtype=torch.float32
     )
-    print(X_explored_BO)
 
-    return X_explored_BO
 
 
 def generate_2d_PCA(df, df_precursors):
-    """
-    Generate 2D PCA scores for the dataset and append them to df_total.
-    """
-
+    """Generate 2D PCA scores for the dataset and append them to df_total."""
     #df_total, df_precursors = load_dataframes(dataset, config)
     df_total = df.copy()
     X_frag_mol = df_precursors["mol_opt"].values
 
-    print(f"Dataset file not found in df_total. Generating...")
     morgan_fps = calculate_morgan_fingerprints(X_frag_mol)
     tanimoto_sim = np.zeros((len(X_frag_mol), len(X_frag_mol)))
     for i in range(len(X_frag_mol)):
@@ -451,7 +399,7 @@ def generate_2d_PCA(df, df_precursors):
     df_pca_scores["2d_tani_pca_1"] = oligomer_pca_scores_2_final[:, 0]
     df_pca_scores["2d_tani_pca_2"] = oligomer_pca_scores_2_final[:, 1]
     # append the pca scores to the df_total dataframe in new columns called 2d_tani_pca_1 and 2d_tani_pca_2 for the corresponding InChIKey
-    
+
     df_total["2d_tani_pca_1"] = df_total["InChIKey"].map(
         df_pca_scores.set_index("InChIKey")["2d_tani_pca_1"]
     )

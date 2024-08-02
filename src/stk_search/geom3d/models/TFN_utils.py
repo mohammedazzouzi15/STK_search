@@ -1,16 +1,18 @@
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class BN(nn.Module):
-    """SE(3)-equvariant batch/layer normalization"""
+    """SE(3)-equvariant batch/layer normalization."""
 
     def __init__(self, m):
-        """SE(3)-equvariant batch/layer normalization
+        """SE(3)-equvariant batch/layer normalization.
 
         Args:
+        ----
             m: int for number of output channels
+
         """
         super().__init__()
         self.bn = nn.LayerNorm(m)
@@ -26,10 +28,12 @@ class RadialFunc(nn.Module):
         """NN parameterized radial profile function.
 
         Args:
+        ----
             num_freq: number of output frequencies
             in_dim: multiplicity of input (num input channels)
             out_dim: multiplicity of output (num output channels)
             edge_dim: number of dimensions for edge embedding
+
         """
         super().__init__()
         self.num_freq = num_freq
@@ -61,7 +65,7 @@ class RadialFunc(nn.Module):
 
 
 class PairwiseConv(nn.Module):
-    """SE(3)-equivariant convolution between two single-type features"""
+    """SE(3)-equivariant convolution between two single-type features."""
 
     def __init__(
         self,
@@ -77,11 +81,13 @@ class PairwiseConv(nn.Module):
         to nc_out features of type degree_out.
 
         Args:
+        ----
             degree_in: degree of input fiber
             nc_in: number of channels on input
             degree_out: degree of out order
             nc_out: number of channels on output
             edge_dim: number of dimensions for edge embedding
+
         """
         super().__init__()
         # Log settings
@@ -124,7 +130,7 @@ class GConvSE3(nn.Module):
             f_out: list of tuples [(multiplicities, type),...]
             self_interaction: include self-interaction in convolution
             edge_dim: number of dimensions for edge embedding
-            flavor: allows ['TFN', 'skip'], where 'skip' adds a skip connection
+            flavor: allows ['TFN', 'skip'], where 'skip' adds a skip connection.
         """
         super().__init__()
         self.f_in = f_in
@@ -165,7 +171,7 @@ class GConvSE3(nn.Module):
             r: inter-atomic distances
             basis: pre-computed Q * Y
         Returns:
-            tensor with new features [B, n_points, n_features_out]
+            tensor with new features [B, n_points, n_features_out].
         """
         # Add node features to local graph scope
         G = {}
@@ -173,13 +179,10 @@ class GConvSE3(nn.Module):
         for k, v in h.items():
             G[k] = v
 
-        if edge_feat is not None:
-            feat = torch.cat([edge_feat, r], -1)
-        else:
-            feat = r
+        feat = torch.cat([edge_feat, r], -1) if edge_feat is not None else r
 
-        for (mi, di) in self.f_in.structure:
-            for (mo, do) in self.f_out.structure:
+        for (_mi, di) in self.f_in.structure:
+            for (_mo, do) in self.f_out.structure:
                 etype = f"({di},{do})"
                 G[etype] = self.kernel_unary[etype](feat, basis)
 
@@ -199,7 +202,7 @@ class GConvSE3(nn.Module):
 
             # Center -> center messages
             if self.self_interaction:
-                if f"{d_out}" in self.kernel_self.keys():
+                if f"{d_out}" in self.kernel_self:
                     if self.flavor == "TFN":
                         W = self.kernel_self[f"{d_out}"]
                         msg = torch.matmul(W, msg)
@@ -231,10 +234,13 @@ class GNormSE3(nn.Module):
 
     def __init__(self, fiber, nonlin=nn.ReLU(inplace=True), num_layers: int = 0):
         """Initializer.
+
         Args:
+        ----
             fiber: Fiber() of feature multiplicities and types
             nonlin: nonlinearity to use everywhere
             num_layers: non-negative number of linear layers in fnc
+
         """
         super().__init__()
         self.fiber = fiber

@@ -1,14 +1,12 @@
-from typing import List, Optional, Tuple, NamedTuple
 from math import sqrt
+from typing import List, NamedTuple, Optional, Tuple
 
 import torch
-from torch import fx
-
 from e3nn import o3
-from e3nn.util.jit import compile
 from e3nn.o3._tensor_product._codegen import _sum_tensors
-
+from e3nn.util.jit import compile
 from opt_einsum_fx import jitable, optimize_einsums_full
+from torch import fx
 
 from ._layout import StridedLayout
 
@@ -53,7 +51,7 @@ def codegen_strided_linear(
         if len(ins_group) == 0:
             ins_group_irrep_slice.append(None)
             continue
-        i_ins = set(ins.i_in for ins in ins_group)
+        i_ins = {ins.i_in for ins in ins_group}
         ins_group_irrep_slice.append((min(i_ins), max(i_ins)))
         min_i_in, max_i_in = ins_group_irrep_slice[-1]
         assert i_ins == set(range(min_i_in, 1 + max_i_in))
@@ -85,7 +83,7 @@ def codegen_strided_linear(
     z = "" if shared_weights else "z"
 
     w_index: int = 0
-    for ins_grp_i, (ins_grp, ins_grp_ins) in enumerate(
+    for _ins_grp_i, (ins_grp, ins_grp_ins) in enumerate(
         zip(ins_per_output, ins_group_irrep_slice)
     ):
         if len(ins_grp) == 0:
@@ -137,10 +135,7 @@ def codegen_strided_linear(
         else out
         for i, out in enumerate(outs)
     ]
-    if len(outs) > 1:
-        out = torch.cat(outs, dim=-1)
-    else:
-        out = outs[0]
+    out = torch.cat(outs, dim=-1) if len(outs) > 1 else outs[0]
 
     # pad output
     padding: int = layout_out.base_dim - layout_out.base_irreps.dim
@@ -189,7 +184,7 @@ def codegen_strided_linear(
         batchdim = 4
         example_inputs = (
             torch.zeros((batchdim, layout_in.dim)),
-            torch.zeros((tuple() if shared_weights else (batchdim,)) + (w_index,)),
+            torch.zeros((() if shared_weights else (batchdim,)) + (w_index,)),
         )
         graphmod_out = jitable(optimize_einsums_full(graphmod_out, example_inputs))
 

@@ -1,14 +1,13 @@
-from typing import Optional
 import logging
+from typing import Optional
 
 from e3nn import o3
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
 from stk_search.geom3d.models.NequIP.nn import (
-    SequentialGraphNetwork,
     AtomwiseLinear,
     AtomwiseReduce,
     ConvNetLayer,
+    SequentialGraphNetwork,
 )
 from stk_search.geom3d.models.NequIP.nn.embedding import (
     OneHotAtomEncoding,
@@ -16,12 +15,9 @@ from stk_search.geom3d.models.NequIP.nn.embedding import (
     SphericalHarmonicEdgeAttrs,
 )
 
-from . import builder_utils
 
-
-def SimpleIrrepsConfig(config, prefix: Optional[str] = None):
+def SimpleIrrepsConfig(config, prefix: Optional[str] = None) -> None:
     """Builder that pre-processes options to allow "simple" configuration of irreps."""
-
     # We allow some simpler parameters to be provided, but if they are,
     # they have to be correct and not overridden
     simple_irreps_keys = ["l_max", "parity", "num_features"]
@@ -120,18 +116,18 @@ def EnergyModel(
             "conv_to_output_hidden": AtomwiseLinear,
             "output_hidden_to_scalar": (
                 AtomwiseLinear,
-                dict(irreps_out="1x0e", out_field=AtomicDataDict.PER_ATOM_ENERGY_KEY),
+                {"irreps_out": "1x0e", "out_field": AtomicDataDict.PER_ATOM_ENERGY_KEY},
             ),
         }
     )
 
     layers["total_energy_sum"] = (
         AtomwiseReduce,
-        dict(
-            reduce="sum",
-            field=AtomicDataDict.PER_ATOM_ENERGY_KEY,
-            out_field=AtomicDataDict.TOTAL_ENERGY_KEY,
-        ),
+        {
+            "reduce": "sum",
+            "field": AtomicDataDict.PER_ATOM_ENERGY_KEY,
+            "out_field": AtomicDataDict.TOTAL_ENERGY_KEY,
+        },
     )
 
     return SequentialGraphNetwork.from_parameters(

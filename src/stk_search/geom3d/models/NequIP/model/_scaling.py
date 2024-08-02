@@ -2,11 +2,13 @@ import logging
 from typing import List, Optional, Union
 
 import torch
-
-from stk_search.geom3d.models.NequIP.nn import RescaleOutput, GraphModuleMixin, PerSpeciesScaleShift
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
 from stk_search.geom3d.models.NequIP.data.transforms import TypeMapper
-
+from stk_search.geom3d.models.NequIP.nn import (
+    GraphModuleMixin,
+    PerSpeciesScaleShift,
+    RescaleOutput,
+)
 
 RESCALE_THRESHOLD = 1e-6
 
@@ -48,7 +50,6 @@ def GlobalRescale(
 
     If ``initialize`` is false, doesn't compute statistics.
     """
-
     global_scale = config.get(f"{module_prefix}_scale", default_scale)
     global_shift = config.get(f"{module_prefix}_shift", default_shift)
 
@@ -65,14 +66,13 @@ def GlobalRescale(
             if isinstance(value, str):
                 str_names += [value]
             elif (
-                value is None
-                or isinstance(value, float)
-                or isinstance(value, torch.Tensor)
+                value is None or isinstance(value, (float, torch.Tensor))
             ):
                 # valid values
                 pass
             else:
-                raise ValueError(f"Invalid global scale `{value}`")
+                msg = f"Invalid global scale `{value}`"
+                raise ValueError(msg)
 
         # = Compute shifts and scales =
         computed_stats = _compute_stats(
@@ -91,8 +91,9 @@ def GlobalRescale(
             logging.info(f"Replace string {s} to {global_shift}")
 
         if global_scale is not None and global_scale < RESCALE_THRESHOLD:
+            msg = f"Global energy scaling was very low: {global_scale}. If dataset values were used, does the dataset contain insufficient variation? Maybe try disabling global scaling with global_scale=None."
             raise ValueError(
-                f"Global energy scaling was very low: {global_scale}. If dataset values were used, does the dataset contain insufficient variation? Maybe try disabling global scaling with global_scale=None."
+                msg
             )
 
         logging.info(
@@ -132,7 +133,6 @@ def PerSpeciesRescale(
     dataset: AtomicDataset,
     initialize: bool,
 ):
-
     """Add global rescaling for energy(-based quantities).
 
     If ``initialize`` is false, doesn't compute statistics.
@@ -162,8 +162,9 @@ def PerSpeciesRescale(
         if has_global_shift:
             if shifts is not None:
                 # using default of per_atom shift
+                msg = "A global_rescale_shift was provided, but the default per-atom energy shift was not disabled."
                 raise RuntimeError(
-                    "A global_rescale_shift was provided, but the default per-atom energy shift was not disabled."
+                    msg
                 )
         del has_global_shift
 
@@ -175,15 +176,13 @@ def PerSpeciesRescale(
             if isinstance(value, str):
                 str_names += [value]
             elif (
-                value is None
-                or isinstance(value, float)
-                or isinstance(value, list)
-                or isinstance(value, torch.Tensor)
+                value is None or isinstance(value, (float, list, torch.Tensor))
             ):
                 # valid values
                 pass
             else:
-                raise ValueError(f"Invalid value `{value}` of type {type(value)}")
+                msg = f"Invalid value `{value}` of type {type(value)}"
+                raise ValueError(msg)
 
         if len(str_names) == 2:
             # Both computed from dataset
@@ -222,8 +221,9 @@ def PerSpeciesRescale(
             shifts = torch.as_tensor(shifts)
 
         if scales is not None and torch.min(scales) < RESCALE_THRESHOLD:
+            msg = f"Per species energy scaling was very low: {scales}. Maybe try setting {module_prefix}_scales = 1."
             raise ValueError(
-                f"Per species energy scaling was very low: {scales}. Maybe try setting {module_prefix}_scales = 1."
+                msg
             )
 
         logging.info(
@@ -246,12 +246,12 @@ def PerSpeciesRescale(
     # print("PerSpeciesRescale shifts", shifts)
 
     # insert in per species shift
-    params = dict(
-        field=AtomicDataDict.PER_ATOM_ENERGY_KEY,
-        out_field=AtomicDataDict.PER_ATOM_ENERGY_KEY,
-        shifts=shifts,
-        scales=scales,
-    )
+    params = {
+        "field": AtomicDataDict.PER_ATOM_ENERGY_KEY,
+        "out_field": AtomicDataDict.PER_ATOM_ENERGY_KEY,
+        "shifts": shifts,
+        "scales": scales,
+    }
 
     params["arguments_in_dataset_units"] = arguments_in_dataset_units
     model.insert_from_parameters(
@@ -267,21 +267,23 @@ def PerSpeciesRescale(
 
 
 def _compute_stats(
-    str_names: List[str], dataset, stride: int, kwargs: Optional[dict] = {}
+    str_names: List[str], dataset, stride: int, kwargs: Optional[dict] = None
 ):
-    """return the values of statistics over dataset
+    """Return the values of statistics over dataset
     quantity name should be dataset_key_stat, where key can be any key
-    that exists in the dataset, stat can be mean, std
+    that exists in the dataset, stat can be mean, std.
 
     Args:
-
+    ----
     str_names: list of strings that define the quantity to compute
     dataset: dataset object to run the stats over
     stride: # frames to skip for every one frame to include
-    """
 
+    """
     # parse the list of string to field, mode
     # and record which quantity correspond to which computed_item
+    if kwargs is None:
+        kwargs = {}
     stat_modes = []
     stat_fields = []
     stat_strs = []
@@ -312,7 +314,8 @@ def _compute_stats(
             stat_mode = prefix + "rms"
             stat_str = field + prefix + "rms"
         else:
-            raise ValueError(f"Cannot handle {stat} type quantity")
+            msg = f"Cannot handle {stat} type quantity"
+            raise ValueError(msg)
 
         if stat_str in stat_strs:
             ids += [stat_strs.index(stat_str)]

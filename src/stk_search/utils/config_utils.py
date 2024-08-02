@@ -1,15 +1,16 @@
+import datetime
 import json
 import os
+
 import torch
-import datetime
+
 
 def read_config(dir, model_name=""):
     if os.path.exists(dir + "/config.json"):
         config = load_config(dir)
-        print("config loaded from", dir)
     else:
         # Set parameters
-        config = dict()
+        config = {}
         config["seed"] = 42
         config["save_dataset"] = False
         config["name"] = "SchNet_target_1K_TEST_5e4lr"
@@ -44,7 +45,7 @@ def read_config(dir, model_name=""):
             config["model_name"] = model_name
 
         if config["model_name"] == "SchNet":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["node_class"] = 119
             config["model"]["edge_class"] = 5
             config["model"]["num_tasks"] = 1
@@ -57,7 +58,7 @@ def read_config(dir, model_name=""):
             config["batch_size"] = 128
 
         elif config["model_name"] == "DimeNet":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["node_class"] = 119
             config["model"]["hidden_channels"] = 300
             config["model"]["out_channels"] = 1
@@ -72,7 +73,7 @@ def read_config(dir, model_name=""):
             config["model"]["num_output_layers"] = 3
 
         elif config["model_name"] == "DimeNetPlusPlus":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["node_class"] = 119
             config["model"]["hidden_channels"] = 300
             config["model"]["out_channels"] = 1
@@ -89,7 +90,7 @@ def read_config(dir, model_name=""):
             config["model"]["num_output_layers"] = 3
 
         elif config["model_name"] == "GemNet":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["node_class"] = 119
             config["model"]["num_spherical"] = 7
             config["model"]["num_radial"] = 6
@@ -117,7 +118,7 @@ def read_config(dir, model_name=""):
             config["model"]["num_targets"] = 1
 
         elif config["model_name"] == "Equiformer":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["Equiformer_radius"] = 4.0
             config["model"]["Equiformer_irreps_in"] = "5x0e"
             config["model"]["Equiformer_num_basis"] = 32
@@ -127,7 +128,7 @@ def read_config(dir, model_name=""):
             config["model"]["irreps_node_embedding"] = "64x0e+32x1e+16x2e"
 
         elif config["model_name"] == "PaiNN":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["n_atom_basis"] = 64
             config["model"]["n_interactions"] = 6
             config["model"]["n_rbf"] = 20
@@ -138,7 +139,7 @@ def read_config(dir, model_name=""):
             config["batch_size"] = 16
 
         elif config["model_name"] == "SphereNet":
-            config["model"] = dict()
+            config["model"] = {}
             config["model"]["hidden_channels"] = 128
             config["model"]["out_channels"] = 1
             config["model"]["cutoff"] = 5.0
@@ -155,9 +156,9 @@ def read_config(dir, model_name=""):
             config["model"]["num_after_skip"] = 2
             config["model"]["num_output_layers"] = 3
         else:
-            raise ValueError("Model name not recognised")
+            msg = "Model name not recognised"
+            raise ValueError(msg)
         save_config(config, dir)
-        print("config saved to", dir)
 
     return config
 
@@ -167,12 +168,11 @@ def save_config(config, dir):
     # save config to json
     with open(dir + "/config.json", "w") as f:
         json.dump(config, f, indent=4, separators=(",", ": "), sort_keys=True)
-    return None
 
 
 def load_config(dir):
     # load config from json
-    with open(dir + "/config.json", "r") as f:
+    with open(dir + "/config.json") as f:
         config = json.load(f)
     config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
     return config
@@ -181,9 +181,8 @@ def load_config(dir):
 def read_search_config(config_search_dir):
     if os.path.exists(config_search_dir + "/config_search.json"):
         config = load_search_config(config_search_dir)
-        print("config loaded from", config_search_dir)
     else:
-        config = dict()
+        config = {}
         config["num_iteration"] = 100
         config["num_elem_initialisation"] = 10
         config["test_name"] = "test"
@@ -211,14 +210,12 @@ def save_search_config(config, dir):
     # save config to json
     with open(dir + "/config_search.json", "w") as f:
         json.dump(config, f, indent=4, separators=(",", ": "), sort_keys=True)
-    return None
 
 
 def load_search_config(dir):
     # load config from json
-    with open(dir + "/config_search.json", "r") as f:
-        config = json.load(f)
-    return config
+    with open(dir + "/config_search.json") as f:
+        return json.load(f)
 
 
 def generate_config(
@@ -258,9 +255,9 @@ def generate_config(
     config["save_dataset_frag"] = True
     config["name"] = name
     config["target_name"] = target_name
-    if "model_embedding_chkpt" not in config.keys():
+    if "model_embedding_chkpt" not in config:
         config["model_embedding_chkpt"] = ""
-    if "model_transformer_chkpt" not in config.keys():
+    if "model_transformer_chkpt" not in config:
         config["model_transformer_chkpt"] = ""
     config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
     config["lr"] = 5e-4

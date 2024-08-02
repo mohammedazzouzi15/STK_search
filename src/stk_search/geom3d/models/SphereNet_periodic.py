@@ -5,9 +5,8 @@ import torch
 from torch import nn
 from torch.nn import Embedding, Linear
 from torch_geometric.nn.inits import glorot_orthogonal
-from torch_geometric.utils import scatter
-
 from torch_geometric.typing import SparseTensor
+from torch_geometric.utils import scatter
 
 from .DimeNet import ResidualLayer
 from .SphereNet_utils import angle_emb, dist_emb, torsion_emb
@@ -18,7 +17,7 @@ REDUCE = "mean"
 
 class emb(torch.nn.Module):
     def __init__(self, num_spherical, num_radial, cutoff, envelope_exponent):
-        super(emb, self).__init__()
+        super().__init__()
         self.dist_emb = dist_emb(num_radial, cutoff, envelope_exponent)
         self.angle_emb = angle_emb(num_spherical, num_radial, cutoff, envelope_exponent)
         self.torsion_emb = torsion_emb(
@@ -37,8 +36,8 @@ class emb(torch.nn.Module):
 
 
 class init(torch.nn.Module):
-    def __init__(self, num_radial, hidden_channels, act='swish'):
-        super(init, self).__init__()
+    def __init__(self, num_radial, hidden_channels, act="swish"):
+        super().__init__()
         self.act = act
         self.emb = Embedding(95, hidden_channels)
         self.lin_rbf_0 = Linear(num_radial, hidden_channels)
@@ -74,9 +73,9 @@ class update_e(torch.nn.Module):
         num_radial,
         num_before_skip,
         num_after_skip,
-        act='swish',
+        act="swish",
     ):
-        super(update_e, self).__init__()
+        super().__init__()
         self.act = act
         self.lin_rbf1 = nn.Linear(num_radial, basis_emb_size_dist, bias=False)
         self.lin_rbf2 = nn.Linear(basis_emb_size_dist, hidden_channels, bias=False)
@@ -178,7 +177,7 @@ class update_v(torch.nn.Module):
         act,
         output_init,
     ):
-        super(update_v, self).__init__()
+        super().__init__()
         self.act = act
         self.output_init = output_init
 
@@ -201,20 +200,19 @@ class update_v(torch.nn.Module):
             glorot_orthogonal(self.lin.weight, scale=2.0)
 
     def forward(self, e, i, dim_size=None):
-        if dim_size == None:
+        if dim_size is None:
             dim_size = i.max().item() + 1
         _, e2 = e
         v = scatter(e2, i, dim=0, dim_size=dim_size, reduce=REDUCE)
         v = self.lin_up(v)
         for lin in self.lins:
             v = self.act(lin(v))
-        v = self.lin(v)
-        return v
+        return self.lin(v)
 
 
 class update_u(torch.nn.Module):
     def __init__(self):
-        super(update_u, self).__init__()
+        super().__init__()
 
     def forward(self, u, v, batch):
         u += scatter(v, batch, dim=0, reduce=REDUCE)
@@ -222,10 +220,10 @@ class update_u(torch.nn.Module):
 
 
 class SphereNetPeriodic(torch.nn.Module):
-    r"""
-     The spherical message passing neural network SphereNet from the `"Spherical Message Passing for 3D Graph Networks" <https://arxiv.org/abs/2102.05013>`_ paper.
+    r"""The spherical message passing neural network SphereNet from the `"Spherical Message Passing for 3D Graph Networks" <https://arxiv.org/abs/2102.05013>`_ paper.
 
     Args:
+    ----
         energy_and_force (bool, optional): If set to :obj:`True`, will predict energy and take the negative of the derivative of the energy with respect to the atomic positions as predicted forces. (default: :obj:`False`)
         cutoff (float, optional): Cutoff distance for interatomic interactions. (default: :obj:`5.0`)
         num_layers (int, optional): Number of building blocks. (default: :obj:`4`)
@@ -265,10 +263,10 @@ class SphereNetPeriodic(torch.nn.Module):
         num_before_skip=1,
         num_after_skip=2,
         num_output_layers=3,
-        act='swish',
+        act="swish",
         output_init="GlorotOrthogonal",
     ):
-        super(SphereNetPeriodic, self).__init__()
+        super().__init__()
 
         self.cutoff = cutoff
         self.energy_and_force = energy_and_force
@@ -331,13 +329,15 @@ class SphereNetPeriodic(torch.nn.Module):
             update_v.reset_parameters()
 
     def triplets(self, pos, edge_index, num_nodes, use_torsion=False):
-        """
-        Compute the diatance, angle, and torsion from geometric information.
+        """Compute the diatance, angle, and torsion from geometric information.
+
         Args:
+        ----
             pos: Geometric information for every node in the graph.
             edgee_index: Edge index of the graph.
             number_nodes: Number of nodes in the graph.
             use_torsion: If set to :obj:`True`, will return distance, angle and torsion, otherwise only return distance and angle (also retrun some useful index). (default: :obj:`False`)
+
         """
         j, i = edge_index  # j->i
 
@@ -433,7 +433,7 @@ class SphereNetPeriodic(torch.nn.Module):
             pos.requires_grad_()
         num_nodes = pos.size(0)
         dist, angle, torsion, i, j, idx_kj, idx_ji = self.triplets(pos, edge_index, num_nodes, use_torsion=True)
-        
+
         i = periodic_index_mapping[i]
         j = periodic_index_mapping[j]
 

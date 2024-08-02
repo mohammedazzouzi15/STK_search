@@ -1,6 +1,6 @@
-from typing import Optional, Union, List
 import inspect
 import logging
+from typing import List, Optional, Union
 
 from .config import Config
 
@@ -8,16 +8,17 @@ from .config import Config
 def instantiate_from_cls_name(
     module,
     class_name: str,
-    prefix: Optional[Union[str, List[str]]] = [],
-    positional_args: dict = {},
+    prefix: Optional[Union[str, List[str]]] = None,
+    positional_args: Optional[dict] = None,
     optional_args: Optional[dict] = None,
     all_args: Optional[dict] = None,
     remove_kwargs: bool = True,
     return_args_only: bool = False,
 ):
-    """Initialize a class based on a string class name
+    """Initialize a class based on a string class name.
 
     Args:
+    ----
     module: the module to import the class, i.e. torch.optim
     class_name: the string name of the class, i.e. "CosineAnnealingWarmRestarts"
     positional_args (dict): positional arguments
@@ -28,13 +29,18 @@ def instantiate_from_cls_name(
     return_args_only (bool): if True, do not instantiate, only return the arguments
 
     Returns:
-
+    -------
     instance: the instance
     optional_args (dict):
-    """
 
+    """
+    if positional_args is None:
+        positional_args = {}
+    if prefix is None:
+        prefix = []
     if class_name is None:
-        raise NameError("class_name type is not defined ")
+        msg = "class_name type is not defined "
+        raise NameError(msg)
 
     # first obtain a list of all classes in this module
     class_list = inspect.getmembers(module, inspect.isclass)
@@ -45,9 +51,10 @@ def instantiate_from_cls_name(
     # print("class_name", class_name)
 
     # find the matching class
-    the_class = class_dict.get(class_name, None)
+    the_class = class_dict.get(class_name)
     if the_class is None:
-        raise NameError(f"{class_name} type is not found in {module.__name__} module")
+        msg = f"{class_name} type is not found in {module.__name__} module"
+        raise NameError(msg)
 
     return instantiate(
         builder=the_class,
@@ -62,13 +69,13 @@ def instantiate_from_cls_name(
 
 def instantiate(
     builder,
-    prefix: Optional[Union[str, List[str]]] = [],
-    positional_args: dict = {},
-    optional_args: dict = None,
-    all_args: dict = None,
+    prefix: Optional[Union[str, List[str]]] = None,
+    positional_args: Optional[dict] = None,
+    optional_args: Optional[dict] = None,
+    all_args: Optional[dict] = None,
     remove_kwargs: bool = True,
     return_args_only: bool = False,
-    parent_builders: list = [],
+    parent_builders: Optional[list] = None,
 ):
     """Automatic initializing class instance by matching keys in the parameter dictionary to the constructor function.
 
@@ -78,6 +85,7 @@ def instantiate(
         all_args[key] < all_args[prefix_key] < optional_args[key] < optional_args[prefix_key] < positional_args
 
     Args:
+    ----
         builder: the type of the instance
         prefix: the prefix used to address the parameter keys
         positional_args: the arguments used for input. These arguments have the top priority.
@@ -86,15 +94,22 @@ def instantiate(
         remove_kwargs: if True, ignore the kwargs argument in the init funciton
             same definition as the one in Config.from_function
         return_args_only (bool): if True, do not instantiate, only return the arguments
-    """
 
+    """
+    if positional_args is None:
+        positional_args = {}
+    if prefix is None:
+        prefix = []
+    if parent_builders is None:
+        parent_builders = []
     prefix_list = [builder.__name__] if inspect.isclass(builder) else []
     if isinstance(prefix, str):
         prefix_list += [prefix]
     elif isinstance(prefix, list):
         prefix_list += prefix
     else:
-        raise ValueError(f"prefix has the wrong type {type(prefix)}")
+        msg = f"prefix has the wrong type {type(prefix)}"
+        raise ValueError(msg)
 
     # detect the input parameters needed from params
     config = Config.from_class(builder, remove_kwargs=remove_kwargs)
@@ -104,8 +119,9 @@ def instantiate(
     for key in allow:
         bname = key[:-7]
         if key.endswith("_kwargs") and bname not in allow:
+            msg = f"Instantiating {builder.__name__}: found kwargs argument `{key}`, but no parameter `{bname}` for the corresponding builder. (Did you rename `{bname}` but forget to change `{bname}_kwargs`?) Either add a parameter for `{bname}` if you are trying to allow construction of a submodule, or, if `{bname}_kwargs` is just supposed to be a dictionary, rename it without `_kwargs`."
             raise KeyError(
-                f"Instantiating {builder.__name__}: found kwargs argument `{key}`, but no parameter `{bname}` for the corresponding builder. (Did you rename `{bname}` but forget to change `{bname}_kwargs`?) Either add a parameter for `{bname}` if you are trying to allow construction of a submodule, or, if `{bname}_kwargs` is just supposed to be a dictionary, rename it without `_kwargs`."
+                msg
             )
     del allow
 
@@ -115,7 +131,7 @@ def instantiate(
         _keys = config.update(all_args)
         key_mapping["all"] = {k: k for k in _keys}
         # fetch paratemeters that match prefix + "_" + name
-        for idx, prefix_str in enumerate(prefix_list):
+        for _idx, prefix_str in enumerate(prefix_list):
             _keys = config.update_w_prefix(
                 all_args,
                 prefix=prefix_str,
@@ -127,7 +143,7 @@ def instantiate(
         _keys = config.update(optional_args)
         key_mapping["optional"] = {k: k for k in _keys}
         # fetch paratemeters that match prefix + "_" + name
-        for idx, prefix_str in enumerate(prefix_list):
+        for _idx, prefix_str in enumerate(prefix_list):
             _keys = config.update_w_prefix(
                 optional_args,
                 prefix=prefix_str,
@@ -163,8 +179,9 @@ def instantiate(
             continue
 
         if not (callable(sub_builder) or inspect.isclass(sub_builder)):
+            msg = f"Builder for submodule `{key}` must be a callable or a class, got `{sub_builder!r}` instead."
             raise ValueError(
-                f"Builder for submodule `{key}` must be a callable or a class, got `{sub_builder!r}` instead."
+                msg
             )
 
         # add double check to avoid cycle
@@ -175,10 +192,7 @@ def instantiate(
         ):
             sub_prefix_list = [sub_builder.__name__, key]
             for prefix in prefix_list:
-                sub_prefix_list = sub_prefix_list + [
-                    prefix,
-                    prefix + "_" + key,
-                ]
+                sub_prefix_list = [*sub_prefix_list, prefix, prefix + "_" + key]
 
             nested_km, nested_kwargs = instantiate(
                 sub_builder,
@@ -188,7 +202,7 @@ def instantiate(
                 all_args=all_args,
                 remove_kwargs=remove_kwargs,
                 return_args_only=True,
-                parent_builders=[builder] + parent_builders,
+                parent_builders=[builder, *parent_builders],
             )
             # the values in kwargs get higher priority
             nested_kwargs.update(final_optional_args.get(key + "_kwargs", {}))
@@ -199,8 +213,9 @@ def instantiate(
                     {key + "_kwargs." + k: v for k, v in nested_km[t].items()}
                 )
         elif sub_builder in parent_builders:
+            msg = f"cyclic recursion in builder {parent_builders} {sub_builder}"
             raise RuntimeError(
-                f"cyclic recursion in builder {parent_builders} {sub_builder}"
+                msg
             )
         elif not callable(sub_builder) and not inspect.isclass(sub_builder):
             logging.warning(f"subbuilder is not callable {sub_builder}")
@@ -236,8 +251,9 @@ def instantiate(
     try:
         instance = builder(**positional_args, **final_optional_args)
     except Exception as e:
+        msg = f"Failed to build object with prefix `{prefix}` using builder `{builder.__name__}`"
         raise RuntimeError(
-            f"Failed to build object with prefix `{prefix}` using builder `{builder.__name__}`"
+            msg
         ) from e
 
     return instance, final_optional_args
@@ -246,14 +262,15 @@ def instantiate(
 def get_w_prefix(
     key: List[str],
     *kwargs,
-    arg_dicts: List[dict] = [],
-    prefix: Optional[Union[str, List[str]]] = [],
+    arg_dicts: Optional[List[dict]] = None,
+    prefix: Optional[Union[str, List[str]]] = None,
 ):
-    """
-    act as the get function and try to search for the value key from arg_dicts
-    """
-
+    """Act as the get function and try to search for the value key from arg_dicts."""
     # detect the input parameters needed from params
+    if prefix is None:
+        prefix = []
+    if arg_dicts is None:
+        arg_dicts = []
     config = Config(config={}, allow_list=[key])
 
     # sort out all possible prefixes
@@ -262,8 +279,8 @@ def get_w_prefix(
     elif isinstance(prefix, list):
         prefix_list = prefix
     else:
-        raise ValueError(f"prefix is with a wrong type {type(prefix)}")
-    print("prefix_list", prefix_list)
+        msg = f"prefix is with a wrong type {type(prefix)}"
+        raise ValueError(msg)
 
     if not isinstance(arg_dicts, list):
         arg_dicts = [arg_dicts]
@@ -300,7 +317,7 @@ def get_w_prefix(
     logging.debug(f"search for {key} with prefix {prefix}")
     for t in key_mapping:
         for k, v in key_mapping[t].items():
-            string = f" {str(t):>10.10}_args :  {k:>50s}"
+            string = f" {t!s:>10.10}_args :  {k:>50s}"
             if k != v:
                 string += f" <- {v:>50s}"
             logging.debug(string)

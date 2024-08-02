@@ -12,7 +12,7 @@ dependencies = [
   "pandas",
   "numpy",
   "matplotlib",
-  "torch = 2.3.0", 
+  "torch == 2.3.0", 
   "botorch",
   "gpytorch",
   "stko",
@@ -58,6 +58,7 @@ dev = [
   "twine",
   "furo",
   "types-psutil",
+  "sphinx-rtd-theme==1.3.0rc1",
 ]
 
 [project.urls]
@@ -70,6 +71,10 @@ documentation = "https://stk_search.readthedocs.io"
 line-length = 79
 extend-select = ["I"]
 
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["ANN101", "ANN401", "COM812", "ISC001","ANN001","ANN201","E501","ANN204","W"]
+extend-unsafe-fixes = ["N"]
 [tool.black]
 line-length = 79
 

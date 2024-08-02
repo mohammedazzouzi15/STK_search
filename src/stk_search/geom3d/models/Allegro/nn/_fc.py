@@ -1,17 +1,15 @@
-from typing import List, Optional
 import math
+from typing import List, Optional
 
 import torch
-from torch import fx
-
 from e3nn import o3
-from e3nn.util.jit import compile_mode
-from e3nn.util.codegen import CodeGenMixin
 from e3nn.math import normalize2mom
-
+from e3nn.util.codegen import CodeGenMixin
+from e3nn.util.jit import compile_mode
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 from stk_search.geom3d.models.NequIP.nn.nonlinearities import ShiftedSoftPlus
+from torch import fx
 
 
 @compile_mode("script")
@@ -131,8 +129,9 @@ class ScalarMLPFunction(CodeGenMixin, torch.nn.Module):
                 # this rescaling gives < x^2 > = 1
                 torch.nn.init.orthogonal_(w, gain=math.sqrt(max(w.shape)))
             else:
+                msg = f"Invalid mlp_initialization {mlp_initialization}"
                 raise NotImplementedError(
-                    f"Invalid mlp_initialization {mlp_initialization}"
+                    msg
                 )
 
             # generate code

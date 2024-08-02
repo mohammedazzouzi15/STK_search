@@ -1,11 +1,10 @@
 # plot max fitness
-import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-from stk_search.utils import tanimoto_similarity_utils
+import numpy as np
 import pandas as pd
-from stk_search.utils import Search_results_plot
+import seaborn as sns
+from sklearn.metrics import mean_absolute_error, r2_score
+from stk_search.utils import tanimoto_similarity_utils
 
 
 def plot_metric(
@@ -20,7 +19,7 @@ def plot_metric(
     df_total=None,
     num_results_min =500
 ):
-    
+
     number_rows = int(np.ceil((len(plot_function_list)+2) / number_cols))
     fig, axes = plt.subplots(
         number_rows, number_cols, figsize=(5 * number_rows, 5 * number_cols)
@@ -30,7 +29,6 @@ def plot_metric(
     df_plot["color"] = color_list
 
     keys = df_plot["key"]
-    print(" keys :", keys)
     metric_dict_res = {}
     for key in keys.values:
         res = results_dict[key][:num_results_min]
@@ -69,10 +67,8 @@ def plot_metric(
 def plot_metric_mae(metric_dict_res, metric, df_list_dict):
     mae_list, metric_list = [], []
     r2_list = []
-    for key in metric_dict_res.keys():
+    for key in metric_dict_res:
         try:
-            print(key)
-            print(df_list_dict[key]["config_dir"].iloc[0])
             path = (
                 df_list_dict[key]["config_dir"]
                 .iloc[0]
@@ -95,7 +91,6 @@ def plot_metric_mae(metric_dict_res, metric, df_list_dict):
                 )
             )
         except:
-            print("error")
             pass
     fig, ax = plt.subplots()
     key = "evolution_algorithm_total"
@@ -107,10 +102,9 @@ def plot_metric_mae(metric_dict_res, metric, df_list_dict):
 
 
 def add_similarity_plots(axes, df_plot, df_mol_dict, results_dict,
-                         nb_iterations=250,  nb_initialisation=50,):
+                         nb_iterations=250,  nb_initialisation=50):
     keys = df_plot["key"].values
     ax = axes.flatten()
-    print("len of mol_dataset", len(df_mol_dict))
     for key in keys:
         res = results_dict[key]
         color = df_plot[df_plot["key"] == key]["color"].iloc[0]
@@ -154,5 +148,4 @@ def load_mol_dict():
     df = pd.read_pickle(
         "data/output/search_experiment/mol_dict.pkl"
     )
-    df_mol_dict = df.T.loc["mol"].to_dict()
-    return df_mol_dict
+    return df.T.loc["mol"].to_dict()

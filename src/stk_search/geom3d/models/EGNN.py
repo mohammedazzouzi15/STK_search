@@ -1,7 +1,5 @@
 import torch
 from torch import nn
-from torch_geometric.utils import scatter
-from torch_scatter import scatter_add
 
 
 def unsorted_segment_sum(data, segment_ids, num_segments):
@@ -30,7 +28,7 @@ class E_GCL(nn.Module):
         tanh=False,
     ):
 
-        super(E_GCL, self).__init__()
+        super().__init__()
         input_edge = input_nf * 2
         self.positions_weight = positions_weight
         self.recurrent = recurrent
@@ -67,7 +65,6 @@ class E_GCL(nn.Module):
 
         if self.attention:
             self.att_mlp = nn.Sequential(nn.Linear(hidden_nf, 1), nn.Sigmoid())
-        return
 
     def edge_model(self, source, target, radial, edge_attr):
         if edge_attr is None:  # Unused.
@@ -114,12 +111,11 @@ class E_GCL(nn.Module):
         return radial, positions_diff
 
     def forward(self, h, positions, edge_index, node_attr=None, edge_attr=None):
-        """
-        h: (N, emb)
+        """h: (N, emb)
         positions: (N, 3)
         edge_index: (2, M)
         node_attr: None or (N, node_input_dim), where node_input_dim=1
-        edge_attr: None or (M, edge_input_dim)
+        edge_attr: None or (M, edge_input_dim).
         """
         row, col = edge_index
         radial, positions_diff = self.positions2radial(
@@ -163,19 +159,16 @@ class EGNN(nn.Module):
         attention=True,
         node_attr=True,
     ):
-        super(EGNN, self).__init__()
+        super().__init__()
         self.hidden_nf = hidden_nf
         self.n_layers = n_layers
 
         self.embedding = nn.Linear(in_node_nf, hidden_nf)
         self.node_attr = node_attr
 
-        if node_attr:
-            n_node_attr = in_node_nf
-        else:
-            n_node_attr = 0
+        n_node_attr = in_node_nf if node_attr else 0
 
-        for i in range(0, n_layers):
+        for i in range(n_layers):
             layer_ = E_GCL(
                 self.hidden_nf,
                 self.hidden_nf,
@@ -195,7 +188,6 @@ class EGNN(nn.Module):
             nn.Linear(self.hidden_nf, self.hidden_nf),
         )
 
-        return
 
     def forward(self, x, positions, edge_index, edge_attr=None):
         h = self.embedding(x)
@@ -210,8 +202,7 @@ class EGNN(nn.Module):
                     h, positions, edge_index, node_attr=None, edge_attr=edge_attr
                 )
 
-        h = self.node_dec(h)
-        return h
+        return self.node_dec(h)
 
     def forward_with_gathered_index(self, gathered_x, positions, edge_index, periodic_index_mapping):
         h = self.embedding(gathered_x)
@@ -226,5 +217,4 @@ class EGNN(nn.Module):
             #         h, positions, edge_index, node_attr=None, edge_attr=edge_attr
             #     )
 
-        h = self.node_dec(h)
-        return h
+        return self.node_dec(h)

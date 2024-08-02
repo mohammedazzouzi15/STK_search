@@ -1,12 +1,10 @@
-from typing import Optional
 import math
+from typing import Optional
 
 import torch
-
-from torch import nn
-
 from e3nn.math import soft_one_hot_linspace
 from e3nn.util.jit import compile_mode
+from torch import nn
 
 
 @compile_mode("trace")
@@ -48,8 +46,7 @@ class BesselBasis(nn.Module):
     prefactor: float
 
     def __init__(self, r_max, num_basis=8, trainable=True):
-        r"""Radial Bessel Basis, as proposed in DimeNet: https://arxiv.org/abs/2003.03123
-
+        r"""Radial Bessel Basis, as proposed in DimeNet: https://arxiv.org/abs/2003.03123.
 
         Parameters
         ----------
@@ -61,8 +58,9 @@ class BesselBasis(nn.Module):
 
         trainable : bool
             Train the :math:`n \pi` part or not.
+
         """
-        super(BesselBasis, self).__init__()
+        super().__init__()
 
         self.trainable = trainable
         self.num_basis = num_basis
@@ -79,13 +77,13 @@ class BesselBasis(nn.Module):
             self.register_buffer("bessel_weights", bessel_weights)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Evaluate Bessel Basis for input x.
+        """Evaluate Bessel Basis for input x.
 
         Parameters
         ----------
         x : torch.Tensor
             Input
+
         """
         numerator = torch.sin(self.bessel_weights * x.unsqueeze(-1) / self.r_max)
 

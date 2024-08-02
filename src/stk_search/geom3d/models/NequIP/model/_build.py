@@ -1,10 +1,10 @@
+import contextlib
 import inspect
-from typing import Optional
 
 # from stk_search.geom3d.models.NequIP.data import AtomicDataset
 from stk_search.geom3d.models.NequIP.data.transforms import TypeMapper
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
-from stk_search.geom3d.models.NequIP.utils import load_callable, instantiate
+from stk_search.geom3d.models.NequIP.utils import instantiate, load_callable
 
 
 def model_from_config(
@@ -19,22 +19,23 @@ def model_from_config(
      - ``dataset``: if ``initialize`` is True, the dataset
 
     Args:
+    ----
         config
         initialize (bool): if True (default False), ``model_initializers`` will also be run.
         dataset: dataset for initializers if ``initialize`` is True.
 
     Returns:
+    -------
         The build model.
+
     """
     # Pre-process config
     type_mapper = None
     if dataset is not None:
         type_mapper = dataset.type_mapper
     else:
-        try:
+        with contextlib.suppress(RuntimeError):
             type_mapper, _ = instantiate(TypeMapper, all_args=config)
-        except RuntimeError:
-            pass
 
     if type_mapper is not None:
         if "num_types" in config:
@@ -68,32 +69,36 @@ def model_from_config(
             params["config"] = config
         if "dataset" in pnames:
             if "initialize" not in pnames:
-                raise ValueError("Cannot request dataset without requesting initialize")
+                msg = "Cannot request dataset without requesting initialize"
+                raise ValueError(msg)
             if (
                 initialize
                 and pnames["dataset"].default == inspect.Parameter.empty
                 and dataset is None
             ):
+                msg = f"Builder {builder.__name__} requires the dataset, initialize is true, but no dataset was provided to `model_from_config`."
                 raise RuntimeError(
-                    f"Builder {builder.__name__} requires the dataset, initialize is true, but no dataset was provided to `model_from_config`."
+                    msg
                 )
             params["dataset"] = dataset
         if "model" in pnames:
             if model is None:
+                msg = f"Builder {builder.__name__} asked for the model as an input, but no previous builder has returned a model"
                 raise RuntimeError(
-                    f"Builder {builder.__name__} asked for the model as an input, but no previous builder has returned a model"
+                    msg
                 )
             params["model"] = model
-        else:
-            if model is not None:
-                raise RuntimeError(
-                    f"All model_builders after the first one that returns a model must take the model as an argument; {builder.__name__} doesn't"
-                )
+        elif model is not None:
+            msg = f"All model_builders after the first one that returns a model must take the model as an argument; {builder.__name__} doesn't"
+            raise RuntimeError(
+                msg
+            )
         # print("params", params)
         model = builder(**params)
         if model is not None and not isinstance(model, GraphModuleMixin):
+            msg = f"Builder {builder.__name__} didn't return a GraphModuleMixin, got {type(model)} instead"
             raise TypeError(
-                f"Builder {builder.__name__} didn't return a GraphModuleMixin, got {type(model)} instead"
+                msg
             )
         # print(builder, model)
         # print()

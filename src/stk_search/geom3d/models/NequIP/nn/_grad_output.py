@@ -1,11 +1,9 @@
-from typing import List, Union, Optional
 import warnings
+from typing import List, Optional, Union
 
 import torch
-
 from e3nn.o3 import Irreps
 from e3nn.util.jit import compile_mode
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 
@@ -15,12 +13,15 @@ class GradientOutput(GraphModuleMixin, torch.nn.Module):
     r"""Wrap a model and include as an output its gradient.
 
     Args:
+    ----
         func: the model to wrap
         of: the name of the output field of ``func`` to take the gradient with respect to. The field must be a single scalar (i.e. have irreps ``0e``)
         wrt: the input field(s) of ``func`` to take the gradient of ``of`` with regards to.
         out_field: the field in which to return the computed gradients. Defaults to ``f"d({of})/d({wrt})"`` for each field in ``wrt``.
         sign: either 1 or -1; the returned gradient is multiplied by this.
+
     """
+
     sign: float
     _negate: bool
     skip: bool
@@ -89,7 +90,7 @@ class GradientOutput(GraphModuleMixin, torch.nn.Module):
         # del data['cell']
         # del data['pbc']
         # del data['edge_cell_shift']
-        
+
         # print("after", data.keys())
         # print("edge_index", data['edge_index'].size())
         # print("pos", data['pos'].size())
@@ -126,7 +127,8 @@ class GradientOutput(GraphModuleMixin, torch.nn.Module):
         for out, grad in zip(self.out_field, grads):
             if grad is None:
                 # From the docs: "If an output doesn’t require_grad, then the gradient can be None"
-                raise RuntimeError("Something is wrong, gradient couldn't be computed")
+                msg = "Something is wrong, gradient couldn't be computed"
+                raise RuntimeError(msg)
 
             if self._negate:
                 grad = torch.neg(grad)
@@ -144,10 +146,13 @@ class PartialForceOutput(GraphModuleMixin, torch.nn.Module):
     r"""Generate partial and total forces from an energy model.
 
     Args:
+    ----
         func: the energy model
         vectorize: the vectorize option to ``torch.autograd.functional.jacobian``,
             false by default since it doesn't work well.
+
     """
+
     vectorize: bool
 
     def __init__(
@@ -177,7 +182,7 @@ class PartialForceOutput(GraphModuleMixin, torch.nn.Module):
         out_data = {}
 
         def wrapper(pos: torch.Tensor) -> torch.Tensor:
-            """Wrapper from pos to atomic energy"""
+            """Wrapper from pos to atomic energy."""
             nonlocal data, out_data
             data[AtomicDataDict.POSITIONS_KEY] = pos
             out_data = self.func(data)
@@ -209,9 +214,12 @@ class StressOutput(GraphModuleMixin, torch.nn.Module):
         https://pure.mpg.de/rest/items/item_2085135_9/component/file_2156800/content
 
     Args:
+    ----
         func: the energy model to wrap
         do_forces: whether to compute forces as well
+
     """
+
     do_forces: bool
 
     def __init__(
@@ -321,7 +329,8 @@ class StressOutput(GraphModuleMixin, torch.nn.Module):
         forces = grads[0]
         if forces is None:
             # condition needed to unwrap optional for torchscript
-            assert False, "failed to compute forces autograd"
+            msg = "failed to compute forces autograd"
+            raise AssertionError(msg)
         forces = torch.neg(forces)
         data[AtomicDataDict.FORCE_KEY] = forces
 
@@ -329,7 +338,8 @@ class StressOutput(GraphModuleMixin, torch.nn.Module):
         virial = grads[1]
         if virial is None:
             # condition needed to unwrap optional for torchscript
-            assert False, "failed to compute virial autograd"
+            msg = "failed to compute virial autograd"
+            raise AssertionError(msg)
 
         # we only compute the stress (1/V * virial) if we have a cell whose volume we can compute
         if has_cell:

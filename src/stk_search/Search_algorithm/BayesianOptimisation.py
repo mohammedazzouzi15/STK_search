@@ -1,6 +1,7 @@
 # class to define the search algorithm
+import itertools
 import os
-import torch
+
 import numpy as np
 import pandas as pd
 import torch
@@ -12,22 +13,17 @@ from botorch.acquisition.analytic import (
 )
 from botorch.acquisition.max_value_entropy_search import qMaxValueEntropy
 from gpytorch.mlls import ExactMarginalLogLikelihood
+from stk_search.Search_algorithm.Botorch_kernels import (
+    RBFKernel,
+)
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
 from stk_search.SearchSpace import SearchSpace
-from stk_search.Search_algorithm.Botorch_kernels import (
-    TanimotoGP,
-    RBFKernel,
-    MaternKernel,
-)
-import itertools
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class BayesianOptimisation(Search_Algorithm):
-    """
-    
-    This class is to define the Bayesian Optimisation search algorithm.
+    """This class is to define the Bayesian Optimisation search algorithm.
     Here the Bayesian Optimisation search algorithm is defined and is a subclass of Search_Algorithm.
     The Bayesian Optimisation search algorithm is used to optimise the acquisition function and suggest the next element to evaluate.
     the different step of the algorithm are:
@@ -35,7 +31,7 @@ class BayesianOptimisation(Search_Algorithm):
     2. Train the model
     3. Optimise the acquisition function
     4. Generate elements to evaluate
-    5. Suggest a new element to evaluate
+    5. Suggest a new element to evaluate.
     
     """
 
@@ -50,7 +46,9 @@ class BayesianOptimisation(Search_Algorithm):
         Representation=None,
     ):
         """Initialise the class.
+
         Args:
+        ----
             verbose (bool): if True, print the output
             PCA_input (bool): if True, use PCA to reduce the dimension of the input
             normalise_input (bool): if True, normalise the input
@@ -60,6 +58,7 @@ class BayesianOptimisation(Search_Algorithm):
             model (gpytorch.models): model to use
             lim_counter (int): max iteration for the acquisition function optimisation
             Representation (object): representation of the element
+
         """
         self.verbose = verbose
         # self.normalise_input = normalise_input
@@ -89,7 +88,9 @@ class BayesianOptimisation(Search_Algorithm):
         df_total: pd.DataFrame = None,
     ):
         """Suggest a new element to evaluate.
+
         Args:
+        ----
             search_space_df (pd.DataFrame): search space
             fitness_acquired (list): fitness of the acquired elements
             ids_acquired (list): ids of the acquired elements
@@ -99,6 +100,7 @@ class BayesianOptimisation(Search_Algorithm):
         Returns:
             int: id of the new element
             pd.DataFrame: updated search space
+
         """
         df_search = search_space_df.copy()
         fitness_acquired = np.array(fitness_acquired)
@@ -130,7 +132,7 @@ class BayesianOptimisation(Search_Algorithm):
         )
 
         # add the new element to the search space
-        def add_element(df, element):
+        def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
@@ -144,10 +146,9 @@ class BayesianOptimisation(Search_Algorithm):
     def normalise_input(self, X_rpr):
         X_rpr = X_rpr.double()
         # min max scaling the input
-        X_rpr = (X_rpr - X_rpr.min(dim=0)[0]) / (
+        return (X_rpr - X_rpr.min(dim=0)[0]) / (
             X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0]
         )
-        return X_rpr
 
     def optimise_acquisition_function(
         self,
@@ -159,7 +160,9 @@ class BayesianOptimisation(Search_Algorithm):
         df_total=None,
     ):
         """Optimise the acquisition function.
+
         Args:
+        ----
             best_f (float): best fitness
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
@@ -169,6 +172,7 @@ class BayesianOptimisation(Search_Algorithm):
         Returns:
             torch.tensor: acquisition values
             pd.DataFrame: updated search space
+
         """
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
@@ -184,10 +188,7 @@ class BayesianOptimisation(Search_Algorithm):
         )
 
         if "dataset_local" in self.Representation.__dict__:
-            print(
-                "size of representation dataset ",
-                len(self.Representation.dataset_local),
-            )
+            pass
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
@@ -211,10 +212,7 @@ class BayesianOptimisation(Search_Algorithm):
                 Xrpr=Xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
-                print(
-                    "size of representation dataset ",
-                    len(self.Representation.dataset_local),
-                )
+                pass
             # select element to acquire with maximal aquisition value, which is not in the acquired set already
             ids_sorted_by_aquisition = acquisition_values.argsort(
                 descending=True
@@ -239,7 +237,9 @@ class BayesianOptimisation(Search_Algorithm):
         df_total=None,
     ):
         """Generate elements to evaluate.
+
         Args:
+        ----
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
             SP (Search_Space): search space
@@ -247,9 +247,9 @@ class BayesianOptimisation(Search_Algorithm):
             df_total (pd.DataFrame): dataframe of the total dataset
             Returns:
                 pd.DataFrame: elements to evaluate
+
         """
 
-        #
         def mutate_element(element):
             elements_val = []
             for i in range(element.shape[0]):
@@ -305,23 +305,25 @@ class BayesianOptimisation(Search_Algorithm):
                 ],  # check this for generalization
                 how="left",
             )
-            df_elements.dropna(subset="target", inplace=True)
+            df_elements = df_elements.dropna(subset="target")
             df_elements = df_elements[
                 [f"InChIKey_{i}" for i in range(elements.shape[1])]
             ]  # check this for generalization
-            df_elements.drop_duplicates(inplace=True)
+            df_elements = df_elements.drop_duplicates()
         if (
             df_elements.shape[0] > 1000
         ):  # limit the number of elements to evaluate each time
             df_elements = df_elements.sample(1000)
-        df_elements.reset_index(drop=True, inplace=True)
-        return df_elements
+        return df_elements.reset_index(drop=True)
 
     def train_model(self, X_train, y_train):
         """Train the model.
+
         Args:
+        ----
             X_train (torch.tensor): input
             y_train (torch.tensor): output
+
         """
         self.model = self.kernel(
             X_train,
@@ -332,12 +334,16 @@ class BayesianOptimisation(Search_Algorithm):
 
     def get_acquisition_values(self, model, best_f, Xrpr):
         """Get the acquisition values.
+
         Args:
+        ----
             model (gpytorch.models): model
             best_f (float): best fitness
             Xrpr (torch.tensor): representation of the element
         Returns:
-            torch.tensor: acquisition values"""
+        torch.tensor: acquisition values
+
+        """
         X_unsqueezed = Xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
@@ -365,8 +371,9 @@ class BayesianOptimisation(Search_Algorithm):
                 )  # runs out of memory
         elif self.which_acquisition == "UCB_GNN":
             if self.pred_model is None:
+                msg = "pred_model is None, but it's required for UCB_GNN acquisition"
                 raise ValueError(
-                    "pred_model is None, but it's required for UCB_GNN acquisition"
+                    msg
                 )
             with torch.no_grad():
                 acquisition_values = self.pred_model(
@@ -389,7 +396,7 @@ class BayesianOptimisation(Search_Algorithm):
                             ).variance.squeeze()
         elif self.which_acquisition == "KG":
             acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 5)
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)   
+            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
             acquisition_values = acquisition_function.evaluate(
                 X_unsqueezed,
                 bounds= bounds

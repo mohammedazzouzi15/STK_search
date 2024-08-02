@@ -5,7 +5,7 @@ class DropPath(torch.nn.Module):
     """Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks)."""
 
     def __init__(self, prob=None):
-        super(DropPath, self).__init__()
+        super().__init__()
         self.drop_prob = prob
 
     def forward(self, x):
@@ -17,8 +17,7 @@ class DropPath(torch.nn.Module):
         )  # work with diff dim tensors, not just 2D ConvNets
         random_tensor = keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device)
         random_tensor.floor_()  # binarize
-        output = x.div(keep_prob) * random_tensor
-        return output
+        return x.div(keep_prob) * random_tensor
 
     def extra_repr(self) -> str:
         return f"prob={self.drop_prob}"

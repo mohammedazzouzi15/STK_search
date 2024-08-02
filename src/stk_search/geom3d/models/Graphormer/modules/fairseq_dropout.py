@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 
 class FairseqDropout(nn.Module):

@@ -1,28 +1,25 @@
-from typing import Optional
 import logging
+from typing import Optional
 
 from e3nn import o3
-
-from stk_search.geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
-
-from stk_search.geom3d.models.NequIP.nn import SequentialGraphNetwork, AtomwiseReduce
-from stk_search.geom3d.models.NequIP.nn.radial_basis import BesselBasis
-
-from stk_search.geom3d.models.NequIP.nn.embedding import (
-    OneHotAtomEncoding,
-    SphericalHarmonicEdgeAttrs,
-    RadialBasisEdgeEncoding,
-)
-
+from stk_search.geom3d.models.Allegro._keys import EDGE_ENERGY, EDGE_FEATURES
 from stk_search.geom3d.models.Allegro.nn import (
-    NormalizedBasis,
-    EdgewiseEnergySum,
     Allegro_Module,
+    EdgewiseEnergySum,
+    NormalizedBasis,
     ScalarMLP,
 )
-from stk_search.geom3d.models.Allegro._keys import EDGE_FEATURES, EDGE_ENERGY
-
-from stk_search.geom3d.models.NequIP.model import builder_utils
+from stk_search.geom3d.models.NequIP.data import AtomicDataDict, AtomicDataset
+from stk_search.geom3d.models.NequIP.nn import (
+    AtomwiseReduce,
+    SequentialGraphNetwork,
+)
+from stk_search.geom3d.models.NequIP.nn.embedding import (
+    OneHotAtomEncoding,
+    RadialBasisEdgeEncoding,
+    SphericalHarmonicEdgeAttrs,
+)
+from stk_search.geom3d.models.NequIP.nn.radial_basis import BesselBasis
 
 
 def Allegro(config, initialize: bool, dataset: Optional[AtomicDataset] = None):
@@ -59,43 +56,42 @@ def Allegro(config, initialize: bool, dataset: Optional[AtomicDataset] = None):
         "one_hot": OneHotAtomEncoding,
         "radial_basis": (
             RadialBasisEdgeEncoding,
-            dict(
-                basis=(
+            {
+                "basis": (
                     NormalizedBasis
                     if config.get("normalize_basis", True)
                     else BesselBasis
                 ),
-                out_field=AtomicDataDict.EDGE_EMBEDDING_KEY,
-            ),
+                "out_field": AtomicDataDict.EDGE_EMBEDDING_KEY,
+            },
         ),
         # Get edge nonscalars
         "spharm": SphericalHarmonicEdgeAttrs,
         # The core Allegro model:
         "Allegro": (
             Allegro_Module,
-            dict(
-                field=AtomicDataDict.EDGE_ATTRS_KEY,  # initial input is the edge SH
-                edge_invariant_field=AtomicDataDict.EDGE_EMBEDDING_KEY,
-                node_invariant_field=AtomicDataDict.NODE_ATTRS_KEY,
-            ),
+            {
+                "field": AtomicDataDict.EDGE_ATTRS_KEY,  # initial input is the edge SH
+                "edge_invariant_field": AtomicDataDict.EDGE_EMBEDDING_KEY,
+                "node_invariant_field": AtomicDataDict.NODE_ATTRS_KEY,
+            },
         ),
         "edge_eng": (
             ScalarMLP,
-            dict(field=EDGE_FEATURES, out_field=EDGE_ENERGY, mlp_output_dimension=1),
+            {"field": EDGE_FEATURES, "out_field": EDGE_ENERGY, "mlp_output_dimension": 1},
         ),
         # Sum edgewise energies -> per-atom energies:
         "edge_eng_sum": EdgewiseEnergySum,
         # Sum system energy:
         "total_energy_sum": (
             AtomwiseReduce,
-            dict(
-                reduce="sum",
-                field=AtomicDataDict.PER_ATOM_ENERGY_KEY,
-                out_field=AtomicDataDict.TOTAL_ENERGY_KEY,
-            ),
+            {
+                "reduce": "sum",
+                "field": AtomicDataDict.PER_ATOM_ENERGY_KEY,
+                "out_field": AtomicDataDict.TOTAL_ENERGY_KEY,
+            },
         ),
     }
 
-    model = SequentialGraphNetwork.from_parameters(shared_params=config, layers=layers)
+    return SequentialGraphNetwork.from_parameters(shared_params=config, layers=layers)
 
-    return model

@@ -1,19 +1,17 @@
 import os
 import re
 
-import numpy as np
-import pandas as pd
 import pymongo
 import stk
 import stko
-
 from stk_search.Calculators.STDA_calculator import sTDA_XTB
 from stk_search.Calculators.XTBcalculator import XTBEnergy2
+
 
 def get_inchi_key(molecule):
     return stk.InchiKey().get_key(molecule)
 
-class Calculate_Precursor():
+class Calculate_Precursor:
     def __init__(self):
         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
         self.db_mol = "stk_mohammed_new"
@@ -27,26 +25,26 @@ class Calculate_Precursor():
         self.collection_name = "Precursors"
 
     def load_precursors(self, smile):
-        """ Function to generate stk building block from smiles"""
-        precursor = stk.BuildingBlock(
+        """Function to generate stk building block from smiles."""
+        return stk.BuildingBlock(
                 smile, functional_groups=[
                     stk.BromoFactory()])
 
-        return precursor
 
     def evaluate_element(self, smile):
-        """function to evaluate the element
+        """Function to evaluate the element
         depending on the paths provided (xtb or stda )
-        the function will add those calculations to the model"""
+        the function will add those calculations to the model.
+        """
         # initialise the database
         client = pymongo.MongoClient(self.client)
-        db_mol = stk.MoleculeMongoDb(
+        stk.MoleculeMongoDb(
             client,
             database=self.db_mol,
         )
         # define the path to xtb and stda
         xtb_path = self.xtb_path
-        
+
         # define the output directories
         Db_folder = self.Db_folder
         output_dir_ipea = os.path.join(
@@ -99,7 +97,7 @@ class Calculate_Precursor():
                 )
                 return Es1, Inchikey
             return IP, Inchikey
-        else: 
+        else:
             precursor = self.run_ETKDG_opt(
                 precursor,
                 xtb_opt_output_dir,
@@ -108,7 +106,7 @@ class Calculate_Precursor():
             )
             Inchikey = stk.InchiKey().get_key(precursor)
             return None, Inchikey
-        
+
 
     def run_ETKDG_opt(
         self,
@@ -117,8 +115,8 @@ class Calculate_Precursor():
         database="stk_mohammed_BO",
         client=None,
     ):
-        output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
-        InchiKey_initial = get_inchi_key(polymer)
+        os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
+        get_inchi_key(polymer)
         ETKDG = stko.OptimizerSequence(
             stko.ETKDG(),
         )
@@ -141,12 +139,12 @@ class Calculate_Precursor():
     ):
         def save_xtb_opt_calculation(
             polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
-        ):
+        ) -> None:
             def get_property_value(data, property_name):
                 for line in data:
                     if property_name in line:
                         if property_name == "cpu-time":
-                            property_value = (
+                            return (
                                 re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-3]
                                 + " h "
                                 + re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-2]
@@ -154,11 +152,10 @@ class Calculate_Precursor():
                                 + re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-1]
                                 + " s "
                             )
-                            return property_value
-                        property_value = float(
+                        return float(
                             re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-1]
                         )  # float(words[3]) #
-                        return property_value
+                return None
 
             polymer_xtb_opt_calc = {
                 "InChIKey": stk.InchiKey().get_key(polymer),
@@ -172,7 +169,6 @@ class Calculate_Precursor():
                 os.path.join(
                     polymer_xtb_opt_calc["cal_folder"], "optimization_1.output"
                 ),
-                "r",
                 encoding="utf8",
             )
             data = outfile.readlines()
@@ -203,9 +199,8 @@ class Calculate_Precursor():
                 client,
                 database=database,
             )
-            polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
+            return db_polymer.get({"InChIKey": get_inchi_key(polymer)})
             # print(get_inchi_key(polymer), ' opt geom already calculated')
-            return polymer
         if (
             collection.find_one({"InChIKey_initial": get_inchi_key(polymer)})
             is not None
@@ -220,8 +215,7 @@ class Calculate_Precursor():
             )
             # print(get_inchi_key(polymer), ' opt geom already calculated with old geom')
 
-            polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
-            return polymer
+            return db_polymer.get({"InChIKey": data["InChIKey"]})
         output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
         InchiKey_initial = get_inchi_key(polymer)
         xtb = stko.OptimizerSequence(

@@ -1,9 +1,8 @@
-from e3nn.o3 import (FullyConnectedTensorProduct, Irreps, Linear,
-                     spherical_harmonics)
+from e3nn.o3 import FullyConnectedTensorProduct, Irreps
 
 
 def BalancedIrreps(lmax, vec_dim, sh_type=True):
-    """ Allocates irreps equally along channel budget, resulting
+    """Allocates irreps equally along channel budget, resulting
         in unequal numbers of irreps in ratios of 2l_i + 1 to 2l_j + 1.
 
     Parameters
@@ -24,9 +23,9 @@ def BalancedIrreps(lmax, vec_dim, sh_type=True):
     irrep_spec = "0e"
     for l in range(1, lmax + 1):
         if sh_type:
-            irrep_spec += " + {0}".format(l) + ('e' if (l % 2) == 0 else 'o')
+            irrep_spec += f" + {l}" + ("e" if (l % 2) == 0 else "o")
         else:
-            irrep_spec += " + {0}e + {0}o".format(l)
+            irrep_spec += f" + {l}e + {l}o"
     irrep_spec_split = irrep_spec.split(" + ")
     dims = [int(irrep[0]) * 2 + 1 for irrep in irrep_spec_split]
     # Compute ratios
@@ -39,10 +38,10 @@ def BalancedIrreps(lmax, vec_dim, sh_type=True):
     irrep_copies[0] += vec_dim - sum(irrep_dims)
 
     # Convert to string
-    str_out = ''
+    str_out = ""
     for (spec, dim) in zip(irrep_spec_split, irrep_copies):
-        str_out += str(dim) + 'x' + spec
-        str_out += ' + '
+        str_out += str(dim) + "x" + spec
+        str_out += " + "
     str_out = str_out[:-3]
     # Generate the irrep
     return Irreps(str_out)
@@ -52,7 +51,7 @@ def WeightBalancedIrreps(irreps_in1_scalar, irreps_in2, sh=True, lmax=None):
     """Determines an irreps_in1 type of order irreps_in2.lmax that when used in a tensor product
     irreps_in1 x irreps_in2 -> irreps_in1
     would have the same number of weights as for a standard linear layer, e.g. a tensor product
-    irreps_in1_scalar x "1x0e" -> irreps_in1_scalar
+    irreps_in1_scalar x "1x0e" -> irreps_in1_scalar.
 
     Parameters
     ----------
@@ -71,9 +70,8 @@ def WeightBalancedIrreps(irreps_in1_scalar, irreps_in2, sh=True, lmax=None):
         Irreps for hidden feaure vectors. 
 
     """
-
     n = 1
-    if lmax == None:
+    if lmax is None:
         lmax = irreps_in2.lmax
     irreps_in1 = (Irreps.spherical_harmonics(lmax) * n).sort().irreps.simplify() if sh else BalancedIrreps(lmax, n)
     weight_numel1 = FullyConnectedTensorProduct(irreps_in1, irreps_in2, irreps_in1).weight_numel
@@ -82,5 +80,4 @@ def WeightBalancedIrreps(irreps_in1_scalar, irreps_in2, sh=True, lmax=None):
         n += 1
         irreps_in1 = (Irreps.spherical_harmonics(lmax) * n).sort().irreps.simplify() if sh else BalancedIrreps(lmax, n)
         weight_numel1 = FullyConnectedTensorProduct(irreps_in1, irreps_in2, irreps_in1).weight_numel
-    print('Determined irrep type:', irreps_in1)
     return Irreps(irreps_in1)

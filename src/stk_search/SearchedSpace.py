@@ -1,7 +1,7 @@
-""" define a class to store the searched space
-    this is a sub class of the search space class"""
+"""define a class to store the searched space
+this is a sub class of the search space class.
+"""
 
-from datetime import datetime
 from itertools import product
 
 import matplotlib.pyplot as plt
@@ -14,10 +14,12 @@ from stk_search.SearchSpace import SearchSpace
 
 
 class SearchedSpace(SearchSpace):
-    def plot_hist_compare(self, df_all, df_list, label_list,properties_to_plot=[]):
+    def plot_hist_compare(self, df_all, df_list, label_list,properties_to_plot=None):
+        if properties_to_plot is None:
+            properties_to_plot = []
         fig, ax = plt.subplots(1, len(properties_to_plot), figsize=(15, 10))
         ax = ax.flatten()
-        def plot_hist(df, ax, color, label="all data"):
+        def plot_hist(df, ax, color, label="all data") -> None:
             for axis_num,property in enumerate(properties_to_plot):
                 df[property].hist(
                     ax=ax[axis_num],
@@ -142,13 +144,15 @@ class SearchedSpace(SearchSpace):
         return possible_syntax
 
     def generate_interactive_condition_V2(self, df_total: pd.DataFrame,
-                                          properties_to_plot=[]):
+                                          properties_to_plot=None):
         # function to generate an interactive prompt to select the condition
         # SP is the search space object
         # return the interactive widget
+        if properties_to_plot is None:
+            properties_to_plot = []
         def add_condition(
             columns: str, operation: str, value: str, fragment: int
-        ):
+        ) -> None:
             # condition syntax should follow the following condition:
             # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
             condition = f"'{columns}'#{operation}#{value}"
@@ -156,14 +160,14 @@ class SearchedSpace(SearchSpace):
 
         def remove_condition(
             columns: str, operation: str, value: str, fragment: int
-        ):
+        ) -> None:
             # condition syntax should follow the following condition:
             # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
             condition = f"'{columns}'#{operation}#{value}"
 
             self.remove_condition(condition, fragment)
 
-        def clear_condition(fragment: int):
+        def clear_condition(fragment: int) -> None:
             self.conditions_list[fragment] = []
 
         # Interactive widget for conditions selection
@@ -175,7 +179,7 @@ class SearchedSpace(SearchSpace):
         )
         # Interactive widget for fragment selection
         fragment_dropdown = widgets.Dropdown(
-            options=[(i) for i in range(self.number_of_fragments)],
+            options=list(range(self.number_of_fragments)),
             description="Fragment:",
         )
         # Interactive widget for operation selection
@@ -209,7 +213,7 @@ class SearchedSpace(SearchSpace):
             description="clear condition",
         )
 
-        def on_click_add(b):
+        def on_click_add(b) -> None:
             add_condition(
                 columns_dropdown.value,
                 operation_dropdown.value,
@@ -217,12 +221,12 @@ class SearchedSpace(SearchSpace):
                 fragment_dropdown.value,
             )
             self.get_space_size()
-            number_of_elements_text.value = "{:.2e}".format(self.space_size)
+            number_of_elements_text.value = f"{self.space_size:.2e}"
 
             for i in range(self.number_of_fragments):
                 display_conditions[i].options = self.conditions_list[i]
 
-        def on_click_remove(b):
+        def on_click_remove(b) -> None:
             remove_condition(
                 columns_dropdown.value,
                 operation_dropdown.value,
@@ -231,18 +235,18 @@ class SearchedSpace(SearchSpace):
             )
             # self.redefine_search_space()
             self.get_space_size()
-            number_of_elements_text.value = "{:.2e}".format(self.space_size)
+            number_of_elements_text.value = f"{self.space_size:.2e}"
 
             for i in range(self.number_of_fragments):
                 display_conditions[i].options = self.conditions_list[i]
 
-        def on_click_clear(b):
+        def on_click_clear(b) -> None:
             clear_condition(
                 fragment_dropdown.value,
             )
 
             self.get_space_size()
-            number_of_elements_text.value = "{:.2e}".format(self.space_size)
+            number_of_elements_text.value = f"{self.space_size:.2e}"
             for i in range(self.number_of_fragments):
                 display_conditions[i].options = self.conditions_list[i]
 
@@ -253,7 +257,7 @@ class SearchedSpace(SearchSpace):
             description="Add to all fragments",
         )
 
-        def on_click_add_to_all_fragment(b):
+        def on_click_add_to_all_fragment(b) -> None:
             for i in range(self.number_of_fragments):
                 add_condition(
                     columns_dropdown.value,
@@ -262,9 +266,7 @@ class SearchedSpace(SearchSpace):
                     i,
                 )
                 self.get_space_size()
-                number_of_elements_text.value = "{:.2e}".format(
-                    self.space_size
-                )
+                number_of_elements_text.value = f"{self.space_size:.2e}"
 
                 for i in range(self.number_of_fragments):
                     display_conditions[i].options = self.conditions_list[i]
@@ -297,7 +299,7 @@ class SearchedSpace(SearchSpace):
             description="Change syntax",
         )
         number_of_elements_text = widgets.Text(
-            value="{:.2e}".format(self.space_size),
+            value=f"{self.space_size:.2e}",
             description="Number of elements in search space:",
             disabled=True,
             style={"description_width": "initial"},
@@ -328,10 +330,10 @@ class SearchedSpace(SearchSpace):
             style={"description_width": "initial"},
         )
 
-        def on_click_syntax(b):
+        def on_click_syntax(b) -> None:
             self.syntax = syntax_dropdown.value
             self.get_space_size()
-            number_of_elements_text.value = "{:.2e}".format(self.space_size)
+            number_of_elements_text.value = f"{self.space_size:.2e}"
 
             for i in range(self.number_of_fragments):
                 display_conditions[i].options = self.conditions_list[i]
@@ -380,14 +382,13 @@ class SearchedSpace(SearchSpace):
             },
         ]
 
-        def add_to_hist_compare(b):
+        def add_to_hist_compare(b) -> None:
             # self.redefine_search_space()
             self.list_fragment = self.generate_list_fragment(
                 self.generation_type
             )
             self.get_space_size()
-            print("space size ", self.space_size)
-            number_of_elements_text.value = "{:.2e}".format(self.space_size)
+            number_of_elements_text.value = f"{self.space_size:.2e}"
             df_list.append(
                 self.check_df_for_element_from_SP(df_to_check=df_total)
             )
@@ -403,10 +404,7 @@ class SearchedSpace(SearchSpace):
                 )
             else:
                 top5_current_text.value = "no data"
-            number_of_element_evaluated.value = "{:.2e}".format(
-                df_list[-1].shape[0]
-            )
-            print(len(df_list))
+            number_of_element_evaluated.value = f"{df_list[-1].shape[0]:.2e}"
             widge_plot.kwargs["df_list"] = df_list
             widge_plot.kwargs["label_list"] = label_list
             widge_plot.update()
@@ -415,7 +413,6 @@ class SearchedSpace(SearchSpace):
 
             hist_widget_plot.update()
             # save the search space properties in a table
-            print(self.conditions_list)
             conditions = [x.copy() for x in self.conditions_list]
             search_space_properties.append(
                 {
@@ -426,9 +423,8 @@ class SearchedSpace(SearchSpace):
                     "number of elements evaluated": number_of_element_evaluated.value,
                 }
             )
-            print(search_space_properties)
 
-        def save_data(b):
+        def save_data(b) -> None:
             import os
 
             path_to_save = "data/search_space_properties.pkl"
@@ -443,13 +439,13 @@ class SearchedSpace(SearchSpace):
                         df_search_space_properties_2[1:],
                     ]
                 )
-                df_search_space_properties.reset_index(drop=True,inplace=True)
+                df_search_space_properties = df_search_space_properties.reset_index(drop=True)
             else:
                 df_search_space_properties = pd.DataFrame.from_dict(
                     search_space_properties
                 )
             df_search_space_properties.to_pickle(
-                f"data/search_space_properties.pkl"
+                "data/search_space_properties.pkl"
             )
             # save the figure
 

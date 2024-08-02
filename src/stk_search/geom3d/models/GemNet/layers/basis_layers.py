@@ -1,14 +1,13 @@
 import numpy as np
-import torch
 import sympy as sym
+import torch
 
-from .envelope import Envelope
 from .basis_utils import bessel_basis, real_sph_harm
+from .envelope import Envelope
 
 
 class BesselBasisLayer(torch.nn.Module):
-    """
-    1D Bessel Basis
+    """1D Bessel Basis.
 
     Parameters
     ----------
@@ -18,6 +17,7 @@ class BesselBasisLayer(torch.nn.Module):
         Cutoff distance in Angstrom.
     envelope_exponent: int = 5
         Exponent of the envelope function.
+
     """
 
     def __init__(
@@ -50,8 +50,7 @@ class BesselBasisLayer(torch.nn.Module):
 
 
 class SphericalBasisLayer(torch.nn.Module):
-    """
-    2D Fourier Bessel Basis
+    """2D Fourier Bessel Basis.
 
     Parameters
     ----------
@@ -65,6 +64,7 @@ class SphericalBasisLayer(torch.nn.Module):
         Exponent of the envelope function.
     efficient: bool
         Whether to use the (memory) efficient implementation or not.
+
     """
 
     def __init__(
@@ -103,7 +103,7 @@ class SphericalBasisLayer(torch.nn.Module):
         modules = {"sin": torch.sin, "cos": torch.cos, "sqrt": torch.sqrt}
         m = 0  # only single angle
         for l in range(len(Y_lm)):  # num_spherical
-            if l == 0: 
+            if l == 0:
                 # Y_00 is only a constant -> function returns value and not tensor
                 first_sph = sym.lambdify([theta], Y_lm[l][m], modules)
                 self.sph_funcs.append(
@@ -140,8 +140,7 @@ class SphericalBasisLayer(torch.nn.Module):
             # e.g. num_spherical = 3, num_radial = 2
             # Y_lm: l: 0 0  1 1  2 2
             #       m: 0 0  0 0  0 0
-            out = (rbf_env * sph).view(-1, self.num_spherical * self.num_radial)
-            return out  # (nTriplets, num_spherical * num_radial)
+            return (rbf_env * sph).view(-1, self.num_spherical * self.num_radial)
         else:
             rbf_env = rbf_env.view(-1, self.num_spherical, self.num_radial)
             rbf_env = torch.transpose(
@@ -150,7 +149,7 @@ class SphericalBasisLayer(torch.nn.Module):
 
             # Zero padded dense matrix
             # maximum number of neighbors, catch empty id_reduce_ji with maximum
-            Kmax = 0 if sph.shape[0]==0 else torch.max(torch.max(Kidx + 1), torch.tensor(0))  
+            Kmax = 0 if sph.shape[0]==0 else torch.max(torch.max(Kidx + 1), torch.tensor(0))
             nEdges = d_scaled.shape[0]
 
             sph2 = torch.zeros(
@@ -163,8 +162,7 @@ class SphericalBasisLayer(torch.nn.Module):
 
 
 class TensorBasisLayer(torch.nn.Module):
-    """
-    3D Fourier Bessel Basis
+    """3D Fourier Bessel Basis.
 
     Parameters
     ----------
@@ -178,6 +176,7 @@ class TensorBasisLayer(torch.nn.Module):
         Exponent of the envelope function.
     efficient: bool
         Whether to use the (memory) efficient implementation or not.
+
     """
 
     def __init__(
@@ -234,7 +233,7 @@ class TensorBasisLayer(torch.nn.Module):
 
         self.register_buffer(
             "degreeInOrder", torch.arange(num_spherical) * 2 + 1, persistent=False
-        ) 
+        )
 
     def forward(self, D_ca, Alpha_cab, Theta_cabd, id4_reduce_ca, Kidx):
 
@@ -283,7 +282,7 @@ class TensorBasisLayer(torch.nn.Module):
 
             # Zero padded dense matrix
             # maximum number of neighbors, catch empty id_reduce_ji with maximum
-            Kmax = 0 if sph.shape[0]==0 else torch.max(torch.max(Kidx + 1), torch.tensor(0))  
+            Kmax = 0 if sph.shape[0]==0 else torch.max(torch.max(Kidx + 1), torch.tensor(0))
             nEdges = d_scaled.shape[0]
 
             sph2 = torch.zeros(

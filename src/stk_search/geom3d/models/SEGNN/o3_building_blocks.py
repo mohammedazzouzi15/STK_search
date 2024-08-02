@@ -1,8 +1,10 @@
 import torch
-import torch.nn as nn
 from e3nn.nn import Gate
-from e3nn.o3 import (FullyConnectedTensorProduct, Irreps, Linear,
-                     spherical_harmonics)
+from e3nn.o3 import (
+    FullyConnectedTensorProduct,
+    Irreps,
+)
+from torch import nn
 
 
 class O3TensorProduct(torch.nn.Module):
@@ -12,7 +14,7 @@ class O3TensorProduct(torch.nn.Module):
         self.irreps_in1 = irreps_in1
         self.irreps_out = irreps_out
         # Init irreps_in2
-        if irreps_in2 == None:
+        if irreps_in2 is None:
             self.irreps_in2_provided = False
             self.irreps_in2 = Irreps("1x0e")
         else:
@@ -24,12 +26,12 @@ class O3TensorProduct(torch.nn.Module):
         self.tp = FullyConnectedTensorProduct(
             irreps_in1=self.irreps_in1,
             irreps_in2=self.irreps_in2,
-            irreps_out=self.irreps_out, shared_weights=True, normalization='component')
+            irreps_out=self.irreps_out, shared_weights=True, normalization="component")
 
         # For each zeroth order output irrep we need a bias
         # So first determine the order for each output tensor and their dims
-        self.irreps_out_orders = [int(irrep_str[-2]) for irrep_str in str(irreps_out).split('+')]
-        self.irreps_out_dims = [int(irrep_str.split('x')[0]) for irrep_str in str(irreps_out).split('+')]
+        self.irreps_out_orders = [int(irrep_str[-2]) for irrep_str in str(irreps_out).split("+")]
+        self.irreps_out_dims = [int(irrep_str.split("x")[0]) for irrep_str in str(irreps_out).split("+")]
         self.irreps_out_slices = irreps_out.slices()
         # Store tuples of slices and corresponding biaes in a list
         self.biases = []
@@ -60,7 +62,7 @@ class O3TensorProduct(torch.nn.Module):
                 mul_1, mul_2, mul_out = weight.shape
                 fan_in = mul_1 * mul_2
                 slices_fan_in[slice_idx] = (slices_fan_in[slice_idx] +
-                                            fan_in if slice_idx in slices_fan_in.keys() else fan_in)
+                                            fan_in if slice_idx in slices_fan_in else fan_in)
 
             # Do the initialization of the weights in each instruction
             for weight, instr in zip(self.tp.weight_views(), self.tp.instructions):
@@ -76,12 +78,12 @@ class O3TensorProduct(torch.nn.Module):
                 self.slices_sqrt_k[slice_idx] = (self.irreps_out_slices[slice_idx], sqrt_k)
 
             # Initialize the biases
-            for (out_slice_idx, out_slice, out_bias) in zip(self.biases_slice_idx, self.biases_slices, self.biases):
+            for (out_slice_idx, _out_slice, out_bias) in zip(self.biases_slice_idx, self.biases_slices, self.biases):
                 sqrt_k = 1 / slices_fan_in[out_slice_idx] ** 0.5
                 out_bias.uniform_(-sqrt_k, sqrt_k)
 
     def forward_tp_rescale_bias(self, data_in1, data_in2=None) -> torch.Tensor:
-        if data_in2 == None:
+        if data_in2 is None:
             data_in2 = torch.ones_like(data_in1[:, 0:1])
 
         data_out = self.tp(data_in1, data_in2)
@@ -97,8 +99,7 @@ class O3TensorProduct(torch.nn.Module):
 
     def forward(self, data_in1, data_in2=None) -> torch.Tensor:
         # Apply the tensor product, the rescaling and the bias
-        data_out = self.forward_tp_rescale_bias(data_in1, data_in2)
-        return data_out
+        return self.forward_tp_rescale_bias(data_in1, data_in2)
 
 
 class O3TensorProductSwishGate(O3TensorProduct):
@@ -108,13 +109,13 @@ class O3TensorProductSwishGate(O3TensorProduct):
         # The first type is assumed to be scalar and passed through the activation
         irreps_g_scalars = Irreps(str(irreps_out[0]))
         # The remaining types are gated
-        irreps_g_gate = Irreps("{}x0e".format(irreps_out.num_irreps - irreps_g_scalars.num_irreps))
+        irreps_g_gate = Irreps(f"{irreps_out.num_irreps - irreps_g_scalars.num_irreps}x0e")
         irreps_g_gated = Irreps(str(irreps_out[1:]))
         # So the gate needs the following irrep as input, this is the output irrep of the tensor product
         irreps_g = (irreps_g_scalars + irreps_g_gate + irreps_g_gated).simplify()
 
         # Build the layers
-        super(O3TensorProductSwishGate, self).__init__(irreps_in1, irreps_g, irreps_in2)
+        super().__init__(irreps_in1, irreps_g, irreps_in2)
         if irreps_g_gated.num_irreps > 0:
             self.gate = Gate(irreps_g_scalars, [nn.SiLU()], irreps_g_gate, [torch.sigmoid], irreps_g_gated)
         else:
@@ -124,6 +125,5 @@ class O3TensorProductSwishGate(O3TensorProduct):
         # Apply the tensor product, the rescaling and the bias
         data_out = self.forward_tp_rescale_bias(data_in1, data_in2)
         # Apply the gate
-        data_out = self.gate(data_out)
+        return self.gate(data_out)
         # Return result
-        return data_out

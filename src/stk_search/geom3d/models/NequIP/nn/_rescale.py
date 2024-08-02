@@ -1,9 +1,7 @@
-from typing import Sequence, List, Union
+from typing import List, Optional, Sequence, Union
 
 import torch
-
 from e3nn.util.jit import compile_mode
-
 from stk_search.geom3d.models.NequIP.data import AtomicDataDict
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 
@@ -13,6 +11,7 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
     """Wrap a model and rescale its outputs when in ``eval()`` mode.
 
     Args:
+    ----
         model : GraphModuleMixin
             The model whose outputs are to be rescaled.
         scale_keys : list of keys, default []
@@ -27,6 +26,7 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
             The shift to add to fields in ``shift``.
         irreps_in : dict, optional
             Extra inputs expected by this beyond those of `model`; this is only present for compatibility.
+
     """
 
     scale_keys: List[str]
@@ -50,8 +50,10 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
         shift_by=None,
         shift_trainable: bool = False,
         scale_trainable: bool = False,
-        irreps_in: dict = {},
+        irreps_in: Optional[dict] = None,
     ):
+        if irreps_in is None:
+            irreps_in = {}
         super().__init__()
 
         self.model = model
@@ -62,18 +64,21 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
         # Check irreps:
         for k in irreps_in:
             if k in model.irreps_in and model.irreps_in[k] != irreps_in[k]:
+                msg = f"For field '{k}', the provided explicit `irreps_in` ('{k}': {irreps_in[k]}) are incompataible with those of the wrapped `model` ('{k}': {model.irreps_in[k]})"
                 raise ValueError(
-                    f"For field '{k}', the provided explicit `irreps_in` ('{k}': {irreps_in[k]}) are incompataible with those of the wrapped `model` ('{k}': {model.irreps_in[k]})"
+                    msg
                 )
         for k in all_keys:
             if k not in model.irreps_out:
+                msg = f"Asked to scale or shift '{k}', but '{k}' is not in the outputs of the provided `model`."
                 raise KeyError(
-                    f"Asked to scale or shift '{k}', but '{k}' is not in the outputs of the provided `model`."
+                    msg
                 )
         for k in shift_keys:
             if model.irreps_out[k] is not None and model.irreps_out[k].lmax > 0:
+                msg = f"It doesn't make sense to shift non-scalar target '{k}'."
                 raise ValueError(
-                    f"It doesn't make sense to shift non-scalar target '{k}'."
+                    msg
                 )
 
         irreps_in.update(model.irreps_in)
@@ -93,8 +98,9 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
             else:
                 self.register_buffer("scale_by", scale_by)
         elif self.scale_trainble:
+            msg = "Asked for a scale_trainable, but this RescaleOutput has no scaling (`scale_by = None`)"
             raise ValueError(
-                "Asked for a scale_trainable, but this RescaleOutput has no scaling (`scale_by = None`)"
+                msg
             )
         else:
             # register dummy for TorchScript
@@ -109,8 +115,9 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
             else:
                 self.register_buffer("shift_by", shift_by)
         elif self.rescale_trainable:
+            msg = "Asked for a shift_trainable, but this RescaleOutput has no shift (`shift_by = None`)"
             raise ValueError(
-                "Asked for a shift_trainable, but this RescaleOutput has no shift (`shift_by = None`)"
+                msg
             )
         else:
             # register dummy for TorchScript
@@ -130,7 +137,7 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
                     callback(self)
 
     def get_inner_model(self):
-        """Get the outermost child module that is not another ``RescaleOutput``"""
+        """Get the outermost child module that is not another ``RescaleOutput``."""
         model = self.model
         while isinstance(model, RescaleOutput):
             model = model.model
@@ -161,10 +168,14 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
         Only processes the data if the module is in ``eval()`` mode, unless ``force_process`` is ``True``.
 
         Args:
+        ----
             data (map-like): a dict, ``AtomicDataDict``, ``AtomicData``, ``torch_geometric.data.Batch``, or anything else dictionary-like
             force_process (bool): if ``True``, scaling will be done regardless of whether the model is in train or evaluation mode.
+
         Returns:
+        -------
             ``data``, modified in place
+
         """
         data = data.copy()
         if self.training and not force_process:
@@ -191,10 +202,14 @@ class RescaleOutput(GraphModuleMixin, torch.nn.Module):
         Only processes the data if the module is in ``train()`` mode, unless ``force_process`` is ``True``.
 
         Args:
+        ----
             data (map-like): a dict, ``AtomicDataDict``, ``AtomicData``, ``torch_geometric.data.Batch``, or anything else dictionary-like
             force_process (bool): if ``True``, unscaling will be done regardless of whether the model is in train or evaluation mode.
+
         Returns:
+        -------
             ``data``
+
         """
         data = data.copy()
         if self.training or force_process:

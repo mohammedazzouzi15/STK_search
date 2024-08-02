@@ -1,17 +1,13 @@
-import json
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from IPython.display import display
-from ipywidgets import Layout, VBox, interact, widgets
+from ipywidgets import Layout, interact, widgets
 
 
 class SearchSpace:
-    """
-    class that contains the chemical space to search over
+    """class that contains the chemical space to search over
     it is defined by the number of fragments and the syntax of the fragment forming the oligomer
-    it also contains the conditions that need to be respected by the building blocks
+    it also contains the conditions that need to be respected by the building blocks.
 
     Attributes
     ----------
@@ -36,8 +32,7 @@ class SearchSpace:
         # features_frag: list,
         generation_type: str = "conditional",
     ):
-        """
-        Parameters
+        """Parameters
         ----------
         number_of_fragments : int
             number of fragments in the oligomer
@@ -47,6 +42,7 @@ class SearchSpace:
             list of the features of the building blocks
         generation_type : str
             type of generation of the search space
+
         """
         self.number_of_fragments = number_of_fragments
         self.df_precursors = df
@@ -57,16 +53,17 @@ class SearchSpace:
         self.update()
 
     def add_condition(self, condition: str, fragment: int):
-        """
-        add a condition to the condition list
+        """Add a condition to the condition list
         # condition syntax should follow the following condition:
-        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
+        # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5".
+
         Parameters
         ----------
         condition : str
             condition to add
         fragment : int
             fragment position to which the condition is added
+
         """
         # condition syntax should follow the following condition:
         # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
@@ -112,9 +109,8 @@ class SearchSpace:
         return df_mult_filtered
 
     def update(self):
-        """
-        update the search space based on the conditions
-        changes the list of fragment and recomputes the space size
+        """Update the search space based on the conditions
+        changes the list of fragment and recomputes the space size.
         """
         self.list_fragment = (
             self.generate_list_fragment()
@@ -219,7 +215,7 @@ class SearchSpace:
         return df_multi
 
     def plot_histogram_precursor(self):
-        def plot_histogram(column_name):
+        def plot_histogram(column_name) -> None:
             plt.figure(figsize=(6, 4))
             plt.hist(df[column_name], bins=20, edgecolor="black")
             plt.xlabel(column_name)

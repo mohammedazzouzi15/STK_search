@@ -1,15 +1,13 @@
-import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch_geometric.nn as pygnn
+from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.utils import to_dense_batch
 
-
-'''
+"""
 Credit to https://github.com/rampasek/GraphGPS/blob/main/graphGPS/layer/GPS_layer.py
-'''
+"""
 class GPSLayer(nn.Module):
     def __init__(self, dim_h,
                  local_gnn_type, global_model_type, num_heads,
@@ -25,32 +23,37 @@ class GPSLayer(nn.Module):
         self.equivstable_pe = equivstable_pe
 
         # Local message-passing model.
-        if local_gnn_type == 'None':
+        if local_gnn_type == "None":
             self.local_model = None
-        elif local_gnn_type == 'GENConv':
+        elif local_gnn_type == "GENConv":
             self.local_model = pygnn.GENConv(dim_h, dim_h)
-        elif local_gnn_type == 'GAT':
+        elif local_gnn_type == "GAT":
             self.local_model = pygnn.GATConv(in_channels=dim_h,
                                              out_channels=dim_h // num_heads,
                                              heads=num_heads,
                                              edge_dim=dim_h)
         else:
-            raise ValueError(f"Unsupported local GNN model: {local_gnn_type}")
+            msg = f"Unsupported local GNN model: {local_gnn_type}"
+            raise ValueError(msg)
         self.local_gnn_type = local_gnn_type
 
         # Global attention transformer-style model.
-        if global_model_type == 'None':
+        if global_model_type == "None":
             self.self_attn = None
-        elif global_model_type == 'Transformer':
+        elif global_model_type == "Transformer":
             self.self_attn = torch.nn.MultiheadAttention(
                 dim_h, num_heads, dropout=self.attn_dropout, batch_first=True)
         else:
-            raise ValueError(f"Unsupported global x-former model: "
-                             f"{global_model_type}")
+            msg = (
+                f"Unsupported global x-former model: "
+                             f"{global_model_type}"
+            )
+            raise ValueError(msg)
         self.global_model_type = global_model_type
 
         if self.layer_norm and self.batch_norm:
-            raise ValueError("Cannot apply two types of normalization together")
+            msg = "Cannot apply two types of normalization together"
+            raise ValueError(msg)
 
         # Normalization for MPNN and Self-Attention representations.
         if self.layer_norm:
@@ -87,7 +90,7 @@ class GPSLayer(nn.Module):
         # Local MPNN with edge attributes.
         if self.local_model is not None:
             self.local_model: pygnn.conv.MessagePassing  # Typing hint.
-            if self.local_gnn_type == 'CustomGatedGCN':
+            if self.local_gnn_type == "CustomGatedGCN":
                 es_data = None
                 if self.equivstable_pe:
                     es_data = batch.pe_EquivStableLapPE
@@ -117,10 +120,11 @@ class GPSLayer(nn.Module):
         # Multi-head attention.
         if self.self_attn is not None:
             h_dense, mask = to_dense_batch(h, batch.batch)
-            if self.global_model_type == 'Transformer':
+            if self.global_model_type == "Transformer":
                 h_attn = self._sa_block(h_dense, None, ~mask)[mask]
             else:
-                raise RuntimeError(f"Unexpected {self.global_model_type}")
+                msg = f"Unexpected {self.global_model_type}"
+                raise RuntimeError(msg)
 
             h_attn = self.dropout_attn(h_attn)
             h_attn = h_in1 + h_attn  # Residual connection.
@@ -145,23 +149,19 @@ class GPSLayer(nn.Module):
         return batch
 
     def _sa_block(self, x, attn_mask, key_padding_mask):
-        """Self-attention block.
-        """
-        x = self.self_attn(x, x, x,
+        """Self-attention block."""
+        return self.self_attn(x, x, x,
                            attn_mask=attn_mask,
                            key_padding_mask=key_padding_mask,
                            need_weights=False)[0]
-        return x
 
     def _ff_block(self, x):
-        """Feed Forward block.
-        """
+        """Feed Forward block."""
         x = self.ff_dropout1(self.activation(self.ff_linear1(x)))
         return self.ff_dropout2(self.ff_linear2(x))
 
     def extra_repr(self):
-        s = f'summary: dim_h={self.dim_h}, ' \
-            f'local_gnn_type={self.local_gnn_type}, ' \
-            f'global_model_type={self.global_model_type}, ' \
-            f'heads={self.num_heads}'
-        return s
+        return f"summary: dim_h={self.dim_h}, " \
+            f"local_gnn_type={self.local_gnn_type}, " \
+            f"global_model_type={self.global_model_type}, " \
+            f"heads={self.num_heads}"

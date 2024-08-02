@@ -1,24 +1,26 @@
-from typing import Optional
-import sys
 import argparse
+import contextlib
 import logging
+import sys
 import textwrap
 from pathlib import Path
-import contextlib
-from tqdm.auto import tqdm
+from typing import Optional
 
 import ase.io
-
 import torch
-
-from NequIP.data import AtomicData, Collater, dataset_from_config, register_fields
-from NequIP.scripts.deploy import load_deployed_model, R_MAX_KEY
+from NequIP.data import (
+    AtomicData,
+    Collater,
+    dataset_from_config,
+    register_fields,
+)
 from NequIP.scripts._logger import set_up_script_logger
-from NequIP.scripts.train import default_config, check_code_version
+from NequIP.scripts.deploy import R_MAX_KEY, load_deployed_model
+from NequIP.scripts.train import check_code_version, default_config
+from NequIP.train import Loss, Metrics, Trainer
+from NequIP.utils import Config, instantiate, load_file
 from NequIP.utils._global_options import _set_global_options
-from NequIP.train import Trainer, Loss, Metrics
-from NequIP.utils import load_file, instantiate, Config
-
+from tqdm.auto import tqdm
 
 ORIGINAL_DATASET_INDEX_KEY: str = "original_dataset_index"
 register_fields(graph_fields=[ORIGINAL_DATASET_INDEX_KEY])
@@ -153,17 +155,21 @@ def main(args=None, running_as_script: bool = True):
     do_metrics = args.metrics_config is not None
     # validate
     if args.dataset_config is None:
-        raise ValueError("--dataset-config or --train-dir must be provided")
+        msg = "--dataset-config or --train-dir must be provided"
+        raise ValueError(msg)
     if args.metrics_config is None and args.output is None:
+        msg = "Nothing to do! Must provide at least one of --metrics-config, --train-dir (to use training config for metrics), or --output"
         raise ValueError(
-            "Nothing to do! Must provide at least one of --metrics-config, --train-dir (to use training config for metrics), or --output"
+            msg
         )
     if args.model is None:
-        raise ValueError("--model or --train-dir must be provided")
+        msg = "--model or --train-dir must be provided"
+        raise ValueError(msg)
     output_type: Optional[str] = None
     if args.output is not None:
         if args.output.suffix != ".xyz":
-            raise ValueError("Only .xyz format for `--output` is supported.")
+            msg = "Only .xyz format for `--output` is supported."
+            raise ValueError(msg)
         args.output_fields = [e for e in args.output_fields.split(",") if e != ""] + [
             ORIGINAL_DATASET_INDEX_KEY
         ]
@@ -240,8 +246,9 @@ def main(args=None, running_as_script: bool = True):
         str(args.dataset_config), defaults={"r_max": model_r_max}
     )
     if dataset_config["r_max"] != model_r_max:
+        msg = f"Dataset config has r_max={dataset_config['r_max']}, but model has r_max={model_r_max}!"
         raise RuntimeError(
-            f"Dataset config has r_max={dataset_config['r_max']}, but model has r_max={model_r_max}!"
+            msg
         )
 
     dataset_is_validation: bool = False
@@ -297,9 +304,9 @@ def main(args=None, running_as_script: bool = True):
     else:
         # load from file
         test_idcs = load_file(
-            supported_formats=dict(
-                torch=["pt", "pth"], yaml=["yaml", "yml"], json=["json"]
-            ),
+            supported_formats={
+                "torch": ["pt", "pth"], "yaml": ["yaml", "yml"], "json": ["json"]
+            },
             filename=str(args.test_indexes),
         )
         logger.info(
@@ -318,7 +325,7 @@ def main(args=None, running_as_script: bool = True):
             loss, _ = instantiate(
                 builder=Loss,
                 prefix="loss",
-                positional_args=dict(coeffs=metrics_config.loss_coeffs),
+                positional_args={"coeffs": metrics_config.loss_coeffs},
                 all_args=metrics_config,
             )
             metrics_components = []
@@ -332,7 +339,7 @@ def main(args=None, running_as_script: bool = True):
         metrics, _ = instantiate(
             builder=Metrics,
             prefix="metrics",
-            positional_args=dict(components=metrics_components),
+            positional_args={"components": metrics_components},
             all_args=metrics_config,
         )
         metrics.to(device=device)

@@ -1,4 +1,5 @@
 import math
+
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -8,11 +9,11 @@ from torch_scatter import scatter_add
 
 class MultiLayerPerceptron(nn.Module):
     def __init__(self, input_dim, hidden_dims, short_cut=False, batch_norm=False, activation="relu", dropout=0):
-        super(MultiLayerPerceptron, self).__init__()
+        super().__init__()
 
         if not isinstance(hidden_dims, Sequence):
             hidden_dims = [hidden_dims]
-        self.dims = [input_dim] + hidden_dims
+        self.dims = [input_dim, *hidden_dims]
         self.short_cut = short_cut
 
         if isinstance(activation, str):
@@ -58,7 +59,7 @@ class IEConvLayer(nn.Module):
 
     def __init__(self, input_dim, hidden_dim, output_dim, edge_input_dim, kernel_hidden_dim=32,
                 dropout=0.05, dropout_before_conv=0.2, activation="relu", aggregate_func="sum"):
-        super(IEConvLayer, self).__init__()
+        super().__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
@@ -89,43 +90,41 @@ class IEConvLayer(nn.Module):
         message = self.message_batch_norm(message)
         message = self.dropout_before_conv(self.activation(message))
         kernel = self.kernel(edge_input).view(-1, self.hidden_dim + 1, self.hidden_dim)
-        message = torch.einsum('ijk, ik->ij', kernel[:, 1:, :], message) + kernel[:, 0, :]
+        return torch.einsum("ijk, ik->ij", kernel[:, 1:, :], message) + kernel[:, 0, :]
 
-        return message
-    
+
     def aggregate(self, graph, message):
         node_in, node_out = graph.edge_list.t()[:2]
         edge_weight = graph.edge_weight.unsqueeze(-1)
-        
+
         if self.aggregate_func == "sum":
-            update = scatter_add(message * edge_weight, node_out, dim=0, dim_size=graph.num_node) 
+            update = scatter_add(message * edge_weight, node_out, dim=0, dim_size=graph.num_node)
         else:
-            raise ValueError("Unknown aggregation function `%s`" % self.aggregate_func)
+            msg = f"Unknown aggregation function `{self.aggregate_func}`"
+            raise ValueError(msg)
         return update
 
     def combine(self, input, update):
-        output = self.linear2(update)
-        return output
+        return self.linear2(update)
 
     def forward(self, graph, input, edge_input):
         input = self.input_batch_norm(input)
         layer_input = self.dropout(self.activation(input))
-        
+
         message = self.message(graph, layer_input, edge_input)
         update = self.aggregate(graph, message)
         update = self.dropout(self.activation(self.update_batch_norm(update)))
-        
+
         output = self.combine(input, update)
-        output = self.output_batch_norm(output)
-        return output
-    
+        return self.output_batch_norm(output)
+
 
 class GeometricRelationalGraphConv(nn.Module):
     eps = 1e-6
 
-    def __init__(self, input_dim, output_dim, num_relation, edge_input_dim=None, 
+    def __init__(self, input_dim, output_dim, num_relation, edge_input_dim=None,
                 batch_norm=False, activation="relu"):
-        super(GeometricRelationalGraphConv, self).__init__()
+        super().__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.num_relation = num_relation
@@ -155,17 +154,16 @@ class GeometricRelationalGraphConv(nn.Module):
             assert edge_input.shape == message.shape
             message += edge_input
         return message
-    
+
     def aggregate(self, graph, message):
         assert graph.num_relation == self.num_relation
 
         node_out = graph.edge_list[:, 1] * self.num_relation + graph.edge_list[:, 2]
         edge_weight = graph.edge_weight.unsqueeze(-1)
         update = scatter_add(message * edge_weight, node_out, dim=0, dim_size=graph.num_node * self.num_relation)
-        update = update.view(graph.num_node, self.num_relation * self.input_dim)
+        return update.view(graph.num_node, self.num_relation * self.input_dim)
 
-        return update
-    
+
     def combine(self, input, update):
         output = self.linear(update)
         if self.batch_norm:
@@ -173,29 +171,30 @@ class GeometricRelationalGraphConv(nn.Module):
         if self.activation:
             output = self.activation(output)
         return output
-    
+
     def forward(self, graph, input, edge_input=None):
         message = self.message(graph, input, edge_input)
         update = self.aggregate(graph, message)
-        output = self.combine(input, update)
-        return output
+        return self.combine(input, update)
 
 
 class SpatialLineGraph(nn.Module):
     def __init__(self, num_angle_bin=8):
-        super(SpatialLineGraph, self).__init__()
+        super().__init__()
         self.num_angle_bin = num_angle_bin
 
     def forward(self, graph):
-        """
-        Generate the spatial line graph of the input graph.
+        """Generate the spatial line graph of the input graph.
         The edge types are decided by the angles between two adjacent edges in the input graph.
 
-        Parameters:
+        Parameters
+        ----------
             graph (PackedGraph): :math:`n` graph(s)
 
-        Returns:
+        Returns
+        -------
             graph (PackedGraph): the spatial line graph
+
         """
         line_graph = construct_line_graph(graph)
         node_in, node_out = graph.edge_list[:, :2].t()
@@ -231,16 +230,17 @@ def _get_offsets(graph, num_nodes=None, num_edges=None, num_cum_nodes=None, num_
 
 
 def construct_line_graph(graph):
-    """
-    Construct a packed line graph of this packed graph.
+    """Construct a packed line graph of this packed graph.
     The node features of the line graphs are inherited from the edge features of the original graphs.
 
     In the line graph, each node corresponds to an edge in the original graph.
     For a pair of edges (a, b) and (b, c) that share the same intermediate node in the original graph,
     there is a directed edge (a, b) -> (b, c) in the line graph.
 
-    Returns:
+    Returns
+    -------
         PackedGraph
+
     """
     node_in, node_out = graph.edge_list.t()[:2]
     edge_index = torch.arange(graph.num_edge, device=graph.node_feature.device)

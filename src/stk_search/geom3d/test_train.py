@@ -1,28 +1,25 @@
-"""
-script to train the SchNet model on the STK dataset
+"""script to train the SchNet model on the STK dataset
 created by Mohammed Azzouzi
-date: 2023-11-14
+date: 2023-11-14.
 """
-import stk
-import pymongo
-import numpy as np
 import os
-import pandas as pd
-import wandb
-import torch.nn as nn
-import torch.optim as optim
-import torch
-from tqdm import tqdm
-from torch_geometric.loader import DataLoader
-from torch_geometric.data import Data, Batch
+from pathlib import Path
+
 import lightning.pytorch as pl
+import numpy as np
+import pymongo
+import stk
+import torch
 import torch.nn.functional as Functional
-from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.loggers import WandbLogger
+from stk_search.geom3d.config_utils import read_config
 from stk_search.geom3d.models import SchNet
 from stk_search.geom3d.utils import database_utils
-from pathlib import Path
-from stk_search.geom3d.config_utils import read_config
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
+
+import wandb
 
 
 def main(config_dir):
@@ -86,13 +83,12 @@ def main(config_dir):
 
 
 def load_data(config):
-    
+
     if config["load_dataset"]:
         if os.path.exists(config["dataset_path"]):
-            dataset = torch.load(config["dataset_path"])
-            return dataset
+            return torch.load(config["dataset_path"])
         else:
-            print("dataset not found")
+            pass
     df_path = Path(
         config["STK_path"], "data/output/Full_dataset/", config["df_total"]
     )
@@ -126,7 +122,7 @@ def load_data(config):
 class Pymodel(pl.LightningModule):
     def __init__(self, model, graph_pred_linear):
         super().__init__()
-        self.save_hyperparameters(ignore=['graph_pred_linear', 'model'])
+        self.save_hyperparameters(ignore=["graph_pred_linear", "model"])
         self.molecule_3D_repr = model
         self.graph_pred_linear = graph_pred_linear
 
@@ -138,7 +134,7 @@ class Pymodel(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        """used for logging metrics"""
+        """Used for logging metrics."""
         loss = self._get_preds_loss_accuracy(batch)
 
         # Log loss and metric
@@ -146,20 +142,17 @@ class Pymodel(pl.LightningModule):
         return loss
 
     def _get_preds_loss_accuracy(self, batch):
-        """convenience function since train/valid/test steps are similar"""
+        """Convenience function since train/valid/test steps are similar."""
         z = self.molecule_3D_repr(batch.x, batch.positions, batch.batch)
         z = self.graph_pred_linear(z)
-        loss = Functional.mse_loss(z, batch.y.unsqueeze(1))
-        return loss
+        return Functional.mse_loss(z, batch.y.unsqueeze(1))
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
-        return optimizer
-    
+        return torch.optim.Adam(self.parameters(), lr=5e-4)
+
     def forward(self, batch):
         z = self.molecule_3D_repr(batch.x, batch.positions, batch.batch)
-        z = self.graph_pred_linear(z)
-        return z
+        return self.graph_pred_linear(z)
 
 
 def load_3d_rpr(model, output_model_path):
@@ -173,18 +166,15 @@ def load_molecule(InChIKey, target, db):
     dat_list = list(polymer.get_atomic_positions())
     positions = np.vstack(dat_list)
     positions = torch.tensor(positions, dtype=torch.float)
-    atom_types = list(
-        [
+    atom_types = [
             atom.get_atom().get_atomic_number()
             for atom in polymer.get_atom_infos()
         ]
-    )
     atom_types = torch.tensor(atom_types, dtype=torch.long)
     y = torch.tensor(target, dtype=torch.float32)
 
-    molecule = Data(x=atom_types, positions=positions, y=y,
+    return Data(x=atom_types, positions=positions, y=y,
         InChIKey=InChIKey)
-    return molecule
 
 
 def generate_dataset(df_total, df_precursors, db, number_of_molecules=1000):
@@ -210,15 +200,12 @@ def train_val_test_split(dataset, config, smiles_list=None):
     Nmols = num_mols
     Ntrain = int(num_mols * config["train_ratio"])
     Nvalid = int(num_mols * config["valid_ratio"])
-    Ntest = Nmols - (Ntrain + Nvalid)
+    Nmols - (Ntrain + Nvalid)
 
     train_idx = all_idx[:Ntrain]
     valid_idx = all_idx[Ntrain : Ntrain + Nvalid]
     test_idx = all_idx[Ntrain + Nvalid :]
 
-    print("train_idx: ", train_idx)
-    print("valid_idx: ", valid_idx)
-    print("test_idx: ", test_idx)
     # np.savez("customized_01", train_idx=train_idx, valid_idx=valid_idx, test_idx=test_idx)
 
     assert len(set(train_idx).intersection(set(valid_idx))) == 0

@@ -1,17 +1,22 @@
 from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import torch
-import numpy as np
-from stk_search.utils.config_utils import read_config, save_config
-from stk_search.geom3d import dataloader
-from stk_search.geom3d import train_models
-from stk_search.geom3d import oligomer_encoding_with_transformer
+from stk_search.geom3d import (
+    dataloader,
+    oligomer_encoding_with_transformer,
+    train_models,
+)
 from stk_search.utils import update_datasets
+from stk_search.utils.config_utils import read_config, save_config
 
 
 def main(config_dir):
     """Train the model using the given configuration.
+
     Args:
+    ----
        config_dir (str): The path to the directory containing the
            configuration file.
 
@@ -29,7 +34,7 @@ def main(config_dir):
         config,
     )
     # save the dataset in the ephemeral folder
-    
+
     config = save_datasets(config, dataset_train, dataset_val, dataset_test)
     # save some information into a file
     output_file = config_dir + "info.txt"

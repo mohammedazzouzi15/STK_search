@@ -1,8 +1,6 @@
 # class to define the search algorithm
 import os
-import torch
-import matplotlib.pyplot as plt
-import numpy as np
+
 import pandas as pd
 import torch
 from stk_search.Search_algorithm.Search_algorithm import evolution_algorithm
@@ -13,21 +11,16 @@ from stk_search.geom3d import train_models
 from stk_search.Representation import Representation_poly_3d
 from stk_search.utils.config_utils import read_config
 
-
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class Ea_surrogate(evolution_algorithm):
-    """
 
-    Class to run the surrogate EA algorithm
+    """Class to run the surrogate EA algorithm
     Compared to the EA, here we need a surrogate model and a molecule representation to run the search
     the surrogate model applied on the molecule representation is used to select a new molecule to evaluate.
 
     the generation of offspring is the same as in the EA
-
-    Args
-
     """
 
     def __init__(self):
@@ -63,7 +56,7 @@ class Ea_surrogate(evolution_algorithm):
         # get the best using the surrogate model
         X_unsqueezed = self.Representation.generate_repr(df_elements)
         if self.verbose:
-            print("X_unsqueezed shape is ", X_unsqueezed.shape)
+            pass
         # get model prediction
         # make sure that the model and the data have the same dtype
         X_unsqueezed = X_unsqueezed.to(self.device)
@@ -76,22 +69,17 @@ class Ea_surrogate(evolution_algorithm):
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = (-acquisition_values).argsort()
         if self.verbose:
-            print(
-                "max acquisition value is ",
-                acquisition_values[ids_sorted_by_aquisition[0]],
-            )
+            pass
 
-        def add_element(df, element):
+        def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
             return False
 
-        print("new_element_df shape is ", df_elements.shape)
         for elem_id in ids_sorted_by_aquisition:
             element = df_elements.values[elem_id.item()]
             if add_element(df_search, element):
-                print(elem_id.item())
                 break
                 # index = id.item()
                 # return df_search_space_frag

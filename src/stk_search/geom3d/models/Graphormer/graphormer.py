@@ -7,11 +7,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
-from .modules import LayerNorm, utils
 from .graphormer_graph_encoder import GraphormerGraphEncoder
+from .modules import LayerNorm, utils
 
 
 class GraphormerEncoder(nn.Module):
@@ -137,9 +137,7 @@ def base_architecture(args):
 
 # only for reference
 def graphormer_base_architecture(args):
-    if args.pretrained_model_name == "pcqm4mv1_graphormer_base" or \
-       args.pretrained_model_name == "pcqm4mv2_graphormer_base" or \
-       args.pretrained_model_name == "pcqm4mv1_graphormer_base_for_molhiv":
+    if args.pretrained_model_name in ("pcqm4mv1_graphormer_base", "pcqm4mv2_graphormer_base", "pcqm4mv1_graphormer_base_for_molhiv"):
         args.encoder_layers = 12
         args.encoder_attention_heads = 32
         args.encoder_ffn_embed_dim = 768

@@ -1,8 +1,8 @@
 import torch
-import torch.nn as nn
+from torch import nn
 
-from .transformer_m_encoder import TransformerMEncoder
 from .modules import LayerNorm, utils
+from .transformer_m_encoder import TransformerMEncoder
 
 
 class TransformerM(nn.Module):

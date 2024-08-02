@@ -1,10 +1,8 @@
 import math
 
-import torch
-
-import e3nn.o3
 import e3nn.nn
-
+import e3nn.o3
+import torch
 from stk_search.geom3d.models.NequIP.nn import GraphModuleMixin
 from stk_search.geom3d.models.NequIP.utils import Config
 
@@ -45,8 +43,9 @@ def load_model_state(
     See https://pytorch.org/docs/stable/generated/torch.nn.Module.html?highlight=load_state_dict#torch.nn.Module.load_state_dict.
     """
     if _prefix not in config:
+        msg = f"initialize_from_state requires the `{_prefix}` option specifying the state to initialize from"
         raise KeyError(
-            f"initialize_from_state requires the `{_prefix}` option specifying the state to initialize from"
+            msg
         )
     state = torch.load(config[_prefix])
     model.load_state_dict(state, strict=config.get(_prefix + "_strict", True))
@@ -54,8 +53,8 @@ def load_model_state(
 
 
 # == Init functions ==
-def unit_uniform_init_(t: torch.Tensor):
-    """Uniform initialization with <x_i^2> = 1"""
+def unit_uniform_init_(t: torch.Tensor) -> None:
+    """Uniform initialization with <x_i^2> = 1."""
     t.uniform_(-math.sqrt(3), math.sqrt(3))
 
 
@@ -67,10 +66,10 @@ def unit_uniform_init_(t: torch.Tensor):
 
 
 def uniform_initialize_FCs(model: GraphModuleMixin, initialize: bool):
-    """Initialize ``e3nn.nn.FullyConnectedNet``s with unit uniform initialization"""
+    """Initialize ``e3nn.nn.FullyConnectedNet``s with unit uniform initialization."""
     if initialize:
 
-        def _uniform_initialize_fcs(mod: torch.nn.Module):
+        def _uniform_initialize_fcs(mod: torch.nn.Module) -> None:
             if isinstance(mod, e3nn.nn.FullyConnectedNet):
                 for layer in mod:
                     # in FC, normalization is expected

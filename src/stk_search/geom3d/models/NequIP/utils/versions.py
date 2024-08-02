@@ -1,10 +1,9 @@
+import logging
 from typing import Tuple
 
-import logging
-
-import torch
 import e3nn
 import NequIP
+import torch
 
 from .git import get_commit
 

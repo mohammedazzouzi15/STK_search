@@ -1,24 +1,16 @@
-"""
-Credit to https://github.com/divelab/DIG/blob/dig-stable/dig/threedgraph/method/ProNet/ProNet.py
-"""
-
-from torch_geometric.nn import inits, MessagePassing
-from torch_cluster import radius_graph
-
-
-from .features import d_angle_emb, d_theta_phi_emb
-
-from torch_geometric.utils import scatter
-
-from torch_sparse import matmul
-
-import torch
-from torch import nn
-from torch.nn import Embedding
-import torch.nn.functional as F
+"""Credit to https://github.com/divelab/DIG/blob/dig-stable/dig/threedgraph/method/ProNet/ProNet.py."""
 
 import numpy as np
+import torch
+import torch.nn.functional as F
+from torch import nn
+from torch.nn import Embedding
+from torch_cluster import radius_graph
+from torch_geometric.nn import MessagePassing, inits
+from torch_geometric.utils import scatter
+from torch_sparse import matmul
 
+from .features import d_angle_emb, d_theta_phi_emb
 
 num_aa_type = 26
 num_side_chain_embs = 8
@@ -29,18 +21,18 @@ def swish(x):
 
 
 class Linear(torch.nn.Module):
-    """
-        A linear method encapsulation similar to PyG's
+    """A linear method encapsulation similar to PyG's.
 
-        Parameters
-        ----------
-        in_channels (int)
-        out_channels (int)
-        bias (int)
-        weight_initializer (string): (glorot or zeros)
+    Parameters
+    ----------
+    in_channels (int)
+    out_channels (int)
+    bias (int)
+    weight_initializer (string): (glorot or zeros)
+
     """
 
-    def __init__(self, in_channels, out_channels, bias=True, weight_initializer='glorot'):
+    def __init__(self, in_channels, out_channels, bias=True, weight_initializer="glorot"):
 
         super().__init__()
         self.in_channels = in_channels
@@ -52,14 +44,14 @@ class Linear(torch.nn.Module):
         if bias:
             self.bias = nn.Parameter(torch.Tensor(out_channels))
         else:
-            self.register_parameter('bias', None)
+            self.register_parameter("bias", None)
 
         self.reset_parameters()
 
     def reset_parameters(self):
-        if self.weight_initializer == 'glorot':
+        if self.weight_initializer == "glorot":
             inits.glorot(self.weight)
-        elif self.weight_initializer == 'zeros':
+        elif self.weight_initializer == "zeros":
             inits.zeros(self.weight)
         if self.bias is not None:
             inits.zeros(self.bias)
@@ -70,16 +62,16 @@ class Linear(torch.nn.Module):
 
 
 class TwoLinear(torch.nn.Module):
-    """
-        A layer with two linear modules
+    """A layer with two linear modules.
 
-        Parameters
-        ----------
-        in_channels (int)
-        middle_channels (int)
-        out_channels (int)
-        bias (bool)
-        act (bool)
+    Parameters
+    ----------
+    in_channels (int)
+    middle_channels (int)
+    out_channels (int)
+    bias (bool)
+    act (bool)
+
     """
 
     def __init__(
@@ -90,7 +82,7 @@ class TwoLinear(torch.nn.Module):
             bias=False,
             act=False
     ):
-        super(TwoLinear, self).__init__()
+        super().__init__()
         self.lin1 = Linear(in_channels, middle_channels, bias=bias)
         self.lin2 = Linear(middle_channels, out_channels, bias=bias)
         self.act = act
@@ -110,18 +102,19 @@ class TwoLinear(torch.nn.Module):
 
 
 class EdgeGraphConv(MessagePassing):
-    """
-        Graph convolution similar to PyG's GraphConv(https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GraphConv)
+    """Graph convolution similar to PyG's GraphConv(https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GraphConv).
 
-        The difference is that this module performs Hadamard product between node feature and edge feature
+    The difference is that this module performs Hadamard product between node feature and edge feature
 
-        Parameters
-        ----------
-        in_channels (int)
-        out_channels (int)
+    Parameters
+    ----------
+    in_channels (int)
+    out_channels (int)
+
     """
+
     def __init__(self, in_channels, out_channels):
-        super(EdgeGraphConv, self).__init__()
+        super().__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -160,20 +153,20 @@ class InteractionBlock(torch.nn.Module):
             act=swish,
             num_pos_emb=16,
             dropout=0,
-            level='allatom'
+            level="allatom"
     ):
-        super(InteractionBlock, self).__init__()
+        super().__init__()
         self.act = act
         self.dropout = nn.Dropout(dropout)
-        
+
         self.conv0 = EdgeGraphConv(hidden_channels, hidden_channels)
         self.conv1 = EdgeGraphConv(hidden_channels, hidden_channels)
         self.conv2 = EdgeGraphConv(hidden_channels, hidden_channels)
 
         self.lin_feature0 = TwoLinear(num_radial * num_spherical ** 2, mid_emb, hidden_channels)
-        if level == 'aminoacid':
+        if level == "aminoacid":
             self.lin_feature1 = TwoLinear(num_radial * num_spherical, mid_emb, hidden_channels)
-        elif level == 'backbone' or level == 'allatom':
+        elif level in ("backbone", "allatom"):
             self.lin_feature1 = TwoLinear(3 * num_radial * num_spherical, mid_emb, hidden_channels)
         self.lin_feature2 = TwoLinear(num_pos_emb, mid_emb, hidden_channels)
 
@@ -223,7 +216,7 @@ class InteractionBlock(torch.nn.Module):
     def forward(self, x, feature0, feature1, pos_emb, edge_index, batch):
         x_lin_1 = self.act(self.lin_1(x))
         x_lin_2 = self.act(self.lin_2(x))
-        
+
         feature0 = self.lin_feature0(feature0)
         h0 = self.conv0(x_lin_1, edge_index, feature0)
         h0 = self.lin0(h0)
@@ -244,41 +237,41 @@ class InteractionBlock(torch.nn.Module):
 
         h = torch.cat((h0, h1, h2),1)
         for lin in self.lins_cat:
-            h = self.act(lin(h)) 
+            h = self.act(lin(h))
 
         h = h + x_lin_2
 
         for lin in self.lins:
-            h = self.act(lin(h)) 
-        h = self.final(h)
-        return h
+            h = self.act(lin(h))
+        return self.final(h)
 
 
 class ProNet(nn.Module):
-    r"""
-         The ProNet from the "Learning Protein Representations via Complete 3D Graph Networks" paper.
+    r"""The ProNet from the "Learning Protein Representations via Complete 3D Graph Networks" paper.
         
-        Args:
-            level: (str, optional): The level of protein representations. It could be :obj:`aminoacid`, obj:`backbone`, and :obj:`allatom`. (default: :obj:`aminoacid`)
-            num_blocks (int, optional): Number of building blocks. (default: :obj:`4`)
-            hidden_channels (int, optional): Hidden embedding size. (default: :obj:`128`)
-            out_channels (int, optional): Size of each output sample. (default: :obj:`1`)
-            mid_emb (int, optional): Embedding size used for geometric features. (default: :obj:`64`)
-            num_radial (int, optional): Number of radial basis functions. (default: :obj:`6`)
-            num_spherical (int, optional): Number of spherical harmonics. (default: :obj:`2`)
-            cutoff (float, optional): Cutoff distance for interatomic interactions. (default: :obj:`10.0`)
-            max_num_neighbors (int, optional): Max number of neighbors during graph construction. (default: :obj:`32`)
-            int_emb_layers (int, optional): Number of embedding layers in the interaction block. (default: :obj:`3`)
-            out_layers (int, optional): Number of layers for features after interaction blocks. (default: :obj:`2`)
-            num_pos_emb (int, optional): Number of positional embeddings. (default: :obj:`16`)
-            dropout (float, optional): Dropout. (default: :obj:`0`)
-            data_augment_eachlayer (bool, optional): Data augmentation tricks. If set to :obj:`True`, will add noise to the node features before each interaction block. (default: :obj:`False`)
-            euler_noise (bool, optional): Data augmentation tricks. If set to :obj:`True`, will add noise to Euler angles. (default: :obj:`False`)
+    Args:
+    ----
+        level: (str, optional): The level of protein representations. It could be :obj:`aminoacid`, obj:`backbone`, and :obj:`allatom`. (default: :obj:`aminoacid`)
+        num_blocks (int, optional): Number of building blocks. (default: :obj:`4`)
+        hidden_channels (int, optional): Hidden embedding size. (default: :obj:`128`)
+        out_channels (int, optional): Size of each output sample. (default: :obj:`1`)
+        mid_emb (int, optional): Embedding size used for geometric features. (default: :obj:`64`)
+        num_radial (int, optional): Number of radial basis functions. (default: :obj:`6`)
+        num_spherical (int, optional): Number of spherical harmonics. (default: :obj:`2`)
+        cutoff (float, optional): Cutoff distance for interatomic interactions. (default: :obj:`10.0`)
+        max_num_neighbors (int, optional): Max number of neighbors during graph construction. (default: :obj:`32`)
+        int_emb_layers (int, optional): Number of embedding layers in the interaction block. (default: :obj:`3`)
+        out_layers (int, optional): Number of layers for features after interaction blocks. (default: :obj:`2`)
+        num_pos_emb (int, optional): Number of positional embeddings. (default: :obj:`16`)
+        dropout (float, optional): Dropout. (default: :obj:`0`)
+        data_augment_eachlayer (bool, optional): Data augmentation tricks. If set to :obj:`True`, will add noise to the node features before each interaction block. (default: :obj:`False`)
+        euler_noise (bool, optional): Data augmentation tricks. If set to :obj:`True`, will add noise to Euler angles. (default: :obj:`False`)
             
     """
+
     def __init__(
             self,
-            level='aminoacid',
+            level="aminoacid",
             num_blocks=4,
             hidden_channels=128,
             out_channels=1,
@@ -294,7 +287,7 @@ class ProNet(nn.Module):
             data_augment_eachlayer=False,
             euler_noise = False,
     ):
-        super(ProNet, self).__init__()
+        super().__init__()
         self.cutoff = cutoff
         self.max_num_neighbors = max_num_neighbors
         self.num_pos_emb = num_pos_emb
@@ -306,14 +299,14 @@ class ProNet(nn.Module):
         self.feature0 = d_theta_phi_emb(num_radial=num_radial, num_spherical=num_spherical, cutoff=cutoff)
         self.feature1 = d_angle_emb(num_radial=num_radial, num_spherical=num_spherical, cutoff=cutoff)
 
-        if level == 'aminoacid':
+        if level == "aminoacid":
             self.embedding = Embedding(num_aa_type, hidden_channels)
-        elif level == 'backbone':
+        elif level == "backbone":
             self.embedding = torch.nn.Linear(num_aa_type + num_bb_embs, hidden_channels)
-        elif level == 'allatom':
+        elif level == "allatom":
             self.embedding = torch.nn.Linear(num_aa_type + num_bb_embs + num_side_chain_embs, hidden_channels)
         else:
-            print('No supported model!')
+            pass
 
         self.interaction_blocks = torch.nn.ModuleList(
             [
@@ -354,14 +347,13 @@ class ProNet(nn.Module):
     def pos_emb(self, edge_index, num_pos_emb=16):
         # From https://github.com/jingraham/neurips19-graph-protein-design
         d = edge_index[0] - edge_index[1]
-     
+
         frequency = torch.exp(
             torch.arange(0, num_pos_emb, 2, dtype=torch.float32, device=edge_index.device)
             * -(np.log(10000.0) / num_pos_emb)
         )
         angles = d.unsqueeze(-1) * frequency
-        E = torch.cat((torch.cos(angles), torch.sin(angles)), -1)
-        return E
+        return torch.cat((torch.cos(angles), torch.sin(angles)), -1)
 
     def forward(self, batch_data):
 
@@ -373,16 +365,16 @@ class ProNet(nn.Module):
 
         device = z.device
 
-        if self.level == 'aminoacid':
+        if self.level == "aminoacid":
             x = self.embedding(z)
-        elif self.level == 'backbone':
+        elif self.level == "backbone":
             x = torch.cat([torch.squeeze(F.one_hot(z, num_classes=num_aa_type).float()), bb_embs], dim = 1)
             x = self.embedding(x)
-        elif self.level == 'allatom':
+        elif self.level == "allatom":
             x = torch.cat([torch.squeeze(F.one_hot(z, num_classes=num_aa_type).float()), bb_embs, side_chain_embs], dim = 1)
             x = self.embedding(x)
         else:
-            print('No supported model!')
+            pass
 
         edge_index = radius_graph(pos, r=self.cutoff, batch=batch, max_num_neighbors=self.max_num_neighbors)
         pos_emb = self.pos_emb(edge_index, self.num_pos_emb)
@@ -390,7 +382,7 @@ class ProNet(nn.Module):
 
         # Calculate distances.
         dist = (pos[i] - pos[j]).norm(dim=1)
-        
+
         num_nodes = len(z)
 
         # Calculate angles theta and phi.
@@ -409,18 +401,18 @@ class ProNet(nn.Module):
 
         feature0 = self.feature0(dist, theta, phi)
 
-        if self.level == 'backbone' or self.level == 'allatom':
+        if self.level in ("backbone", "allatom"):
             # Calculate Euler angles.
             Or1_x = pos_n[i] - pos[i]
             Or1_z = torch.cross(Or1_x, torch.cross(Or1_x, pos_c[i] - pos[i]))
             Or1_z_length = Or1_z.norm(dim=1) + 1e-7
-            
+
             Or2_x = pos_n[j] - pos[j]
             Or2_z = torch.cross(Or2_x, torch.cross(Or2_x, pos_c[j] - pos[j]))
             Or2_z_length = Or2_z.norm(dim=1) + 1e-7
 
             Or1_Or2_N = torch.cross(Or1_z, Or2_z)
-            
+
             angle1 = torch.atan2((torch.cross(Or1_x, Or1_Or2_N) * Or1_z).sum(dim=-1)/Or1_z_length, (Or1_x * Or1_Or2_N).sum(dim=-1))
             angle2 = torch.atan2(torch.cross(Or1_z, Or2_z).norm(dim=-1), (Or1_z * Or2_z).sum(dim=-1))
             angle3 = torch.atan2((torch.cross(Or1_Or2_N, Or2_x) * Or2_z).sum(dim=-1)/Or2_z_length, (Or1_Or2_N * Or2_x).sum(dim=-1))
@@ -433,7 +425,7 @@ class ProNet(nn.Module):
 
             feature1 = torch.cat((self.feature1(dist, angle1), self.feature1(dist, angle2), self.feature1(dist, angle3)),1)
 
-        elif self.level == 'aminoacid':
+        elif self.level == "aminoacid":
             refi = (i-1)%num_nodes
 
             refj0 = (j-1)%num_nodes
@@ -447,7 +439,7 @@ class ProNet(nn.Module):
 
             plane1 = torch.cross(pos[j] - pos[i], pos[refi] - pos[i])
             plane2 = torch.cross(pos[j] - pos[i], pos[refj] - pos[j])
-            a = (plane1 * plane2).sum(dim=-1) 
+            a = (plane1 * plane2).sum(dim=-1)
             b = (torch.cross(plane1, plane2) * (pos[j] - pos[i])).sum(dim=-1) / dist
             tau = torch.atan2(b, a)
 
@@ -465,9 +457,8 @@ class ProNet(nn.Module):
 
         for lin in self.lins_out:
             y = self.relu(lin(y))
-            y = self.dropout(y)        
-        y = self.lin_out(y)
-        return y
+            y = self.dropout(y)
+        return self.lin_out(y)
 
     @property
     def num_params(self):

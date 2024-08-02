@@ -3,7 +3,6 @@
 import math
 
 import torch
-
 from e3nn.o3 import Irreps
 
 
@@ -20,7 +19,8 @@ class StridedLayout:
     def __init__(self, irreps: Irreps, pad_to_multiple: int = 1):
         irreps = Irreps(irreps)
         if not self.can_be_strided(irreps):
-            raise ValueError(f"Irreps `{irreps}` cannot be strided.")
+            msg = f"Irreps `{irreps}` cannot be strided."
+            raise ValueError(msg)
         self.irreps = irreps
         self.base_irreps = Irreps([(1, ir) for _, ir in irreps])
         self.mul = self.irreps[0].mul if len(irreps) > 0 else 0
