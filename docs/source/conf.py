@@ -20,7 +20,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    #'sphinx.ext.autodoc',
+    "sphinx.ext.autodoc",
 ]
 
 autosummary_imported_members = True

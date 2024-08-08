@@ -7,8 +7,8 @@ skt_search is a Python library for searching the chemical space of molecules for
    :maxdepth: 2
    :caption: Contents:
 
-   Calculators <_autosummary/Calculators.Calculators>
-   utils <_autosummary/Calculators.utils>
+   Calculators <_autosummary/stk_search.Calculators>
+   utils <_autosummary/stk_search.utils>
    Search_algorithm <_autosummary/stk_search.Search_algorithm>
    Representation <_autosummary/stk_search.Representation>
    SearchAlgorithm <_autosummary/stk_search.Search_algorithm>
