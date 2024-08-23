@@ -2516,11 +2516,11 @@ SearchSpace.py:72:9: D102 Missing docstring in public method
 74 |         # "'column'#operation#value" e.g. "'IP (eV)'#>=#6.5"
    |
 
-SearchSpace.py:77:9: N802 Function name `check_df_for_element_from_SP` should be lowercase
+SearchSpace.py:77:9: N802 Function name `check_df_for_element_from_sp` should be lowercase
    |
 75 |         self.conditions_list[fragment].remove(condition)
 76 | 
-77 |     def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
+77 |     def check_df_for_element_from_sp(self, df_to_check: pd.DataFrame):
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ N802
 78 |         # check if the condition is respected by the search space
 79 |         # show that each fragment respect the condition
@@ -2530,7 +2530,7 @@ SearchSpace.py:77:9: D102 Missing docstring in public method
    |
 75 |         self.conditions_list[fragment].remove(condition)
 76 | 
-77 |     def check_df_for_element_from_SP(self, df_to_check: pd.DataFrame):
+77 |     def check_df_for_element_from_sp(self, df_to_check: pd.DataFrame):
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ D102
 78 |         # check if the condition is respected by the search space
 79 |         # show that each fragment respect the condition
@@ -3647,7 +3647,7 @@ Search_algorithm\MultifidelityBayesianOptimisation.py:82:13: N806 Variable `SP` 
 82 |             SP = []
    |             ^^ N806
 83 |         if benchmark:
-84 |             searched_space_df = SP.check_df_for_element_from_SP(
+84 |             searched_space_df = SP.check_df_for_element_from_sp(
    |
 
 Search_algorithm\MultifidelityBayesianOptimisation.py:128:9: D102 Missing docstring in public method
@@ -4287,7 +4287,7 @@ Search_algorithm\Search_algorithm.py:85:13: N806 Variable `SP` in function shoul
 85 |             SP = []
    |             ^^ N806
 86 |         if benchmark:
-87 |             searched_space_df = SP.check_df_for_element_from_SP(
+87 |             searched_space_df = SP.check_df_for_element_from_sp(
    |
 
 Search_algorithm\Search_algorithm.py:120:7: N801 Class name `random_search` should use CapWords convention
@@ -45296,7 +45296,7 @@ geom3d\script_plot_inference_BA.py:25:10: F821 Undefined name `Searched_pace`
 geom3d\script_plot_inference_BA.py:32:24: PD011 Use `.to_numpy()` instead of `.values`
    |
 30 |     )
-31 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+31 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
 32 |     fitness_acquired = searched_space_df["target"].values
    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PD011
 33 |     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
@@ -45305,7 +45305,7 @@ geom3d\script_plot_inference_BA.py:32:24: PD011 Use `.to_numpy()` instead of `.v
 
 geom3d\script_plot_inference_BA.py:33:5: N806 Variable `searched_space_df_InChIKey` in function should be lowercase
    |
-31 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+31 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
 32 |     fitness_acquired = searched_space_df["target"].values
 33 |     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ N806
@@ -45509,7 +45509,7 @@ geom3d\script_plot_inference_BA.py:147:10: F821 Undefined name `Searched_pace`
 
 geom3d\script_plot_inference_BA.py:160:14: PD011 Use `.to_numpy()` instead of `.values`
     |
-158 |     searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_dataset)
+158 |     searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_dataset)
 159 | 
 160 |     y_true = searched_space_df[target_name].values
     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PD011
@@ -47238,7 +47238,7 @@ utils\EXP_plot_utils.py:27:9: N806 Variable `SP` in function should be lowercase
 26 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 27 |         SP = pickle.load(open(search_space_loc, "rb"))
    |         ^^ N806
-28 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+28 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 29 |         df_list.append(df_eval)
    |
 
@@ -47248,7 +47248,7 @@ utils\EXP_plot_utils.py:27:14: S301 `pickle` and modules that wrap it can be uns
 26 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 27 |         SP = pickle.load(open(search_space_loc, "rb"))
    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ S301
-28 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+28 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 29 |         df_list.append(df_eval)
    |
 
@@ -47258,7 +47258,7 @@ utils\EXP_plot_utils.py:27:26: SIM115 Use context handler for opening files
 26 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 27 |         SP = pickle.load(open(search_space_loc, "rb"))
    |                          ^^^^ SIM115
-28 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+28 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 29 |         df_list.append(df_eval)
    |
 
@@ -47268,7 +47268,7 @@ utils\EXP_plot_utils.py:27:26: PTH123 `open()` should be replaced by `Path.open(
 26 |         search_space_loc = exp_name + f"search_space_{i}.pkl"
 27 |         SP = pickle.load(open(search_space_loc, "rb"))
    |                          ^^^^ PTH123
-28 |         df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+28 |         df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
 29 |         df_list.append(df_eval)
    |
 

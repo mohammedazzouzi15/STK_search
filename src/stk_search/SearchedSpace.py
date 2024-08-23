@@ -390,7 +390,7 @@ class SearchedSpace(SearchSpace):
             self.get_space_size()
             number_of_elements_text.value = f"{self.space_size:.2e}"
             df_list.append(
-                self.check_df_for_element_from_SP(df_to_check=df_total)
+                self.check_df_for_element_from_sp(df_to_check=df_total)
             )
             label_list.append(label_text.value)
             # get the number of elements in the last df added to df_list that has target within 5% of the best target in df_total
@@ -425,10 +425,10 @@ class SearchedSpace(SearchSpace):
             )
 
         def save_data(b) -> None:
-            import os
-
-            path_to_save = "data/search_space_properties.pkl"
-            if os.path.exists(path_to_save):
+            from pathlib import Path
+            path_to_save = "search_space/search_space_properties.pkl"
+            Path("search_space").mkdir(parents=True, exist_ok=True)
+            if Path(path_to_save).exists():
                 df_search_space_properties = pd.read_pickle(path_to_save)
                 df_search_space_properties_2 = pd.DataFrame.from_dict(
                     search_space_properties
@@ -445,7 +445,7 @@ class SearchedSpace(SearchSpace):
                     search_space_properties
                 )
             df_search_space_properties.to_pickle(
-                "data/search_space_properties.pkl"
+                "search_space/search_space_properties.pkl"
             )
             # save the figure
 

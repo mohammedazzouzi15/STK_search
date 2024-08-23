@@ -1,10 +1,18 @@
-# class to setup and run a search experiment
+"""Class to setup and run a search experiment.
+
+In the search experiment, we will initialise the search space, get the initial elements, evaluate the elements, \
+run the search algorithm and suggest the next element to evaluate
+
+It takes as input the search space, the search algorithm, the objective function and the number of iterations to run the search experiment
+
+The search experiment will save the results in the output folder
+
+"""
 import os
 import pickle
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
-# from Scripts.Search_algorithm import Search_Algorithm
 from stk_search.Objective_function import Objective_Function
 from stk_search.SearchSpace import SearchSpace
 
@@ -102,6 +110,22 @@ class SearchExp:
         number_of_iterations,
         verbose=False,
     ):
+        """Initialize the search experiment.
+        
+        Parameters
+        ----------
+        searchspace : SearchSpace
+            The search space to be used in the search experiment
+        search_algorithm : Search_Algorithm
+            The search algorithm to be used in the search experiment
+        objective_function : Objective_Function
+            The objective function to be used in the search experiment
+        number_of_iterations : int
+            The number of iterations to run the search experiment
+        verbose : bool
+            Whether to print the progress of the search experiment
+            
+        """
         self.search_space = searchspace
         self.search_algorithm = (
             search_algorithm  # add a name to the search algorithm
@@ -121,12 +145,13 @@ class SearchExp:
         self.verbose = verbose
         self.benchmark = False
         self.df_total = None
-        self.date = datetime.now().strftime("%Y%m%d")
+        self.date = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
         self.search_exp_name = uuid.uuid4().hex
 
 
     def run_seach(self):
-        """Run the search experiment
+        """Run the search experiment.
+
         the search experiment will initialise the search space, get the initial elements, evaluate the elements, \
             run the search algorithm and suggest the next element to evaluate
             for the moment we cannot rerun a same search experiment.
@@ -155,10 +180,9 @@ class SearchExp:
                 raise Exception(msg)
 
             self.df_search_space = df_search_space
-            for id in range(len(ids_acquired)):
-                # evaluate the element
+            for id_acquired in range(len(ids_acquired)):
                 self.evaluate_element(
-                    element_id=ids_acquired[id],
+                    element_id=ids_acquired[id_acquired],
                     objective_function=self.objective_function,
                 )
             if self.verbose:
@@ -185,18 +209,13 @@ class SearchExp:
                 break
             self.df_search_space = df_search_space
             # evaluate the element
-            # if self.verbose:
-            # print(f"element id suggested: {ids_acquired}, inchikey suggested: {self.df_search_space.loc[ids_acquired]}")
             self.evaluate_element(
                 element_id=ids_acquired,
                 objective_function=self.objective_function,
             )
-            # self.fitness_acquired.append(Eval)
-            # self.InchiKey_acquired.append(InchiKey)
             # save the results
             self.save_results()
             if self.verbose:
-                # print(f"ids acquired: {self.ids_acquired}")
                 pass
         # save the results
         return self.save_results()
@@ -235,8 +254,8 @@ class SearchExp:
 
     def save_search_experiment(self):
         # save the search experiment
-        datetime.now().strftime("%Y%m%d_%H%M%S")
-        date_now = datetime.now().strftime("%Y%m%d")
+        datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
+        date_now = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
         os.makedirs(self.output_folder + f"/{date_now}", exist_ok=True)
         with open(
             self.output_folder

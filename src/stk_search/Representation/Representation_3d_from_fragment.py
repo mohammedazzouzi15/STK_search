@@ -1,4 +1,4 @@
-"""this script is to encode the representation of the oligomer from the representation of the fragments."""
+"""This script is to encode the representation of the oligomer from the representation of the fragments."""
 
 import numpy as np
 import pymongo
@@ -91,7 +91,7 @@ class Representation_3d_from_fragment:
                             .cpu()
                         )
         else:
-            #self.add_representation_to_local_dataset(elements_copy)
+            # self.add_representation_to_local_dataset(elements_copy)
             dataset_local_new = {}
             for x in elements_copy.values:
                 key = ""
@@ -110,8 +110,8 @@ class Representation_3d_from_fragment:
                         dataset_local_new[key] = (
                             encoding[0][0].type(torch.float16).detach()
                         )
-            #self.save_representation_to_database(dataset_local_new)
-            #self.save_dataset_local()
+            # self.save_representation_to_database(dataset_local_new)
+            # self.save_dataset_local()
         return torch.stack(opt_geom_encoding)
 
     def _getinfo_db(self, elements):
@@ -138,7 +138,9 @@ class Representation_3d_from_fragment:
             positions = torch.tensor(
                 positions, dtype=torch.float, device=self.device
             )
-            atom_types = [atom.get_atomic_number() for atom in molecule_bb.get_atoms()]
+            atom_types = [
+                atom.get_atomic_number() for atom in molecule_bb.get_atoms()
+            ]
             atom_types = torch.tensor(
                 atom_types, dtype=torch.long, device=self.device
             )
