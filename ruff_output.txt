@@ -76837,6 +76837,7 @@ src\stk_search\utils\oligomer_scaffold_split.py:78:5: D417 Missing argument desc
 78 | def cluster_analysis(dataset, config, min_cluster_size=750, min_samples=50):
    |     ^^^^^^^^^^^^^^^^ D417
 79 |     """Perform clustering on the dataset and print the number of clusters and the number of oligomers in each cluster.
+79 |     """Perform clustering on the dataset and print the number of clusters and the Number of molecules in each cluster.
    |
 
 src\stk_search\utils\oligomer_scaffold_split.py:92:5: T201 `print` found
@@ -76856,6 +76857,7 @@ src\stk_search\utils\oligomer_scaffold_split.py:108:5: T201 `print` found
 108 |     print("Number of clusters:", len(set(cluster_labels)))
     |     ^^^^^ T201
 109 |     print("Number of oligomers in each cluster:")
+109 |     print("Number of molecules in each cluster:")
 110 |     print(df_total["Cluster"].value_counts())
     |
     = help: Remove `print`
@@ -76865,6 +76867,7 @@ src\stk_search\utils\oligomer_scaffold_split.py:109:5: T201 `print` found
 107 |     # print how many clusters there are and how many oligomers are in each cluster
 108 |     print("Number of clusters:", len(set(cluster_labels)))
 109 |     print("Number of oligomers in each cluster:")
+109 |     print("Number of molecules in each cluster:")
     |     ^^^^^ T201
 110 |     print(df_total["Cluster"].value_counts())
     |
@@ -76874,6 +76877,7 @@ src\stk_search\utils\oligomer_scaffold_split.py:110:5: T201 `print` found
     |
 108 |     print("Number of clusters:", len(set(cluster_labels)))
 109 |     print("Number of oligomers in each cluster:")
+109 |     print("Number of molecules in each cluster:")
 110 |     print(df_total["Cluster"].value_counts())
     |     ^^^^^ T201
     |

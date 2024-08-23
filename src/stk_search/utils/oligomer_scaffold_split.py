@@ -55,6 +55,7 @@ def oligomer_scaffold_splitter(dataset, config):
     cluster_assignments = dict(zip(df_total["InChIKey"], df_total["Cluster"]))
 
     # print the number of oligomers in each cluster
+    # print the Number of molecules in each cluster
     chosen_cluster = config[
         "test_set_oligomer_cluster"
     ]  # Choose the cluster you want to use for the test set

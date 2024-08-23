@@ -49573,6 +49573,7 @@ utils\oligomer_scaffold_split.py:69:5: D417 Missing argument descriptions in the
 69 | def cluster_analysis(dataset, config, min_cluster_size=750, min_samples=50):
    |     ^^^^^^^^^^^^^^^^ D417
 70 |     """Perform clustering on the dataset and print the number of clusters and the number of oligomers in each cluster.
+70 |     """Perform clustering on the dataset and print the number of clusters and the Number of molecules in each cluster.
    |
 
 utils\oligomer_scaffold_split.py:96:5: D417 Missing argument descriptions in the docstring for `pca_plot`: `config`, `df_total`
