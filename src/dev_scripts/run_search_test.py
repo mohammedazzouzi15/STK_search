@@ -8,7 +8,7 @@ from stk_search.geom3d.oligomer_encoding_with_transformer import (
 )
 from stk_search.geom3d.pl_model import Pymodel
 from stk_search.geom3d.utils.config_utils import read_config
-from stk_search.Objective_function import Look_up_table
+from stk_search.ObjectiveFunction import LookUpTable
 from stk_search.Search_algorithm import (
     Bayesian_Optimisation,
     Ea_surrogate,
@@ -33,7 +33,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
 
     search_space_loc = "data/input/search_space/test/search_space1.pkl"
     # get initial elements
-    objective_function = Look_up_table(df_total, 6,target_name=target_name, aim=aim)
+    ObjectiveFunction = LookUpTable(df_total, 6,target_name=target_name, aim=aim)
 
     if case == "slatm":
         BO = Bayesian_Optimisation.Bayesian_Optimisation()
@@ -106,7 +106,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
     S_exp = SearchExp.Search_exp(
         search_space_loc,
         search_algorithm,
-        objective_function,
+        ObjectiveFunction,
         number_of_iterations,
         verbose=verbose,
     )

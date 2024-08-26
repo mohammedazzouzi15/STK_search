@@ -1,5 +1,5 @@
 import unittest
-from Objective_function import get_property_value, ObjectiveFunctionClass  # Replace with actual class name
+from ObjectiveFunction import get_property_value, ObjectiveFunctionClass  # Replace with actual class name
 import os
 
 class TestObjectiveFunction(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestObjectiveFunction(unittest.TestCase):
         # Setup code to create necessary objects and variables
         self.polymer = "example_polymer"
         self.xtb_opt_output_dir = "/path/to/xtb_opt_output_dir"
-        self.host_IP = "127.0.0.1"
+        self.host_ip = "127.0.0.1"
         self.InchiKey_initial = "example_inchikey_initial"
         self.data = [
             "Some line with cpu-time 1.0 h 30.0 min 45.0 s",
@@ -31,12 +31,12 @@ class TestObjectiveFunction(unittest.TestCase):
 
     def test_polymer_xtb_opt_calc(self):
         # Assuming ObjectiveFunctionClass is the class that contains the logic
-        obj_func = ObjectiveFunctionClass(self.host_IP, self.xtb_opt_output_dir)
+        obj_func = ObjectiveFunctionClass(self.host_ip, self.xtb_opt_output_dir)
         polymer_xtb_opt_calc = obj_func.calculate_polymer_properties(self.polymer, self.InchiKey_initial)
 
         self.assertEqual(polymer_xtb_opt_calc["InChIKey"], "expected_inchikey")
         self.assertEqual(polymer_xtb_opt_calc["cal_folder"], os.path.join(self.xtb_opt_output_dir, "expected_inchikey"))
-        self.assertEqual(polymer_xtb_opt_calc["Host IP"], self.host_IP)
+        self.assertEqual(polymer_xtb_opt_calc["Host IP"], self.host_ip)
         self.assertEqual(polymer_xtb_opt_calc["InChIKey_initial"], self.InchiKey_initial)
         self.assertEqual(polymer_xtb_opt_calc["cpu time"], "1.0 h 30.0 min 45.0 s")
         self.assertEqual(polymer_xtb_opt_calc["total energy (au)"], -123.456)

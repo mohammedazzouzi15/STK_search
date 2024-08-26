@@ -992,7 +992,7 @@ src\dev_scripts\run_search_new.py:59:25: S301 `pickle` and modules that wrap it 
 src\dev_scripts\run_search_new.py:68:9: T201 `print` found
    |
 66 |     else:
-67 |         objective_function = IP_ES1_fosc(oligomer_size)
+67 |         ObjectiveFunction = IpEs1Fosc(oligomer_size)
 68 |         print("objective function")
    |         ^^^^^ T201
 69 |         dataset_representation_path = (
@@ -2911,7 +2911,7 @@ src\stk_search\Calculators\STDA_calculator.py:11:5: D205 1 blank line required b
 13 | | 
 14 | |     Attributes
 15 | |     ----------
-16 | |     STDA_bin_path : str
+16 | |     stda_bin_path : str
 17 | |         The path to the STDA binary file.
 18 | |     Num_threads : int
 19 | |         The number of threads to use.
@@ -2941,7 +2941,7 @@ src\stk_search\Calculators\STDA_calculator.py:34:9: ANN204 Missing return type a
 34 |     def __init__(
    |         ^^^^^^^^ ANN204
 35 |         self,
-36 |         STDA_bin_path,
+36 |         stda_bin_path,
    |
    = help: Add return type annotation: `None`
 
@@ -2952,14 +2952,14 @@ src\stk_search\Calculators\STDA_calculator.py:34:9: D107 Missing docstring in `_
 34 |     def __init__(
    |         ^^^^^^^^ D107
 35 |         self,
-36 |         STDA_bin_path,
+36 |         stda_bin_path,
    |
 
-src\stk_search\Calculators\STDA_calculator.py:36:9: N803 Argument name `STDA_bin_path` should be lowercase
+src\stk_search\Calculators\STDA_calculator.py:36:9: N803 Argument name `stda_bin_path` should be lowercase
    |
 34 |     def __init__(
 35 |         self,
-36 |         STDA_bin_path,
+36 |         stda_bin_path,
    |         ^^^^^^^^^^^^^ N803
 37 |         Num_threads=1,
 38 |         output_dir=None,
@@ -2968,7 +2968,7 @@ src\stk_search\Calculators\STDA_calculator.py:36:9: N803 Argument name `STDA_bin
 src\stk_search\Calculators\STDA_calculator.py:37:9: N803 Argument name `Num_threads` should be lowercase
    |
 35 |         self,
-36 |         STDA_bin_path,
+36 |         stda_bin_path,
 37 |         Num_threads=1,
    |         ^^^^^^^^^^^ N803
 38 |         output_dir=None,
@@ -2982,7 +2982,7 @@ src\stk_search\Calculators\STDA_calculator.py:39:9: N803 Argument name `maxeV_Ex
 39 |         maxeV_ExcitedEnergy=10,
    |         ^^^^^^^^^^^^^^^^^^^ N803
 40 |     ):
-41 |         self.STDA_bin_path = STDA_bin_path
+41 |         self.stda_bin_path = stda_bin_path
    |
 
 src\stk_search\Calculators\STDA_calculator.py:46:9: D102 Missing docstring in public method
@@ -3060,7 +3060,7 @@ src\stk_search\Calculators\STDA_calculator.py:63:9: S602 `subprocess` call with 
 62 |         os.chdir(output_dir)
 63 |         sp.call(
    |         ^^^^^^^ S602
-64 |             f"export XTB4STDAHOME={self.STDA_bin_path} \n"
+64 |             f"export XTB4STDAHOME={self.stda_bin_path} \n"
 65 |             + f"export OMP_NUM_THREADS={self.Num_threads} \n"
    |
 
@@ -3068,7 +3068,7 @@ src\stk_search\Calculators\STDA_calculator.py:64:13: ISC003 Explicitly concatena
    |
 62 |           os.chdir(output_dir)
 63 |           sp.call(
-64 |               f"export XTB4STDAHOME={self.STDA_bin_path} \n"
+64 |               f"export XTB4STDAHOME={self.stda_bin_path} \n"
    |  _____________^
 65 | |             + f"export OMP_NUM_THREADS={self.Num_threads} \n"
    | |_____________________________________________________________^ ISC003
@@ -3383,26 +3383,26 @@ src\stk_search\Calculators\XTBcalculator.py:124:20: PTH118 `os.path.join()` shou
 126 |         return stko.XTBResults(
     |
 
-src\stk_search\Objective_function.py:1:1: N999 Invalid module name: 'Objective_function'
-src\stk_search\Objective_function.py:1:1: D100 Missing docstring in public module
-src\stk_search\Objective_function.py:14:5: D103 Missing docstring in public function
+src\stk_search\ObjectiveFunction.py:1:1: N999 Invalid module name: 'ObjectiveFunction'
+src\stk_search\ObjectiveFunction.py:1:1: D100 Missing docstring in public module
+src\stk_search\ObjectiveFunction.py:14:5: D103 Missing docstring in public function
    |
 14 | def get_inchi_key(molecule):
    |     ^^^^^^^^^^^^^ D103
 15 |     return stk.InchiKey().get_key(molecule)
    |
 
-src\stk_search\Objective_function.py:18:7: N801 Class name `Objective_Function` should use CapWords convention
+src\stk_search\ObjectiveFunction.py:18:7: N801 Class name `ObjectiveFunction` should use CapWords convention
    |
-18 | class Objective_Function:
+18 | class ObjectiveFunction:
    |       ^^^^^^^^^^^^^^^^^^ N801
 19 |     """Base class for objective functions
 20 |     The objective function is the function that will be used to evaluate the fitness of the molecules in the search
    |
 
-src\stk_search\Objective_function.py:19:5: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:19:5: D205 1 blank line required between summary line and description
    |
-18 |   class Objective_Function:
+18 |   class ObjectiveFunction:
 19 |       """Base class for objective functions
    |  _____^
 20 | |     The objective function is the function that will be used to evaluate the fitness of the molecules in the search
@@ -3420,9 +3420,9 @@ src\stk_search\Objective_function.py:19:5: D205 1 blank line required between su
    |
    = help: Insert single blank line
 
-src\stk_search\Objective_function.py:19:5: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:19:5: D400 First line should end with a period
    |
-18 |   class Objective_Function:
+18 |   class ObjectiveFunction:
 19 |       """Base class for objective functions
    |  _____^
 20 | |     The objective function is the function that will be used to evaluate the fitness of the molecules in the search
@@ -3440,9 +3440,9 @@ src\stk_search\Objective_function.py:19:5: D400 First line should end with a per
    |
    = help: Add period
 
-src\stk_search\Objective_function.py:19:5: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:19:5: D415 First line should end with a period, question mark, or exclamation point
    |
-18 |   class Objective_Function:
+18 |   class ObjectiveFunction:
 19 |       """Base class for objective functions
    |  _____^
 20 | |     The objective function is the function that will be used to evaluate the fitness of the molecules in the search
@@ -3460,7 +3460,7 @@ src\stk_search\Objective_function.py:19:5: D415 First line should end with a per
    |
    = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:30:9: ANN204 Missing return type annotation for special method `__init__`
+src\stk_search\ObjectiveFunction.py:30:9: ANN204 Missing return type annotation for special method `__init__`
    |
 28 |     """
 29 | 
@@ -3471,7 +3471,7 @@ src\stk_search\Objective_function.py:30:9: ANN204 Missing return type annotation
    |
    = help: Add return type annotation: `None`
 
-src\stk_search\Objective_function.py:31:9: D200 One-line docstring should fit on one line
+src\stk_search\ObjectiveFunction.py:31:9: D200 One-line docstring should fit on one line
    |
 30 |       def __init__(self):
 31 |           """Initialises the objective function
@@ -3483,7 +3483,7 @@ src\stk_search\Objective_function.py:31:9: D200 One-line docstring should fit on
    |
    = help: Reformat to one line
 
-src\stk_search\Objective_function.py:31:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:31:9: D400 First line should end with a period
    |
 30 |       def __init__(self):
 31 |           """Initialises the objective function
@@ -3495,7 +3495,7 @@ src\stk_search\Objective_function.py:31:9: D400 First line should end with a per
    |
    = help: Add period
 
-src\stk_search\Objective_function.py:31:9: D401 First line of docstring should be in imperative mood: "Initialises the objective function"
+src\stk_search\ObjectiveFunction.py:31:9: D401 First line of docstring should be in imperative mood: "Initialises the objective function"
    |
 30 |       def __init__(self):
 31 |           """Initialises the objective function
@@ -3506,7 +3506,7 @@ src\stk_search\Objective_function.py:31:9: D401 First line of docstring should b
 34 |       def evaluate_element(self, element, multiFidelity=False):
    |
 
-src\stk_search\Objective_function.py:31:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:31:9: D415 First line should end with a period, question mark, or exclamation point
    |
 30 |       def __init__(self):
 31 |           """Initialises the objective function
@@ -3518,7 +3518,7 @@ src\stk_search\Objective_function.py:31:9: D415 First line should end with a per
    |
    = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:34:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
+src\stk_search\ObjectiveFunction.py:34:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
    |
 32 |         """
 33 | 
@@ -3528,7 +3528,7 @@ src\stk_search\Objective_function.py:34:9: D417 Missing argument descriptions in
 36 |         takes as an input a list of building blocks and returns the fitness of the element
    |
 
-src\stk_search\Objective_function.py:34:41: FBT002 Boolean default positional argument in function definition
+src\stk_search\ObjectiveFunction.py:34:41: FBT002 Boolean default positional argument in function definition
    |
 32 |         """
 33 | 
@@ -3538,7 +3538,7 @@ src\stk_search\Objective_function.py:34:41: FBT002 Boolean default positional ar
 36 |         takes as an input a list of building blocks and returns the fitness of the element
    |
 
-src\stk_search\Objective_function.py:34:41: N803 Argument name `multiFidelity` should be lowercase
+src\stk_search\ObjectiveFunction.py:34:41: N803 Argument name `multiFidelity` should be lowercase
    |
 32 |         """
 33 | 
@@ -3548,7 +3548,7 @@ src\stk_search\Objective_function.py:34:41: N803 Argument name `multiFidelity` s
 36 |         takes as an input a list of building blocks and returns the fitness of the element
    |
 
-src\stk_search\Objective_function.py:34:41: ARG002 Unused method argument: `multiFidelity`
+src\stk_search\ObjectiveFunction.py:34:41: ARG002 Unused method argument: `multiFidelity`
    |
 32 |         """
 33 | 
@@ -3558,7 +3558,7 @@ src\stk_search\Objective_function.py:34:41: ARG002 Unused method argument: `mult
 36 |         takes as an input a list of building blocks and returns the fitness of the element
    |
 
-src\stk_search\Objective_function.py:35:9: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:35:9: D205 1 blank line required between summary line and description
    |
 34 |       def evaluate_element(self, element, multiFidelity=False):
 35 |           """Evaluates the fitness of the element
@@ -3586,7 +3586,7 @@ src\stk_search\Objective_function.py:35:9: D205 1 blank line required between su
    |
    = help: Insert single blank line
 
-src\stk_search\Objective_function.py:35:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:35:9: D400 First line should end with a period
    |
 34 |       def evaluate_element(self, element, multiFidelity=False):
 35 |           """Evaluates the fitness of the element
@@ -3614,7 +3614,7 @@ src\stk_search\Objective_function.py:35:9: D400 First line should end with a per
    |
    = help: Add period
 
-src\stk_search\Objective_function.py:35:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
+src\stk_search\ObjectiveFunction.py:35:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
    |
 34 |       def evaluate_element(self, element, multiFidelity=False):
 35 |           """Evaluates the fitness of the element
@@ -3641,7 +3641,7 @@ src\stk_search\Objective_function.py:35:9: D401 First line of docstring should b
 54 |               if type(x) == int or type(x) == np.float64:
    |
 
-src\stk_search\Objective_function.py:35:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:35:9: D415 First line should end with a period, question mark, or exclamation point
    |
 34 |       def evaluate_element(self, element, multiFidelity=False):
 35 |           """Evaluates the fitness of the element
@@ -3669,7 +3669,7 @@ src\stk_search\Objective_function.py:35:9: D415 First line should end with a per
    |
    = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:53:9: RET503 Missing explicit `return` at the end of function able to return non-`None` value
+src\stk_search\ObjectiveFunction.py:53:9: RET503 Missing explicit `return` at the end of function able to return non-`None` value
    |
 52 |           """
 53 |           for x in element:
@@ -3680,7 +3680,7 @@ src\stk_search\Objective_function.py:53:9: RET503 Missing explicit `return` at t
    |
    = help: Add explicit `return` statement
 
-src\stk_search\Objective_function.py:54:16: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
+src\stk_search\ObjectiveFunction.py:54:16: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
    |
 52 |         """
 53 |         for x in element:
@@ -3689,7 +3689,7 @@ src\stk_search\Objective_function.py:54:16: E721 Use `is` and `is not` for type 
 55 |                 return float(x), "test"
    |
 
-src\stk_search\Objective_function.py:54:34: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
+src\stk_search\ObjectiveFunction.py:54:34: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
    |
 52 |         """
 53 |         for x in element:
@@ -3698,17 +3698,17 @@ src\stk_search\Objective_function.py:54:34: E721 Use `is` and `is not` for type 
 55 |                 return float(x), "test"
    |
 
-src\stk_search\Objective_function.py:58:7: N801 Class name `Look_up_table` should use CapWords convention
+src\stk_search\ObjectiveFunction.py:58:7: N801 Class name `LookUpTable` should use CapWords convention
    |
-58 | class Look_up_table:
+58 | class LookUpTable:
    |       ^^^^^^^^^^^^^ N801
 59 |     """Class for look up table objective functions
 60 |     The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database
    |
 
-src\stk_search\Objective_function.py:59:5: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:59:5: D205 1 blank line required between summary line and description
    |
-58 |   class Look_up_table:
+58 |   class LookUpTable:
 59 |       """Class for look up table objective functions
    |  _____^
 60 | |     The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database
@@ -3720,9 +3720,9 @@ src\stk_search\Objective_function.py:59:5: D205 1 blank line required between su
    |
    = help: Insert single blank line
 
-src\stk_search\Objective_function.py:59:5: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:59:5: D400 First line should end with a period
    |
-58 |   class Look_up_table:
+58 |   class LookUpTable:
 59 |       """Class for look up table objective functions
    |  _____^
 60 | |     The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database
@@ -3734,9 +3734,9 @@ src\stk_search\Objective_function.py:59:5: D400 First line should end with a per
    |
    = help: Add period
 
-src\stk_search\Objective_function.py:59:5: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:59:5: D415 First line should end with a period, question mark, or exclamation point
    |
-58 |   class Look_up_table:
+58 |   class LookUpTable:
 59 |       """Class for look up table objective functions
    |  _____^
 60 | |     The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database
@@ -3748,7 +3748,7 @@ src\stk_search\Objective_function.py:59:5: D415 First line should end with a per
    |
    = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:64:9: ANN204 Missing return type annotation for special method `__init__`
+src\stk_search\ObjectiveFunction.py:64:9: ANN204 Missing return type annotation for special method `__init__`
    |
 62 |     """
 63 | 
@@ -3758,7 +3758,7 @@ src\stk_search\Objective_function.py:64:9: ANN204 Missing return type annotation
    |
    = help: Add return type annotation: `None`
 
-src\stk_search\Objective_function.py:64:9: D417 Missing argument descriptions in the docstring for `__init__`: `aim`, `df_look_up`, `fragment_size`, `target_name`
+src\stk_search\ObjectiveFunction.py:64:9: D417 Missing argument descriptions in the docstring for `__init__`: `aim`, `df_look_up`, `fragment_size`, `target_name`
    |
 62 |     """
 63 | 
@@ -3767,7 +3767,7 @@ src\stk_search\Objective_function.py:64:9: D417 Missing argument descriptions in
 65 |         """Initialises the look up table objective function
    |
 
-src\stk_search\Objective_function.py:65:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:65:9: D400 First line should end with a period
    |
 64 |       def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
 65 |           """Initialises the look up table objective function
@@ -3798,7 +3798,7 @@ src\stk_search\Objective_function.py:65:9: D400 First line should end with a per
    |
    = help: Add period
 
-src\stk_search\Objective_function.py:65:9: D401 First line of docstring should be in imperative mood: "Initialises the look up table objective function"
+src\stk_search\ObjectiveFunction.py:65:9: D401 First line of docstring should be in imperative mood: "Initialises the look up table objective function"
    |
 64 |       def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
 65 |           """Initialises the look up table objective function
@@ -3828,7 +3828,7 @@ src\stk_search\Objective_function.py:65:9: D401 First line of docstring should b
 87 |           self.fragment_size = fragment_size
    |
 
-src\stk_search\Objective_function.py:65:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:65:9: D415 First line should end with a period, question mark, or exclamation point
    |
 64 |       def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
 65 |           """Initialises the look up table objective function
@@ -3859,7 +3859,7 @@ src\stk_search\Objective_function.py:65:9: D415 First line should end with a per
    |
    = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:93:9: D200 One-line docstring should fit on one line
+src\stk_search\ObjectiveFunction.py:93:9: D200 One-line docstring should fit on one line
    |
 92 |       def check_database(self):
 93 |           """Checks the database
@@ -3871,7 +3871,7 @@ src\stk_search\Objective_function.py:93:9: D200 One-line docstring should fit on
    |
    = help: Reformat to one line
 
-src\stk_search\Objective_function.py:93:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:93:9: D400 First line should end with a period
    |
 92 |       def check_database(self):
 93 |           """Checks the database
@@ -3883,7 +3883,7 @@ src\stk_search\Objective_function.py:93:9: D400 First line should end with a per
    |
    = help: Add period
 
-src\stk_search\Objective_function.py:93:9: D401 First line of docstring should be in imperative mood: "Checks the database"
+src\stk_search\ObjectiveFunction.py:93:9: D401 First line of docstring should be in imperative mood: "Checks the database"
    |
 92 |       def check_database(self):
 93 |           """Checks the database
@@ -3894,7 +3894,7 @@ src\stk_search\Objective_function.py:93:9: D401 First line of docstring should b
 96 |               raise ValueError("No database found")
    |
 
-src\stk_search\Objective_function.py:93:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:93:9: D415 First line should end with a period, question mark, or exclamation point
    |
 92 |       def check_database(self):
 93 |           """Checks the database
@@ -3906,7 +3906,7 @@ src\stk_search\Objective_function.py:93:9: D415 First line should end with a per
    |
    = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:96:19: TRY003 Avoid specifying long messages outside the exception class
+src\stk_search\ObjectiveFunction.py:96:19: TRY003 Avoid specifying long messages outside the exception class
    |
 94 |         """
 95 |         if self.df_look_up is None:
@@ -3916,7 +3916,7 @@ src\stk_search\Objective_function.py:96:19: TRY003 Avoid specifying long message
 98 |             raise ValueError("No InChIKey column found")
    |
 
-src\stk_search\Objective_function.py:96:30: EM101 Exception must not use a string literal, assign to variable first
+src\stk_search\ObjectiveFunction.py:96:30: EM101 Exception must not use a string literal, assign to variable first
    |
 94 |         """
 95 |         if self.df_look_up is None:
@@ -3927,7 +3927,7 @@ src\stk_search\Objective_function.py:96:30: EM101 Exception must not use a strin
    |
    = help: Assign to variable; remove string literal
 
-src\stk_search\Objective_function.py:98:19: TRY003 Avoid specifying long messages outside the exception class
+src\stk_search\ObjectiveFunction.py:98:19: TRY003 Avoid specifying long messages outside the exception class
     |
  96 |             raise ValueError("No database found")
  97 |         if "InChIKey" not in self.df_look_up.columns:
@@ -3937,7 +3937,7 @@ src\stk_search\Objective_function.py:98:19: TRY003 Avoid specifying long message
 100 |             raise ValueError("No target column found")
     |
 
-src\stk_search\Objective_function.py:98:30: EM101 Exception must not use a string literal, assign to variable first
+src\stk_search\ObjectiveFunction.py:98:30: EM101 Exception must not use a string literal, assign to variable first
     |
  96 |             raise ValueError("No database found")
  97 |         if "InChIKey" not in self.df_look_up.columns:
@@ -3948,7 +3948,7 @@ src\stk_search\Objective_function.py:98:30: EM101 Exception must not use a strin
     |
     = help: Assign to variable; remove string literal
 
-src\stk_search\Objective_function.py:100:19: TRY003 Avoid specifying long messages outside the exception class
+src\stk_search\ObjectiveFunction.py:100:19: TRY003 Avoid specifying long messages outside the exception class
     |
  98 |             raise ValueError("No InChIKey column found")
  99 |         if self.target_name not in self.df_look_up.columns:
@@ -3958,7 +3958,7 @@ src\stk_search\Objective_function.py:100:19: TRY003 Avoid specifying long messag
 102 |             f"InChIKey_{i}" not in self.df_look_up.columns for i in range(self.fragment_size)
     |
 
-src\stk_search\Objective_function.py:100:30: EM101 Exception must not use a string literal, assign to variable first
+src\stk_search\ObjectiveFunction.py:100:30: EM101 Exception must not use a string literal, assign to variable first
     |
  98 |             raise ValueError("No InChIKey column found")
  99 |         if self.target_name not in self.df_look_up.columns:
@@ -3969,7 +3969,7 @@ src\stk_search\Objective_function.py:100:30: EM101 Exception must not use a stri
     |
     = help: Assign to variable; remove string literal
 
-src\stk_search\Objective_function.py:101:16: C419 Unnecessary list comprehension
+src\stk_search\ObjectiveFunction.py:101:16: C419 Unnecessary list comprehension
     |
  99 |           if self.target_name not in self.df_look_up.columns:
 100 |               raise ValueError("No target column found")
@@ -3983,7 +3983,7 @@ src\stk_search\Objective_function.py:101:16: C419 Unnecessary list comprehension
     |
     = help: Remove unnecessary list comprehension
 
-src\stk_search\Objective_function.py:104:19: TRY003 Avoid specifying long messages outside the exception class
+src\stk_search\ObjectiveFunction.py:104:19: TRY003 Avoid specifying long messages outside the exception class
     |
 102 |               f"InChIKey_{i}" not in self.df_look_up.columns for i in range(self.fragment_size)
 103 |           ]):
@@ -3996,7 +3996,7 @@ src\stk_search\Objective_function.py:104:19: TRY003 Avoid specifying long messag
 108 |       def evaluate_element(self, element, multiFidelity=False):
     |
 
-src\stk_search\Objective_function.py:105:17: EM101 Exception must not use a string literal, assign to variable first
+src\stk_search\ObjectiveFunction.py:105:17: EM101 Exception must not use a string literal, assign to variable first
     |
 103 |         ]):
 104 |             raise ValueError(
@@ -4006,7 +4006,7 @@ src\stk_search\Objective_function.py:105:17: EM101 Exception must not use a stri
     |
     = help: Assign to variable; remove string literal
 
-src\stk_search\Objective_function.py:108:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
+src\stk_search\ObjectiveFunction.py:108:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
     |
 106 |             )
 107 | 
@@ -4016,7 +4016,7 @@ src\stk_search\Objective_function.py:108:9: D417 Missing argument descriptions i
 110 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:108:41: FBT002 Boolean default positional argument in function definition
+src\stk_search\ObjectiveFunction.py:108:41: FBT002 Boolean default positional argument in function definition
     |
 106 |             )
 107 | 
@@ -4026,7 +4026,7 @@ src\stk_search\Objective_function.py:108:41: FBT002 Boolean default positional a
 110 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:108:41: N803 Argument name `multiFidelity` should be lowercase
+src\stk_search\ObjectiveFunction.py:108:41: N803 Argument name `multiFidelity` should be lowercase
     |
 106 |             )
 107 | 
@@ -4036,7 +4036,7 @@ src\stk_search\Objective_function.py:108:41: N803 Argument name `multiFidelity` 
 110 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:109:9: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:109:9: D205 1 blank line required between summary line and description
     |
 108 |       def evaluate_element(self, element, multiFidelity=False):
 109 |           """Evaluates the fitness of the element
@@ -4064,7 +4064,7 @@ src\stk_search\Objective_function.py:109:9: D205 1 blank line required between s
     |
     = help: Insert single blank line
 
-src\stk_search\Objective_function.py:109:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:109:9: D400 First line should end with a period
     |
 108 |       def evaluate_element(self, element, multiFidelity=False):
 109 |           """Evaluates the fitness of the element
@@ -4092,7 +4092,7 @@ src\stk_search\Objective_function.py:109:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:109:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
+src\stk_search\ObjectiveFunction.py:109:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
     |
 108 |       def evaluate_element(self, element, multiFidelity=False):
 109 |           """Evaluates the fitness of the element
@@ -4119,7 +4119,7 @@ src\stk_search\Objective_function.py:109:9: D401 First line of docstring should 
 128 |           if multiFidelity:
     |
 
-src\stk_search\Objective_function.py:109:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:109:9: D415 First line should end with a period, question mark, or exclamation point
     |
 108 |       def evaluate_element(self, element, multiFidelity=False):
 109 |           """Evaluates the fitness of the element
@@ -4147,7 +4147,7 @@ src\stk_search\Objective_function.py:109:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:138:13: PD002 `inplace=True` should be avoided; it has inconsistent behavior
+src\stk_search\ObjectiveFunction.py:138:13: PD002 `inplace=True` should be avoided; it has inconsistent behavior
     |
 136 |         results.drop_duplicates(
 137 |             subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
@@ -4158,7 +4158,7 @@ src\stk_search\Objective_function.py:138:13: PD002 `inplace=True` should be avoi
     |
     = help: Assign to variable; remove `inplace` arg
 
-src\stk_search\Objective_function.py:141:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:141:13: T201 `print` found
     |
 139 |         )
 140 |         if results[self.target_name].isna().any():
@@ -4169,7 +4169,7 @@ src\stk_search\Objective_function.py:141:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:142:19: TRY003 Avoid specifying long messages outside the exception class
+src\stk_search\ObjectiveFunction.py:142:19: TRY003 Avoid specifying long messages outside the exception class
     |
 140 |         if results[self.target_name].isna().any():
 141 |             print("missing data")
@@ -4179,7 +4179,7 @@ src\stk_search\Objective_function.py:142:19: TRY003 Avoid specifying long messag
 144 |             target = -np.abs(results[self.target_name][0] - self.aim)
     |
 
-src\stk_search\Objective_function.py:142:30: EM101 Exception must not use a string literal, assign to variable first
+src\stk_search\ObjectiveFunction.py:142:30: EM101 Exception must not use a string literal, assign to variable first
     |
 140 |         if results[self.target_name].isna().any():
 141 |             print("missing data")
@@ -4190,20 +4190,20 @@ src\stk_search\Objective_function.py:142:30: EM101 Exception must not use a stri
     |
     = help: Assign to variable; remove string literal
 
-src\stk_search\Objective_function.py:150:7: N801 Class name `IP_ES1_fosc` should use CapWords convention
+src\stk_search\ObjectiveFunction.py:150:7: N801 Class name `IpEs1Fosc` should use CapWords convention
     |
-150 | class IP_ES1_fosc(Objective_Function):
+150 | class IpEs1Fosc(ObjectiveFunction):
     |       ^^^^^^^^^^^ N801
-151 |     """Class for the IP_ES1_fosc objective function
-152 |     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+151 |     """Class for the IpEs1Fosc objective function
+152 |     The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
     |
 
-src\stk_search\Objective_function.py:151:5: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:151:5: D205 1 blank line required between summary line and description
     |
-150 |   class IP_ES1_fosc(Objective_Function):
-151 |       """Class for the IP_ES1_fosc objective function
+150 |   class IpEs1Fosc(ObjectiveFunction):
+151 |       """Class for the IpEs1Fosc objective function
     |  _____^
-152 | |     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+152 | |     The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
 153 | |     the first excited state energy and the first excited state oscillator strength.
 154 | |     The fitness function is defined as:
 155 | |     -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
@@ -4228,7 +4228,7 @@ src\stk_search\Objective_function.py:151:5: D205 1 blank line required between s
 174 | |         Runs the xtb calculation of the ionisation potential
 175 | |         takes as an input the polymer, the path to xtb, the output directory, the database and collection name, the target and the client
 176 | |         returns the ionisation potential
-177 | |     run_stda(polymer, STDA_bin_path, output_dir, property, state, database, collection, client)
+177 | |     run_stda(polymer, stda_bin_path, output_dir, property, state, database, collection, client)
 178 | |         Runs the stda calculation of the excited state energy and oscillator strength
 179 | |         takes as an input the polymer, the path to stda, the output directory, the property, the state, the database and collection name and the client
 180 | |         returns the excited state energy or oscillator strength
@@ -4242,12 +4242,12 @@ src\stk_search\Objective_function.py:151:5: D205 1 blank line required between s
     |
     = help: Insert single blank line
 
-src\stk_search\Objective_function.py:151:5: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:151:5: D400 First line should end with a period
     |
-150 |   class IP_ES1_fosc(Objective_Function):
-151 |       """Class for the IP_ES1_fosc objective function
+150 |   class IpEs1Fosc(ObjectiveFunction):
+151 |       """Class for the IpEs1Fosc objective function
     |  _____^
-152 | |     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+152 | |     The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
 153 | |     the first excited state energy and the first excited state oscillator strength.
 154 | |     The fitness function is defined as:
 155 | |     -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
@@ -4272,7 +4272,7 @@ src\stk_search\Objective_function.py:151:5: D400 First line should end with a pe
 174 | |         Runs the xtb calculation of the ionisation potential
 175 | |         takes as an input the polymer, the path to xtb, the output directory, the database and collection name, the target and the client
 176 | |         returns the ionisation potential
-177 | |     run_stda(polymer, STDA_bin_path, output_dir, property, state, database, collection, client)
+177 | |     run_stda(polymer, stda_bin_path, output_dir, property, state, database, collection, client)
 178 | |         Runs the stda calculation of the excited state energy and oscillator strength
 179 | |         takes as an input the polymer, the path to stda, the output directory, the property, the state, the database and collection name and the client
 180 | |         returns the excited state energy or oscillator strength
@@ -4286,12 +4286,12 @@ src\stk_search\Objective_function.py:151:5: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:151:5: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:151:5: D415 First line should end with a period, question mark, or exclamation point
     |
-150 |   class IP_ES1_fosc(Objective_Function):
-151 |       """Class for the IP_ES1_fosc objective function
+150 |   class IpEs1Fosc(ObjectiveFunction):
+151 |       """Class for the IpEs1Fosc objective function
     |  _____^
-152 | |     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+152 | |     The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
 153 | |     the first excited state energy and the first excited state oscillator strength.
 154 | |     The fitness function is defined as:
 155 | |     -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
@@ -4316,7 +4316,7 @@ src\stk_search\Objective_function.py:151:5: D415 First line should end with a pe
 174 | |         Runs the xtb calculation of the ionisation potential
 175 | |         takes as an input the polymer, the path to xtb, the output directory, the database and collection name, the target and the client
 176 | |         returns the ionisation potential
-177 | |     run_stda(polymer, STDA_bin_path, output_dir, property, state, database, collection, client)
+177 | |     run_stda(polymer, stda_bin_path, output_dir, property, state, database, collection, client)
 178 | |         Runs the stda calculation of the excited state energy and oscillator strength
 179 | |         takes as an input the polymer, the path to stda, the output directory, the property, the state, the database and collection name and the client
 180 | |         returns the excited state energy or oscillator strength
@@ -4330,7 +4330,7 @@ src\stk_search\Objective_function.py:151:5: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:186:9: PLR0913 Too many arguments in function definition (9 > 5)
+src\stk_search\ObjectiveFunction.py:186:9: PLR0913 Too many arguments in function definition (9 > 5)
     |
 184 |     """
 185 | 
@@ -4340,7 +4340,7 @@ src\stk_search\Objective_function.py:186:9: PLR0913 Too many arguments in functi
 188 |         oligomer_size,
     |
 
-src\stk_search\Objective_function.py:186:9: ANN204 Missing return type annotation for special method `__init__`
+src\stk_search\ObjectiveFunction.py:186:9: ANN204 Missing return type annotation for special method `__init__`
     |
 184 |     """
 185 | 
@@ -4351,7 +4351,7 @@ src\stk_search\Objective_function.py:186:9: ANN204 Missing return type annotatio
     |
     = help: Add return type annotation: `None`
 
-src\stk_search\Objective_function.py:186:9: D417 Missing argument descriptions in the docstring for `__init__`: `Db_folder`, `STDA_bin_path`, `client`, `collection_name`, `database_new_calc`, `db_mol`, `host_IP`, `oligomer_size`, `xtb_path`
+src\stk_search\ObjectiveFunction.py:186:9: D417 Missing argument descriptions in the docstring for `__init__`: `db_folder`, `stda_bin_path`, `client`, `collection_name`, `database_new_calc`, `db_mol`, `host_ip`, `oligomer_size`, `xtb_path`
     |
 184 |     """
 185 | 
@@ -4361,41 +4361,41 @@ src\stk_search\Objective_function.py:186:9: D417 Missing argument descriptions i
 188 |         oligomer_size,
     |
 
-src\stk_search\Objective_function.py:192:9: N803 Argument name `STDA_bin_path` should be lowercase
+src\stk_search\ObjectiveFunction.py:192:9: N803 Argument name `stda_bin_path` should be lowercase
     |
 190 |         db_mol="stk_mohammed",
 191 |         xtb_path="/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb",
-192 |         STDA_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
+192 |         stda_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
     |         ^^^^^^^^^^^^^ N803
-193 |         Db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
+193 |         db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
 194 |         database_new_calc="stk_mohammed_BO",
     |
 
-src\stk_search\Objective_function.py:193:9: N803 Argument name `Db_folder` should be lowercase
+src\stk_search\ObjectiveFunction.py:193:9: N803 Argument name `db_folder` should be lowercase
     |
 191 |         xtb_path="/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb",
-192 |         STDA_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
-193 |         Db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
+192 |         stda_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
+193 |         db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
     |         ^^^^^^^^^ N803
 194 |         database_new_calc="stk_mohammed_BO",
 195 |         collection_name=None,
     |
 
-src\stk_search\Objective_function.py:196:9: N803 Argument name `host_IP` should be lowercase
+src\stk_search\ObjectiveFunction.py:196:9: N803 Argument name `host_ip` should be lowercase
     |
 194 |         database_new_calc="stk_mohammed_BO",
 195 |         collection_name=None,
-196 |         host_IP="cx1",
+196 |         host_ip="cx1",
     |         ^^^^^^^ N803
 197 |     ):
-198 |         """Initialises the IP_ES1_fosc objective function
+198 |         """Initialises the IpEs1Fosc objective function
     |
 
-src\stk_search\Objective_function.py:198:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:198:9: D400 First line should end with a period
     |
-196 |           host_IP="cx1",
+196 |           host_ip="cx1",
 197 |       ):
-198 |           """Initialises the IP_ES1_fosc objective function
+198 |           """Initialises the IpEs1Fosc objective function
     |  _________^
 199 | | 
 200 | |         Parameters
@@ -4410,15 +4410,15 @@ src\stk_search\Objective_function.py:198:9: D400 First line should end with a pe
 209 | |             It is normally generated using stk and the stk.MoleculeMongoDb class
 210 | |             xtb_path: str
 211 | |             the path to the xtb executable
-212 | |             STDA_bin_path: str
+212 | |             stda_bin_path: str
 213 | |             the path to the stda executable
-214 | |             Db_folder: str
+214 | |             db_folder: str
 215 | |             the path to the output directory
 216 | |             database_new_calc: str
 217 | |             the name of the database containing the new calculations
 218 | |             collection_name: str
 219 | |             the name of the collection
-220 | |             host_IP: str
+220 | |             host_ip: str
 221 | |             the host IP
 222 | | 
 223 | |         """
@@ -4428,11 +4428,11 @@ src\stk_search\Objective_function.py:198:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:198:9: D401 First line of docstring should be in imperative mood: "Initialises the IP_ES1_fosc objective function"
+src\stk_search\ObjectiveFunction.py:198:9: D401 First line of docstring should be in imperative mood: "Initialises the IpEs1Fosc objective function"
     |
-196 |           host_IP="cx1",
+196 |           host_ip="cx1",
 197 |       ):
-198 |           """Initialises the IP_ES1_fosc objective function
+198 |           """Initialises the IpEs1Fosc objective function
     |  _________^
 199 | | 
 200 | |         Parameters
@@ -4447,15 +4447,15 @@ src\stk_search\Objective_function.py:198:9: D401 First line of docstring should 
 209 | |             It is normally generated using stk and the stk.MoleculeMongoDb class
 210 | |             xtb_path: str
 211 | |             the path to the xtb executable
-212 | |             STDA_bin_path: str
+212 | |             stda_bin_path: str
 213 | |             the path to the stda executable
-214 | |             Db_folder: str
+214 | |             db_folder: str
 215 | |             the path to the output directory
 216 | |             database_new_calc: str
 217 | |             the name of the database containing the new calculations
 218 | |             collection_name: str
 219 | |             the name of the collection
-220 | |             host_IP: str
+220 | |             host_ip: str
 221 | |             the host IP
 222 | | 
 223 | |         """
@@ -4464,11 +4464,11 @@ src\stk_search\Objective_function.py:198:9: D401 First line of docstring should 
 225 |           self.db_mol = db_mol
     |
 
-src\stk_search\Objective_function.py:198:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:198:9: D415 First line should end with a period, question mark, or exclamation point
     |
-196 |           host_IP="cx1",
+196 |           host_ip="cx1",
 197 |       ):
-198 |           """Initialises the IP_ES1_fosc objective function
+198 |           """Initialises the IpEs1Fosc objective function
     |  _________^
 199 | | 
 200 | |         Parameters
@@ -4483,15 +4483,15 @@ src\stk_search\Objective_function.py:198:9: D415 First line should end with a pe
 209 | |             It is normally generated using stk and the stk.MoleculeMongoDb class
 210 | |             xtb_path: str
 211 | |             the path to the xtb executable
-212 | |             STDA_bin_path: str
+212 | |             stda_bin_path: str
 213 | |             the path to the stda executable
-214 | |             Db_folder: str
+214 | |             db_folder: str
 215 | |             the path to the output directory
 216 | |             database_new_calc: str
 217 | |             the name of the database containing the new calculations
 218 | |             collection_name: str
 219 | |             the name of the collection
-220 | |             host_IP: str
+220 | |             host_ip: str
 221 | |             the host IP
 222 | | 
 223 | |         """
@@ -4501,17 +4501,17 @@ src\stk_search\Objective_function.py:198:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:229:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+src\stk_search\ObjectiveFunction.py:229:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
-227 |         self.STDA_bin_path = STDA_bin_path
-228 |         self.Db_folder = Db_folder
-229 |         os.makedirs(self.Db_folder, exist_ok=True)
+227 |         self.stda_bin_path = stda_bin_path
+228 |         self.db_folder = db_folder
+229 |         os.makedirs(self.db_folder, exist_ok=True)
     |         ^^^^^^^^^^^ PTH103
 230 |         self.database_new_calc = database_new_calc
 231 |         self.collection_name = collection_name
     |
 
-src\stk_search\Objective_function.py:240:9: D200 One-line docstring should fit on one line
+src\stk_search\ObjectiveFunction.py:240:9: D200 One-line docstring should fit on one line
     |
 239 |       def test_mongo_db_connection(self):
 240 |           """Tests the connection to the database
@@ -4523,7 +4523,7 @@ src\stk_search\Objective_function.py:240:9: D200 One-line docstring should fit o
     |
     = help: Reformat to one line
 
-src\stk_search\Objective_function.py:240:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:240:9: D400 First line should end with a period
     |
 239 |       def test_mongo_db_connection(self):
 240 |           """Tests the connection to the database
@@ -4535,7 +4535,7 @@ src\stk_search\Objective_function.py:240:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:240:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:240:9: D415 First line should end with a period, question mark, or exclamation point
     |
 239 |       def test_mongo_db_connection(self):
 240 |           """Tests the connection to the database
@@ -4547,7 +4547,7 @@ src\stk_search\Objective_function.py:240:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:244:13: F841 Local variable `db_mol` is assigned to but never used
+src\stk_search\ObjectiveFunction.py:244:13: F841 Local variable `db_mol` is assigned to but never used
     |
 242 |         try:
 243 |             client = pymongo.MongoClient(self.client)
@@ -4558,7 +4558,7 @@ src\stk_search\Objective_function.py:244:13: F841 Local variable `db_mol` is ass
     |
     = help: Remove assignment to unused variable `db_mol`
 
-src\stk_search\Objective_function.py:248:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:248:13: T201 `print` found
     |
 246 |                 database=self.db_mol,
 247 |             )
@@ -4569,7 +4569,7 @@ src\stk_search\Objective_function.py:248:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:249:16: BLE001 Do not catch blind exception: `Exception`
+src\stk_search\ObjectiveFunction.py:249:16: BLE001 Do not catch blind exception: `Exception`
     |
 247 |             )
 248 |             print("Connection to the database successful")
@@ -4579,7 +4579,7 @@ src\stk_search\Objective_function.py:249:16: BLE001 Do not catch blind exception
 251 |             print(e)
     |
 
-src\stk_search\Objective_function.py:250:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:250:13: T201 `print` found
     |
 248 |             print("Connection to the database successful")
 249 |         except Exception as e:
@@ -4589,7 +4589,7 @@ src\stk_search\Objective_function.py:250:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:251:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:251:13: T201 `print` found
     |
 249 |         except Exception as e:
 250 |             print("Connection to the database failed")
@@ -4600,7 +4600,7 @@ src\stk_search\Objective_function.py:251:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:254:9: D200 One-line docstring should fit on one line
+src\stk_search\ObjectiveFunction.py:254:9: D200 One-line docstring should fit on one line
     |
 253 |       def test_xtb_stda_connection(self):
 254 |           """Tests the connection to xtb and stda
@@ -4612,7 +4612,7 @@ src\stk_search\Objective_function.py:254:9: D200 One-line docstring should fit o
     |
     = help: Reformat to one line
 
-src\stk_search\Objective_function.py:254:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:254:9: D400 First line should end with a period
     |
 253 |       def test_xtb_stda_connection(self):
 254 |           """Tests the connection to xtb and stda
@@ -4624,7 +4624,7 @@ src\stk_search\Objective_function.py:254:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:254:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:254:9: D415 First line should end with a period, question mark, or exclamation point
     |
 253 |       def test_xtb_stda_connection(self):
 254 |           """Tests the connection to xtb and stda
@@ -4636,30 +4636,30 @@ src\stk_search\Objective_function.py:254:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:257:13: S605 Starting a process with a shell, possible injection detected
+src\stk_search\ObjectiveFunction.py:257:13: S605 Starting a process with a shell, possible injection detected
     |
 255 |         """
 256 |         try:
 257 |             os.system(self.xtb_path + " --version")
     |             ^^^^^^^^^ S605
-258 |             os.system(self.STDA_bin_path + " --version")
+258 |             os.system(self.stda_bin_path + " --version")
 259 |             print("Connection to xtb and stda successful")
     |
 
-src\stk_search\Objective_function.py:258:13: S605 Starting a process with a shell, possible injection detected
+src\stk_search\ObjectiveFunction.py:258:13: S605 Starting a process with a shell, possible injection detected
     |
 256 |         try:
 257 |             os.system(self.xtb_path + " --version")
-258 |             os.system(self.STDA_bin_path + " --version")
+258 |             os.system(self.stda_bin_path + " --version")
     |             ^^^^^^^^^ S605
 259 |             print("Connection to xtb and stda successful")
 260 |         except Exception as e:
     |
 
-src\stk_search\Objective_function.py:259:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:259:13: T201 `print` found
     |
 257 |             os.system(self.xtb_path + " --version")
-258 |             os.system(self.STDA_bin_path + " --version")
+258 |             os.system(self.stda_bin_path + " --version")
 259 |             print("Connection to xtb and stda successful")
     |             ^^^^^ T201
 260 |         except Exception as e:
@@ -4667,9 +4667,9 @@ src\stk_search\Objective_function.py:259:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:260:16: BLE001 Do not catch blind exception: `Exception`
+src\stk_search\ObjectiveFunction.py:260:16: BLE001 Do not catch blind exception: `Exception`
     |
-258 |             os.system(self.STDA_bin_path + " --version")
+258 |             os.system(self.stda_bin_path + " --version")
 259 |             print("Connection to xtb and stda successful")
 260 |         except Exception as e:
     |                ^^^^^^^^^ BLE001
@@ -4677,7 +4677,7 @@ src\stk_search\Objective_function.py:260:16: BLE001 Do not catch blind exception
 262 |             print(e)
     |
 
-src\stk_search\Objective_function.py:261:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:261:13: T201 `print` found
     |
 259 |             print("Connection to xtb and stda successful")
 260 |         except Exception as e:
@@ -4687,7 +4687,7 @@ src\stk_search\Objective_function.py:261:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:262:13: T201 `print` found
+src\stk_search\ObjectiveFunction.py:262:13: T201 `print` found
     |
 260 |         except Exception as e:
 261 |             print("Connection to xtb and stda failed")
@@ -4698,7 +4698,7 @@ src\stk_search\Objective_function.py:262:13: T201 `print` found
     |
     = help: Remove `print`
 
-src\stk_search\Objective_function.py:264:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
+src\stk_search\ObjectiveFunction.py:264:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
     |
 262 |             print(e)
 263 | 
@@ -4708,7 +4708,7 @@ src\stk_search\Objective_function.py:264:9: D417 Missing argument descriptions i
 266 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:264:41: FBT002 Boolean default positional argument in function definition
+src\stk_search\ObjectiveFunction.py:264:41: FBT002 Boolean default positional argument in function definition
     |
 262 |             print(e)
 263 | 
@@ -4718,7 +4718,7 @@ src\stk_search\Objective_function.py:264:41: FBT002 Boolean default positional a
 266 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:264:41: N803 Argument name `multiFidelity` should be lowercase
+src\stk_search\ObjectiveFunction.py:264:41: N803 Argument name `multiFidelity` should be lowercase
     |
 262 |             print(e)
 263 | 
@@ -4728,7 +4728,7 @@ src\stk_search\Objective_function.py:264:41: N803 Argument name `multiFidelity` 
 266 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:264:41: ARG002 Unused method argument: `multiFidelity`
+src\stk_search\ObjectiveFunction.py:264:41: ARG002 Unused method argument: `multiFidelity`
     |
 262 |             print(e)
 263 | 
@@ -4738,7 +4738,7 @@ src\stk_search\Objective_function.py:264:41: ARG002 Unused method argument: `mul
 266 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-src\stk_search\Objective_function.py:265:9: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:265:9: D205 1 blank line required between summary line and description
     |
 264 |       def evaluate_element(self, element, multiFidelity=False):
 265 |           """Evaluates the fitness of the element
@@ -4771,7 +4771,7 @@ src\stk_search\Objective_function.py:265:9: D205 1 blank line required between s
     |
     = help: Insert single blank line
 
-src\stk_search\Objective_function.py:265:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:265:9: D400 First line should end with a period
     |
 264 |       def evaluate_element(self, element, multiFidelity=False):
 265 |           """Evaluates the fitness of the element
@@ -4804,7 +4804,7 @@ src\stk_search\Objective_function.py:265:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:265:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
+src\stk_search\ObjectiveFunction.py:265:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
     |
 264 |       def evaluate_element(self, element, multiFidelity=False):
 265 |           """Evaluates the fitness of the element
@@ -4836,7 +4836,7 @@ src\stk_search\Objective_function.py:265:9: D401 First line of docstring should 
 289 |           client = pymongo.MongoClient(self.client)
     |
 
-src\stk_search\Objective_function.py:265:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:265:9: D415 First line should end with a period, question mark, or exclamation point
     |
 264 |       def evaluate_element(self, element, multiFidelity=False):
 265 |           """Evaluates the fitness of the element
@@ -4869,59 +4869,59 @@ src\stk_search\Objective_function.py:265:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:296:9: N806 Variable `STDA_bin_path` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:296:9: N806 Variable `stda_bin_path` in function should be lowercase
     |
 294 |         # define the path to xtb and stda
 295 |         xtb_path = self.xtb_path
-296 |         STDA_bin_path = self.STDA_bin_path
+296 |         stda_bin_path = self.stda_bin_path
     |         ^^^^^^^^^^^^^ N806
 297 |         # define the output directories
-298 |         Db_folder = self.Db_folder
+298 |         db_folder = self.db_folder
     |
 
-src\stk_search\Objective_function.py:298:9: N806 Variable `Db_folder` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:298:9: N806 Variable `db_folder` in function should be lowercase
     |
-296 |         STDA_bin_path = self.STDA_bin_path
+296 |         stda_bin_path = self.stda_bin_path
 297 |         # define the output directories
-298 |         Db_folder = self.Db_folder
+298 |         db_folder = self.db_folder
     |         ^^^^^^^^^ N806
 299 |         output_dir_ipea = os.path.join(
-300 |             Db_folder, "Database", "xtb_calculations"
+300 |             db_folder, "Database", "xtb_calculations"
     |
 
-src\stk_search\Objective_function.py:299:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:299:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 297 |         # define the output directories
-298 |         Db_folder = self.Db_folder
+298 |         db_folder = self.db_folder
 299 |         output_dir_ipea = os.path.join(
     |                           ^^^^^^^^^^^^ PTH118
-300 |             Db_folder, "Database", "xtb_calculations"
+300 |             db_folder, "Database", "xtb_calculations"
 301 |         )
     |
 
-src\stk_search\Objective_function.py:302:30: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:302:30: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-300 |             Db_folder, "Database", "xtb_calculations"
+300 |             db_folder, "Database", "xtb_calculations"
 301 |         )
 302 |         xtb_opt_output_dir = os.path.join(
     |                              ^^^^^^^^^^^^ PTH118
-303 |             Db_folder, "Database", "xtb_opt_output_dir"
+303 |             db_folder, "Database", "xtb_opt_output_dir"
 304 |         )
     |
 
-src\stk_search\Objective_function.py:305:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:305:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-303 |             Db_folder, "Database", "xtb_opt_output_dir"
+303 |             db_folder, "Database", "xtb_opt_output_dir"
 304 |         )
 305 |         output_dir_stda = os.path.join(
     |                           ^^^^^^^^^^^^ PTH118
-306 |             Db_folder, "Database", "stda_output_dir"
+306 |             db_folder, "Database", "stda_output_dir"
 307 |         )
     |
 
-src\stk_search\Objective_function.py:308:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+src\stk_search\ObjectiveFunction.py:308:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
-306 |             Db_folder, "Database", "stda_output_dir"
+306 |             db_folder, "Database", "stda_output_dir"
 307 |         )
 308 |         os.makedirs(output_dir_ipea, exist_ok=True)
     |         ^^^^^^^^^^^ PTH103
@@ -4929,7 +4929,7 @@ src\stk_search\Objective_function.py:308:9: PTH103 `os.makedirs()` should be rep
 310 |         os.makedirs(output_dir_stda, exist_ok=True)
     |
 
-src\stk_search\Objective_function.py:309:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+src\stk_search\ObjectiveFunction.py:309:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
 307 |         )
 308 |         os.makedirs(output_dir_ipea, exist_ok=True)
@@ -4939,7 +4939,7 @@ src\stk_search\Objective_function.py:309:9: PTH103 `os.makedirs()` should be rep
 311 |         # define the database and collection name
     |
 
-src\stk_search\Objective_function.py:310:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+src\stk_search\ObjectiveFunction.py:310:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
 308 |         os.makedirs(output_dir_ipea, exist_ok=True)
 309 |         os.makedirs(xtb_opt_output_dir, exist_ok=True)
@@ -4949,7 +4949,7 @@ src\stk_search\Objective_function.py:310:9: PTH103 `os.makedirs()` should be rep
 312 |         database_new_calc = self.database_new_calc
     |
 
-src\stk_search\Objective_function.py:314:9: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:314:9: ERA001 Found commented-out code
     |
 312 |         database_new_calc = self.database_new_calc
 313 |         collection_name = self.collection_name
@@ -4960,7 +4960,7 @@ src\stk_search\Objective_function.py:314:9: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:325:9: N806 Variable `Inchikey` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:325:9: N806 Variable `Inchikey` in function should be lowercase
     |
 323 |             client=client,
 324 |         )
@@ -4970,7 +4970,7 @@ src\stk_search\Objective_function.py:325:9: N806 Variable `Inchikey` in function
 327 |         IP = self.run_xtb_ipea(
     |
 
-src\stk_search\Objective_function.py:327:9: N806 Variable `IP` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:327:9: N806 Variable `IP` in function should be lowercase
     |
 325 |         Inchikey = stk.InchiKey().get_key(polymer)
 326 | 
@@ -4980,17 +4980,17 @@ src\stk_search\Objective_function.py:327:9: N806 Variable `IP` in function shoul
 329 |             xtb_path,
     |
 
-src\stk_search\Objective_function.py:336:9: N806 Variable `Es1` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:336:9: N806 Variable `Es1` in function should be lowercase
     |
 334 |             client=client,
 335 |         )
 336 |         Es1 = self.run_stda(
     |         ^^^ N806
 337 |             polymer,
-338 |             STDA_bin_path,
+338 |             stda_bin_path,
     |
 
-src\stk_search\Objective_function.py:363:9: N802 Function name `Build_polymer` should be lowercase
+src\stk_search\ObjectiveFunction.py:363:9: N802 Function name `Build_polymer` should be lowercase
     |
 361 |         return fitness_function, Inchikey
 362 | 
@@ -5000,7 +5000,7 @@ src\stk_search\Objective_function.py:363:9: N802 Function name `Build_polymer` s
 365 |     ):
     |
 
-src\stk_search\Objective_function.py:363:9: D417 Missing argument descriptions in the docstring for `Build_polymer`: `db`, `element`
+src\stk_search\ObjectiveFunction.py:363:9: D417 Missing argument descriptions in the docstring for `Build_polymer`: `db`, `element`
     |
 361 |         return fitness_function, Inchikey
 362 | 
@@ -5010,7 +5010,7 @@ src\stk_search\Objective_function.py:363:9: D417 Missing argument descriptions i
 365 |     ):
     |
 
-src\stk_search\Objective_function.py:366:9: D205 1 blank line required between summary line and description
+src\stk_search\ObjectiveFunction.py:366:9: D205 1 blank line required between summary line and description
     |
 364 |           self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
 365 |       ):
@@ -5038,7 +5038,7 @@ src\stk_search\Objective_function.py:366:9: D205 1 blank line required between s
     |
     = help: Insert single blank line
 
-src\stk_search\Objective_function.py:366:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:366:9: D400 First line should end with a period
     |
 364 |           self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
 365 |       ):
@@ -5066,7 +5066,7 @@ src\stk_search\Objective_function.py:366:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:366:9: D401 First line of docstring should be in imperative mood: "Builds the polymer from the building blocks"
+src\stk_search\ObjectiveFunction.py:366:9: D401 First line of docstring should be in imperative mood: "Builds the polymer from the building blocks"
     |
 364 |           self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
 365 |       ):
@@ -5093,7 +5093,7 @@ src\stk_search\Objective_function.py:366:9: D401 First line of docstring should 
 384 |           genes = "ABCDEFGH"
     |
 
-src\stk_search\Objective_function.py:366:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:366:9: D415 First line should end with a period, question mark, or exclamation point
     |
 364 |           self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
 365 |       ):
@@ -5121,7 +5121,7 @@ src\stk_search\Objective_function.py:366:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:386:9: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:386:9: ERA001 Found commented-out code
     |
 384 |         genes = "ABCDEFGH"
 385 |         genes = genes[: self.oligomer_size]
@@ -5132,7 +5132,7 @@ src\stk_search\Objective_function.py:386:9: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:390:9: N806 Variable `InchiKey_cols` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:390:9: N806 Variable `InchiKey_cols` in function should be lowercase
     |
 388 |         # joins the Genes to make a repeating unit string
 389 |         repeating_unit = repeating_unit.join(genes)
@@ -5142,7 +5142,7 @@ src\stk_search\Objective_function.py:390:9: N806 Variable `InchiKey_cols` in fun
 392 |         for fragment in element[InchiKey_cols].values.flatten():
     |
 
-src\stk_search\Objective_function.py:391:9: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:391:9: ERA001 Found commented-out code
     |
 389 |         repeating_unit = repeating_unit.join(genes)
 390 |         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
@@ -5153,7 +5153,7 @@ src\stk_search\Objective_function.py:391:9: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:392:25: PD011 Use `.to_numpy()` instead of `.values`
+src\stk_search\ObjectiveFunction.py:392:25: PD011 Use `.to_numpy()` instead of `.values`
     |
 390 |         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
 391 |         # print(element[InchiKey_cols].values.flatten())
@@ -5163,7 +5163,7 @@ src\stk_search\Objective_function.py:392:25: PD011 Use `.to_numpy()` instead of 
 394 |             bb = stk.BuildingBlock.init_from_molecule(
     |
 
-src\stk_search\Objective_function.py:403:17: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:403:17: ERA001 Found commented-out code
     |
 401 |                 repeating_unit=repeating_unit,
 402 |                 num_repeating_units=1,
@@ -5174,7 +5174,7 @@ src\stk_search\Objective_function.py:403:17: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:406:16: RET504 Unnecessary assignment to `polymer` before `return` statement
+src\stk_search\ObjectiveFunction.py:406:16: RET504 Unnecessary assignment to `polymer` before `return` statement
     |
 404 |             )
 405 |         )
@@ -5185,7 +5185,7 @@ src\stk_search\Objective_function.py:406:16: RET504 Unnecessary assignment to `p
     |
     = help: Remove unnecessary assignment
 
-src\stk_search\Objective_function.py:408:9: PLR0913 Too many arguments in function definition (6 > 5)
+src\stk_search\ObjectiveFunction.py:408:9: PLR0913 Too many arguments in function definition (6 > 5)
     |
 406 |         return polymer
 407 | 
@@ -5195,7 +5195,7 @@ src\stk_search\Objective_function.py:408:9: PLR0913 Too many arguments in functi
 410 |         polymer,
     |
 
-src\stk_search\Objective_function.py:408:9: D417 Missing argument descriptions in the docstring for `run_xtb_opt`: `client`, `collection`, `database`, `polymer`, `xtb_opt_output_dir`, `xtb_path`
+src\stk_search\ObjectiveFunction.py:408:9: D417 Missing argument descriptions in the docstring for `run_xtb_opt`: `client`, `collection`, `database`, `polymer`, `xtb_opt_output_dir`, `xtb_path`
     |
 406 |         return polymer
 407 | 
@@ -5205,7 +5205,7 @@ src\stk_search\Objective_function.py:408:9: D417 Missing argument descriptions i
 410 |         polymer,
     |
 
-src\stk_search\Objective_function.py:417:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:417:9: D400 First line should end with a period
     |
 415 |           client=None,
 416 |       ):
@@ -5239,7 +5239,7 @@ src\stk_search\Objective_function.py:417:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:417:9: D401 First line of docstring should be in imperative mood: "Runs the xtb optimisation of the polymer"
+src\stk_search\ObjectiveFunction.py:417:9: D401 First line of docstring should be in imperative mood: "Runs the xtb optimisation of the polymer"
     |
 415 |           client=None,
 416 |       ):
@@ -5272,7 +5272,7 @@ src\stk_search\Objective_function.py:417:9: D401 First line of docstring should 
 441 |           def save_xtb_opt_calculation(
     |
 
-src\stk_search\Objective_function.py:417:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:417:9: D415 First line should end with a period, question mark, or exclamation point
     |
 415 |           client=None,
 416 |       ):
@@ -5306,7 +5306,7 @@ src\stk_search\Objective_function.py:417:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:441:13: ANN202 Missing return type annotation for private function `save_xtb_opt_calculation`
+src\stk_search\ObjectiveFunction.py:441:13: ANN202 Missing return type annotation for private function `save_xtb_opt_calculation`
     |
 439 |         """
 440 | 
@@ -5317,7 +5317,7 @@ src\stk_search\Objective_function.py:441:13: ANN202 Missing return type annotati
     |
     = help: Add return type annotation: `None`
 
-src\stk_search\Objective_function.py:441:13: D417 Missing argument descriptions in the docstring for `save_xtb_opt_calculation`: `InchiKey_initial`, `collection`, `polymer`, `xtb_opt_output_dir`
+src\stk_search\ObjectiveFunction.py:441:13: D417 Missing argument descriptions in the docstring for `save_xtb_opt_calculation`: `InchiKey_initial`, `collection`, `polymer`, `xtb_opt_output_dir`
     |
 439 |         """
 440 | 
@@ -5327,7 +5327,7 @@ src\stk_search\Objective_function.py:441:13: D417 Missing argument descriptions 
 443 |         ):
     |
 
-src\stk_search\Objective_function.py:442:59: N803 Argument name `InchiKey_initial` should be lowercase
+src\stk_search\ObjectiveFunction.py:442:59: N803 Argument name `InchiKey_initial` should be lowercase
     |
 441 |         def save_xtb_opt_calculation(
 442 |             polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
@@ -5336,7 +5336,7 @@ src\stk_search\Objective_function.py:442:59: N803 Argument name `InchiKey_initia
 444 |             """Saves the xtb optimisation calculation
     |
 
-src\stk_search\Objective_function.py:444:13: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:444:13: D400 First line should end with a period
     |
 442 |               polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
 443 |           ):
@@ -5366,7 +5366,7 @@ src\stk_search\Objective_function.py:444:13: D400 First line should end with a p
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:444:13: D401 First line of docstring should be in imperative mood: "Saves the xtb optimisation calculation"
+src\stk_search\ObjectiveFunction.py:444:13: D401 First line of docstring should be in imperative mood: "Saves the xtb optimisation calculation"
     |
 442 |               polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
 443 |           ):
@@ -5395,7 +5395,7 @@ src\stk_search\Objective_function.py:444:13: D401 First line of docstring should
 464 |                   for line in data:
     |
 
-src\stk_search\Objective_function.py:444:13: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:444:13: D415 First line should end with a period, question mark, or exclamation point
     |
 442 |               polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
 443 |           ):
@@ -5425,7 +5425,7 @@ src\stk_search\Objective_function.py:444:13: D415 First line should end with a p
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:445:1: W293 Blank line contains whitespace
+src\stk_search\ObjectiveFunction.py:445:1: W293 Blank line contains whitespace
     |
 443 |         ):
 444 |             """Saves the xtb optimisation calculation
@@ -5436,7 +5436,7 @@ src\stk_search\Objective_function.py:445:1: W293 Blank line contains whitespace
     |
     = help: Remove whitespace from blank line
 
-src\stk_search\Objective_function.py:456:1: W293 Blank line contains whitespace
+src\stk_search\ObjectiveFunction.py:456:1: W293 Blank line contains whitespace
     |
 454 |                 InchiKey_initial: str
 455 |                 the initial InChIKey
@@ -5447,7 +5447,7 @@ src\stk_search\Objective_function.py:456:1: W293 Blank line contains whitespace
     |
     = help: Remove whitespace from blank line
 
-src\stk_search\Objective_function.py:457:1: W293 Blank line contains whitespace
+src\stk_search\ObjectiveFunction.py:457:1: W293 Blank line contains whitespace
     |
 455 |                 the initial InChIKey
 456 |                 
@@ -5458,7 +5458,7 @@ src\stk_search\Objective_function.py:457:1: W293 Blank line contains whitespace
     |
     = help: Remove whitespace from blank line
 
-src\stk_search\Objective_function.py:463:17: ANN202 Missing return type annotation for private function `get_property_value`
+src\stk_search\ObjectiveFunction.py:463:17: ANN202 Missing return type annotation for private function `get_property_value`
     |
 462 |             """
 463 |             def get_property_value(data, property_name):
@@ -5468,7 +5468,7 @@ src\stk_search\Objective_function.py:463:17: ANN202 Missing return type annotati
     |
     = help: Add return type annotation
 
-src\stk_search\Objective_function.py:464:17: RET503 Missing explicit `return` at the end of function able to return non-`None` value
+src\stk_search\ObjectiveFunction.py:464:17: RET503 Missing explicit `return` at the end of function able to return non-`None` value
     |
 462 |               """
 463 |               def get_property_value(data, property_name):
@@ -5495,7 +5495,7 @@ src\stk_search\Objective_function.py:464:17: RET503 Missing explicit `return` at
     |
     = help: Add explicit `return` statement
 
-src\stk_search\Objective_function.py:475:36: RET504 Unnecessary assignment to `property_value` before `return` statement
+src\stk_search\ObjectiveFunction.py:475:36: RET504 Unnecessary assignment to `property_value` before `return` statement
     |
 473 |                                 + " s "
 474 |                             )
@@ -5506,7 +5506,7 @@ src\stk_search\Objective_function.py:475:36: RET504 Unnecessary assignment to `p
     |
     = help: Remove unnecessary assignment
 
-src\stk_search\Objective_function.py:479:32: RET504 Unnecessary assignment to `property_value` before `return` statement
+src\stk_search\ObjectiveFunction.py:479:32: RET504 Unnecessary assignment to `property_value` before `return` statement
     |
 477 |                             re.findall(r"[-+]?(?:\d*\.*\d+)", line)[-1]
 478 |                         )  # float(words[3]) #
@@ -5517,7 +5517,7 @@ src\stk_search\Objective_function.py:479:32: RET504 Unnecessary assignment to `p
     |
     = help: Remove unnecessary assignment
 
-src\stk_search\Objective_function.py:483:31: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:483:31: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 481 |             polymer_xtb_opt_calc = {
 482 |                 "InChIKey": stk.InchiKey().get_key(polymer),
@@ -5527,7 +5527,7 @@ src\stk_search\Objective_function.py:483:31: PTH118 `os.path.join()` should be r
 485 |                 ),
     |
 
-src\stk_search\Objective_function.py:489:23: SIM115 Use context handler for opening files
+src\stk_search\ObjectiveFunction.py:489:23: SIM115 Use context handler for opening files
     |
 487 |                 "InChIKey_initial": InchiKey_initial,
 488 |             }
@@ -5537,7 +5537,7 @@ src\stk_search\Objective_function.py:489:23: SIM115 Use context handler for open
 491 |                     polymer_xtb_opt_calc["cal_folder"], "optimization_1.output"
     |
 
-src\stk_search\Objective_function.py:489:23: PTH123 `open()` should be replaced by `Path.open()`
+src\stk_search\ObjectiveFunction.py:489:23: PTH123 `open()` should be replaced by `Path.open()`
     |
 487 |                 "InChIKey_initial": InchiKey_initial,
 488 |             }
@@ -5547,7 +5547,7 @@ src\stk_search\Objective_function.py:489:23: PTH123 `open()` should be replaced 
 491 |                     polymer_xtb_opt_calc["cal_folder"], "optimization_1.output"
     |
 
-src\stk_search\Objective_function.py:490:17: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:490:17: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 488 |             }
 489 |             outfile = open(
@@ -5557,7 +5557,7 @@ src\stk_search\Objective_function.py:490:17: PTH118 `os.path.join()` should be r
 492 |                 ),
     |
 
-src\stk_search\Objective_function.py:517:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:517:13: ERA001 Found commented-out code
     |
 515 |             is not None
 516 |         ):
@@ -5568,7 +5568,7 @@ src\stk_search\Objective_function.py:517:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:524:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:524:13: ERA001 Found commented-out code
     |
 522 |             )
 523 |             polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
@@ -5579,7 +5579,7 @@ src\stk_search\Objective_function.py:524:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:525:20: RET504 Unnecessary assignment to `polymer` before `return` statement
+src\stk_search\ObjectiveFunction.py:525:20: RET504 Unnecessary assignment to `polymer` before `return` statement
     |
 523 |             polymer = db_polymer.get({"InChIKey": get_inchi_key(polymer)})
 524 |             # print(get_inchi_key(polymer), ' opt geom already calculated')
@@ -5590,7 +5590,7 @@ src\stk_search\Objective_function.py:525:20: RET504 Unnecessary assignment to `p
     |
     = help: Remove unnecessary assignment
 
-src\stk_search\Objective_function.py:530:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:530:13: ERA001 Found commented-out code
     |
 528 |             is not None
 529 |         ):
@@ -5601,7 +5601,7 @@ src\stk_search\Objective_function.py:530:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:538:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:538:13: ERA001 Found commented-out code
     |
 536 |                 {"InChIKey_initial": get_inchi_key(polymer)}
 537 |             )
@@ -5612,7 +5612,7 @@ src\stk_search\Objective_function.py:538:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:541:20: RET504 Unnecessary assignment to `polymer` before `return` statement
+src\stk_search\ObjectiveFunction.py:541:20: RET504 Unnecessary assignment to `polymer` before `return` statement
     |
 540 |             polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
 541 |             return polymer
@@ -5622,7 +5622,7 @@ src\stk_search\Objective_function.py:541:20: RET504 Unnecessary assignment to `p
     |
     = help: Remove unnecessary assignment
 
-src\stk_search\Objective_function.py:542:22: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:542:22: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 540 |             polymer = db_polymer.get({"InChIKey": data["InChIKey"]})
 541 |             return polymer
@@ -5632,7 +5632,7 @@ src\stk_search\Objective_function.py:542:22: PTH118 `os.path.join()` should be r
 544 |         xtb = stko.OptimizerSequence(
     |
 
-src\stk_search\Objective_function.py:543:9: N806 Variable `InchiKey_initial` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:543:9: N806 Variable `InchiKey_initial` in function should be lowercase
     |
 541 |             return polymer
 542 |         output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
@@ -5642,7 +5642,7 @@ src\stk_search\Objective_function.py:543:9: N806 Variable `InchiKey_initial` in 
 545 |             stko.ETKDG(),
     |
 
-src\stk_search\Objective_function.py:554:26: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:554:26: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 552 |         )
 553 |         polymer = xtb.optimize(polymer)
@@ -5652,7 +5652,7 @@ src\stk_search\Objective_function.py:554:26: PTH118 `os.path.join()` should be r
 556 |         )
     |
 
-src\stk_search\Objective_function.py:557:9: PTH104 `os.rename()` should be replaced by `Path.rename()`
+src\stk_search\ObjectiveFunction.py:557:9: PTH104 `os.rename()` should be replaced by `Path.rename()`
     |
 555 |             xtb_opt_output_dir, get_inchi_key(polymer)
 556 |         )
@@ -5662,7 +5662,7 @@ src\stk_search\Objective_function.py:557:9: PTH104 `os.rename()` should be repla
 559 |             polymer,
     |
 
-src\stk_search\Objective_function.py:571:9: PLR0913 Too many arguments in function definition (7 > 5)
+src\stk_search\ObjectiveFunction.py:571:9: PLR0913 Too many arguments in function definition (7 > 5)
     |
 569 |         return polymer
 570 | 
@@ -5672,7 +5672,7 @@ src\stk_search\Objective_function.py:571:9: PLR0913 Too many arguments in functi
 573 |         polymer,
     |
 
-src\stk_search\Objective_function.py:571:9: D417 Missing argument descriptions in the docstring for `run_xtb_ipea`: `client`, `collection`, `database`, `polymer`, `target`, `xtb_opt_output_dir`, `xtb_path`
+src\stk_search\ObjectiveFunction.py:571:9: D417 Missing argument descriptions in the docstring for `run_xtb_ipea`: `client`, `collection`, `database`, `polymer`, `target`, `xtb_opt_output_dir`, `xtb_path`
     |
 569 |         return polymer
 570 | 
@@ -5682,7 +5682,7 @@ src\stk_search\Objective_function.py:571:9: D417 Missing argument descriptions i
 573 |         polymer,
     |
 
-src\stk_search\Objective_function.py:581:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:581:9: D400 First line should end with a period
     |
 579 |           client=None,
 580 |       ):
@@ -5718,7 +5718,7 @@ src\stk_search\Objective_function.py:581:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:581:9: D401 First line of docstring should be in imperative mood: "Runs the xtb calculation of the ionisation potential"
+src\stk_search\ObjectiveFunction.py:581:9: D401 First line of docstring should be in imperative mood: "Runs the xtb calculation of the ionisation potential"
     |
 579 |           client=None,
 580 |       ):
@@ -5753,7 +5753,7 @@ src\stk_search\Objective_function.py:581:9: D401 First line of docstring should 
 607 |           XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
     |
 
-src\stk_search\Objective_function.py:581:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:581:9: D415 First line should end with a period, question mark, or exclamation point
     |
 579 |           client=None,
 580 |       ):
@@ -5789,7 +5789,7 @@ src\stk_search\Objective_function.py:581:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:607:9: N806 Variable `XTB_results` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:607:9: N806 Variable `XTB_results` in function should be lowercase
     |
 605 |         """
 606 |         collection = client[database][collection]
@@ -5799,7 +5799,7 @@ src\stk_search\Objective_function.py:607:9: N806 Variable `XTB_results` in funct
 609 |             # print("already calculated", end="\r")
     |
 
-src\stk_search\Objective_function.py:609:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:609:13: ERA001 Found commented-out code
     |
 607 |         XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
 608 |         if XTB_results is not None:
@@ -5810,7 +5810,7 @@ src\stk_search\Objective_function.py:609:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:610:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:610:13: ERA001 Found commented-out code
     |
 608 |         if XTB_results is not None:
 609 |             # print("already calculated", end="\r")
@@ -5821,7 +5821,7 @@ src\stk_search\Objective_function.py:610:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:614:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:614:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 612 |         xtb = XTBEnergy2(
 613 |             xtb_path=xtb_path,
@@ -5831,7 +5831,7 @@ src\stk_search\Objective_function.py:614:24: PTH118 `os.path.join()` should be r
 616 |             ),
     |
 
-src\stk_search\Objective_function.py:622:9: N806 Variable `XTB_results` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:622:9: N806 Variable `XTB_results` in function should be lowercase
     |
 620 |         )
 621 |         xtb_results = xtb.get_results(polymer)
@@ -5841,7 +5841,7 @@ src\stk_search\Objective_function.py:622:9: N806 Variable `XTB_results` in funct
 624 |             "homo lumo_gap (eV)": xtb_results.get_homo_lumo_gap()[0],
     |
 
-src\stk_search\Objective_function.py:630:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:630:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 628 |             ],
 629 |             "InChIKey": get_inchi_key(polymer),
@@ -5851,7 +5851,7 @@ src\stk_search\Objective_function.py:630:27: PTH118 `os.path.join()` should be r
 632 |             ),
     |
 
-src\stk_search\Objective_function.py:642:9: PLR0913 Too many arguments in function definition (8 > 5)
+src\stk_search\ObjectiveFunction.py:642:9: PLR0913 Too many arguments in function definition (8 > 5)
     |
 640 |         return XTB_results[target]
 641 | 
@@ -5861,7 +5861,7 @@ src\stk_search\Objective_function.py:642:9: PLR0913 Too many arguments in functi
 644 |         polymer,
     |
 
-src\stk_search\Objective_function.py:642:9: D417 Missing argument descriptions in the docstring for `run_stda`: `STDA_bin_path`, `client`, `collection`, `database`, `output_dir`, `polymer`, `property`, `state`
+src\stk_search\ObjectiveFunction.py:642:9: D417 Missing argument descriptions in the docstring for `run_stda`: `stda_bin_path`, `client`, `collection`, `database`, `output_dir`, `polymer`, `property`, `state`
     |
 640 |         return XTB_results[target]
 641 | 
@@ -5871,19 +5871,19 @@ src\stk_search\Objective_function.py:642:9: D417 Missing argument descriptions i
 644 |         polymer,
     |
 
-src\stk_search\Objective_function.py:645:9: N803 Argument name `STDA_bin_path` should be lowercase
+src\stk_search\ObjectiveFunction.py:645:9: N803 Argument name `stda_bin_path` should be lowercase
     |
 643 |         self,
 644 |         polymer,
-645 |         STDA_bin_path,
+645 |         stda_bin_path,
     |         ^^^^^^^^^^^^^ N803
 646 |         output_dir,
 647 |         property="Excited state energy (eV)",
     |
 
-src\stk_search\Objective_function.py:647:9: A002 Argument `property` is shadowing a Python builtin
+src\stk_search\ObjectiveFunction.py:647:9: A002 Argument `property` is shadowing a Python builtin
     |
-645 |         STDA_bin_path,
+645 |         stda_bin_path,
 646 |         output_dir,
 647 |         property="Excited state energy (eV)",
     |         ^^^^^^^^ A002
@@ -5891,7 +5891,7 @@ src\stk_search\Objective_function.py:647:9: A002 Argument `property` is shadowin
 649 |         database="stk_mohammed",
     |
 
-src\stk_search\Objective_function.py:653:9: D400 First line should end with a period
+src\stk_search\ObjectiveFunction.py:653:9: D400 First line should end with a period
     |
 651 |           client=None,
 652 |       ):
@@ -5902,7 +5902,7 @@ src\stk_search\Objective_function.py:653:9: D400 First line should end with a pe
 656 | |         ----------
 657 | |             polymer: stk.ConstructedMolecule
 658 | |             the polymer
-659 | |             STDA_bin_path: str
+659 | |             stda_bin_path: str
 660 | |             the path to the STDA xtb executable
 661 | |             output_dir: str
 662 | |             the output directory
@@ -5931,7 +5931,7 @@ src\stk_search\Objective_function.py:653:9: D400 First line should end with a pe
     |
     = help: Add period
 
-src\stk_search\Objective_function.py:653:9: D415 First line should end with a period, question mark, or exclamation point
+src\stk_search\ObjectiveFunction.py:653:9: D415 First line should end with a period, question mark, or exclamation point
     |
 651 |           client=None,
 652 |       ):
@@ -5942,7 +5942,7 @@ src\stk_search\Objective_function.py:653:9: D415 First line should end with a pe
 656 | |         ----------
 657 | |             polymer: stk.ConstructedMolecule
 658 | |             the polymer
-659 | |             STDA_bin_path: str
+659 | |             stda_bin_path: str
 660 | |             the path to the STDA xtb executable
 661 | |             output_dir: str
 662 | |             the output directory
@@ -5971,7 +5971,7 @@ src\stk_search\Objective_function.py:653:9: D415 First line should end with a pe
     |
     = help: Add closing punctuation
 
-src\stk_search\Objective_function.py:663:26: W291 Trailing whitespace
+src\stk_search\ObjectiveFunction.py:663:26: W291 Trailing whitespace
     |
 661 |             output_dir: str
 662 |             the output directory
@@ -5982,7 +5982,7 @@ src\stk_search\Objective_function.py:663:26: W291 Trailing whitespace
     |
     = help: Remove trailing whitespace
 
-src\stk_search\Objective_function.py:664:35: W291 Trailing whitespace
+src\stk_search\ObjectiveFunction.py:664:35: W291 Trailing whitespace
     |
 662 |             the output directory
 663 |             Properte: str   
@@ -5993,7 +5993,7 @@ src\stk_search\Objective_function.py:664:35: W291 Trailing whitespace
     |
     = help: Remove trailing whitespace
 
-src\stk_search\Objective_function.py:683:9: N806 Variable `STDA_results` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:683:9: N806 Variable `STDA_results` in function should be lowercase
     |
 681 |         """
 682 |         collection = client[database][collection]
@@ -6003,7 +6003,7 @@ src\stk_search\Objective_function.py:683:9: N806 Variable `STDA_results` in func
 685 |         )
     |
 
-src\stk_search\Objective_function.py:687:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:687:13: ERA001 Found commented-out code
     |
 685 |         )
 686 |         if STDA_results is not None:
@@ -6014,7 +6014,7 @@ src\stk_search\Objective_function.py:687:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:688:13: ERA001 Found commented-out code
+src\stk_search\ObjectiveFunction.py:688:13: ERA001 Found commented-out code
     |
 686 |         if STDA_results is not None:
 687 |             # print(get_inchi_key(polymer), ' stda geom already calculated')
@@ -6025,9 +6025,9 @@ src\stk_search\Objective_function.py:688:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-src\stk_search\Objective_function.py:693:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:693:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-691 |             STDA_bin_path=STDA_bin_path,
+691 |             stda_bin_path=stda_bin_path,
 692 |             Num_threads=25,
 693 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
     |                        ^^^^^^^^^^^^ PTH118
@@ -6035,7 +6035,7 @@ src\stk_search\Objective_function.py:693:24: PTH118 `os.path.join()` should be r
 695 |         Excited_state_energy, Excited_state_osc = stda.get_results(polymer)
     |
 
-src\stk_search\Objective_function.py:695:9: N806 Variable `Excited_state_energy` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:695:9: N806 Variable `Excited_state_energy` in function should be lowercase
     |
 693 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
 694 |         )
@@ -6045,7 +6045,7 @@ src\stk_search\Objective_function.py:695:9: N806 Variable `Excited_state_energy`
 697 |             "Excited state energy (eV)": Excited_state_energy,
     |
 
-src\stk_search\Objective_function.py:695:31: N806 Variable `Excited_state_osc` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:695:31: N806 Variable `Excited_state_osc` in function should be lowercase
     |
 693 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
 694 |         )
@@ -6055,7 +6055,7 @@ src\stk_search\Objective_function.py:695:31: N806 Variable `Excited_state_osc` i
 697 |             "Excited state energy (eV)": Excited_state_energy,
     |
 
-src\stk_search\Objective_function.py:696:9: N806 Variable `STDA_results` in function should be lowercase
+src\stk_search\ObjectiveFunction.py:696:9: N806 Variable `STDA_results` in function should be lowercase
     |
 694 |         )
 695 |         Excited_state_energy, Excited_state_osc = stda.get_results(polymer)
@@ -6065,13 +6065,13 @@ src\stk_search\Objective_function.py:696:9: N806 Variable `STDA_results` in func
 698 |             "Excited state oscillator strength": Excited_state_osc,
     |
 
-src\stk_search\Objective_function.py:700:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+src\stk_search\ObjectiveFunction.py:700:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 698 |             "Excited state oscillator strength": Excited_state_osc,
 699 |             "InChIKey": get_inchi_key(polymer),
 700 |             "cal_folder": os.path.join(output_dir, get_inchi_key(polymer)),
     |                           ^^^^^^^^^^^^ PTH118
-701 |             "Host IP": self.host_IP,
+701 |             "Host IP": self.host_ip,
 702 |         }
     |
 
@@ -7031,7 +7031,7 @@ src\stk_search\SearchExp.py:7:1: ERA001 Found commented-out code
 6 | 
 7 | # from Scripts.Search_algorithm import Search_Algorithm
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
-8 | from stk_search.Objective_function import Objective_Function
+8 | from stk_search.ObjectiveFunction import ObjectiveFunction
 9 | from stk_search.SearchSpace import SearchSpace
   |
   = help: Remove commented-out code
@@ -7048,7 +7048,7 @@ src\stk_search\SearchExp.py:13:5: D400 First line should end with a period
 18 | |         The search space to be used in the search experiment
 19 | |     search_algorithm : Search_Algorithm
 20 | |         The search algorithm to be used in the search experiment
-21 | |     objective_function : Objective_Function
+21 | |     ObjectiveFunction : ObjectiveFunction
 22 | |         The objective function to be used in the search experiment
 23 | |     number_of_iterations : int
 24 | |         The number of iterations to run the search experiment
@@ -7063,9 +7063,9 @@ src\stk_search\SearchExp.py:13:5: D400 First line should end with a period
 33 | |     search_algorithm : Search_Algorithm
 34 | |         The search algorithm to be used in the search experiment.
 35 | |         this is defined as a class of stk_search.Search_algorithm.Search_Algorithm
-36 | |     objective_function : Objective_Function 
+36 | |     ObjectiveFunction : ObjectiveFunction 
 37 | |         The objective function to be used in the search experiment
-38 | |         this is defined as a class of stk_search.Objective_function.Objective_Function
+38 | |         this is defined as a class of stk_search.ObjectiveFunction.ObjectiveFunction
 39 | |     number_of_iterations : int
 40 | |         The number of iterations to run the search experiment
 41 | |     output_folder : str
@@ -7141,7 +7141,7 @@ src\stk_search\SearchExp.py:13:5: D415 First line should end with a period, ques
 18 | |         The search space to be used in the search experiment
 19 | |     search_algorithm : Search_Algorithm
 20 | |         The search algorithm to be used in the search experiment
-21 | |     objective_function : Objective_Function
+21 | |     ObjectiveFunction : ObjectiveFunction
 22 | |         The objective function to be used in the search experiment
 23 | |     number_of_iterations : int
 24 | |         The number of iterations to run the search experiment
@@ -7156,9 +7156,9 @@ src\stk_search\SearchExp.py:13:5: D415 First line should end with a period, ques
 33 | |     search_algorithm : Search_Algorithm
 34 | |         The search algorithm to be used in the search experiment.
 35 | |         this is defined as a class of stk_search.Search_algorithm.Search_Algorithm
-36 | |     objective_function : Objective_Function 
+36 | |     ObjectiveFunction : ObjectiveFunction 
 37 | |         The objective function to be used in the search experiment
-38 | |         this is defined as a class of stk_search.Objective_function.Objective_Function
+38 | |         this is defined as a class of stk_search.ObjectiveFunction.ObjectiveFunction
 39 | |     number_of_iterations : int
 40 | |         The number of iterations to run the search experiment
 41 | |     output_folder : str
@@ -7226,10 +7226,10 @@ src\stk_search\SearchExp.py:36:44: W291 Trailing whitespace
    |
 34 |         The search algorithm to be used in the search experiment.
 35 |         this is defined as a class of stk_search.Search_algorithm.Search_Algorithm
-36 |     objective_function : Objective_Function 
+36 |     ObjectiveFunction : ObjectiveFunction 
    |                                            ^ W291
 37 |         The objective function to be used in the search experiment
-38 |         this is defined as a class of stk_search.Objective_function.Objective_Function
+38 |         this is defined as a class of stk_search.ObjectiveFunction.ObjectiveFunction
    |
    = help: Remove trailing whitespace
 
@@ -7267,7 +7267,7 @@ src\stk_search\SearchExp.py:97:9: D107 Missing docstring in `__init__`
 
 src\stk_search\SearchExp.py:103:9: FBT002 Boolean default positional argument in function definition
     |
-101 |         objective_function,
+101 |         ObjectiveFunction,
 102 |         number_of_iterations,
 103 |         verbose=False,
     |         ^^^^^^^ FBT002
@@ -7466,7 +7466,7 @@ src\stk_search\SearchExp.py:190:13: ERA001 Found commented-out code
 
 src\stk_search\SearchExp.py:195:13: ERA001 Found commented-out code
     |
-193 |                 objective_function=self.objective_function,
+193 |                 ObjectiveFunction=self.ObjectiveFunction,
 194 |             )
 195 |             # self.fitness_acquired.append(Eval)
     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
@@ -7577,7 +7577,7 @@ src\stk_search\SearchExp.py:219:13: N806 Variable `Eval` in function should be l
     |
 217 |         # evaluate the element
 218 |         try:
-219 |             Eval, InchiKey = objective_function.evaluate_element(
+219 |             Eval, InchiKey = ObjectiveFunction.evaluate_element(
     |             ^^^^ N806
 220 |                 element=element,
 221 |                 multiFidelity=self.search_algorithm.multiFidelity,
@@ -7587,7 +7587,7 @@ src\stk_search\SearchExp.py:219:19: N806 Variable `InchiKey` in function should 
     |
 217 |         # evaluate the element
 218 |         try:
-219 |             Eval, InchiKey = objective_function.evaluate_element(
+219 |             Eval, InchiKey = ObjectiveFunction.evaluate_element(
     |                   ^^^^^^^^ N806
 220 |                 element=element,
 221 |                 multiFidelity=self.search_algorithm.multiFidelity,
@@ -73382,11 +73382,11 @@ src\stk_search\utils\Precursor_calculation.py:11:5: D103 Missing docstring in pu
 12 |     return stk.InchiKey().get_key(molecule)
    |
 
-src\stk_search\utils\Precursor_calculation.py:14:7: N801 Class name `Calculate_Precursor` should use CapWords convention
+src\stk_search\utils\Precursor_calculation.py:14:7: N801 Class name `CalculatePrecursor` should use CapWords convention
    |
 12 |     return stk.InchiKey().get_key(molecule)
 13 | 
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
    |       ^^^^^^^^^^^^^^^^^^^ N801
 15 |     def __init__(self):
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -73396,7 +73396,7 @@ src\stk_search\utils\Precursor_calculation.py:14:7: D101 Missing docstring in pu
    |
 12 |     return stk.InchiKey().get_key(molecule)
 13 | 
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
    |       ^^^^^^^^^^^^^^^^^^^ D101
 15 |     def __init__(self):
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -73404,7 +73404,7 @@ src\stk_search\utils\Precursor_calculation.py:14:7: D101 Missing docstring in pu
 
 src\stk_search\utils\Precursor_calculation.py:15:9: ANN204 Missing return type annotation for special method `__init__`
    |
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
 15 |     def __init__(self):
    |         ^^^^^^^^ ANN204
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -73414,7 +73414,7 @@ src\stk_search\utils\Precursor_calculation.py:15:9: ANN204 Missing return type a
 
 src\stk_search\utils\Precursor_calculation.py:15:9: D107 Missing docstring in `__init__`
    |
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
 15 |     def __init__(self):
    |         ^^^^^^^^ D107
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -73423,21 +73423,21 @@ src\stk_search\utils\Precursor_calculation.py:15:9: D107 Missing docstring in `_
 
 src\stk_search\utils\Precursor_calculation.py:22:13: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
    |
-20 |         self.Db_folder = None
-21 |         if self.Db_folder is not None:
-22 |             os.makedirs(self.Db_folder, exist_ok=True)
+20 |         self.db_folder = None
+21 |         if self.db_folder is not None:
+22 |             os.makedirs(self.db_folder, exist_ok=True)
    |             ^^^^^^^^^^^ PTH103
 23 |         # print(self.collection_name)
-24 |         self.host_IP = "cx1"
+24 |         self.host_ip = "cx1"
    |
 
 src\stk_search\utils\Precursor_calculation.py:23:9: ERA001 Found commented-out code
    |
-21 |         if self.Db_folder is not None:
-22 |             os.makedirs(self.Db_folder, exist_ok=True)
+21 |         if self.db_folder is not None:
+22 |             os.makedirs(self.db_folder, exist_ok=True)
 23 |         # print(self.collection_name)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
-24 |         self.host_IP = "cx1"
+24 |         self.host_ip = "cx1"
 25 |         self.collection_name = "Precursors"
    |
    = help: Remove commented-out code
@@ -73548,48 +73548,48 @@ src\stk_search\utils\Precursor_calculation.py:42:9: F841 Local variable `db_mol`
    |
    = help: Remove assignment to unused variable `db_mol`
 
-src\stk_search\utils\Precursor_calculation.py:50:9: N806 Variable `Db_folder` in function should be lowercase
+src\stk_search\utils\Precursor_calculation.py:50:9: N806 Variable `db_folder` in function should be lowercase
    |
 49 |         # define the output directories
-50 |         Db_folder = self.Db_folder
+50 |         db_folder = self.db_folder
    |         ^^^^^^^^^ N806
 51 |         output_dir_ipea = os.path.join(
-52 |             Db_folder, "Database", "xtb_calculations"
+52 |             db_folder, "Database", "xtb_calculations"
    |
 
 src\stk_search\utils\Precursor_calculation.py:51:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
    |
 49 |         # define the output directories
-50 |         Db_folder = self.Db_folder
+50 |         db_folder = self.db_folder
 51 |         output_dir_ipea = os.path.join(
    |                           ^^^^^^^^^^^^ PTH118
-52 |             Db_folder, "Database", "xtb_calculations"
+52 |             db_folder, "Database", "xtb_calculations"
 53 |         )
    |
 
 src\stk_search\utils\Precursor_calculation.py:54:30: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
    |
-52 |             Db_folder, "Database", "xtb_calculations"
+52 |             db_folder, "Database", "xtb_calculations"
 53 |         )
 54 |         xtb_opt_output_dir = os.path.join(
    |                              ^^^^^^^^^^^^ PTH118
-55 |             Db_folder, "Database", "xtb_opt_output_dir"
+55 |             db_folder, "Database", "xtb_opt_output_dir"
 56 |         )
    |
 
 src\stk_search\utils\Precursor_calculation.py:57:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
    |
-55 |             Db_folder, "Database", "xtb_opt_output_dir"
+55 |             db_folder, "Database", "xtb_opt_output_dir"
 56 |         )
 57 |         output_dir_stda = os.path.join(
    |                           ^^^^^^^^^^^^ PTH118
-58 |             Db_folder, "Database", "stda_output_dir"
+58 |             db_folder, "Database", "stda_output_dir"
 59 |         )
    |
 
 src\stk_search\utils\Precursor_calculation.py:60:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
    |
-58 |             Db_folder, "Database", "stda_output_dir"
+58 |             db_folder, "Database", "stda_output_dir"
 59 |         )
 60 |         os.makedirs(output_dir_ipea, exist_ok=True)
    |         ^^^^^^^^^^^ PTH103
@@ -73648,11 +73648,11 @@ src\stk_search\utils\Precursor_calculation.py:78:13: N806 Variable `IP` in funct
 80 |                 xtb_path,
    |
 
-src\stk_search\utils\Precursor_calculation.py:88:17: N806 Variable `STDA_bin_path` in function should be lowercase
+src\stk_search\utils\Precursor_calculation.py:88:17: N806 Variable `stda_bin_path` in function should be lowercase
    |
 86 |             )
-87 |             if self.STDA_bin_path is not None:
-88 |                 STDA_bin_path = self.STDA_bin_path
+87 |             if self.stda_bin_path is not None:
+88 |                 stda_bin_path = self.stda_bin_path
    |                 ^^^^^^^^^^^^^ N806
 89 |                 Es1 = self.run_stda(
 90 |                     precursor,
@@ -73660,12 +73660,12 @@ src\stk_search\utils\Precursor_calculation.py:88:17: N806 Variable `STDA_bin_pat
 
 src\stk_search\utils\Precursor_calculation.py:89:17: N806 Variable `Es1` in function should be lowercase
    |
-87 |             if self.STDA_bin_path is not None:
-88 |                 STDA_bin_path = self.STDA_bin_path
+87 |             if self.stda_bin_path is not None:
+88 |                 stda_bin_path = self.stda_bin_path
 89 |                 Es1 = self.run_stda(
    |                 ^^^ N806
 90 |                     precursor,
-91 |                     STDA_bin_path,
+91 |                     stda_bin_path,
    |
 
 src\stk_search\utils\Precursor_calculation.py:101:9: RET505 Unnecessary `else` after `return` statement
@@ -74114,11 +74114,11 @@ src\stk_search\utils\Precursor_calculation.py:299:9: D102 Missing docstring in p
 301 |         polymer,
     |
 
-src\stk_search\utils\Precursor_calculation.py:302:9: N803 Argument name `STDA_bin_path` should be lowercase
+src\stk_search\utils\Precursor_calculation.py:302:9: N803 Argument name `stda_bin_path` should be lowercase
     |
 300 |         self,
 301 |         polymer,
-302 |         STDA_bin_path,
+302 |         stda_bin_path,
     |         ^^^^^^^^^^^^^ N803
 303 |         output_dir,
 304 |         property="Excited state energy (eV)",
@@ -74126,7 +74126,7 @@ src\stk_search\utils\Precursor_calculation.py:302:9: N803 Argument name `STDA_bi
 
 src\stk_search\utils\Precursor_calculation.py:304:9: A002 Argument `property` is shadowing a Python builtin
     |
-302 |         STDA_bin_path,
+302 |         stda_bin_path,
 303 |         output_dir,
 304 |         property="Excited state energy (eV)",
     |         ^^^^^^^^ A002
@@ -74168,7 +74168,7 @@ src\stk_search\utils\Precursor_calculation.py:316:13: ERA001 Found commented-out
 
 src\stk_search\utils\Precursor_calculation.py:321:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-319 |             STDA_bin_path=STDA_bin_path,
+319 |             stda_bin_path=stda_bin_path,
 320 |             Num_threads=25,
 321 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
     |                        ^^^^^^^^^^^^ PTH118
@@ -74212,7 +74212,7 @@ src\stk_search\utils\Precursor_calculation.py:328:27: PTH118 `os.path.join()` sh
 327 |             "InChIKey": get_inchi_key(polymer),
 328 |             "cal_folder": os.path.join(output_dir, get_inchi_key(polymer)),
     |                           ^^^^^^^^^^^^ PTH118
-329 |             "Host IP": self.host_IP,
+329 |             "Host IP": self.host_ip,
 330 |         }
     |
 
@@ -80590,8 +80590,8 @@ src\stk_search\utils\update_datasets.py:267:9: T201 `print` found
     |
     = help: Remove `print`
 
-tests\test_objective_functions.py:1:1: INP001 File `tests\test_objective_functions.py` is part of an implicit namespace package. Add an `__init__.py`.
-tests\test_objective_functions.py:24:5: SyntaxError: Expected an indented block after function definition
+tests\test_ObjectiveFunctions.py:1:1: INP001 File `tests\test_ObjectiveFunctions.py` is part of an implicit namespace package. Add an `__init__.py`.
+tests\test_ObjectiveFunctions.py:24:5: SyntaxError: Expected an indented block after function definition
    |
 24 |     def test_get_property_value_total_energy(self):
    |     ^
@@ -80599,7 +80599,7 @@ tests\test_objective_functions.py:24:5: SyntaxError: Expected an indented block 
 26 |         self.assertEqual(property_value, -123.456)
    |
 
-tests\test_objective_functions.py:46:20: W292 No newline at end of file
+tests\test_ObjectiveFunctions.py:46:20: W292 No newline at end of file
    |
 45 | if __name__ == '__main__':
 46 |     unittest.main()

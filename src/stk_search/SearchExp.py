@@ -13,7 +13,7 @@ import pickle
 import uuid
 from datetime import datetime, timezone
 
-from stk_search.Objective_function import Objective_Function
+from stk_search.ObjectiveFunction import ObjectiveFunction
 from stk_search.SearchSpace import SearchSpace
 
 
@@ -26,7 +26,7 @@ class SearchExp:
         The search space to be used in the search experiment
     search_algorithm : Search_Algorithm
         The search algorithm to be used in the search experiment
-    objective_function : Objective_Function
+    ObjectiveFunction : ObjectiveFunction
         The objective function to be used in the search experiment
     number_of_iterations : int
         The number of iterations to run the search experiment
@@ -41,9 +41,9 @@ class SearchExp:
     search_algorithm : Search_Algorithm
         The search algorithm to be used in the search experiment.
         this is defined as a class of stk_search.Search_algorithm.Search_Algorithm
-    objective_function : Objective_Function 
+    ObjectiveFunction : ObjectiveFunction 
         The objective function to be used in the search experiment
-        this is defined as a class of stk_search.Objective_function.Objective_Function
+        this is defined as a class of stk_search.ObjectiveFunction.ObjectiveFunction
     number_of_iterations : int
         The number of iterations to run the search experiment
     output_folder : str
@@ -106,7 +106,7 @@ class SearchExp:
         self,
         searchspace: SearchSpace,
         search_algorithm,
-        objective_function,
+        ObjectiveFunction,
         number_of_iterations,
         verbose=False,
     ):
@@ -118,7 +118,7 @@ class SearchExp:
             The search space to be used in the search experiment
         search_algorithm : Search_Algorithm
             The search algorithm to be used in the search experiment
-        objective_function : Objective_Function
+        ObjectiveFunction : ObjectiveFunction
             The objective function to be used in the search experiment
         number_of_iterations : int
             The number of iterations to run the search experiment
@@ -130,7 +130,7 @@ class SearchExp:
         self.search_algorithm = (
             search_algorithm  # add a name to the search algorithm
         )
-        self.objective_function = objective_function
+        self.ObjectiveFunction = ObjectiveFunction
         self.number_of_iterations = number_of_iterations
         self.output_folder = "Data/search_experiment"
         self.search_space_folder = "Data/search_experiment/search_space"
@@ -183,7 +183,7 @@ class SearchExp:
             for id_acquired in range(len(ids_acquired)):
                 self.evaluate_element(
                     element_id=ids_acquired[id_acquired],
-                    objective_function=self.objective_function,
+                    ObjectiveFunction=self.ObjectiveFunction,
                 )
             if self.verbose:
                 pass
@@ -211,7 +211,7 @@ class SearchExp:
             # evaluate the element
             self.evaluate_element(
                 element_id=ids_acquired,
-                objective_function=self.objective_function,
+                ObjectiveFunction=self.ObjectiveFunction,
             )
             # save the results
             self.save_results()
@@ -223,14 +223,14 @@ class SearchExp:
     def evaluate_element(
         self,
         element_id: int,
-        objective_function: Objective_Function = None,
+        ObjectiveFunction: ObjectiveFunction = None,
     ):
         # get the element
         element = self.df_search_space.loc[[element_id], :]
         time_calc = datetime.now()
         # evaluate the element
         try:
-            Eval, InchiKey = objective_function.evaluate_element(
+            Eval, InchiKey = ObjectiveFunction.evaluate_element(
                 element=element,
                 multiFidelity=self.search_algorithm.multiFidelity,
             )

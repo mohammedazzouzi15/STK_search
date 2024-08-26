@@ -229,26 +229,26 @@ Calculators\XTBcalculator.py:115:20: PTH118 `os.path.join()` should be replaced 
     |
 
 Calculators\__init__.py:1:1: D104 Missing docstring in public package
-Objective_function.py:1:1: N999 Invalid module name: 'Objective_function'
-Objective_function.py:1:1: D100 Missing docstring in public module
-Objective_function.py:14:5: D103 Missing docstring in public function
+ObjectiveFunction.py:1:1: N999 Invalid module name: 'ObjectiveFunction'
+ObjectiveFunction.py:1:1: D100 Missing docstring in public module
+ObjectiveFunction.py:14:5: D103 Missing docstring in public function
    |
 14 | def get_inchi_key(molecule):
    |     ^^^^^^^^^^^^^ D103
 15 |     return stk.InchiKey().get_key(molecule)
    |
 
-Objective_function.py:18:7: N801 Class name `Objective_Function` should use CapWords convention
+ObjectiveFunction.py:18:7: N801 Class name `ObjectiveFunction` should use CapWords convention
    |
-18 | class Objective_Function:
+18 | class ObjectiveFunction:
    |       ^^^^^^^^^^^^^^^^^^ N801
 19 |     """Base class for objective functions
 20 |     The objective function is the function that will be used to evaluate the fitness of the molecules in the search.
    |
 
-Objective_function.py:19:5: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:19:5: D205 1 blank line required between summary line and description
    |
-18 |   class Objective_Function:
+18 |   class ObjectiveFunction:
 19 |       """Base class for objective functions
    |  _____^
 20 | |     The objective function is the function that will be used to evaluate the fitness of the molecules in the search.
@@ -266,7 +266,7 @@ Objective_function.py:19:5: D205 1 blank line required between summary line and 
    |
    = help: Insert single blank line
 
-Objective_function.py:31:9: D401 First line of docstring should be in imperative mood: "Initialises the objective function."
+ObjectiveFunction.py:31:9: D401 First line of docstring should be in imperative mood: "Initialises the objective function."
    |
 30 |     def __init__(self):
 31 |         """Initialises the objective function."""
@@ -275,7 +275,7 @@ Objective_function.py:31:9: D401 First line of docstring should be in imperative
 33 |     def evaluate_element(self, element, multiFidelity=False):
    |
 
-Objective_function.py:33:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
+ObjectiveFunction.py:33:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
    |
 31 |         """Initialises the objective function."""
 32 | 
@@ -285,7 +285,7 @@ Objective_function.py:33:9: D417 Missing argument descriptions in the docstring 
 35 |         takes as an input a list of building blocks and returns the fitness of the element.
    |
 
-Objective_function.py:33:41: FBT002 Boolean default positional argument in function definition
+ObjectiveFunction.py:33:41: FBT002 Boolean default positional argument in function definition
    |
 31 |         """Initialises the objective function."""
 32 | 
@@ -295,7 +295,7 @@ Objective_function.py:33:41: FBT002 Boolean default positional argument in funct
 35 |         takes as an input a list of building blocks and returns the fitness of the element.
    |
 
-Objective_function.py:33:41: N803 Argument name `multiFidelity` should be lowercase
+ObjectiveFunction.py:33:41: N803 Argument name `multiFidelity` should be lowercase
    |
 31 |         """Initialises the objective function."""
 32 | 
@@ -305,7 +305,7 @@ Objective_function.py:33:41: N803 Argument name `multiFidelity` should be lowerc
 35 |         takes as an input a list of building blocks and returns the fitness of the element.
    |
 
-Objective_function.py:33:41: ARG002 Unused method argument: `multiFidelity`
+ObjectiveFunction.py:33:41: ARG002 Unused method argument: `multiFidelity`
    |
 31 |         """Initialises the objective function."""
 32 | 
@@ -315,7 +315,7 @@ Objective_function.py:33:41: ARG002 Unused method argument: `multiFidelity`
 35 |         takes as an input a list of building blocks and returns the fitness of the element.
    |
 
-Objective_function.py:34:9: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:34:9: D205 1 blank line required between summary line and description
    |
 33 |       def evaluate_element(self, element, multiFidelity=False):
 34 |           """Evaluates the fitness of the element
@@ -343,7 +343,7 @@ Objective_function.py:34:9: D205 1 blank line required between summary line and 
    |
    = help: Insert single blank line
 
-Objective_function.py:34:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
+ObjectiveFunction.py:34:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
    |
 33 |       def evaluate_element(self, element, multiFidelity=False):
 34 |           """Evaluates the fitness of the element
@@ -370,7 +370,7 @@ Objective_function.py:34:9: D401 First line of docstring should be in imperative
 53 |               if type(x) == int or type(x) == np.float64:
    |
 
-Objective_function.py:53:16: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
+ObjectiveFunction.py:53:16: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
    |
 51 |         """
 52 |         for x in element:
@@ -380,7 +380,7 @@ Objective_function.py:53:16: E721 Use `is` and `is not` for type comparisons, or
 55 |         return None
    |
 
-Objective_function.py:53:34: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
+ObjectiveFunction.py:53:34: E721 Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
    |
 51 |         """
 52 |         for x in element:
@@ -390,17 +390,17 @@ Objective_function.py:53:34: E721 Use `is` and `is not` for type comparisons, or
 55 |         return None
    |
 
-Objective_function.py:58:7: N801 Class name `Look_up_table` should use CapWords convention
+ObjectiveFunction.py:58:7: N801 Class name `LookUpTable` should use CapWords convention
    |
-58 | class Look_up_table:
+58 | class LookUpTable:
    |       ^^^^^^^^^^^^^ N801
 59 |     """Class for look up table objective functions
 60 |     The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database.
    |
 
-Objective_function.py:59:5: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:59:5: D205 1 blank line required between summary line and description
    |
-58 |   class Look_up_table:
+58 |   class LookUpTable:
 59 |       """Class for look up table objective functions
    |  _____^
 60 | |     The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database.
@@ -412,7 +412,7 @@ Objective_function.py:59:5: D205 1 blank line required between summary line and 
    |
    = help: Insert single blank line
 
-Objective_function.py:64:9: D417 Missing argument descriptions in the docstring for `__init__`: `aim`, `df_look_up`, `fragment_size`, `target_name`
+ObjectiveFunction.py:64:9: D417 Missing argument descriptions in the docstring for `__init__`: `aim`, `df_look_up`, `fragment_size`, `target_name`
    |
 62 |     """
 63 | 
@@ -421,7 +421,7 @@ Objective_function.py:64:9: D417 Missing argument descriptions in the docstring 
 65 |         """Initialises the look up table objective function.
    |
 
-Objective_function.py:65:9: D401 First line of docstring should be in imperative mood: "Initialises the look up table objective function."
+ObjectiveFunction.py:65:9: D401 First line of docstring should be in imperative mood: "Initialises the look up table objective function."
    |
 64 |       def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
 65 |           """Initialises the look up table objective function.
@@ -451,7 +451,7 @@ Objective_function.py:65:9: D401 First line of docstring should be in imperative
 87 |           self.fragment_size = fragment_size
    |
 
-Objective_function.py:93:9: D401 First line of docstring should be in imperative mood: "Checks the database."
+ObjectiveFunction.py:93:9: D401 First line of docstring should be in imperative mood: "Checks the database."
    |
 92 |     def check_database(self):
 93 |         """Checks the database."""
@@ -460,7 +460,7 @@ Objective_function.py:93:9: D401 First line of docstring should be in imperative
 95 |             msg = "No database found"
    |
 
-Objective_function.py:109:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
+ObjectiveFunction.py:109:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
     |
 107 |             )
 108 | 
@@ -470,7 +470,7 @@ Objective_function.py:109:9: D417 Missing argument descriptions in the docstring
 111 |         takes as an input a list of building blocks and returns the fitness of the element.
     |
 
-Objective_function.py:109:41: FBT002 Boolean default positional argument in function definition
+ObjectiveFunction.py:109:41: FBT002 Boolean default positional argument in function definition
     |
 107 |             )
 108 | 
@@ -480,7 +480,7 @@ Objective_function.py:109:41: FBT002 Boolean default positional argument in func
 111 |         takes as an input a list of building blocks and returns the fitness of the element.
     |
 
-Objective_function.py:109:41: N803 Argument name `multiFidelity` should be lowercase
+ObjectiveFunction.py:109:41: N803 Argument name `multiFidelity` should be lowercase
     |
 107 |             )
 108 | 
@@ -490,7 +490,7 @@ Objective_function.py:109:41: N803 Argument name `multiFidelity` should be lower
 111 |         takes as an input a list of building blocks and returns the fitness of the element.
     |
 
-Objective_function.py:110:9: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:110:9: D205 1 blank line required between summary line and description
     |
 109 |       def evaluate_element(self, element, multiFidelity=False):
 110 |           """Evaluates the fitness of the element
@@ -518,7 +518,7 @@ Objective_function.py:110:9: D205 1 blank line required between summary line and
     |
     = help: Insert single blank line
 
-Objective_function.py:110:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
+ObjectiveFunction.py:110:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
     |
 109 |       def evaluate_element(self, element, multiFidelity=False):
 110 |           """Evaluates the fitness of the element
@@ -545,20 +545,20 @@ Objective_function.py:110:9: D401 First line of docstring should be in imperativ
 129 |           if multiFidelity:
     |
 
-Objective_function.py:150:7: N801 Class name `IP_ES1_fosc` should use CapWords convention
+ObjectiveFunction.py:150:7: N801 Class name `IpEs1Fosc` should use CapWords convention
     |
-150 | class IP_ES1_fosc(Objective_Function):
+150 | class IpEs1Fosc(ObjectiveFunction):
     |       ^^^^^^^^^^^ N801
-151 |     """Class for the IP_ES1_fosc objective function
-152 |     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+151 |     """Class for the IpEs1Fosc objective function
+152 |     The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
     |
 
-Objective_function.py:151:5: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:151:5: D205 1 blank line required between summary line and description
     |
-150 |   class IP_ES1_fosc(Objective_Function):
-151 |       """Class for the IP_ES1_fosc objective function
+150 |   class IpEs1Fosc(ObjectiveFunction):
+151 |       """Class for the IpEs1Fosc objective function
     |  _____^
-152 | |     The IP_ES1_fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+152 | |     The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
 153 | |     the first excited state energy and the first excited state oscillator strength.
 154 | |     The fitness function is defined as:
 155 | |     -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
@@ -583,7 +583,7 @@ Objective_function.py:151:5: D205 1 blank line required between summary line and
 174 | |         Runs the xtb calculation of the ionisation potential
 175 | |         takes as an input the polymer, the path to xtb, the output directory, the database and collection name, the target and the client
 176 | |         returns the ionisation potential
-177 | |     run_stda(polymer, STDA_bin_path, output_dir, property, state, database, collection, client)
+177 | |     run_stda(polymer, stda_bin_path, output_dir, property, state, database, collection, client)
 178 | |         Runs the stda calculation of the excited state energy and oscillator strength
 179 | |         takes as an input the polymer, the path to stda, the output directory, the property, the state, the database and collection name and the client
 180 | |         returns the excited state energy or oscillator strength
@@ -597,7 +597,7 @@ Objective_function.py:151:5: D205 1 blank line required between summary line and
     |
     = help: Insert single blank line
 
-Objective_function.py:186:9: PLR0913 Too many arguments in function definition (9 > 5)
+ObjectiveFunction.py:186:9: PLR0913 Too many arguments in function definition (9 > 5)
     |
 184 |     """
 185 | 
@@ -607,7 +607,7 @@ Objective_function.py:186:9: PLR0913 Too many arguments in function definition (
 188 |         oligomer_size,
     |
 
-Objective_function.py:186:9: D417 Missing argument descriptions in the docstring for `__init__`: `Db_folder`, `STDA_bin_path`, `client`, `collection_name`, `database_new_calc`, `db_mol`, `host_IP`, `oligomer_size`, `xtb_path`
+ObjectiveFunction.py:186:9: D417 Missing argument descriptions in the docstring for `__init__`: `db_folder`, `stda_bin_path`, `client`, `collection_name`, `database_new_calc`, `db_mol`, `host_ip`, `oligomer_size`, `xtb_path`
     |
 184 |     """
 185 | 
@@ -617,41 +617,41 @@ Objective_function.py:186:9: D417 Missing argument descriptions in the docstring
 188 |         oligomer_size,
     |
 
-Objective_function.py:192:9: N803 Argument name `STDA_bin_path` should be lowercase
+ObjectiveFunction.py:192:9: N803 Argument name `stda_bin_path` should be lowercase
     |
 190 |         db_mol="stk_mohammed",
 191 |         xtb_path="/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb",
-192 |         STDA_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
+192 |         stda_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
     |         ^^^^^^^^^^^^^ N803
-193 |         Db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
+193 |         db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
 194 |         database_new_calc="stk_mohammed_BO",
     |
 
-Objective_function.py:193:9: N803 Argument name `Db_folder` should be lowercase
+ObjectiveFunction.py:193:9: N803 Argument name `db_folder` should be lowercase
     |
 191 |         xtb_path="/rds/general/user/ma11115/home/anaconda3/envs/ML/bin/xtb",
-192 |         STDA_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
-193 |         Db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
+192 |         stda_bin_path="/rds/general/user/ma11115/home/bin/stda_files/xtb4stda/",
+193 |         db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
     |         ^^^^^^^^^ N803
 194 |         database_new_calc="stk_mohammed_BO",
 195 |         collection_name=None,
     |
 
-Objective_function.py:196:9: N803 Argument name `host_IP` should be lowercase
+ObjectiveFunction.py:196:9: N803 Argument name `host_ip` should be lowercase
     |
 194 |         database_new_calc="stk_mohammed_BO",
 195 |         collection_name=None,
-196 |         host_IP="cx1",
+196 |         host_ip="cx1",
     |         ^^^^^^^ N803
 197 |     ):
-198 |         """Initialises the IP_ES1_fosc objective function.
+198 |         """Initialises the IpEs1Fosc objective function.
     |
 
-Objective_function.py:198:9: D401 First line of docstring should be in imperative mood: "Initialises the IP_ES1_fosc objective function."
+ObjectiveFunction.py:198:9: D401 First line of docstring should be in imperative mood: "Initialises the IpEs1Fosc objective function."
     |
-196 |           host_IP="cx1",
+196 |           host_ip="cx1",
 197 |       ):
-198 |           """Initialises the IP_ES1_fosc objective function.
+198 |           """Initialises the IpEs1Fosc objective function.
     |  _________^
 199 | | 
 200 | |         Parameters
@@ -666,15 +666,15 @@ Objective_function.py:198:9: D401 First line of docstring should be in imperativ
 209 | |             It is normally generated using stk and the stk.MoleculeMongoDb class
 210 | |             xtb_path: str
 211 | |             the path to the xtb executable
-212 | |             STDA_bin_path: str
+212 | |             stda_bin_path: str
 213 | |             the path to the stda executable
-214 | |             Db_folder: str
+214 | |             db_folder: str
 215 | |             the path to the output directory
 216 | |             database_new_calc: str
 217 | |             the name of the database containing the new calculations
 218 | |             collection_name: str
 219 | |             the name of the collection
-220 | |             host_IP: str
+220 | |             host_ip: str
 221 | |             the host IP
 222 | | 
 223 | |         """
@@ -683,17 +683,17 @@ Objective_function.py:198:9: D401 First line of docstring should be in imperativ
 225 |           self.db_mol = db_mol
     |
 
-Objective_function.py:229:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+ObjectiveFunction.py:229:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
-227 |         self.STDA_bin_path = STDA_bin_path
-228 |         self.Db_folder = Db_folder
-229 |         os.makedirs(self.Db_folder, exist_ok=True)
+227 |         self.stda_bin_path = stda_bin_path
+228 |         self.db_folder = db_folder
+229 |         os.makedirs(self.db_folder, exist_ok=True)
     |         ^^^^^^^^^^^ PTH103
 230 |         self.database_new_calc = database_new_calc
 231 |         self.collection_name = collection_name
     |
 
-Objective_function.py:247:9: S110 `try`-`except`-`pass` detected, consider logging the exception
+ObjectiveFunction.py:247:9: S110 `try`-`except`-`pass` detected, consider logging the exception
     |
 245 |                   database=self.db_mol,
 246 |               )
@@ -705,7 +705,7 @@ Objective_function.py:247:9: S110 `try`-`except`-`pass` detected, consider loggi
 250 |       def test_xtb_stda_connection(self):
     |
 
-Objective_function.py:247:16: BLE001 Do not catch blind exception: `Exception`
+ObjectiveFunction.py:247:16: BLE001 Do not catch blind exception: `Exception`
     |
 245 |                 database=self.db_mol,
 246 |             )
@@ -714,30 +714,30 @@ Objective_function.py:247:16: BLE001 Do not catch blind exception: `Exception`
 248 |             pass
     |
 
-Objective_function.py:253:13: S605 Starting a process with a shell, possible injection detected
+ObjectiveFunction.py:253:13: S605 Starting a process with a shell, possible injection detected
     |
 251 |         """Tests the connection to xtb and stda."""
 252 |         try:
 253 |             os.system(self.xtb_path + " --version")
     |             ^^^^^^^^^ S605
-254 |             os.system(self.STDA_bin_path + " --version")
+254 |             os.system(self.stda_bin_path + " --version")
 255 |         except Exception:
     |
 
-Objective_function.py:254:13: S605 Starting a process with a shell, possible injection detected
+ObjectiveFunction.py:254:13: S605 Starting a process with a shell, possible injection detected
     |
 252 |         try:
 253 |             os.system(self.xtb_path + " --version")
-254 |             os.system(self.STDA_bin_path + " --version")
+254 |             os.system(self.stda_bin_path + " --version")
     |             ^^^^^^^^^ S605
 255 |         except Exception:
 256 |             pass
     |
 
-Objective_function.py:255:9: S110 `try`-`except`-`pass` detected, consider logging the exception
+ObjectiveFunction.py:255:9: S110 `try`-`except`-`pass` detected, consider logging the exception
     |
 253 |               os.system(self.xtb_path + " --version")
-254 |               os.system(self.STDA_bin_path + " --version")
+254 |               os.system(self.stda_bin_path + " --version")
 255 |           except Exception:
     |  _________^
 256 | |             pass
@@ -746,16 +746,16 @@ Objective_function.py:255:9: S110 `try`-`except`-`pass` detected, consider loggi
 258 |       def evaluate_element(self, element, multiFidelity=False):
     |
 
-Objective_function.py:255:16: BLE001 Do not catch blind exception: `Exception`
+ObjectiveFunction.py:255:16: BLE001 Do not catch blind exception: `Exception`
     |
 253 |             os.system(self.xtb_path + " --version")
-254 |             os.system(self.STDA_bin_path + " --version")
+254 |             os.system(self.stda_bin_path + " --version")
 255 |         except Exception:
     |                ^^^^^^^^^ BLE001
 256 |             pass
     |
 
-Objective_function.py:258:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
+ObjectiveFunction.py:258:9: D417 Missing argument descriptions in the docstring for `evaluate_element`: `element`, `multiFidelity`
     |
 256 |             pass
 257 | 
@@ -765,7 +765,7 @@ Objective_function.py:258:9: D417 Missing argument descriptions in the docstring
 260 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-Objective_function.py:258:41: FBT002 Boolean default positional argument in function definition
+ObjectiveFunction.py:258:41: FBT002 Boolean default positional argument in function definition
     |
 256 |             pass
 257 | 
@@ -775,7 +775,7 @@ Objective_function.py:258:41: FBT002 Boolean default positional argument in func
 260 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-Objective_function.py:258:41: N803 Argument name `multiFidelity` should be lowercase
+ObjectiveFunction.py:258:41: N803 Argument name `multiFidelity` should be lowercase
     |
 256 |             pass
 257 | 
@@ -785,7 +785,7 @@ Objective_function.py:258:41: N803 Argument name `multiFidelity` should be lower
 260 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-Objective_function.py:258:41: ARG002 Unused method argument: `multiFidelity`
+ObjectiveFunction.py:258:41: ARG002 Unused method argument: `multiFidelity`
     |
 256 |             pass
 257 | 
@@ -795,7 +795,7 @@ Objective_function.py:258:41: ARG002 Unused method argument: `multiFidelity`
 260 |         takes as an input a list of building blocks and returns the fitness of the element
     |
 
-Objective_function.py:259:9: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:259:9: D205 1 blank line required between summary line and description
     |
 258 |       def evaluate_element(self, element, multiFidelity=False):
 259 |           """Evaluates the fitness of the element
@@ -828,7 +828,7 @@ Objective_function.py:259:9: D205 1 blank line required between summary line and
     |
     = help: Insert single blank line
 
-Objective_function.py:259:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
+ObjectiveFunction.py:259:9: D401 First line of docstring should be in imperative mood: "Evaluates the fitness of the element"
     |
 258 |       def evaluate_element(self, element, multiFidelity=False):
 259 |           """Evaluates the fitness of the element
@@ -860,59 +860,59 @@ Objective_function.py:259:9: D401 First line of docstring should be in imperativ
 283 |           client = pymongo.MongoClient(self.client)
     |
 
-Objective_function.py:290:9: N806 Variable `STDA_bin_path` in function should be lowercase
+ObjectiveFunction.py:290:9: N806 Variable `stda_bin_path` in function should be lowercase
     |
 288 |         # define the path to xtb and stda
 289 |         xtb_path = self.xtb_path
-290 |         STDA_bin_path = self.STDA_bin_path
+290 |         stda_bin_path = self.stda_bin_path
     |         ^^^^^^^^^^^^^ N806
 291 |         # define the output directories
-292 |         Db_folder = self.Db_folder
+292 |         db_folder = self.db_folder
     |
 
-Objective_function.py:292:9: N806 Variable `Db_folder` in function should be lowercase
+ObjectiveFunction.py:292:9: N806 Variable `db_folder` in function should be lowercase
     |
-290 |         STDA_bin_path = self.STDA_bin_path
+290 |         stda_bin_path = self.stda_bin_path
 291 |         # define the output directories
-292 |         Db_folder = self.Db_folder
+292 |         db_folder = self.db_folder
     |         ^^^^^^^^^ N806
 293 |         output_dir_ipea = os.path.join(
-294 |             Db_folder, "Database", "xtb_calculations"
+294 |             db_folder, "Database", "xtb_calculations"
     |
 
-Objective_function.py:293:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:293:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 291 |         # define the output directories
-292 |         Db_folder = self.Db_folder
+292 |         db_folder = self.db_folder
 293 |         output_dir_ipea = os.path.join(
     |                           ^^^^^^^^^^^^ PTH118
-294 |             Db_folder, "Database", "xtb_calculations"
+294 |             db_folder, "Database", "xtb_calculations"
 295 |         )
     |
 
-Objective_function.py:296:30: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:296:30: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-294 |             Db_folder, "Database", "xtb_calculations"
+294 |             db_folder, "Database", "xtb_calculations"
 295 |         )
 296 |         xtb_opt_output_dir = os.path.join(
     |                              ^^^^^^^^^^^^ PTH118
-297 |             Db_folder, "Database", "xtb_opt_output_dir"
+297 |             db_folder, "Database", "xtb_opt_output_dir"
 298 |         )
     |
 
-Objective_function.py:299:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:299:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-297 |             Db_folder, "Database", "xtb_opt_output_dir"
+297 |             db_folder, "Database", "xtb_opt_output_dir"
 298 |         )
 299 |         output_dir_stda = os.path.join(
     |                           ^^^^^^^^^^^^ PTH118
-300 |             Db_folder, "Database", "stda_output_dir"
+300 |             db_folder, "Database", "stda_output_dir"
 301 |         )
     |
 
-Objective_function.py:302:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+ObjectiveFunction.py:302:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
-300 |             Db_folder, "Database", "stda_output_dir"
+300 |             db_folder, "Database", "stda_output_dir"
 301 |         )
 302 |         os.makedirs(output_dir_ipea, exist_ok=True)
     |         ^^^^^^^^^^^ PTH103
@@ -920,7 +920,7 @@ Objective_function.py:302:9: PTH103 `os.makedirs()` should be replaced by `Path.
 304 |         os.makedirs(output_dir_stda, exist_ok=True)
     |
 
-Objective_function.py:303:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+ObjectiveFunction.py:303:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
 301 |         )
 302 |         os.makedirs(output_dir_ipea, exist_ok=True)
@@ -930,7 +930,7 @@ Objective_function.py:303:9: PTH103 `os.makedirs()` should be replaced by `Path.
 305 |         # define the database and collection name
     |
 
-Objective_function.py:304:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+ObjectiveFunction.py:304:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
     |
 302 |         os.makedirs(output_dir_ipea, exist_ok=True)
 303 |         os.makedirs(xtb_opt_output_dir, exist_ok=True)
@@ -940,7 +940,7 @@ Objective_function.py:304:9: PTH103 `os.makedirs()` should be replaced by `Path.
 306 |         database_new_calc = self.database_new_calc
     |
 
-Objective_function.py:308:9: ERA001 Found commented-out code
+ObjectiveFunction.py:308:9: ERA001 Found commented-out code
     |
 306 |         database_new_calc = self.database_new_calc
 307 |         collection_name = self.collection_name
@@ -951,7 +951,7 @@ Objective_function.py:308:9: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:319:9: N806 Variable `Inchikey` in function should be lowercase
+ObjectiveFunction.py:319:9: N806 Variable `Inchikey` in function should be lowercase
     |
 317 |             client=client,
 318 |         )
@@ -961,7 +961,7 @@ Objective_function.py:319:9: N806 Variable `Inchikey` in function should be lowe
 321 |         IP = self.run_xtb_ipea(
     |
 
-Objective_function.py:321:9: N806 Variable `IP` in function should be lowercase
+ObjectiveFunction.py:321:9: N806 Variable `IP` in function should be lowercase
     |
 319 |         Inchikey = stk.InchiKey().get_key(polymer)
 320 | 
@@ -971,17 +971,17 @@ Objective_function.py:321:9: N806 Variable `IP` in function should be lowercase
 323 |             xtb_path,
     |
 
-Objective_function.py:330:9: N806 Variable `Es1` in function should be lowercase
+ObjectiveFunction.py:330:9: N806 Variable `Es1` in function should be lowercase
     |
 328 |             client=client,
 329 |         )
 330 |         Es1 = self.run_stda(
     |         ^^^ N806
 331 |             polymer,
-332 |             STDA_bin_path,
+332 |             stda_bin_path,
     |
 
-Objective_function.py:357:9: N802 Function name `Build_polymer` should be lowercase
+ObjectiveFunction.py:357:9: N802 Function name `Build_polymer` should be lowercase
     |
 355 |         return fitness_function, Inchikey
 356 | 
@@ -991,7 +991,7 @@ Objective_function.py:357:9: N802 Function name `Build_polymer` should be lowerc
 359 |     ):
     |
 
-Objective_function.py:357:9: D417 Missing argument descriptions in the docstring for `Build_polymer`: `db`, `element`
+ObjectiveFunction.py:357:9: D417 Missing argument descriptions in the docstring for `Build_polymer`: `db`, `element`
     |
 355 |         return fitness_function, Inchikey
 356 | 
@@ -1001,7 +1001,7 @@ Objective_function.py:357:9: D417 Missing argument descriptions in the docstring
 359 |     ):
     |
 
-Objective_function.py:360:9: D205 1 blank line required between summary line and description
+ObjectiveFunction.py:360:9: D205 1 blank line required between summary line and description
     |
 358 |           self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
 359 |       ):
@@ -1029,7 +1029,7 @@ Objective_function.py:360:9: D205 1 blank line required between summary line and
     |
     = help: Insert single blank line
 
-Objective_function.py:360:9: D401 First line of docstring should be in imperative mood: "Builds the polymer from the building blocks"
+ObjectiveFunction.py:360:9: D401 First line of docstring should be in imperative mood: "Builds the polymer from the building blocks"
     |
 358 |           self, element: pd.DataFrame, db: stk.MoleculeMongoDb = None
 359 |       ):
@@ -1056,7 +1056,7 @@ Objective_function.py:360:9: D401 First line of docstring should be in imperativ
 378 |           genes = "ABCDEFGH"
     |
 
-Objective_function.py:380:9: ERA001 Found commented-out code
+ObjectiveFunction.py:380:9: ERA001 Found commented-out code
     |
 378 |         genes = "ABCDEFGH"
 379 |         genes = genes[: self.oligomer_size]
@@ -1067,7 +1067,7 @@ Objective_function.py:380:9: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:384:9: N806 Variable `InchiKey_cols` in function should be lowercase
+ObjectiveFunction.py:384:9: N806 Variable `InchiKey_cols` in function should be lowercase
     |
 382 |         # joins the Genes to make a repeating unit string
 383 |         repeating_unit = repeating_unit.join(genes)
@@ -1077,7 +1077,7 @@ Objective_function.py:384:9: N806 Variable `InchiKey_cols` in function should be
 386 |         for fragment in element[InchiKey_cols].values.flatten():
     |
 
-Objective_function.py:385:9: ERA001 Found commented-out code
+ObjectiveFunction.py:385:9: ERA001 Found commented-out code
     |
 383 |         repeating_unit = repeating_unit.join(genes)
 384 |         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
@@ -1088,7 +1088,7 @@ Objective_function.py:385:9: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:386:25: PD011 Use `.to_numpy()` instead of `.values`
+ObjectiveFunction.py:386:25: PD011 Use `.to_numpy()` instead of `.values`
     |
 384 |         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
 385 |         # print(element[InchiKey_cols].values.flatten())
@@ -1098,7 +1098,7 @@ Objective_function.py:386:25: PD011 Use `.to_numpy()` instead of `.values`
 388 |             bb = stk.BuildingBlock.init_from_molecule(
     |
 
-Objective_function.py:397:17: ERA001 Found commented-out code
+ObjectiveFunction.py:397:17: ERA001 Found commented-out code
     |
 395 |                 repeating_unit=repeating_unit,
 396 |                 num_repeating_units=1,
@@ -1109,7 +1109,7 @@ Objective_function.py:397:17: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:401:9: PLR0913 Too many arguments in function definition (6 > 5)
+ObjectiveFunction.py:401:9: PLR0913 Too many arguments in function definition (6 > 5)
     |
 399 |         )
 400 | 
@@ -1119,7 +1119,7 @@ Objective_function.py:401:9: PLR0913 Too many arguments in function definition (
 403 |         polymer,
     |
 
-Objective_function.py:401:9: D417 Missing argument descriptions in the docstring for `run_xtb_opt`: `client`, `collection`, `database`, `polymer`, `xtb_opt_output_dir`, `xtb_path`
+ObjectiveFunction.py:401:9: D417 Missing argument descriptions in the docstring for `run_xtb_opt`: `client`, `collection`, `database`, `polymer`, `xtb_opt_output_dir`, `xtb_path`
     |
 399 |         )
 400 | 
@@ -1129,7 +1129,7 @@ Objective_function.py:401:9: D417 Missing argument descriptions in the docstring
 403 |         polymer,
     |
 
-Objective_function.py:410:9: D401 First line of docstring should be in imperative mood: "Runs the xtb optimisation of the polymer."
+ObjectiveFunction.py:410:9: D401 First line of docstring should be in imperative mood: "Runs the xtb optimisation of the polymer."
     |
 408 |           client=None,
 409 |       ):
@@ -1162,7 +1162,7 @@ Objective_function.py:410:9: D401 First line of docstring should be in imperativ
 434 |           def save_xtb_opt_calculation(
     |
 
-Objective_function.py:434:13: D417 Missing argument descriptions in the docstring for `save_xtb_opt_calculation`: `InchiKey_initial`, `collection`, `polymer`, `xtb_opt_output_dir`
+ObjectiveFunction.py:434:13: D417 Missing argument descriptions in the docstring for `save_xtb_opt_calculation`: `InchiKey_initial`, `collection`, `polymer`, `xtb_opt_output_dir`
     |
 432 |         """
 433 | 
@@ -1172,7 +1172,7 @@ Objective_function.py:434:13: D417 Missing argument descriptions in the docstrin
 436 |         ) -> None:
     |
 
-Objective_function.py:435:59: N803 Argument name `InchiKey_initial` should be lowercase
+ObjectiveFunction.py:435:59: N803 Argument name `InchiKey_initial` should be lowercase
     |
 434 |         def save_xtb_opt_calculation(
 435 |             polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
@@ -1181,7 +1181,7 @@ Objective_function.py:435:59: N803 Argument name `InchiKey_initial` should be lo
 437 |             """Saves the xtb optimisation calculation.
     |
 
-Objective_function.py:437:13: D401 First line of docstring should be in imperative mood: "Saves the xtb optimisation calculation."
+ObjectiveFunction.py:437:13: D401 First line of docstring should be in imperative mood: "Saves the xtb optimisation calculation."
     |
 435 |               polymer, xtb_opt_output_dir, collection=None, InchiKey_initial=None
 436 |           ) -> None:
@@ -1210,7 +1210,7 @@ Objective_function.py:437:13: D401 First line of docstring should be in imperati
 457 |                   for line in data:
     |
 
-Objective_function.py:456:17: ANN202 Missing return type annotation for private function `get_property_value`
+ObjectiveFunction.py:456:17: ANN202 Missing return type annotation for private function `get_property_value`
     |
 455 |             """
 456 |             def get_property_value(data, property_name):
@@ -1220,7 +1220,7 @@ Objective_function.py:456:17: ANN202 Missing return type annotation for private 
     |
     = help: Add return type annotation
 
-Objective_function.py:475:31: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:475:31: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 473 |             polymer_xtb_opt_calc = {
 474 |                 "InChIKey": stk.InchiKey().get_key(polymer),
@@ -1230,7 +1230,7 @@ Objective_function.py:475:31: PTH118 `os.path.join()` should be replaced by `Pat
 477 |                 ),
     |
 
-Objective_function.py:481:23: SIM115 Use context handler for opening files
+ObjectiveFunction.py:481:23: SIM115 Use context handler for opening files
     |
 479 |                 "InChIKey_initial": InchiKey_initial,
 480 |             }
@@ -1240,7 +1240,7 @@ Objective_function.py:481:23: SIM115 Use context handler for opening files
 483 |                     polymer_xtb_opt_calc["cal_folder"], "optimization_1.output"
     |
 
-Objective_function.py:481:23: PTH123 `open()` should be replaced by `Path.open()`
+ObjectiveFunction.py:481:23: PTH123 `open()` should be replaced by `Path.open()`
     |
 479 |                 "InChIKey_initial": InchiKey_initial,
 480 |             }
@@ -1250,7 +1250,7 @@ Objective_function.py:481:23: PTH123 `open()` should be replaced by `Path.open()
 483 |                     polymer_xtb_opt_calc["cal_folder"], "optimization_1.output"
     |
 
-Objective_function.py:482:17: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:482:17: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 480 |             }
 481 |             outfile = open(
@@ -1260,7 +1260,7 @@ Objective_function.py:482:17: PTH118 `os.path.join()` should be replaced by `Pat
 484 |                 ),
     |
 
-Objective_function.py:509:13: ERA001 Found commented-out code
+ObjectiveFunction.py:509:13: ERA001 Found commented-out code
     |
 507 |             is not None
 508 |         ):
@@ -1271,7 +1271,7 @@ Objective_function.py:509:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:516:13: ERA001 Found commented-out code
+ObjectiveFunction.py:516:13: ERA001 Found commented-out code
     |
 514 |             )
 515 |             return db_polymer.get({"InChIKey": get_inchi_key(polymer)})
@@ -1282,7 +1282,7 @@ Objective_function.py:516:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:521:13: ERA001 Found commented-out code
+ObjectiveFunction.py:521:13: ERA001 Found commented-out code
     |
 519 |             is not None
 520 |         ):
@@ -1293,7 +1293,7 @@ Objective_function.py:521:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:529:13: ERA001 Found commented-out code
+ObjectiveFunction.py:529:13: ERA001 Found commented-out code
     |
 527 |                 {"InChIKey_initial": get_inchi_key(polymer)}
 528 |             )
@@ -1304,7 +1304,7 @@ Objective_function.py:529:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:532:22: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:532:22: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 531 |             return db_polymer.get({"InChIKey": data["InChIKey"]})
 532 |         output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
@@ -1313,7 +1313,7 @@ Objective_function.py:532:22: PTH118 `os.path.join()` should be replaced by `Pat
 534 |         xtb = stko.OptimizerSequence(
     |
 
-Objective_function.py:533:9: N806 Variable `InchiKey_initial` in function should be lowercase
+ObjectiveFunction.py:533:9: N806 Variable `InchiKey_initial` in function should be lowercase
     |
 531 |             return db_polymer.get({"InChIKey": data["InChIKey"]})
 532 |         output_dir = os.path.join(xtb_opt_output_dir, get_inchi_key(polymer))
@@ -1323,7 +1323,7 @@ Objective_function.py:533:9: N806 Variable `InchiKey_initial` in function should
 535 |             stko.ETKDG(),
     |
 
-Objective_function.py:544:26: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:544:26: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 542 |         )
 543 |         polymer = xtb.optimize(polymer)
@@ -1333,7 +1333,7 @@ Objective_function.py:544:26: PTH118 `os.path.join()` should be replaced by `Pat
 546 |         )
     |
 
-Objective_function.py:547:9: PTH104 `os.rename()` should be replaced by `Path.rename()`
+ObjectiveFunction.py:547:9: PTH104 `os.rename()` should be replaced by `Path.rename()`
     |
 545 |             xtb_opt_output_dir, get_inchi_key(polymer)
 546 |         )
@@ -1343,7 +1343,7 @@ Objective_function.py:547:9: PTH104 `os.rename()` should be replaced by `Path.re
 549 |             polymer,
     |
 
-Objective_function.py:561:9: PLR0913 Too many arguments in function definition (7 > 5)
+ObjectiveFunction.py:561:9: PLR0913 Too many arguments in function definition (7 > 5)
     |
 559 |         return polymer
 560 | 
@@ -1353,7 +1353,7 @@ Objective_function.py:561:9: PLR0913 Too many arguments in function definition (
 563 |         polymer,
     |
 
-Objective_function.py:561:9: D417 Missing argument descriptions in the docstring for `run_xtb_ipea`: `client`, `collection`, `database`, `polymer`, `target`, `xtb_opt_output_dir`, `xtb_path`
+ObjectiveFunction.py:561:9: D417 Missing argument descriptions in the docstring for `run_xtb_ipea`: `client`, `collection`, `database`, `polymer`, `target`, `xtb_opt_output_dir`, `xtb_path`
     |
 559 |         return polymer
 560 | 
@@ -1363,7 +1363,7 @@ Objective_function.py:561:9: D417 Missing argument descriptions in the docstring
 563 |         polymer,
     |
 
-Objective_function.py:571:9: D401 First line of docstring should be in imperative mood: "Runs the xtb calculation of the ionisation potential."
+ObjectiveFunction.py:571:9: D401 First line of docstring should be in imperative mood: "Runs the xtb calculation of the ionisation potential."
     |
 569 |           client=None,
 570 |       ):
@@ -1398,7 +1398,7 @@ Objective_function.py:571:9: D401 First line of docstring should be in imperativ
 597 |           XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
     |
 
-Objective_function.py:597:9: N806 Variable `XTB_results` in function should be lowercase
+ObjectiveFunction.py:597:9: N806 Variable `XTB_results` in function should be lowercase
     |
 595 |         """
 596 |         collection = client[database][collection]
@@ -1408,7 +1408,7 @@ Objective_function.py:597:9: N806 Variable `XTB_results` in function should be l
 599 |             # print("already calculated", end="\r")
     |
 
-Objective_function.py:599:13: ERA001 Found commented-out code
+ObjectiveFunction.py:599:13: ERA001 Found commented-out code
     |
 597 |         XTB_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
 598 |         if XTB_results is not None:
@@ -1419,7 +1419,7 @@ Objective_function.py:599:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:600:13: ERA001 Found commented-out code
+ObjectiveFunction.py:600:13: ERA001 Found commented-out code
     |
 598 |         if XTB_results is not None:
 599 |             # print("already calculated", end="\r")
@@ -1430,7 +1430,7 @@ Objective_function.py:600:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:604:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:604:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 602 |         xtb = XTBEnergy2(
 603 |             xtb_path=xtb_path,
@@ -1440,7 +1440,7 @@ Objective_function.py:604:24: PTH118 `os.path.join()` should be replaced by `Pat
 606 |             ),
     |
 
-Objective_function.py:612:9: N806 Variable `XTB_results` in function should be lowercase
+ObjectiveFunction.py:612:9: N806 Variable `XTB_results` in function should be lowercase
     |
 610 |         )
 611 |         xtb_results = xtb.get_results(polymer)
@@ -1450,7 +1450,7 @@ Objective_function.py:612:9: N806 Variable `XTB_results` in function should be l
 614 |             "homo lumo_gap (eV)": xtb_results.get_homo_lumo_gap()[0],
     |
 
-Objective_function.py:620:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:620:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 618 |             ],
 619 |             "InChIKey": get_inchi_key(polymer),
@@ -1460,7 +1460,7 @@ Objective_function.py:620:27: PTH118 `os.path.join()` should be replaced by `Pat
 622 |             ),
     |
 
-Objective_function.py:632:9: PLR0913 Too many arguments in function definition (8 > 5)
+ObjectiveFunction.py:632:9: PLR0913 Too many arguments in function definition (8 > 5)
     |
 630 |         return XTB_results[target]
 631 | 
@@ -1470,7 +1470,7 @@ Objective_function.py:632:9: PLR0913 Too many arguments in function definition (
 634 |         polymer,
     |
 
-Objective_function.py:632:9: D417 Missing argument descriptions in the docstring for `run_stda`: `STDA_bin_path`, `client`, `collection`, `database`, `output_dir`, `polymer`, `property`, `state`
+ObjectiveFunction.py:632:9: D417 Missing argument descriptions in the docstring for `run_stda`: `stda_bin_path`, `client`, `collection`, `database`, `output_dir`, `polymer`, `property`, `state`
     |
 630 |         return XTB_results[target]
 631 | 
@@ -1480,19 +1480,19 @@ Objective_function.py:632:9: D417 Missing argument descriptions in the docstring
 634 |         polymer,
     |
 
-Objective_function.py:635:9: N803 Argument name `STDA_bin_path` should be lowercase
+ObjectiveFunction.py:635:9: N803 Argument name `stda_bin_path` should be lowercase
     |
 633 |         self,
 634 |         polymer,
-635 |         STDA_bin_path,
+635 |         stda_bin_path,
     |         ^^^^^^^^^^^^^ N803
 636 |         output_dir,
 637 |         property="Excited state energy (eV)",
     |
 
-Objective_function.py:637:9: A002 Argument `property` is shadowing a Python builtin
+ObjectiveFunction.py:637:9: A002 Argument `property` is shadowing a Python builtin
     |
-635 |         STDA_bin_path,
+635 |         stda_bin_path,
 636 |         output_dir,
 637 |         property="Excited state energy (eV)",
     |         ^^^^^^^^ A002
@@ -1500,7 +1500,7 @@ Objective_function.py:637:9: A002 Argument `property` is shadowing a Python buil
 639 |         database="stk_mohammed",
     |
 
-Objective_function.py:673:9: N806 Variable `STDA_results` in function should be lowercase
+ObjectiveFunction.py:673:9: N806 Variable `STDA_results` in function should be lowercase
     |
 671 |         """
 672 |         collection = client[database][collection]
@@ -1510,7 +1510,7 @@ Objective_function.py:673:9: N806 Variable `STDA_results` in function should be 
 675 |         )
     |
 
-Objective_function.py:677:13: ERA001 Found commented-out code
+ObjectiveFunction.py:677:13: ERA001 Found commented-out code
     |
 675 |         )
 676 |         if STDA_results is not None:
@@ -1521,7 +1521,7 @@ Objective_function.py:677:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:678:13: ERA001 Found commented-out code
+ObjectiveFunction.py:678:13: ERA001 Found commented-out code
     |
 676 |         if STDA_results is not None:
 677 |             # print(get_inchi_key(polymer), ' stda geom already calculated')
@@ -1532,9 +1532,9 @@ Objective_function.py:678:13: ERA001 Found commented-out code
     |
     = help: Remove commented-out code
 
-Objective_function.py:683:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:683:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-681 |             STDA_bin_path=STDA_bin_path,
+681 |             stda_bin_path=stda_bin_path,
 682 |             Num_threads=25,
 683 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
     |                        ^^^^^^^^^^^^ PTH118
@@ -1542,7 +1542,7 @@ Objective_function.py:683:24: PTH118 `os.path.join()` should be replaced by `Pat
 685 |         Excited_state_energy, Excited_state_osc = stda.get_results(polymer)
     |
 
-Objective_function.py:685:9: N806 Variable `Excited_state_energy` in function should be lowercase
+ObjectiveFunction.py:685:9: N806 Variable `Excited_state_energy` in function should be lowercase
     |
 683 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
 684 |         )
@@ -1552,7 +1552,7 @@ Objective_function.py:685:9: N806 Variable `Excited_state_energy` in function sh
 687 |             "Excited state energy (eV)": Excited_state_energy,
     |
 
-Objective_function.py:685:31: N806 Variable `Excited_state_osc` in function should be lowercase
+ObjectiveFunction.py:685:31: N806 Variable `Excited_state_osc` in function should be lowercase
     |
 683 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
 684 |         )
@@ -1562,7 +1562,7 @@ Objective_function.py:685:31: N806 Variable `Excited_state_osc` in function shou
 687 |             "Excited state energy (eV)": Excited_state_energy,
     |
 
-Objective_function.py:686:9: N806 Variable `STDA_results` in function should be lowercase
+ObjectiveFunction.py:686:9: N806 Variable `STDA_results` in function should be lowercase
     |
 684 |         )
 685 |         Excited_state_energy, Excited_state_osc = stda.get_results(polymer)
@@ -1572,13 +1572,13 @@ Objective_function.py:686:9: N806 Variable `STDA_results` in function should be 
 688 |             "Excited state oscillator strength": Excited_state_osc,
     |
 
-Objective_function.py:690:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
+ObjectiveFunction.py:690:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
 688 |             "Excited state oscillator strength": Excited_state_osc,
 689 |             "InChIKey": get_inchi_key(polymer),
 690 |             "cal_folder": os.path.join(output_dir, get_inchi_key(polymer)),
     |                           ^^^^^^^^^^^^ PTH118
-691 |             "Host IP": self.host_IP,
+691 |             "Host IP": self.host_ip,
 692 |         }
     |
 
@@ -2105,7 +2105,7 @@ SearchExp.py:7:1: ERA001 Found commented-out code
 6 | 
 7 | # from Scripts.Search_algorithm import Search_Algorithm
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
-8 | from stk_search.Objective_function import Objective_Function
+8 | from stk_search.ObjectiveFunction import ObjectiveFunction
 9 | from stk_search.SearchSpace import SearchSpace
   |
   = help: Remove commented-out code
@@ -2122,7 +2122,7 @@ SearchExp.py:97:9: D107 Missing docstring in `__init__`
 
 SearchExp.py:103:9: FBT002 Boolean default positional argument in function definition
     |
-101 |         objective_function,
+101 |         ObjectiveFunction,
 102 |         number_of_iterations,
 103 |         verbose=False,
     |         ^^^^^^^ FBT002
@@ -2214,7 +2214,7 @@ SearchExp.py:189:13: ERA001 Found commented-out code
 
 SearchExp.py:194:13: ERA001 Found commented-out code
     |
-192 |                 objective_function=self.objective_function,
+192 |                 ObjectiveFunction=self.ObjectiveFunction,
 193 |             )
 194 |             # self.fitness_acquired.append(Eval)
     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
@@ -2270,7 +2270,7 @@ SearchExp.py:214:13: N806 Variable `Eval` in function should be lowercase
     |
 212 |         # evaluate the element
 213 |         try:
-214 |             Eval, InchiKey = objective_function.evaluate_element(
+214 |             Eval, InchiKey = ObjectiveFunction.evaluate_element(
     |             ^^^^ N806
 215 |                 element=element,
 216 |                 multiFidelity=self.search_algorithm.multiFidelity,
@@ -2280,7 +2280,7 @@ SearchExp.py:214:19: N806 Variable `InchiKey` in function should be lowercase
     |
 212 |         # evaluate the element
 213 |         try:
-214 |             Eval, InchiKey = objective_function.evaluate_element(
+214 |             Eval, InchiKey = ObjectiveFunction.evaluate_element(
     |                   ^^^^^^^^ N806
 215 |                 element=element,
 216 |                 multiFidelity=self.search_algorithm.multiFidelity,
@@ -47289,11 +47289,11 @@ utils\Precursor_calculation.py:11:5: D103 Missing docstring in public function
 12 |     return stk.InchiKey().get_key(molecule)
    |
 
-utils\Precursor_calculation.py:14:7: N801 Class name `Calculate_Precursor` should use CapWords convention
+utils\Precursor_calculation.py:14:7: N801 Class name `CalculatePrecursor` should use CapWords convention
    |
 12 |     return stk.InchiKey().get_key(molecule)
 13 | 
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
    |       ^^^^^^^^^^^^^^^^^^^ N801
 15 |     def __init__(self):
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -47303,7 +47303,7 @@ utils\Precursor_calculation.py:14:7: D101 Missing docstring in public class
    |
 12 |     return stk.InchiKey().get_key(molecule)
 13 | 
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
    |       ^^^^^^^^^^^^^^^^^^^ D101
 15 |     def __init__(self):
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -47311,7 +47311,7 @@ utils\Precursor_calculation.py:14:7: D101 Missing docstring in public class
 
 utils\Precursor_calculation.py:15:9: D107 Missing docstring in `__init__`
    |
-14 | class Calculate_Precursor:
+14 | class CalculatePrecursor:
 15 |     def __init__(self):
    |         ^^^^^^^^ D107
 16 |         self.client = "mongodb://ch-atarzia.ch.ic.ac.uk/"
@@ -47320,21 +47320,21 @@ utils\Precursor_calculation.py:15:9: D107 Missing docstring in `__init__`
 
 utils\Precursor_calculation.py:22:13: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
    |
-20 |         self.Db_folder = None
-21 |         if self.Db_folder is not None:
-22 |             os.makedirs(self.Db_folder, exist_ok=True)
+20 |         self.db_folder = None
+21 |         if self.db_folder is not None:
+22 |             os.makedirs(self.db_folder, exist_ok=True)
    |             ^^^^^^^^^^^ PTH103
 23 |         # print(self.collection_name)
-24 |         self.host_IP = "cx1"
+24 |         self.host_ip = "cx1"
    |
 
 utils\Precursor_calculation.py:23:9: ERA001 Found commented-out code
    |
-21 |         if self.Db_folder is not None:
-22 |             os.makedirs(self.Db_folder, exist_ok=True)
+21 |         if self.db_folder is not None:
+22 |             os.makedirs(self.db_folder, exist_ok=True)
 23 |         # print(self.collection_name)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
-24 |         self.host_IP = "cx1"
+24 |         self.host_ip = "cx1"
 25 |         self.collection_name = "Precursors"
    |
    = help: Remove commented-out code
@@ -47375,48 +47375,48 @@ utils\Precursor_calculation.py:35:9: D401 First line of docstring should be in i
 40 |           client = pymongo.MongoClient(self.client)
    |
 
-utils\Precursor_calculation.py:49:9: N806 Variable `Db_folder` in function should be lowercase
+utils\Precursor_calculation.py:49:9: N806 Variable `db_folder` in function should be lowercase
    |
 48 |         # define the output directories
-49 |         Db_folder = self.Db_folder
+49 |         db_folder = self.db_folder
    |         ^^^^^^^^^ N806
 50 |         output_dir_ipea = os.path.join(
-51 |             Db_folder, "Database", "xtb_calculations"
+51 |             db_folder, "Database", "xtb_calculations"
    |
 
 utils\Precursor_calculation.py:50:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
    |
 48 |         # define the output directories
-49 |         Db_folder = self.Db_folder
+49 |         db_folder = self.db_folder
 50 |         output_dir_ipea = os.path.join(
    |                           ^^^^^^^^^^^^ PTH118
-51 |             Db_folder, "Database", "xtb_calculations"
+51 |             db_folder, "Database", "xtb_calculations"
 52 |         )
    |
 
 utils\Precursor_calculation.py:53:30: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
    |
-51 |             Db_folder, "Database", "xtb_calculations"
+51 |             db_folder, "Database", "xtb_calculations"
 52 |         )
 53 |         xtb_opt_output_dir = os.path.join(
    |                              ^^^^^^^^^^^^ PTH118
-54 |             Db_folder, "Database", "xtb_opt_output_dir"
+54 |             db_folder, "Database", "xtb_opt_output_dir"
 55 |         )
    |
 
 utils\Precursor_calculation.py:56:27: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
    |
-54 |             Db_folder, "Database", "xtb_opt_output_dir"
+54 |             db_folder, "Database", "xtb_opt_output_dir"
 55 |         )
 56 |         output_dir_stda = os.path.join(
    |                           ^^^^^^^^^^^^ PTH118
-57 |             Db_folder, "Database", "stda_output_dir"
+57 |             db_folder, "Database", "stda_output_dir"
 58 |         )
    |
 
 utils\Precursor_calculation.py:59:9: PTH103 `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
    |
-57 |             Db_folder, "Database", "stda_output_dir"
+57 |             db_folder, "Database", "stda_output_dir"
 58 |         )
 59 |         os.makedirs(output_dir_ipea, exist_ok=True)
    |         ^^^^^^^^^^^ PTH103
@@ -47475,11 +47475,11 @@ utils\Precursor_calculation.py:77:13: N806 Variable `IP` in function should be l
 79 |                 xtb_path,
    |
 
-utils\Precursor_calculation.py:87:17: N806 Variable `STDA_bin_path` in function should be lowercase
+utils\Precursor_calculation.py:87:17: N806 Variable `stda_bin_path` in function should be lowercase
    |
 85 |             )
-86 |             if self.STDA_bin_path is not None:
-87 |                 STDA_bin_path = self.STDA_bin_path
+86 |             if self.stda_bin_path is not None:
+87 |                 stda_bin_path = self.stda_bin_path
    |                 ^^^^^^^^^^^^^ N806
 88 |                 Es1 = self.run_stda(
 89 |                     precursor,
@@ -47487,12 +47487,12 @@ utils\Precursor_calculation.py:87:17: N806 Variable `STDA_bin_path` in function 
 
 utils\Precursor_calculation.py:88:17: N806 Variable `Es1` in function should be lowercase
    |
-86 |             if self.STDA_bin_path is not None:
-87 |                 STDA_bin_path = self.STDA_bin_path
+86 |             if self.stda_bin_path is not None:
+87 |                 stda_bin_path = self.stda_bin_path
 88 |                 Es1 = self.run_stda(
    |                 ^^^ N806
 89 |                     precursor,
-90 |                     STDA_bin_path,
+90 |                     stda_bin_path,
    |
 
 utils\Precursor_calculation.py:100:9: RET505 Unnecessary `else` after `return` statement
@@ -47827,11 +47827,11 @@ utils\Precursor_calculation.py:295:9: D102 Missing docstring in public method
 297 |         polymer,
     |
 
-utils\Precursor_calculation.py:298:9: N803 Argument name `STDA_bin_path` should be lowercase
+utils\Precursor_calculation.py:298:9: N803 Argument name `stda_bin_path` should be lowercase
     |
 296 |         self,
 297 |         polymer,
-298 |         STDA_bin_path,
+298 |         stda_bin_path,
     |         ^^^^^^^^^^^^^ N803
 299 |         output_dir,
 300 |         property="Excited state energy (eV)",
@@ -47839,7 +47839,7 @@ utils\Precursor_calculation.py:298:9: N803 Argument name `STDA_bin_path` should 
 
 utils\Precursor_calculation.py:300:9: A002 Argument `property` is shadowing a Python builtin
     |
-298 |         STDA_bin_path,
+298 |         stda_bin_path,
 299 |         output_dir,
 300 |         property="Excited state energy (eV)",
     |         ^^^^^^^^ A002
@@ -47881,7 +47881,7 @@ utils\Precursor_calculation.py:312:13: ERA001 Found commented-out code
 
 utils\Precursor_calculation.py:317:24: PTH118 `os.path.join()` should be replaced by `Path` with `/` operator
     |
-315 |             STDA_bin_path=STDA_bin_path,
+315 |             stda_bin_path=stda_bin_path,
 316 |             Num_threads=25,
 317 |             output_dir=os.path.join(output_dir, get_inchi_key(polymer)),
     |                        ^^^^^^^^^^^^ PTH118
@@ -47925,7 +47925,7 @@ utils\Precursor_calculation.py:324:27: PTH118 `os.path.join()` should be replace
 323 |             "InChIKey": get_inchi_key(polymer),
 324 |             "cal_folder": os.path.join(output_dir, get_inchi_key(polymer)),
     |                           ^^^^^^^^^^^^ PTH118
-325 |             "Host IP": self.host_IP,
+325 |             "Host IP": self.host_ip,
 326 |         }
     |
 

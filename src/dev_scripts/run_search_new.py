@@ -14,7 +14,7 @@ from stk_search.geom3d.oligomer_encoding_with_transformer import (
     initialise_model,
 )
 from stk_search.geom3d.pl_model import Pymodel
-from stk_search.Objective_function import IP_ES1_fosc, Look_up_table
+from stk_search.ObjectiveFunction import IpEs1Fosc, LookUpTable
 from stk_search.Representation import (
     Representation_3d_from_fragment,
     Representation_from_fragment,
@@ -60,11 +60,11 @@ def main(
 
     # get initial elements
     if benchmark:
-        objective_function = Look_up_table(
+        ObjectiveFunction = LookUpTable(
             df_total, oligomer_size, target_name=target_name, aim=aim
         )
     else:
-        objective_function = IP_ES1_fosc(oligomer_size)
+        ObjectiveFunction = IpEs1Fosc(oligomer_size)
         print("objective function")
         dataset_representation_path = (
             ""  # the dataset representation is only used for the benchmark
@@ -174,7 +174,7 @@ def main(
     S_exp = SearchExp.SearchExp(
         search_space,
         search_algorithm,
-        objective_function,
+        ObjectiveFunction,
         number_of_iterations,
         verbose=verbose,
     )

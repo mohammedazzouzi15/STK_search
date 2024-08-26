@@ -9,26 +9,26 @@ Example:
 -------
     To use this module, import it and create an instance of the class. Then
     use the calculate method to calculate the excited state properties.
-    
+
     .. code-block:: python
-    
+
         from stk_search.Calculators.STDA_calculator import sTDA_XTB
         from rdkit import Chem
-        
+
         mol = Chem.MolFromSmiles("CC")
         mol = Chem.AddHs(mol)
         AllChem.EmbedMolecule(mol)
         rdDepictor.Compute2DCoords(mol)
-        
-        STDA_bin_path = "/path/to/STDA_binary"
+
+        stda_bin_path = "/path/to/STDA_binary"
         Num_threads = 1
         output_dir = None
-        stda_calculator = sTDA_XTB(STDA_bin_path, Num_threads, output_dir)
+        stda_calculator = sTDA_XTB(stda_bin_path, Num_threads, output_dir)
         Excited_state_energy, Excited_state_osc = stda_calculator.get_results(mol)
         print(Excited_state_energy)
         print(Excited_state_osc)
 
-        
+
 """  # noqa: D205
 
 import os
@@ -37,6 +37,7 @@ import shutil
 import subprocess as sp
 import uuid
 from pathlib import Path
+import logging
 
 
 class sTDA_XTB:
@@ -44,7 +45,7 @@ class sTDA_XTB:
 
     Attributes
     ----------
-    STDA_bin_path : str
+    stda_bin_path : str
         The path to the STDA binary file.
     Num_threads : int
         The number of threads to use.
@@ -70,10 +71,10 @@ class sTDA_XTB:
         maxev_excitedenergy=10,
     ):
         """Initialize the class.
-        
+
         Args:
         ----
-        STDA_bin_path : str
+        stda_bin_path : str
             The path to the STDA binary file.
         Num_threads : int
             The number of threads to use.
@@ -90,12 +91,12 @@ class sTDA_XTB:
 
     def calculate(self, mol):
         """Calculate the excited state properties.
-        
+
         Parameters
         ----------
         mol : RDKit Mol
             The molecule to calculate the excited state properties.
-            
+
         Returns
         -------
         str
@@ -106,9 +107,6 @@ class sTDA_XTB:
             output_dir = str(uuid.uuid4().int)
         else:
             output_dir = self._output_dir
-        output_dir = Path
-        Path(output_dir).resolve()
-
         if Path(output_dir).exists():
             shutil.rmtree(output_dir)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -118,62 +116,74 @@ class sTDA_XTB:
         xyz = "input_structure.xyz"
         os.chdir(output_dir)
         env = os.environ.copy()
-        env["XTB4STDAHOME"] = self.stda_bin_path
         env["OMP_NUM_THREADS"] = str(self.num_threads)
         env["MKL_NUM_THREADS"] = str(self.num_threads)
-        env["PATH"] = env["PATH"] + ":" + Path(self.stda_bin_path) / "exe"
-
-        sp.call(
-            ["xtb4stda", xyz, ">", "gen_wfn.out"],
-            stdout=sp.DEVNULL,
-            stderr=sp.STDOUT,
-            env=env,
-        )
-        sp.call(
-            ["stda_v1.6.2", "-xtb", "-e", str(self.maxev_excitedenergy), ">", "out_stda.out"],
-            stdout=sp.DEVNULL,
-            stderr=sp.STDOUT,
-            env=env,
-        )
+        env["XTB4STDAHOME"] = "/media/mohammed/Work/bin/xtb4stda_home"
+        command = [self.stda_bin_path + "xtb4stda", xyz]
+        with Path("gen_wfn.out").open("w") as f:
+            sp.run(  # noqa: S603
+                command,
+                env=env,
+                check=True,
+                stdout=f,
+            )
+        command = [
+            self.stda_bin_path + "stda_v1.6.3",
+            "-xtb", "-e",
+            str(self.maxev_excitedenergy),
+        ]
+        with Path("out_stda.out").open("w") as f:
+            sp.run(  # noqa: S603
+                command,
+                env=env,
+                check=True,
+                stdout=f,
+            )
 
         os.chdir(init_dir)
         return output_dir
 
     def get_results(self, mol):
         """Get the results of the calculation.
-        
+
         Parameters
         ----------
         mol : RDKit Mol
             The molecule to calculate the excited state properties.
-            
+
         Returns
         -------
         list of float
             The excited state energies.
         list of float
             The excited state oscillator strengths.
-            
+
         """
         output_dir = self.calculate(mol)
         init_dir = Path.cwd()
         os.chdir(output_dir)
-        with Path("out_stda.out").open(encoding="utf8", mode="r") as outfile:
-            data = outfile.readlines()
-        for i in range(1, len(data)):
-            line = data[i]
-            if "state    eV " in line:
-                excited_state_properties = [
-                    re.findall(r"[-+]?(?:\d*\.*\d+)", data[i + x + 1])
-                    for x in range(10)
-                ]
-                excited_state_energy = [
-                    float(x[1]) for x in excited_state_properties
-                ]  # float(words[3]) #
-                excited_state_osc = [
-                    float(x[3]) for x in excited_state_properties
-                ]
-
+        try:
+            with Path("out_stda.out").open(
+                encoding="utf8", mode="r"
+            ) as outfile:
+                data = outfile.readlines()
+            for i in range(1, len(data)):
+                line = data[i]
+                if "state    eV " in line:
+                    excited_state_properties = [
+                        re.findall(r"[-+]?(?:\d*\.*\d+)", data[i + x + 1])
+                        for x in range(10)
+                    ]
+                    excited_state_energy = [
+                        float(x[1]) for x in excited_state_properties
+                    ]  # float(words[3]) #
+                    excited_state_osc = [
+                        float(x[3]) for x in excited_state_properties
+                    ]
+        except FileNotFoundError:
+            excited_state_energy = []
+            excited_state_osc = []
+            logging.exception("No excited state properties found")
         os.chdir(init_dir)
         if excited_state_energy == []:
             pass

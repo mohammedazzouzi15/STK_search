@@ -8,7 +8,7 @@ from stk_search import SearchExp
 from stk_search.geom3d.frag_encoding_with_transformer import Fragment_encoder
 from stk_search.geom3d.models import SchNet
 from stk_search.geom3d.test_train import Pymodel, read_config
-from stk_search.Objective_function import Look_up_table
+from stk_search.ObjectiveFunction import LookUpTable
 from stk_search.Search_algorithm import (
     Bayesian_Optimisation,
     Represenation_3D,
@@ -31,7 +31,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
 
     search_space_loc = "data/input/search_space/test/search_space1.pkl"
     # get initial elements
-    objective_function = Look_up_table(df_total, 6)
+    ObjectiveFunction = LookUpTable(df_total, 6)
 
     if case == "slatm":
         BO = Bayesian_Optimisation.Bayesian_Optimisation()
@@ -129,7 +129,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
     S_exp = SearchExp.Search_exp(
         search_space_loc,
         search_algorithm,
-        objective_function,
+        ObjectiveFunction,
         number_of_iterations,
         verbose=verbose,
     )
