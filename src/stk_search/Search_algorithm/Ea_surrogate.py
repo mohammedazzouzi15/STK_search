@@ -46,6 +46,31 @@ class Ea_surrogate(evolution_algorithm):
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
+        """Suggest a new element to evaluate.
+
+        The element is selected using the surrogate model and the representation of the molecules.
+        
+        Args:
+        ----
+            search_space_df: pd.DataFrame
+                the search space
+            fitness_acquired: np.array
+                the fitness of the acquired elements
+            ids_acquired: np.array
+                the ids of the acquired elements
+            SP: SearchSpace
+                the search space object
+            benchmark: bool
+                if True, the benchmark is used to evaluate the fitness
+            df_total: pd.DataFrame
+                the total dataframe containing the data
+
+        Returns:
+        -------
+            int: the id of the element to evaluate
+            pd.DataFrame: the dataframe containing the element to evaluate
+
+        """
         df_elements, df_search = self.generate_df_elements_to_choose_from(
             search_space_df,
             fitness_acquired,
@@ -54,35 +79,32 @@ class Ea_surrogate(evolution_algorithm):
             df_total,
         )
         # get the best using the surrogate model
-        X_unsqueezed = self.Representation.generate_repr(df_elements)
+        x_unsqueezed = self.Representation.generate_repr(df_elements)
         if self.verbose:
             pass
         # get model prediction
         # make sure that the model and the data have the same dtype
-        X_unsqueezed = X_unsqueezed.to(self.device)
+        x_unsqueezed = x_unsqueezed.to(self.device)
         model_dtype = next(self.pred_model.parameters()).dtype
-        if X_unsqueezed.dtype != model_dtype:
-            X_unsqueezed = X_unsqueezed.type(model_dtype)
+        if x_unsqueezed.dtype != model_dtype:
+            x_unsqueezed = x_unsqueezed.type(model_dtype)
         acquisition_values = (
-            self.pred_model(X_unsqueezed).squeeze().cpu().detach().numpy()
+            self.pred_model(x_unsqueezed).squeeze().cpu().detach().numpy()
         )
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = (-acquisition_values).argsort()
         if self.verbose:
             pass
-
+        
         def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
             return False
-
         for elem_id in ids_sorted_by_aquisition:
             element = df_elements.values[elem_id.item()]
             if add_element(df_search, element):
                 break
-                # index = id.item()
-                # return df_search_space_frag
         return len(df_search) - 1, df_search
 
     def load_representation_model(self):
