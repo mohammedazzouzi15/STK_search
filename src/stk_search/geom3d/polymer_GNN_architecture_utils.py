@@ -34,7 +34,6 @@ def get_bbs_dict(client, database):
 
 
 def Build_polymers(element: pd.DataFrame, bbs_dict):
-
     # print(genes)
 
     InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
@@ -45,10 +44,9 @@ def Build_polymers(element: pd.DataFrame, bbs_dict):
     # joins the Genes to make a repeating unit string
     repeating_unit = repeating_unit.join(genes)
 
-    # print(element[InchiKey_cols].values.flatten())
     def gen_mol(elem):
         precursors = []
-        for fragment in elem[InchiKey_cols].values.flatten():
+        for fragment in elem[InchiKey_cols].to_numpy().flatten():
             bb = bbs_dict[fragment]
             precursors.append(bb)
         polymer = stk.ConstructedMolecule(
@@ -63,9 +61,9 @@ def Build_polymers(element: pd.DataFrame, bbs_dict):
         positions = np.vstack(dat_list)
         positions = torch.tensor(positions, dtype=torch.float)
         atom_types = [
-                atom.get_atom().get_atomic_number()
-                for atom in polymer.get_atom_infos()
-            ]
+            atom.get_atom().get_atomic_number()
+            for atom in polymer.get_atom_infos()
+        ]
         atom_types = torch.tensor(atom_types, dtype=torch.long)
 
         bb_key = join_keys(polymer)
@@ -77,7 +75,7 @@ def Build_polymers(element: pd.DataFrame, bbs_dict):
             y=elem["target"],
         )
 
-    element["polymer"] = element.swifter.apply(lambda x: gen_mol(x), axis=1)
+    element["polymer"] = element.swifter.apply(gen_mol, axis=1)
     return element["polymer"].tolist()
 
 
@@ -109,9 +107,9 @@ def load_molecule(InChIKey, target, db):
         positions = np.vstack(dat_list)
         positions = torch.tensor(positions, dtype=torch.float)
         atom_types = [
-                atom.get_atom().get_atomic_number()
-                for atom in polymer.get_atom_infos()
-            ]
+            atom.get_atom().get_atomic_number()
+            for atom in polymer.get_atom_infos()
+        ]
         atom_types = torch.tensor(atom_types, dtype=torch.long)
         y = torch.tensor(target, dtype=torch.float32)
 
@@ -174,7 +172,6 @@ def get_data_loader(dataset, config):
         num_workers=config["num_workers"],
         drop_last=True,
     )
-
 
 
 def generate_dataset_and_dataloader(config, bbs_dict):

@@ -1,5 +1,7 @@
-"""define a class to store the searched space
-this is a sub class of the search space class.
+"""Define a class to represent the searched space.
+
+Here i mainly introduce a function to plot the histogram of the searched space
+and compare it with the histogram of the whole dataset
 """
 
 from itertools import product
@@ -106,11 +108,9 @@ class SearchedSpace(SearchSpace):
         # put the lengend on top of the figure
 
         for ax in axs.flatten():
-            # ax.set_yscale('log')
             ax.grid(False)
             ax.set_ylabel("Density")
             ax.set_yticks([])
-            # ax.legend()
         plt.tight_layout()
         return fig, axs
 
@@ -127,14 +127,11 @@ class SearchedSpace(SearchSpace):
             # check that the first element is 0
             if i[0] == 0:
                 # check that the element is not higher than its position
-                for pos, id in enumerate(i):
-                    if id > pos:
+                for pos, _id in enumerate(i):
+                    if _id > pos:
                         append = False
                         break
-                    if id != pos and i[id] == id:
-                        # print(id,i[id],pos,i[pos])
-                        append = True
-                    elif id == pos:
+                    if (_id!= pos and i[_id] == _id) or i[_id] == pos:
                         append = True
                     else:
                         append = False

@@ -120,7 +120,7 @@ class sTDA_XTB:
         env["MKL_NUM_THREADS"] = str(self.num_threads)
         env["XTB4STDAHOME"] = "/media/mohammed/Work/bin/xtb4stda_home"
         command = [self.stda_bin_path + "xtb4stda", xyz]
-        with Path("gen_wfn.out").open("w") as f:
+        with Path("gen_wfn.out").open("w",encoding="utf-8") as f:
             sp.run(  # noqa: S603
                 command,
                 env=env,
@@ -132,7 +132,7 @@ class sTDA_XTB:
             "-xtb", "-e",
             str(self.maxev_excitedenergy),
         ]
-        with Path("out_stda.out").open("w") as f:
+        with Path("out_stda.out").open("w",encoding="utf-8") as f:
             sp.run(  # noqa: S603
                 command,
                 env=env,
