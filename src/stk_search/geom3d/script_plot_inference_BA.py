@@ -22,7 +22,7 @@ def load_data(
     df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
-    SP = Searched_pace.Searched_Space(
+    SP = Searched_pace.SearchedSpace(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],
@@ -100,8 +100,8 @@ def generate_train_val_data(
     for x in loader:
         with torch.no_grad():
             EncodingModel.to(config["device"])
-            representation = EncodingModel(x)
-            representation = representation.squeeze()
+            Representation = EncodingModel(x)
+            Representation = representation.squeeze()
             model_inferrence.to(config["device"])
             Y_pred = model_inferrence(representation.to(config["device"]))
             # add y_pred from org representation
@@ -144,7 +144,7 @@ def generate_test_val_data(
         client,
         database=config["database_name"],
     )
-    SP = Searched_pace.Searched_Space(
+    SP = Searched_pace.SearchedSpace(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],

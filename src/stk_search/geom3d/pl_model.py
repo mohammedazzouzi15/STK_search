@@ -1,4 +1,4 @@
-"""PyTorch Lightning model for 3D molecular representation learning."""
+"""PyTorch Lightning model for 3D molecular Representation learning."""
 
 import lightning.pytorch as pl
 import torch
@@ -22,14 +22,14 @@ class PrintLearningRate(pl.Callback):
 
 
 class Pymodel(pl.LightningModule):
-    """PyTorch Lightning model for 3D molecular representation learning.
+    """PyTorch Lightning model for 3D molecular Representation learning.
     The loss function is the mean squared error (MSE) loss.
     The learning rate scheduler can be chosen from CosineAnnealingLR, CosineAnnealingWarmRestarts, and StepLR.
     The initial learning rate and the learning rate scheduler parameters can be set in the configuration file.
 
     Args:
     ----
-    - model (nn.Module): 3D molecular representation learning model
+    - model (nn.Module): 3D molecular Representation learning model
     - graph_pred_linear (nn.Module): linear layer for graph prediction
     - config (dict): dictionary containing the configuration
 

@@ -12,7 +12,7 @@ Example:
 
     .. code-block:: python
 
-        from stk_search.Calculators.STDA_calculator import sTDA_XTB
+        from stk_search.Calculators.stda_calculator import sTDAXTB
         from rdkit import Chem
 
         mol = Chem.MolFromSmiles("CC")
@@ -23,7 +23,7 @@ Example:
         stda_bin_path = "/path/to/STDA_binary"
         Num_threads = 1
         output_dir = None
-        stda_calculator = sTDA_XTB(stda_bin_path, Num_threads, output_dir)
+        stda_calculator = sTDAXTB(stda_bin_path, Num_threads, output_dir)
         Excited_state_energy, Excited_state_osc = stda_calculator.get_results(mol)
         print(Excited_state_energy)
         print(Excited_state_osc)
@@ -31,16 +31,16 @@ Example:
 
 """  # noqa: D205
 
+import logging
 import os
 import re
 import shutil
 import subprocess as sp
 import uuid
 from pathlib import Path
-import logging
 
 
-class sTDA_XTB:
+class sTDAXTB:
     """A class to calculate the excited state properties using sTDA method from xtb output.
 
     Attributes
@@ -76,11 +76,11 @@ class sTDA_XTB:
         ----
         stda_bin_path : str
             The path to the STDA binary file.
-        Num_threads : int
+        num_threads : int
             The number of threads to use.
         output_dir : str
             The path to the output directory.
-        maxeV_ExcitedEnergy : float
+        maxev_excitedenergy : float
             The maximum energy of the excited state.
 
         """
@@ -120,7 +120,7 @@ class sTDA_XTB:
         env["MKL_NUM_THREADS"] = str(self.num_threads)
         env["XTB4STDAHOME"] = "/media/mohammed/Work/bin/xtb4stda_home"
         command = [self.stda_bin_path + "xtb4stda", xyz]
-        with Path("gen_wfn.out").open("w",encoding="utf-8") as f:
+        with Path("gen_wfn.out").open("w", encoding="utf-8") as f:
             sp.run(  # noqa: S603
                 command,
                 env=env,
@@ -129,10 +129,11 @@ class sTDA_XTB:
             )
         command = [
             self.stda_bin_path + "stda_v1.6.3",
-            "-xtb", "-e",
+            "-xtb",
+            "-e",
             str(self.maxev_excitedenergy),
         ]
-        with Path("out_stda.out").open("w",encoding="utf-8") as f:
+        with Path("out_stda.out").open("w", encoding="utf-8") as f:
             sp.run(  # noqa: S603
                 command,
                 env=env,

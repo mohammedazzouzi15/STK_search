@@ -12,7 +12,7 @@ from qml.representations import get_slatm_mbtypes
 
 
 def generate_Slatm(df_1, dirname, name, database_name="stk_mohammed_new"):
-    """Generate slatm representation following the script in :
+    """Generate slatm Representation following the script in :
     https://github.com/lcmd-epfl/FORMED_ML/blob/a5d1e588dbb4883de19d4a69fae6694b9bde1101/data/generate_slatm.py.
     """
     client = pymongo.MongoClient("mongodb://129.31.66.201/")
@@ -59,7 +59,7 @@ def generate_Slatm(df_1, dirname, name, database_name="stk_mohammed_new"):
 
 
 def generate_Slatm_CM(df_1, dirname, name, database_name="stk_mohammed_BO"):
-    """Generate slatm representation following the script in :
+    """Generate slatm Representation following the script in :
     https://github.com/lcmd-epfl/FORMED_ML/blob/a5d1e588dbb4883de19d4a69fae6694b9bde1101/data/generate_slatm.py.
     """
     client = pymongo.MongoClient("mongodb://129.31.66.201/")

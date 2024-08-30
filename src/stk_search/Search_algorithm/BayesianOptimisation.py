@@ -1,4 +1,17 @@
-# class to define the search algorithm
+"""Class to define the Bayesian Optimisation with a GNN surrogate model.
+
+Here teh Bayesian Optimisation search algorithm is defined and is a subclass of Search_Algorithm.
+The Bayesian Optimisation search algorithm is used to optimise the acquisition function and suggest the next element to evaluate.
+the different step of the algorithm are:
+
+1. Prepare input for the BO
+2. Train the model
+3. Optimise the acquisition function
+4. Generate elements to evaluate
+5. Suggest a new element to evaluate
+
+"""
+
 import itertools
 import os
 
@@ -6,24 +19,26 @@ import numpy as np
 import pandas as pd
 import torch
 from botorch import fit_gpytorch_mll
-from botorch.acquisition import ExpectedImprovement, qKnowledgeGradient
+from botorch.acquisition import qKnowledgeGradient
 from botorch.acquisition.analytic import (
     ExpectedImprovement,
     LogExpectedImprovement,
 )
 from botorch.acquisition.max_value_entropy_search import qMaxValueEntropy
 from gpytorch.mlls import ExactMarginalLogLikelihood
+
 from stk_search.Search_algorithm.Botorch_kernels import (
     RBFKernel,
 )
-from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
+from stk_search.Search_algorithm.Search_algorithm import evolution_algorithm
 from stk_search.SearchSpace import SearchSpace
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
-class BayesianOptimisation(Search_Algorithm):
-    """This class is to define the Bayesian Optimisation search algorithm.
+class BayesianOptimisation(evolution_algorithm):
+    """BAYESIAN OPTIMISATION CLASS.
+
     Here the Bayesian Optimisation search algorithm is defined and is a subclass of Search_Algorithm.
     The Bayesian Optimisation search algorithm is used to optimise the acquisition function and suggest the next element to evaluate.
     the different step of the algorithm are:
@@ -32,7 +47,15 @@ class BayesianOptimisation(Search_Algorithm):
     3. Optimise the acquisition function
     4. Generate elements to evaluate
     5. Suggest a new element to evaluate.
-    
+
+    Attributes
+    ----------
+    verbose (bool): if True, print the output
+    which_acquisition (str): acquisition function to use
+    kernel (gpytorch.kernels): kernel to use
+    device (str): device to use
+    likelihood (gpytorch.likelihoods): likelihood to use
+
     """
 
     def __init__(
@@ -43,7 +66,7 @@ class BayesianOptimisation(Search_Algorithm):
         likelihood=ExactMarginalLogLikelihood,
         model=None,
         lim_counter=2,
-        Representation=None,
+        representation=None,
     ):
         """Initialise the class.
 
@@ -57,33 +80,33 @@ class BayesianOptimisation(Search_Algorithm):
             likelihood (gpytorch.likelihoods): likelihood to use
             model (gpytorch.models): model to use
             lim_counter (int): max iteration for the acquisition function optimisation
-            Representation (object): representation of the element
+            representation (object): representation of the element
 
         """
         self.verbose = verbose
-        # self.normalise_input = normalise_input
         self.which_acquisition = which_acquisition
         self.kernel = kernel
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.likelihood = likelihood
         self.model = model
         self.lim_counter = lim_counter  # max iteration for the acquisition function optimisation
-        self.Representation = Representation
+        self.Representation = representation
         self.name = "Bayesian_Optimisation"
         self.pred_model = None
         self.config_dir = ""
-        self.multiFidelity = False
+        self.multi_fidelity = False
         self.budget = None
 
-    def update_representation(self, Representation):
-        self.Representation = Representation
+    def update_representation(self, representation):
+        """Update the representation."""
+        self.Representation = representation
 
     def suggest_element(
         self,
-        search_space_df,
+        searchspace_df,
         fitness_acquired,
         ids_acquired,
-        SP: SearchSpace,
+        sp: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
     ):
@@ -91,41 +114,48 @@ class BayesianOptimisation(Search_Algorithm):
 
         Args:
         ----
-            search_space_df (pd.DataFrame): search space
-            fitness_acquired (list): fitness of the acquired elements
-            ids_acquired (list): ids of the acquired elements
-            SP (Search_Space): search space
-            benchmark (bool): if True, the search space is a benchmark
-            df_total (pd.DataFrame): dataframe of the total dataset
+            searchspace_df (pd.DataFrame):
+                search space dataframe.
+            fitness_acquired (list):
+                fitness of the acquired elements.
+            ids_acquired (list):
+                ids of the acquired elements.
+            sp (SearchSpace):
+                search space.
+            benchmark (bool):
+                if True, the search space is a benchmark.
+            df_total (pd.DataFrame):
+                dataframe of the total dataset.
+
         Returns:
-            int: id of the new element
-            pd.DataFrame: updated search space
+        -------
+            int: id of the new element.
+            pd.DataFrame: updated search space.
 
         """
-        df_search = search_space_df.copy()
+        df_search = searchspace_df.copy()
         fitness_acquired = np.array(fitness_acquired)
         # prepare input for the BO
-        X_rpr = self.Representation.generate_repr(
+        x_rpr = self.Representation.generate_repr(
             df_search.loc[ids_acquired, :]
         )
-        X_rpr = X_rpr.double()
-        X_rpr = self.normalise_input(X_rpr)
-        y_explored_BO_norm = torch.tensor(
+        x_rpr = x_rpr.double()
+        y_explored_bo_norm = torch.tensor(
             fitness_acquired, dtype=torch.float64
         )
-        y_explored_BO_norm = (
-            y_explored_BO_norm - y_explored_BO_norm.mean(axis=0)
-        ) / (y_explored_BO_norm.std(axis=0))
-        y_explored_BO_norm = y_explored_BO_norm.reshape(-1, 1)
+        y_explored_bo_norm = (
+            y_explored_bo_norm - y_explored_bo_norm.mean(axis=0)
+        ) / (y_explored_bo_norm.std(axis=0))
+        y_explored_bo_norm = y_explored_bo_norm.reshape(-1, 1)
         # train model
-        self.train_model(X_rpr, y_explored_BO_norm)
+        self.train_model(x_rpr, y_explored_bo_norm)
         # optimise the acquisition function
         ids_sorted_by_aquisition, df_elements = (
             self.optimise_acquisition_function(
-                best_f=y_explored_BO_norm.max().item(),
+                best_f=y_explored_bo_norm.max().item(),
                 fitness_acquired=fitness_acquired,
                 df_search=df_search,
-                SP=SP,
+                sp=sp,
                 benchmark=benchmark,
                 df_total=df_total,
             )
@@ -139,15 +169,28 @@ class BayesianOptimisation(Search_Algorithm):
             return False
 
         for element_id in ids_sorted_by_aquisition:
-            if add_element(df_search, df_elements.values[element_id.item()]):
+            if add_element(
+                df_search, df_elements.to_numpy()[element_id.item()]
+            ):
                 break
         return len(df_search) - 1, df_search
 
-    def normalise_input(self, X_rpr):
-        X_rpr = X_rpr.double()
+    def normalise_input(self, x_rpr):
+        """Normalise the input.
+
+        Args:
+        ----
+            x_rpr (torch.tensor): Representation of the element.
+
+        Returns:
+        -------
+            torch.tensor: normalised input
+
+        """
+        x_rpr = x_rpr.double()
         # min max scaling the input
-        return (X_rpr - X_rpr.min(dim=0)[0]) / (
-            X_rpr.max(dim=0)[0] - X_rpr.min(dim=0)[0]
+        return (x_rpr - x_rpr.min(dim=0)[0]) / (
+            x_rpr.max(dim=0)[0] - x_rpr.min(dim=0)[0]
         )
 
     def optimise_acquisition_function(
@@ -155,7 +198,7 @@ class BayesianOptimisation(Search_Algorithm):
         best_f,
         fitness_acquired,
         df_search,
-        SP,
+        sp: SearchSpace,
         benchmark=False,
         df_total=None,
     ):
@@ -163,13 +206,21 @@ class BayesianOptimisation(Search_Algorithm):
 
         Args:
         ----
-            best_f (float): best fitness
-            fitness_acquired (list): fitness of the acquired elements
-            df_search (pd.DataFrame): search space
-            SP (Search_Space): search space
-            benchmark (bool): if True, the search space is a benchmark
-            df_total (pd.DataFrame): dataframe of the total dataset
+            best_f:
+                float: best fitness.
+            fitness_acquired:
+                list: fitness of the acquired elements.
+            df_search :
+                pd.DataFrame: search space dataframe.
+            sp :
+                SearchSpace: search space.
+            benchmark :
+                bool: if True, the search space is a benchmark.
+            df_total :
+                pd.DataFrame: dataframe of the total dataset.
+
         Returns:
+        -------
             torch.tensor: acquisition values
             pd.DataFrame: updated search space
 
@@ -177,14 +228,14 @@ class BayesianOptimisation(Search_Algorithm):
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
         df_elements = self.Generate_element_to_evaluate(
-            fitness_acquired, df_search, SP, benchmark, df_total
+            fitness_acquired, df_search, sp, benchmark, df_total
         )
-        Xrpr = self.Representation.generate_repr(df_elements)
-        Xrpr = self.normalise_input(Xrpr)
+        xrpr = self.Representation.generate_repr(df_elements)
+        xrpr = self.normalise_input(xrpr)
         acquisition_values = self.get_acquisition_values(
             self.model,
             best_f=best_f,
-            Xrpr=Xrpr,
+            xrpr=xrpr,
         )
 
         if "dataset_local" in self.Representation.__dict__:
@@ -199,17 +250,18 @@ class BayesianOptimisation(Search_Algorithm):
             df_elements = self.Generate_element_to_evaluate(
                 acquisition_values.cpu().numpy(),
                 df_elements,
-                SP,
+                sp,
                 benchmark,
                 df_total,
             )
-            Xrpr = self.Representation.generate_repr(df_elements)
-            Xrpr = self.normalise_input(Xrpr)
+
+            xrpr = self.Representation.generate_repr(df_elements)
+            xrpr = self.normalise_input(xrpr)
             # if benchmark:
             acquisition_values = self.get_acquisition_values(
                 self.model,
                 best_f=best_f,
-                Xrpr=Xrpr,
+                xrpr=xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
                 pass
@@ -232,7 +284,7 @@ class BayesianOptimisation(Search_Algorithm):
         self,
         fitness_acquired,
         df_search,
-        SP: SearchSpace,
+        sp: SearchSpace,
         benchmark=False,
         df_total=None,
     ):
@@ -242,7 +294,7 @@ class BayesianOptimisation(Search_Algorithm):
         ----
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
-            SP (Search_Space): search space
+            sp (SearchSpace): search space
             benchmark (bool): if True, the search space is a benchmark
             df_total (pd.DataFrame): dataframe of the total dataset
             Returns:
@@ -253,7 +305,7 @@ class BayesianOptimisation(Search_Algorithm):
         def mutate_element(element):
             elements_val = []
             for i in range(element.shape[0]):
-                for frag in SP.df_precursors.InChIKey:
+                for frag in sp.df_precursors.InChIKey:
                     element_new = element.copy()
                     element_new[i] = frag
                     elements_val.append(element_new)
@@ -295,7 +347,7 @@ class BayesianOptimisation(Search_Algorithm):
                 f"InChIKey_{x}" for x in range(elements.shape[1])
             ],  # check this for generalization
         )
-        df_elements = SP.check_df_for_element_from_sp(df_to_check=df_elements)
+        df_elements = sp.check_df_for_element_from_sp(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
             df_elements = df_elements.merge(
@@ -316,35 +368,37 @@ class BayesianOptimisation(Search_Algorithm):
             df_elements = df_elements.sample(1000)
         return df_elements.reset_index(drop=True)
 
-    def train_model(self, X_train, y_train):
+    def train_model(self, x_train, y_train):
         """Train the model.
 
         Args:
         ----
-            X_train (torch.tensor): input
-            y_train (torch.tensor): output
+            x_train (torch.tensor): input.
+            y_train (torch.tensor): output.
 
         """
         self.model = self.kernel(
-            X_train,
+            x_train,
             y_train,
         )
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
 
-    def get_acquisition_values(self, model, best_f, Xrpr):
+    def get_acquisition_values(self, model, best_f, xrpr):
         """Get the acquisition values.
 
         Args:
         ----
-            model (gpytorch.models): model
-            best_f (float): best fitness
-            Xrpr (torch.tensor): representation of the element
+            model (gpytorch.models): model.
+            best_f (float): best fitness.
+            xrpr (torch.tensor): Representation of the element.
+
         Returns:
-        torch.tensor: acquisition values
+        -------
+        torch.tensor: acquisition values.
 
         """
-        X_unsqueezed = Xrpr.double()
+        X_unsqueezed = xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
         if self.which_acquisition == "EI":
@@ -372,9 +426,7 @@ class BayesianOptimisation(Search_Algorithm):
         elif self.which_acquisition == "UCB_GNN":
             if self.pred_model is None:
                 msg = "pred_model is None, but it's required for UCB_GNN acquisition"
-                raise ValueError(
-                    msg
-                )
+                raise ValueError(msg)
             with torch.no_grad():
                 acquisition_values = self.pred_model(
                     X_unsqueezed.float()
@@ -390,21 +442,34 @@ class BayesianOptimisation(Search_Algorithm):
                     + self.model.posterior(X_unsqueezed).variance.squeeze()
                 )
 
-                acquisition_values = self.pred_model(X_unsqueezed.float()).squeeze()
-                acquisition_values = acquisition_values + self.model.posterior(
-                                X_unsqueezed
-                            ).variance.squeeze()
+                acquisition_values = self.pred_model(
+                    X_unsqueezed.float()
+                ).squeeze()
+                acquisition_values = (
+                    acquisition_values
+                    + self.model.posterior(X_unsqueezed).variance.squeeze()
+                )
         elif self.which_acquisition == "KG":
-            acquisition_function = qKnowledgeGradient(model=model,num_fantasies= 5)
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
+            acquisition_function = qKnowledgeGradient(
+                model=model, num_fantasies=5
+            )
+            bounds = torch.tensor(
+                [[0.0] * xrpr.shape[1], [1.0] * xrpr.shape[1]],
+                dtype=torch.float64,
+            )
             acquisition_values = acquisition_function.evaluate(
-                X_unsqueezed,
-                bounds= bounds
+                X_unsqueezed, bounds=bounds
             )
         elif self.which_acquisition == "MES":
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]])
-            candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(10000, Xrpr.shape[1])
-            acquisition_function = qMaxValueEntropy(model, candidate_set=candidate_set)
+            bounds = torch.tensor(
+                [[0.0] * xrpr.shape[1], [1.0] * xrpr.shape[1]]
+            )
+            candidate_set = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(
+                10000, xrpr.shape[1]
+            )
+            acquisition_function = qMaxValueEntropy(
+                model, candidate_set=candidate_set
+            )
             acquisition_values = acquisition_function(
                 X_unsqueezed,
             ).detach()
@@ -414,13 +479,12 @@ class BayesianOptimisation(Search_Algorithm):
                     X_unsqueezed
                 ).variance.squeeze()
         return acquisition_values
-    
+
     def load_representation_model(self):
         from stk_search.geom3d import pl_model
-        import torch.nn.functional as Functional
-        from stk_search.geom3d import train_models
         from stk_search.Representation import Representation_poly_3d
         from stk_search.utils.config_utils import read_config
+
         config_dir = self.config_dir
         config = read_config(config_dir)
         chkpt_path = config["model_embedding_chkpt"]
@@ -431,9 +495,8 @@ class BayesianOptimisation(Search_Algorithm):
         pymodel = pl_model.Pymodel_new(model, graph_pred_linear, config)
         # Load the state dictionary
         pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
-        # pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
         pymodel.to(config["device"])
-        Representation = Representation_poly_3d.Representation_poly_3d(
+        Representation = Representation_poly_3d.RepresentationPoly3d(
             pymodel,
             mongo_client=config["pymongo_client"],
             database=config["database_name"],

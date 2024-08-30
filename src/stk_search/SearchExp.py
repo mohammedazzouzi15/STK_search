@@ -8,12 +8,12 @@ It takes as input the search space, the search algorithm, the objective function
 The search experiment will save the results in the output folder
 
 """
-import os
+
 import pickle
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
-from stk_search.ObjectiveFunction import ObjectiveFunction
 from stk_search.SearchSpace import SearchSpace
 
 
@@ -22,7 +22,7 @@ class SearchExp:
 
     Parameters
     ----------
-    searchspace : SearchSpace
+    SearchSpace : SearchSpace
         The search space to be used in the search experiment
     search_algorithm : Search_Algorithm
         The search algorithm to be used in the search experiment
@@ -35,7 +35,7 @@ class SearchExp:
 
     Attributes
     ----------
-    search_space : SearchSpace
+    SearchSpace : SearchSpace
         The search space to be used in the search experiment. this is defined as a class
         of stk_search.SearchSpace.SearchSpace
     search_algorithm : Search_Algorithm
@@ -48,7 +48,7 @@ class SearchExp:
         The number of iterations to run the search experiment
     output_folder : str
         The folder to save the search experiment
-    search_space_folder : str
+    SearchSpace_folder : str
         The folder to save the search space
     num_elem_initialisation : int
         The number of elements to initialise the search space
@@ -104,36 +104,36 @@ class SearchExp:
 
     def __init__(
         self,
-        searchspace: SearchSpace,
+        search_space: SearchSpace,
         search_algorithm,
-        ObjectiveFunction,
+        objective_function,
         number_of_iterations,
-        verbose=False,
+        verbose=False,  # noqa: FBT002
     ):
         """Initialize the search experiment.
-        
+
         Parameters
         ----------
-        searchspace : SearchSpace
+        search_space : SearchSpace
             The search space to be used in the search experiment
         search_algorithm : Search_Algorithm
             The search algorithm to be used in the search experiment
-        ObjectiveFunction : ObjectiveFunction
+        objective_function : ObjectiveFunction
             The objective function to be used in the search experiment
         number_of_iterations : int
             The number of iterations to run the search experiment
         verbose : bool
             Whether to print the progress of the search experiment
-            
+
         """
-        self.search_space = searchspace
+        self.SearchSpace = search_space
         self.search_algorithm = (
             search_algorithm  # add a name to the search algorithm
         )
-        self.ObjectiveFunction = ObjectiveFunction
+        self.ObjectiveFunction = objective_function
         self.number_of_iterations = number_of_iterations
         self.output_folder = "Data/search_experiment"
-        self.search_space_folder = "Data/search_experiment/search_space"
+        self.SearchSpace_folder = "Data/search_experiment/SearchSpace"
         self.num_elem_initialisation = 10
         self.df_search_space = None
         self.ids_acquired = []
@@ -147,7 +147,6 @@ class SearchExp:
         self.df_total = None
         self.date = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
         self.search_exp_name = uuid.uuid4().hex
-
 
     def run_seach(self):
         """Run the search experiment.
@@ -163,10 +162,10 @@ class SearchExp:
 
         """
         # get initial elements
-        if self.ids_acquired ==[]:
+        if self.ids_acquired == []:
             ids_acquired, df_search_space = (
                 self.search_algorithm.initial_suggestion(
-                    SP=self.search_space,
+                    sp=self.SearchSpace,
                     num_elem_initialisation=self.num_elem_initialisation,
                     benchmark=self.benchmark,
                     df_total=self.df_total,
@@ -183,22 +182,23 @@ class SearchExp:
             for id_acquired in range(len(ids_acquired)):
                 self.evaluate_element(
                     element_id=ids_acquired[id_acquired],
-                    ObjectiveFunction=self.ObjectiveFunction,
                 )
             if self.verbose:
                 pass
         # run the search
-        number_of_iterations_run = len(self.ids_acquired)-self.num_elem_initialisation
+        number_of_iterations_run = (
+            len(self.ids_acquired) - self.num_elem_initialisation
+        )
         if number_of_iterations_run > self.number_of_iterations:
             return None
-        for id in range(number_of_iterations_run, self.number_of_iterations):
+        for _id in range(number_of_iterations_run, self.number_of_iterations):
             # suggest the next element
             ids_acquired, df_search_space = (
                 self.search_algorithm.suggest_element(
-                    search_space_df=self.df_search_space,
+                    searchspace_df=self.df_search_space,
                     ids_acquired=self.ids_acquired,
                     fitness_acquired=self.fitness_acquired,
-                    SP=self.search_space,
+                    sp=self.SearchSpace,
                     benchmark=self.benchmark,
                     df_total=self.df_total,
                 )
@@ -211,7 +211,6 @@ class SearchExp:
             # evaluate the element
             self.evaluate_element(
                 element_id=ids_acquired,
-                ObjectiveFunction=self.ObjectiveFunction,
             )
             # save the results
             self.save_results()
@@ -223,52 +222,81 @@ class SearchExp:
     def evaluate_element(
         self,
         element_id: int,
-        ObjectiveFunction: ObjectiveFunction = None,
     ):
-        # get the element
+        """Evaluate the element.
+
+        Trie to evaluate the element using the objective function. if it fails it will add the element to the bad_ids list and return None, None
+
+        Args:
+        ----
+        element_id : int
+            The id of the element to evaluate in the df of the search space
+
+        Returns:
+        -------
+        Eval : float
+            The fitness of the element
+        InchiKey : str
+            The InchiKey of the element
+
+        """
         element = self.df_search_space.loc[[element_id], :]
-        time_calc = datetime.now()
+        time_calc = datetime.now(tz=timezone.utc)
         # evaluate the element
         try:
-            Eval, InchiKey = ObjectiveFunction.evaluate_element(
+            eval_value, InchiKey = self.ObjectiveFunction.evaluate_element(
                 element=element,
-                multiFidelity=self.search_algorithm.multiFidelity,
             )
-            if self.verbose:
-                pass
-            if self.search_algorithm.multiFidelity:
-                pass
-            if Eval is None:
-                self.bad_ids.append(element_id)
-
-                return None, None
-            self.fitness_acquired.append(Eval)
-            self.InchiKey_acquired.append(InchiKey)
-            self.ids_acquired.append(element_id)
-            self.time_calc.append(datetime.now() - time_calc)
-            self.overall_time.append(datetime.now())
-            return Eval, InchiKey
-        except Exception:
+        except Exception as e:
+            print(f"Element {element_id} failed")
+            print(e)
             self.bad_ids.append(element_id)
             return None, None
+        if self.search_algorithm.multi_fidelity:
+            pass
+        if eval_value is None:
+            self.bad_ids.append(element_id)
+            return None, None
+        self.fitness_acquired.append(eval_value)
+        self.InchiKey_acquired.append(InchiKey)
+        self.ids_acquired.append(element_id)
+        self.time_calc.append(
+            datetime.now(tz=timezone.utc) - time_calc
+        )
+        self.overall_time.append(datetime.now(tz=timezone.utc))
+        return eval_value, InchiKey
 
     def save_search_experiment(self):
+        """Save the search experiment.
+
+        Save the search experiment in the output folder with the name search_experiment_{self.search_exp_name}.pkl
+        """
         # save the search experiment
         datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
         date_now = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
-        os.makedirs(self.output_folder + f"/{date_now}", exist_ok=True)
-        with open(
+        Path(self.output_folder + f"/{date_now}").mkdir(
+            parents=True, exist_ok=True
+        )
+        with Path(
             self.output_folder
             + f"/{date_now}"
             + f"/search_experiment_{self.search_exp_name}.pkl",
-            "wb",
-        ) as f:
+        ).open("wb") as f:
             pickle.dump(self, f)
 
     def save_results(self):
-        # save the results
-        # time_now = datetime.now().strftime("%Y%m%d_%H")
+        """Save the results.
 
+        Save the results in the output folder with the name results_{self.search_exp_name}.pkl
+        the results will be saved in a dictionary with the following keys:
+            - ids_acquired
+            - searched_space_df
+            - fitness_acquired
+            - InchiKey_acquired
+            - overall_time
+            - time_calc
+        """
+        # save the results
         resutls_dict = {
             "ids_acquired": self.ids_acquired,
             "searched_space_df": self.df_search_space.loc[self.ids_acquired],
@@ -279,8 +307,7 @@ class SearchExp:
         }
 
         path = self.output_folder + f"/{self.date}"
-        os.makedirs(path, exist_ok=True)
-        with open(path + f"/results_{self.search_exp_name}.pkl", "wb") as f:
-
+        Path(path).mkdir(parents=True, exist_ok=True)
+        with Path(path + f"/results_{self.search_exp_name}.pkl").open("wb") as f:
             pickle.dump(resutls_dict, f)
         return resutls_dict

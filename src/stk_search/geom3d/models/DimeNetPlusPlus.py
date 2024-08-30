@@ -314,7 +314,7 @@ class DimeNetPlusPlus(torch.nn.Module):
             x = interaction_block(x, rbf, sbf, idx_kj, idx_ji)
             P += output_block(x, rbf, i, num_nodes=pos.size(0), extract_representation=extract_representation)
 
-        # representation if extract_representation=True
+        # Representation if extract_representation=True
         # energy if extract_representation=False
         P /= (self.num_blocks + 1)
         out = P.sum(dim=0) if batch is None else scatter(P, batch, dim=0, reduce=self.readout)
@@ -357,7 +357,7 @@ class DimeNetPlusPlus(torch.nn.Module):
             x = interaction_block(x, rbf, sbf, idx_kj, idx_ji)
             P += output_block(x, rbf, gathered_i, num_nodes=gathered_z.size(0), extract_representation=extract_representation)
 
-        # representation if extract_representation=True
+        # Representation if extract_representation=True
         # energy if extract_representation=False
         P /= (self.num_blocks + 1)
 

@@ -18,7 +18,7 @@ conditions_list : list
     list of the conditions that need to be respected by the building blocks
 
 
-"""  # noqa: D205
+"""
 import matplotlib.pyplot as plt
 import pandas as pd
 from ipywidgets import Layout, interact, widgets
@@ -120,8 +120,6 @@ class SearchSpace:
             dataframe containing the elements that respect the conditions
 
         """
-        from ast import literal_eval
-
         df_mult_filtered = df_to_check.copy()
         for i in range(self.number_of_fragments):
             df_precursor_filter = self.df_precursors.copy()
@@ -178,8 +176,6 @@ class SearchSpace:
             list of list of index of the fragment
 
         """
-        from ast import literal_eval
-
         list_fragment = []
         if self.generation_type == "conditional":
             for i in range(self.number_of_fragments):

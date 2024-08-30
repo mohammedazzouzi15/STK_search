@@ -24,7 +24,7 @@ import pymongo
 import stk
 import stko
 
-from stk_search.Calculators.STDA_calculator import sTDA_XTB
+from stk_search.Calculators.STDA_calculator import sTDAXTB
 from stk_search.Calculators.XTBcalculator import XTBEnergy2
 
 
@@ -52,7 +52,7 @@ class ObjectiveFunction:
 
     Functions
     ---------
-    evaluate_element(element, multiFidelity=False)
+    evaluate_element(element, multi_fidelity=False)
         Evaluates the fitness of the element
         takes as an input a list of building blocks and returns the fitness of the element
 
@@ -71,8 +71,7 @@ class ObjectiveFunction:
         ----
             element: list
             list of building blocks
-            multiFidelity: bool
-            if True, the function will return the fitness and the fidelity of the element
+
 
         Returns:
         -------
@@ -151,8 +150,7 @@ class LookUpTable(ObjectiveFunction):
         ----
             element: list
             list of building blocks
-            multiFidelity: bool
-            if True, the function will return the fitness and the fidelity of the element
+            s
 
         Returns:
         -------
@@ -669,7 +667,7 @@ class IpEs1Fosc(ObjectiveFunction):
         if stda_results is not None:
             return stda_results[excited_state_property][state]
         try:
-            stda = sTDA_XTB(
+            stda = sTDAXTB(
                 stda_bin_path=stda_bin_path,
                 num_threads=25,
                 output_dir=Path(output_dir, get_inchi_key(polymer)),
@@ -695,7 +693,3 @@ class IpEs1Fosc(ObjectiveFunction):
         except subprocess.CalledProcessError:
             logging.exception("Error running stda %s")
             return None
-        
-        
-
-        

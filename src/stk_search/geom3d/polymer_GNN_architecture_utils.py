@@ -75,7 +75,7 @@ def Build_polymers(element: pd.DataFrame, bbs_dict):
             y=elem["target"],
         )
 
-    element["polymer"] = element.swifter.apply(gen_mol, axis=1)
+    element["polymer"] = element.swifter.progress_bar(False).apply(gen_mol, axis=1)
     return element["polymer"].tolist()
 
 
@@ -130,7 +130,7 @@ def get_dataset_polymer_opt(config, element):
         client,
         database=config["database_name"],
     )
-    element["data_opt"] = element.swifter.apply(
+    element["data_opt"] = element.swifter.progress_bar(False).apply(
         lambda x: load_molecule(x["InChIKey"], x["target"], db), axis=1
     )
     return element["data_opt"].tolist()

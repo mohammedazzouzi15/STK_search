@@ -11,6 +11,7 @@ import shutil
 import subprocess as sp
 import uuid
 from pathlib import Path
+
 import stko
 
 
@@ -66,7 +67,7 @@ class XTBEnergy2(stko.XTBEnergy):
     """
 
     def _run_xtb(self, xyz, out_file, init_dir, output_dir) -> None:
-        """Method to run the xTB calculation.
+        """Run the xTB calculation.
 
         Parameters
         ----------
@@ -108,14 +109,13 @@ class XTBEnergy2(stko.XTBEnergy):
             f"{solvent} --chrg {self._charge} "
             f"--uhf {self._num_unpaired_electrons} -I det_control.in"
         )
-        # print(cmd)
         try:
             os.chdir(output_dir)
             self._write_detailed_control()
             with Path(out_file).open(mode="w") as f:
                 # Note that sp.call will hold the program until
                 # completion of the calculation.
-                sp.call(
+                sp.call(  # noqa: S602
                     cmd,
                     stdin=sp.PIPE,
                     stdout=f,
@@ -125,6 +125,7 @@ class XTBEnergy2(stko.XTBEnergy):
                 )
         finally:
             os.chdir(init_dir)
+
     def calculate(self, mol):
         """Calculate the xTB energy of a molecule.
 
@@ -143,15 +144,15 @@ class XTBEnergy2(stko.XTBEnergy):
         else:
             output_dir = self._output_dir
 
-        if os.path.exists(output_dir):
+        if Path(output_dir).exists():
             shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        init_dir = os.getcwd()
-        xyz = os.path.join(output_dir, "input_structure.xyz")
-        out_file = os.path.join("energy.output")
+        init_dir = Path.cwd()
+        xyz = Path(output_dir, "input_structure.xyz")
+        out_file =Path("energy.output")
         mol.write(xyz)
-        xyz = os.path.join("input_structure.xyz")
+        xyz = Path("input_structure.xyz")
 
         yield self._run_xtb(
             xyz=xyz,
@@ -179,9 +180,9 @@ class XTBEnergy2(stko.XTBEnergy):
             output_dir = str(uuid.uuid4().int)
         else:
             output_dir = self._output_dir
-        output_dir = os.path.abspath(output_dir)
+        output_dir = Path(output_dir).absolute()
 
-        out_file = os.path.join(output_dir, "energy.output")
+        out_file = Path(output_dir, "energy.output")
 
         return stko.XTBResults(
             generator=self.calculate(mol),

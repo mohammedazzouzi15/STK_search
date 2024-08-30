@@ -44,8 +44,8 @@ class Plotter:
     :param __target_type: target type R (regression) or C (classificatino)
     :param __target: list containing the target values. Is empty if a target does not exist
     :param __mols: list of valid molecules that can be plotted
-    :param __df_descriptors: datatframe containing the descriptors representation of each molecule
-    :param __df_2_components: dataframe containing the two-dimenstional representation of each molecule
+    :param __df_descriptors: datatframe containing the descriptors Representation of each molecule
+    :param __df_2_components: dataframe containing the two-dimenstional Representation of each molecule
     :param __plot_title: title of the plot reflecting the dimensionality reduction algorithm used
     :param __data: list of the scaled descriptors to which the dimensionality reduction algorithm is applied
     :param pca_fit: PCA object created when the corresponding algorithm is applied to the data
@@ -139,7 +139,7 @@ class Plotter:
     def from_smiles(cls, smiles_list, target=None, target_type=None, sim_type=None):
         """Class method to construct a Plotter object from a list of SMILES.
         
-        :param smile_list: List of the SMILES representation of the molecules to plot.       
+        :param smile_list: List of the SMILES Representation of the molecules to plot.       
         :param target: target values       
         :param target_type: target type R (regression) or C (classificatino)      
         :param sim_type: similarity type structural or tailored     
@@ -159,7 +159,7 @@ class Plotter:
     def from_inchi(cls, inchi_list, target=None, target_type=None, sim_type=None):
         """Class method to construct a Plotter object from a list of InChi.
         
-        :param inchi_list: List of the InChi representation of the molecules to plot.
+        :param inchi_list: List of the InChi Representation of the molecules to plot.
         :type inchi_list: dict
         :param target: target values
         :type target: dict

@@ -266,7 +266,7 @@ class GMABSE3(nn.Module):
             tensor with new features [B, n_points, n_features_out].
         """
         # Add node features to local graph scope
-        ## We use the stacked tensor representation for attention
+        ## We use the stacked tensor Representation for attention
         G = {}
         for m, d in self.f_value.structure:
             G[f"v{d}"] = v[f"{d}"].view(-1, self.n_heads, m // self.n_heads, 2 * d + 1)

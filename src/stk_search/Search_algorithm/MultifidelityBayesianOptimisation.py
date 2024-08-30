@@ -53,7 +53,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             likelihood (gpytorch.likelihoods): likelihood to use
             model (gpytorch.models): model to use
             lim_counter (int): max iteration for the acquisition function optimisation
-            Representation (object): representation of the element
+            Representation (object): Representation of the element
 
         """
         self.verbose = verbose
@@ -68,7 +68,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         self.name = "Multifidelity_Bayesian_Optimisation"
         self.pred_model = None
         self.fidelity_col = fidelity_col
-        self.multiFidelity = True
+        self.multi_fidelity = True
         self.budget = budget
 
     def initial_suggestion(
@@ -130,7 +130,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
     def suggest_element(
         self,
-        search_space_df,
+        searchspace_df,
         fitness_acquired,
         ids_acquired,
         SP: SearchSpace,
@@ -141,10 +141,10 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
         Args:
         ----
-            search_space_df (pd.DataFrame): search space
+            searchspace_df (pd.DataFrame): search space
             fitness_acquired (list): fitness of the acquired elements
             ids_acquired (list): ids of the acquired elements
-            SP (Search_Space): search space
+            SP (SearchSpace): search space
             benchmark (bool): if True, the search space is a benchmark
             df_total (pd.DataFrame): dataframe of the total dataset
         Returns:
@@ -152,7 +152,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             pd.DataFrame: updated search space
 
         """
-        df_search = search_space_df.copy()
+        df_search = searchspace_df.copy()
         fitness_acquired = np.array(fitness_acquired)
         repr = df_search.loc[ids_acquired, :]
 
@@ -173,7 +173,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 best_f=y_explored_BO_norm.max().item(),
                 fitness_acquired=fitness_acquired,
                 df_search=df_search,
-                SP=SP,
+                sp=SP,
                 benchmark=benchmark,
                 df_total=df_total,
             )
@@ -217,7 +217,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             best_f (float): best fitness
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
-            SP (Search_Space): search space
+            SP (SearchSpace): search space
             benchmark (bool): if True, the search space is a benchmark
             df_total (pd.DataFrame): dataframe of the total dataset
         Returns:
@@ -231,11 +231,11 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
             fitness_acquired, df_search.iloc[:,:-1], SP, benchmark, df_total
         )
 
-        Xrpr = self.generate_rep_with_fidelity(df_elements)
+        xrpr = self.generate_rep_with_fidelity(df_elements)
 
         acquisition_values = self.get_acquisition_values(
             self.model,
-            Xrpr=Xrpr,
+            xrpr=xrpr,
             best_f = best_f
         )
 
@@ -253,12 +253,12 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 acquisition_values.detach().numpy(), df_elements.iloc[:,:-1], SP, benchmark, df_total
             )
 
-            Xrpr = self.generate_rep_with_fidelity(df_elements)
+            xrpr = self.generate_rep_with_fidelity(df_elements)
 
             acquisition_values = self.get_acquisition_values(
                 self.model,
                 best_f=best_f,
-                Xrpr=Xrpr,
+                xrpr=xrpr,
             )
             if "dataset_local" in self.Representation.__dict__:
                 pass
@@ -294,7 +294,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         ----
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): search space
-            SP (Search_Space): search space
+            SP (SearchSpace): search space
             benchmark (bool): if True, the search space is a benchmark
             df_total (pd.DataFrame): dataframe of the total dataset
             Returns:
@@ -387,31 +387,31 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
         mll = self.likelihood(self.model.likelihood, self.model)
         fit_gpytorch_mll(mll)
 
-    def get_acquisition_values(self, model, best_f, Xrpr):
+    def get_acquisition_values(self, model, best_f, xrpr):
         """Get the acquisition values.
 
         Args:
         ----
             model (gpytorch.models): model
             best_f (float): best fitness
-            Xrpr (torch.tensor): representation of the element
+            xrpr (torch.tensor): Representation of the element
         Returns:
         torch.tensor: acquisition values
 
         """
-        X_unsqueezed = Xrpr.double()
+        X_unsqueezed = xrpr.double()
         X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
         # set up acquisition function
         if self.which_acquisition == "KG":
-            bounds = torch.tensor([[0.0] * Xrpr.shape[1], [1.0] * Xrpr.shape[1]], dtype=torch.float64)
+            bounds = torch.tensor([[0.0] * xrpr.shape[1], [1.0] * xrpr.shape[1]], dtype=torch.float64)
             target_fidelities = {self.fidelity_col:1}
             cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
             cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
             curr_val_acqf = FixedFeatureAcquisitionFunction(
                     acq_function=PosteriorMean(model),
-                    d=Xrpr.shape[1],
-                    columns=[Xrpr.shape[1]-1],
+                    d=xrpr.shape[1],
+                    columns=[xrpr.shape[1]-1],
                     values=[1],
                 )
             _, current_value = optimize_acqf(
@@ -435,14 +435,14 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                     ).detach()  # runs out of memory
 
         elif self.which_acquisition == "MES":
-            acquisition_values=self.MES( model, Xrpr, X_unsqueezed)
+            acquisition_values=self.MES( model, xrpr, X_unsqueezed)
         elif self.which_acquisition == "TVR":
-            acquisition_values = self.TVR( model, Xrpr, best_f)
+            acquisition_values = self.TVR( model, xrpr, best_f)
 
         elif self.which_acquisition == "custom":
-            mes = self.MES(model, Xrpr, X_unsqueezed)
+            mes = self.MES(model, xrpr, X_unsqueezed)
             normalized_mes= mes / torch.sqrt(torch.sum(mes**2))
-            tvr = self.TVR(model, Xrpr, best_f)
+            tvr = self.TVR(model, xrpr, best_f)
             normalized_tvr = tvr / torch.sqrt(torch.sum(tvr**2))
             acquisition_values= normalized_mes + normalized_tvr
         else:
@@ -452,30 +452,30 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
                 ).variance.squeeze()
         return acquisition_values
 
-    def TVR(self, model, Xrpr, best_f):
-        Xrpr_hf = Xrpr[np.where(Xrpr[:,-1]==1)]
+    def TVR(self, model, xrpr, best_f):
+        xrpr_hf = xrpr[np.where(xrpr[:,-1]==1)]
 
         acquisition = ExpectedImprovement( model=model, best_f= best_f)
 
-        acquisition_scores = acquisition.forward(Xrpr_hf.reshape(-1,1, Xrpr_hf.shape[1]) ).detach()
+        acquisition_scores = acquisition.forward(xrpr_hf.reshape(-1,1, xrpr_hf.shape[1]) ).detach()
         max_hf_ind = acquisition_scores.argmax()
 
-        index_in_xrpr = Xrpr.tolist().index(Xrpr_hf[max_hf_ind].tolist())
+        index_in_xrpr = xrpr.tolist().index(xrpr_hf[max_hf_ind].tolist())
 
-        posterior = model.posterior(Xrpr)
+        posterior = model.posterior(xrpr)
 
         pcov = posterior.distribution.covariance_matrix
         p_var = posterior.variance
         hf_max_cov = pcov[index_in_xrpr]
         hf_max_var = hf_max_cov[index_in_xrpr]
-        cost = Xrpr[:, -1]
+        cost = xrpr[:, -1]
 
         return hf_max_cov ** 2 / (p_var.reshape(-1) * hf_max_var * cost)
 
-    def MES(self, model, Xrpr, X_unsqueezed):
-        fidelities = np.unique(Xrpr[:, -1])
-        bounds = torch.tensor([[0.0] * (Xrpr.shape[1]-1), [1.0] * (Xrpr.shape[1]-1)], dtype=torch.float64)
-        candidate_set_no_hf = bounds[0] + np.multiply(bounds[1] - bounds[0], torch.rand(10000,  Xrpr.shape[1] -1))
+    def MES(self, model, xrpr, X_unsqueezed):
+        fidelities = np.unique(xrpr[:, -1])
+        bounds = torch.tensor([[0.0] * (xrpr.shape[1]-1), [1.0] * (xrpr.shape[1]-1)], dtype=torch.float64)
+        candidate_set_no_hf = bounds[0] + np.multiply(bounds[1] - bounds[0], torch.rand(10000,  xrpr.shape[1] -1))
         candidate_set = torch.tensor(np.concatenate((candidate_set_no_hf, np.array([[random.choice(fidelities) for x in range(10000)]]).T), axis=1))
         target_fidelities = {self.fidelity_col:1}
         cost_model = AffineFidelityCostModel(fidelity_weights=target_fidelities, fixed_cost=1.0)
@@ -494,7 +494,7 @@ class MultifidelityBayesianOptimisation(Search_Algorithm):
 
     def generate_rep_with_fidelity(self, df_elements):
         repr = df_elements.drop(columns = df_elements.columns[-1])
-        Xrpr = self.Representation.generate_repr(repr)
-        Xrpr = self.normalise_input(Xrpr)
+        xrpr = self.Representation.generate_repr(repr)
+        xrpr = self.normalise_input(xrpr)
         fid = torch.tensor(df_elements[["fidelity"]].to_numpy(), dtype=torch.float64)
-        return torch.concat([Xrpr, fid], dim=1)
+        return torch.concat([xrpr, fid], dim=1)

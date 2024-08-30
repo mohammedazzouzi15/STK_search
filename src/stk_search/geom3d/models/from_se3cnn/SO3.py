@@ -71,7 +71,7 @@ def x_to_alpha_beta(x):
 
 
 def irr_repr(order, alpha, beta, gamma, dtype=None):
-    """Irreducible representation of SO3
+    """Irreducible Representation of SO3
     - compatible with compose and spherical_harmonics.
     """
     # from from_lielearn_SO3.wigner_d import wigner_D_matrix

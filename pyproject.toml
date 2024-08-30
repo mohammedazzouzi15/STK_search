@@ -73,7 +73,7 @@ extend-select = ["I"]
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["ANN101", "ANN401", "COM812", "ISC001","ANN001","ANN201","E501","ANN204","W"]
+ignore = ["ANN101", "ANN401", "COM812", "ISC001","ANN001","ANN201","E501","ANN204","W","N999","N801","N802","FA100","NPY002","FBT003","FBT002"]
 extend-unsafe-fixes = ["N"]
 [tool.black]
 line-length = 79

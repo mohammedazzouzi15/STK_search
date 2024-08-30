@@ -1,4 +1,8 @@
-"""this script is to encode the representation of the oligomer from the representation of the fragments."""
+"""Encode the molecules using a pretrained geometry based model.
+
+We use rdkit to generate a first guess of the 3D coordinates of the molecule and then use a pretrained model to encode the Representation of the molecule.
+the model has been trained to encode the Representation of the fragments and then use this Representation to encode the Representation of the oligomer.
+"""
 
 import numpy as np
 import pandas as pd
@@ -9,14 +13,40 @@ from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 
 
-class Representation_poly_3d:
-    def __init__(
+class RepresentationPoly3d:
+    """Generate the Representation of the constructed molecules from the fragment representation.
+
+    In this class we use the 3d Representation of the fragements directly as input to the model that will generate the Representation of the oligomer.
+    the model has been trained to encode the Representation of the fragments and then use this Representation to encode the Representation of the oligomer.
+
+    Attributes
+    ----------
+    model_encoding : torch.nn.Module
+        The model used to encode the Representation of the fragments.
+        the model has been trained to encode the Representation of the fragments and then use this Representation to encode the Representation of the oligomer.
+        this model could be any model that takes as input the 3d geometry of the molecule and outputs the Representation of the molecule.
+    df_results : pd.dataframe
+        The table of building blocks named with their InChIKey.
+    data : list
+        The list of data containing the Representation of the fragments.
+    db_poly : stk.ConstructedMoleculeMongoDb
+        The database containing the polymers.
+    db_frag : stk.MoleculeMongoDb
+        The database containing the fragments.
+    device : str
+        The device to be used for the encoding.
+    oligomer_size : int
+        The size of the oligomer.
+    mongo_client : str
+        The client to connect to the mongodb.
+    database : str
+        The database to connect to.
+
+    """
+
+    def __init__( 
         self,
         model_encoding,
-        df_results=None,
-        data=None,
-        db_poly=None,
-        db_frag=None,
         device=None,
         oligomer_size=6,
         mongo_client="mongodb://ch-atarzia.ch.ic.ac.uk/",
@@ -26,12 +56,16 @@ class Representation_poly_3d:
 
         Args:
         ----
-            model_encoding (torch.nn.Module): model used to encode the representation of the fragments
+            model_encoding (torch.nn.Module): model used to encode the Representation of the fragments
             df_results (pd.dataframe): table of building blocks named with their InChIKey
-            data (list): list of data containing the representation of the fragments
+            data (list): list of data containing the Representation of the fragments
             db_poly (stk.ConstructedMoleculeMongoDb): database containing the polymers
             db_frag (stk.MoleculeMongoDb): database containing the fragments
             device (str): device to be used for the encoding
+            oligomer_size (int): size of the oligomer
+            mongo_client (str): client to connect to the mongodb
+            database (str): database to connect to
+
 
         """
         if device is None:
@@ -40,27 +74,22 @@ class Representation_poly_3d:
             )
         else:
             self.device = device
-        # self.model_encoding = model_encoding
-        # self.model_encoding.eval()
-        # self.model_encoding.to(self.device)
-        self.get_bbs_dict(
-            mongo_client, database
-        )
+        self.get_bbs_dict(mongo_client, database)
         self.batch_size = 100
         self.pymodel = model_encoding.to(self.device)
-        self.name = "Representation_poly_3d"
+        self.name = "RepresentationPoly3d"
         self.oligomer_size = oligomer_size
         self.dataset_local = {}
         self.dataset_frag_local = {}
 
     def get_representation_from_dataset(self, df_elements):
-        """Get the representation from the dataset.
+        """Get the Representation from the dataset.
 
         Args:
         ----
             df_elements (pd.dataframe): table of building blocks named with their InChIKey
         Returns:
-            torch.tensor: representation of the constructed molecule
+            torch.tensor: Representation of the constructed molecule
             list: list of InChIKeys to compute
 
         """
@@ -76,7 +105,7 @@ class Representation_poly_3d:
         return opt_geom_encoding, keys_to_compute
 
     def add_representations_to_dataset(self, df_elements, keys_to_compute):
-        """Add the representation to the dataset.
+        """Add the Representation to the dataset.
 
         Args:
         ----
@@ -89,24 +118,25 @@ class Representation_poly_3d:
         opt_geom_encoding_add = []
         dataset_poly = self.Build_polymers(elements_copy)
         data_loader = self.get_data_loader(dataset_poly)
-        for data in data_loader:
-            opt_geom_encoding_add.append(self.model_encoding(data))
+        opt_geom_encoding_add = [
+            self.model_encoding(data) for data in data_loader
+        ]
         opt_geom_encoding_add = torch.vstack(opt_geom_encoding_add)
         for ii, bb_key in enumerate(elements_copy["bb_key"]):
             self.dataset_local[bb_key] = opt_geom_encoding_add[ii, :]
 
     def generate_repr(self, elements):
-        """Generate the representation of the elements.
+        """Generate the Representation of the elements.
 
         Args:
         ----
             elements (pd.dataframe): table of building blocks nmaed with their InChIKey
         Returns:
-            torch.tensor: representation of the constructed molecule
+            torch.tensor: Representation of the constructed molecule
 
         """
         df_elements = elements.copy()
-        df_elements["bb_key"] = df_elements.swifter.apply(
+        df_elements["bb_key"] = df_elements.swifter.progress_bar(False).apply(
             lambda x: self.join_keys_elem(x), axis=1
         )
         df_elements.index = df_elements["bb_key"]
@@ -124,13 +154,13 @@ class Representation_poly_3d:
         return opt_geom_encoding
 
     def model_encoding(self, data):
-        """Encode the representation of the molecule.
+        """Encode the Representation of the molecule.
 
         Args:
         ----
-            data (torch_geometric.data.Data): data containing the representation of the molecule
+            data (torch_geometric.data.Data): data containing the Representation of the molecule
             Returns:
-            torch.tensor: representation of the molecule
+            torch.tensor: Representation of the molecule
 
         """
         pymodel = self.pymodel
@@ -144,14 +174,16 @@ class Representation_poly_3d:
             )
 
     def get_data_loader(self, dataset):
-        """Get the dataloader
+        """Get the dataloader.
+
         Args:
+        ----
             dataset: list
                 list of the dataset
             config: dict
                 configuration file.
 
-        Returns
+        Returns:
         -------
             loader: torch_geometric.loader.DataLoader
                 dataloader for the dataset
@@ -162,24 +194,26 @@ class Representation_poly_3d:
             dataset,
             batch_size=self.batch_size,
             shuffle=False,
-            # drop_last=True,
         )
 
-
     def join_keys(self, polymer):
+        """Join the keys of the building blocks."""
         keys = [
             stk.InchiKey().get_key(bb) for bb in polymer.get_building_blocks()
         ]
         return "_".join(keys)
 
     def join_keys_elem(self, element):
-        keys = list(element[
+        """Join the keys of the building blocks."""
+        keys = list(
+            element[
                 [f"InChIKey_{x}" for x in range(self.oligomer_size)]
-            ].values)
-        # print(keys)
+            ].values
+        )
         return "_".join(keys)
 
     def get_bbs_dict(self, client, database):
+        """Get the building blocks dictionary."""
         client = pymongo.MongoClient(client)
         db_mol = stk.MoleculeMongoDb(
             client,
@@ -197,20 +231,37 @@ class Representation_poly_3d:
         return bbs_dict
 
     def Build_polymers(self, element: pd.DataFrame):
+        """Build the polymers.
+
+        Here we first build the polymer from the fragments using stk then we use rdkit etkdg to generate the 3D coordinates of the molecule.
+        then we use the model to encode the Representation of the molecule.
+
+        Args:
+        ----
+            element (pd.DataFrame): table of building blocks named with their InChIKey
+
+        Returns:
+        -------
+            list: list of data containing the Representation of the constructed molecules
+                the data is a torch_geometric.data.Data object containing the Representation of the molecule
+                its attibutes are:
+                x: atom types
+                positions: atomic positions
+                InChIKey: InChIKey of the molecule
+                bb_key: key of the building blocks
+
+        """
         bbs_dict = self.bbs_dict
 
         genes = "ABCDEFGH"
         genes = genes[: self.oligomer_size]
-        # print(genes)
         repeating_unit = ""
         # joins the Genes to make a repeating unit string
         repeating_unit = repeating_unit.join(genes)
-        InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]
-
-        # print(element[InchiKey_cols].values.flatten())
-        def gen_mol(elem):
+        InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]  # noqa: N806
+        def gen_mol(elem)->Data:
             precursors = []
-            for fragment in elem[InchiKey_cols].values.flatten():
+            for fragment in elem[InchiKey_cols].to_numpy().flatten():
                 bb = bbs_dict[fragment]
                 precursors.append(bb)
             polymer = stk.ConstructedMolecule(
@@ -225,9 +276,9 @@ class Representation_poly_3d:
             positions = np.vstack(dat_list)
             positions = torch.tensor(positions, dtype=torch.float)
             atom_types = [
-                    atom.get_atom().get_atomic_number()
-                    for atom in polymer.get_atom_infos()
-                ]
+                atom.get_atom().get_atomic_number()
+                for atom in polymer.get_atom_infos()
+            ]
             atom_types = torch.tensor(atom_types, dtype=torch.long)
 
             bb_key = self.join_keys(polymer)
@@ -236,10 +287,9 @@ class Representation_poly_3d:
                 positions=positions,
                 InChIKey=stk.InchiKey().get_key(polymer),
                 bb_key=bb_key,
-                # y=elem['target']
             )
 
-        element["polymer"] = element.swifter.apply(
+        element["polymer"] = element.swifter.progress_bar(False).apply(
             lambda x: gen_mol(x), axis=1
         )
         return element["polymer"].tolist()

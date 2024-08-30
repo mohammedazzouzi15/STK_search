@@ -1,12 +1,12 @@
 import pandas as pd
 from stk_search import SearchedSpace
 
-""" list of test to check the function in Search_Space.py """
+""" list of test to check the function in SearchSpace.py """
 
 
 def test_init():
     df_precursors = pd.read_pickle("tests/data/df_precursor_test.pkl")
-    SP = SearchedSpace.Searched_Space(
+    SP = SearchedSpace.SearchedSpace(
         number_of_fragments=2,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],

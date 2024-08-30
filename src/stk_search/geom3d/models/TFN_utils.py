@@ -120,7 +120,7 @@ class GConvSE3(nn.Module):
     equivalent of a linear layer in an MLP, a conv layer in a CNN, or a graph
     conv layer in a GCN.
     At each node, the activations are split into different "feature types",
-    indexed by the SE(3) representation type: non-negative integers 0, 1, 2, ..
+    indexed by the SE(3) Representation type: non-negative integers 0, 1, 2, ..
     """
 
     def __init__(self, f_in, f_out, self_interaction=False, edge_dim=0, flavor="skip"):

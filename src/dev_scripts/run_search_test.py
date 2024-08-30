@@ -31,7 +31,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
         df_path, df_precursors_path
     )
 
-    search_space_loc = "data/input/search_space/test/search_space1.pkl"
+    SearchSpace_loc = "data/input/SearchSpace/test/SearchSpace1.pkl"
     # get initial elements
     ObjectiveFunction = LookUpTable(df_total, 6,target_name=target_name, aim=aim)
 
@@ -104,7 +104,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm",t
     verbose = True
     num_elem_initialisation = num_elem_initialisation
     S_exp = SearchExp.Search_exp(
-        search_space_loc,
+        SearchSpace_loc,
         search_algorithm,
         ObjectiveFunction,
         number_of_iterations,
@@ -129,7 +129,7 @@ def load_representation_BO_graph_frag(config_dir,df_total):
     config = read_config(config_dir)
     print(config["model_transformer_chkpt"])
     representation_dir = f"{config['running_dir']}/{config['name']}" + "_frag_" + str(config["number_of_fragement"])
-    print("load representation from ",representation_dir)
+    print("load Representation from ",representation_dir)
     data_list = torch.load( representation_dir + "/dataset_representation.pt")
     print("size of data list",len(data_list))
     EncodingModel = initialise_model(config)

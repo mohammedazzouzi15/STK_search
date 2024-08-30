@@ -18,7 +18,7 @@ from stk_search.utils import database_utils
 
 
 # %%
-def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",search_space_loc = "data/input/search_space/test/search_space1.pkl"):
+def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",SearchSpace_loc = "data/input/SearchSpace/test/SearchSpace1.pkl"):
     # Load the searched space
     df_path = "data/output/Full_dataset/df_total_2023_11_09.csv"
     df_precursors_path = "data/output/Prescursor_data/calculation_data_precursor_071123_clean.pkl"  #'Data/output/Prescursor_data/calculation_data_precursor_310823_clean.pkl'
@@ -159,14 +159,14 @@ def main(num_iteration, num_elem_initialisation, test_name="test", case="slatm",
     verbose = True
     num_elem_initialisation = num_elem_initialisation
     S_exp = SearchExp.Search_exp(
-        search_space_loc,
+        SearchSpace_loc,
         search_algorithm,
         ObjectiveFunction,
         number_of_iterations,
         verbose=verbose,
     )
-    search_space_name = search_space_loc.split("/")[-1].replace(".pkl", "")
-    S_exp.output_folder = "data/output/search_experiment/"+"exp4_"+search_space_name+"/" + test_name
+    SearchSpace_name = SearchSpace_loc.split("/")[-1].replace(".pkl", "")
+    S_exp.output_folder = "data/output/search_experiment/"+"exp4_"+SearchSpace_name+"/" + test_name
     S_exp.num_elem_initialisation = num_elem_initialisation
     S_exp.benchmark = False
     S_exp.df_total = df_total
@@ -181,6 +181,6 @@ if __name__ == "__main__":
     parser.add_argument("--num_elem_initialisation", type=int, default=10)
     parser.add_argument("--test_name", type=str, default="Exp1")
     parser.add_argument("--case", type=str, default="slatm")
-    parser.add_argument("--search_space_loc", type=str, default="data/input/search_space/test/search_space1.pkl")
+    parser.add_argument("--SearchSpace_loc", type=str, default="data/input/SearchSpace/test/SearchSpace1.pkl")
     args = parser.parse_args()
-    main(args.num_iteration, args.num_elem_initialisation, args.test_name,args.case,args.search_space_loc)
+    main(args.num_iteration, args.num_elem_initialisation, args.test_name,args.case,args.SearchSpace_loc)

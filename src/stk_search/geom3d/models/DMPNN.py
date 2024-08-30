@@ -73,6 +73,6 @@ class DMPNN(nn.Module):
             message = F.dropout(F.relu(message), self.drop_ratio, training=self.training)
 
         node_message = scatter_add(message, in_node_index, dim=0, dim_size=num_nodes)
-        node_representation = torch.cat([x, node_message], dim=1)
+        node_Representation = torch.cat([x, node_message], dim=1)
         return F.relu(self.W_output(node_representation))
 

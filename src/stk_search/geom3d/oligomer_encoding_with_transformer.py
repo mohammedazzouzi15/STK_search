@@ -1,4 +1,4 @@
-"""this script is to encode the representation of the oligomer from the representation of the fragments."""
+"""this script is to encode the Representation of the oligomer from the Representation of the fragments."""
 
 import glob
 import os

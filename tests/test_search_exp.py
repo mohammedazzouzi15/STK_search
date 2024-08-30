@@ -29,7 +29,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
         df_path, df_precursors_path
     )
 
-    search_space_loc = "data/input/search_space/test/search_space1.pkl"
+    SearchSpace_loc = "data/input/SearchSpace/test/SearchSpace1.pkl"
     # get initial elements
     ObjectiveFunction = LookUpTable(df_total, 6)
 
@@ -127,7 +127,7 @@ def main(num_iteration, num_elem_initialisation, test_name="test",case="slatm"):
     verbose = True
     num_elem_initialisation = num_elem_initialisation
     S_exp = SearchExp.Search_exp(
-        search_space_loc,
+        SearchSpace_loc,
         search_algorithm,
         ObjectiveFunction,
         number_of_iterations,

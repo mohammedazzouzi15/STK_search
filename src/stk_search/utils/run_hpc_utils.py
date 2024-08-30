@@ -16,7 +16,7 @@ def generate_string_run(
     df_path = "data/output/Full_dataset/df_total_2024-01-05.csv",
     df_representation_path = "data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
     config_dir = "/rds/general/user/ma11115/home/Geom3D/Geom3D/training/SchNet_frag/",
-    search_space_loc = "/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/search_space/test/search_space1.pkl",
+    SearchSpace_loc = "/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/SearchSpace/test/SearchSpace1.pkl",
     frag_properties="all",
     lim_counter = 10,
     budget=None
@@ -50,8 +50,8 @@ def generate_string_run(
             df_precursors_path
         config_dir: str
             config_dir
-        search_space_loc: str
-            search_space_loc
+        SearchSpace_loc: str
+            SearchSpace_loc
     Returns:
         string_to_run_notbook: str
             string to run the notebook

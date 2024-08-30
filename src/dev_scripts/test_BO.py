@@ -23,7 +23,7 @@ def load_data():
     df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
-    SP = Searched_pace.Searched_Space(
+    SP = Searched_pace.SearchedSpace(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],

@@ -1,14 +1,17 @@
 from botorch.models import SingleTaskGP
+from botorch.models.transforms.input import Normalize
 from gpytorch import kernels
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import ScaleKernel
 from gpytorch.means import ConstantMean
+
 from stk_search.Search_algorithm.tanimoto_kernel import TanimotoKernel
 
 
 # We define our custom GP surrogate model using the Tanimoto kernel
 class TanimotoGP(SingleTaskGP):
-    """This class is to define the surrogate model using the Tanimoto kernel.
+    """Define the surrogate model using the Tanimoto kernel.
+
     Here the Surrogate model is defined using the Tanimoto kernel and is a subclass of SingleTaskGP.
 
     Args:
@@ -19,9 +22,12 @@ class TanimotoGP(SingleTaskGP):
     """
 
     def __init__(self, train_X, train_Y):
-        super().__init__(train_X, train_Y)
+        super().__init__(
+            train_X, train_Y, input_transform=Normalize(train_X.shape[-1])
+        )
         self.mean_module = ConstantMean()
         self.covar_module = kernels.ScaleKernel(base_kernel=TanimotoKernel())
+
         self.to(train_X)
 
     def forward(self, x):
@@ -31,7 +37,8 @@ class TanimotoGP(SingleTaskGP):
 
 
 class MaternKernel(SingleTaskGP):
-    """This class is to define the surrogate model using the Matern kernel.
+    """Define the surrogate model using the Matern kernel.
+
     Here the Surrogate model is defined using the Matern kernel from GPYtorch and is a subclass of SingleTaskGP.
 
     Args:
@@ -42,11 +49,14 @@ class MaternKernel(SingleTaskGP):
     """
 
     def __init__(self, train_X, train_Y):
-        super().__init__(train_X, train_Y)
+        super().__init__(
+            train_X, train_Y, input_transform=Normalize(train_X.shape[-1])
+        )
         self.mean_module = ConstantMean()
         self.covar_module = kernels.ScaleKernel(
             base_kernel=kernels.MaternKernel(ard_num_dims=train_X.shape[-1])
         )
+
         self.to(train_X)
 
     def change_kernel(self, kernel):
@@ -59,8 +69,8 @@ class MaternKernel(SingleTaskGP):
 
 
 class RBFKernel(SingleTaskGP):
-    """This class is to define the surrogate model using the RBF kernel.
-    
+    """Define the surrogate model using the RBF kernel.
+
     Here the Surrogate model is defined using the RBF kernel from GPYtorch and is a subclass of SingleTaskGP.
 
     Args:
@@ -71,7 +81,9 @@ class RBFKernel(SingleTaskGP):
     """
 
     def __init__(self, train_X, train_Y):
-        super().__init__(train_X, train_Y)
+        super().__init__(
+            train_X, train_Y, input_transform=Normalize(train_X.shape[-1])
+        )
         self.mean_module = ConstantMean()
         self.covar_module = kernels.ScaleKernel(
             base_kernel=kernels.RBFKernel(ard_num_dims=train_X.shape[-1])
