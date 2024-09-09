@@ -22,6 +22,7 @@ from botorch.models.cost import AffineFidelityCostModel
 from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.optim.optimize import optimize_acqf
 from gpytorch.mlls import ExactMarginalLogLikelihood
+
 from stk_search.Search_algorithm.Search_algorithm import Search_Algorithm
 from stk_search.SearchSpace import SearchSpace
 
