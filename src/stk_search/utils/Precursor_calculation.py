@@ -9,7 +9,7 @@ import pymongo
 import stk
 import stko
 
-from stk_search.ObjectiveFunction import IpEs1Fosc
+from stk_search.ObjectiveFunctions.ObjectiveFunction import IpEs1Fosc
 
 
 def get_inchi_key(molecule)->str:
@@ -24,7 +24,7 @@ class CalculatePrecursor(IpEs1Fosc):
     ----------
     oligomer_size : int
         The size of the oligomer.
-    db_folder : str
+    database_output_folder : str
         The path to the database folder.
     collection_name : str
         The name of the collection.
@@ -32,8 +32,8 @@ class CalculatePrecursor(IpEs1Fosc):
 
     """
 
-    def __init__(self, oligomer_size, db_folder):
-        super().__init__(oligomer_size, db_folder)
+    def __init__(self, oligomer_size, database_output_folder):
+        super().__init__(oligomer_size, database_output_folder)
         self.collection_name = "stk_precursor"
 
     def initialise_connections(self):
@@ -42,7 +42,7 @@ class CalculatePrecursor(IpEs1Fosc):
         self.test_xtb_stda_connection()
         self.db_polymer = stk.MoleculeMongoDb(
                 self.client,
-                database=self.database_new_calc,
+                database=self.database_name,
             )
         
     def build_polymer(self, smile)->stk.BuildingBlock:

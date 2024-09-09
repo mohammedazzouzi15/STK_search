@@ -8,7 +8,7 @@ from stk_search.geom3d.oligomer_encoding_with_transformer import (
 )
 from stk_search.geom3d.pl_model import Pymodel
 from stk_search.geom3d.utils.config_utils import read_config
-from stk_search.ObjectiveFunction import LookUpTable
+from stk_search.ObjectiveFunctions.ObjectiveFunction import LookUpTable
 from stk_search.Search_algorithm import (
     Bayesian_Optimisation,
     Ea_surrogate,

@@ -1,5 +1,6 @@
 import pandas as pd
-from stk_search.ObjectiveFunction import IpEs1Fosc
+from stk_search.ObjectiveFunctions.IpEs1Fosc import IpEs1Fosc
+
 
 
 def main(df_path,oligomer_size):

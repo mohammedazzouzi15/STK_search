@@ -8,7 +8,7 @@ from stk_search import SearchExp
 from stk_search.geom3d.frag_encoding_with_transformer import Fragment_encoder
 from stk_search.geom3d.models import SchNet
 from stk_search.geom3d.test_train import Pymodel, read_config
-from stk_search.ObjectiveFunction import LookUpTable
+from stk_search.ObjectiveFunctions.ObjectiveFunction import LookUpTable
 from stk_search.Search_algorithm import (
     Bayesian_Optimisation,
     Represenation_3D,

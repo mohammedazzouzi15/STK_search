@@ -1,11 +1,6 @@
-"""Module containing the classes for the objective functions.
+"""Module for the IpEs1Fosc objective function.
 
-Here we have the base class ObjectiveFunction and the LookUpTable class.
-The base class is used to define the structure of the objective functions.
-
-The LookUpTable class is used to evaluate the fitness of the elements by looking up the fitness in a database.
-
-The IpEs1Fosc class is used to evaluate the fitness of the molecules by calculating the ionisation potential,
+The IpEs1Fosc objective function is used to evaluate the fitness of the molecules by calculating the ionisation potential,
 the first excited state energy and the first excited state oscillator strength.
 The fitness function is defined as:
 -np.abs(IP - 5.5) - 0.5 * np.abs(Es1 - 3) + np.log10
@@ -26,6 +21,7 @@ import stko
 
 from stk_search.Calculators.STDA_calculator import sTDAXTB
 from stk_search.Calculators.XTBcalculator import XTBEnergy2
+from stk_search.ObjectiveFunctions.ObjectiveFunction import ObjectiveFunction
 
 
 def get_inchi_key(molecule):
@@ -44,144 +40,6 @@ def get_inchi_key(molecule):
     """
     return stk.InchiKey().get_key(molecule)
 
-
-class ObjectiveFunction:
-    """Base class for objective functions.
-
-    The objective function is the function that will be used to evaluate the fitness of the molecules in the search.
-
-    Functions
-    ---------
-    evaluate_element(element, multi_fidelity=False)
-        Evaluates the fitness of the element
-        takes as an input a list of building blocks and returns the fitness of the element
-
-    """
-
-    def __init__(self):
-        """Initialise the objective function."""
-        self.multi_fidelity = False  # default value
-
-    def evaluate_element(self, element):
-        """Evaluate the fitness of the element.
-
-        takes as an input a list of building blocks and returns the fitness of the element.
-
-        Args:
-        ----
-            element: list
-            list of building blocks
-
-
-        Returns:
-        -------
-            float
-            the fitness of the element
-            str
-            the identifier of the element
-
-        """
-        for x in element:
-            if isinstance(x, (int, np.float64)):
-                return float(x), "test"
-        return None
-
-
-class LookUpTable(ObjectiveFunction):
-    """Class for look up table objective functions.
-
-    The look up table objective function is used to evaluate the fitness of the elements by looking up the fitness in a database.
-
-    """
-
-    def __init__(self, df_look_up, fragment_size, target_name="target", aim=0):
-        """Initialise the look up table objective function.
-
-        Args:
-        ----
-            df_look_up: pd.DataFrame
-            the dataframe containing the look up table
-            the dataframe should contain the InChIKeys of the fragments in the form of 'InChIKey_0', 'InChIKey_1', etc.
-            and the target column
-            and the InChIKeys of the molecule
-
-            fragment_size: int
-            the size of the fragments
-
-            target_name: str
-            the name of the target column
-
-            aim: int or float
-            the aim of the fitness function
-            if the aim is an int, the fitness function will be the negative absolute difference between the target and the aim
-
-        """
-        super().__init__()
-        self.df_look_up = df_look_up
-        self.fragment_size = fragment_size
-        self.target_name = target_name
-        self.aim = aim
-        self.check_database()
-
-    def check_database(self):
-        """Check the database."""
-        if self.df_look_up is None:
-            msg = "No database found"
-            raise ValueError(msg)
-        if "InChIKey" not in self.df_look_up.columns:
-            msg = "No InChIKey column found"
-            raise ValueError(msg)
-        if self.target_name not in self.df_look_up.columns:
-            msg = "No target column found"
-            raise ValueError(msg)
-        if any(
-            f"InChIKey_{i}" not in self.df_look_up.columns
-            for i in range(self.fragment_size)
-        ):
-            msg = "No fragment columns found or not enough fragment columns"
-            raise ValueError(msg)
-
-    def evaluate_element(self, element):
-        """Evaluate the fitness of the element.
-
-        Takes as an input a list of building blocks and returns the fitness of the element.
-
-        Args:
-        ----
-            element: list
-            list of building blocks
-            s
-
-        Returns:
-        -------
-            float
-            the fitness of the element
-            str
-            the identifier of the element in the form of an InChIKey
-
-        """
-        columns = [f"InChIKey_{i}" for i in range(self.fragment_size)]
-        if self.multi_fidelity:
-            columns.append("fidelity")
-        results = element.merge(
-            self.df_look_up,
-            on=columns,
-            how="left",
-        )
-
-        results = results.drop_duplicates(
-            subset=[f"InChIKey_{i}" for i in range(self.fragment_size)],
-        )
-        if results[self.target_name].isna().any():
-            msg = "missing data"
-            raise ValueError(msg)
-        if isinstance(self.aim, (int, float)):
-            target = -np.abs(results[self.target_name][0] - self.aim)
-        else:
-            target = results[self.target_name][0]
-        return target, results["InChIKey"][0]
-
-
 class IpEs1Fosc(ObjectiveFunction):
     """Class for the IpEs1Fosc objective function.
 
@@ -196,7 +54,7 @@ class IpEs1Fosc(ObjectiveFunction):
     ----------
     client: str
     the path to the mongodb client
-    db_mol: str
+    database_name: str
     the name of the database containing the building blocks
     the database should contain the building blocks position matrix and the InChIKey
     It is normally generated using stk and the stk.MoleculeMongoDb class
@@ -204,9 +62,9 @@ class IpEs1Fosc(ObjectiveFunction):
     the path to the xtb executable
     stda_bin_path: str
     the path to the stda executable
-    db_folder: str
+    database_output_folder: str
     the path to the output directory
-    database_new_calc: str
+    database_name: str
     the name of the database containing the new calculations
     collection_name: str
     the name of the collection
@@ -245,7 +103,7 @@ class IpEs1Fosc(ObjectiveFunction):
     def __init__(
         self,
         oligomer_size,
-        db_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
+        database_output_folder="/rds/general/ephemeral/user/ma11115/ephemeral/BO_polymers",
     ):
         """Initialise the IpEs1Fosc objective function.
 
@@ -253,9 +111,9 @@ class IpEs1Fosc(ObjectiveFunction):
         ----
             oligomer_size: int
             the size of the oligomer
-            db_folder: str
+            database_output_folder: str
             the path to the output directory
-            database_new_calc: str
+            database_name: str
             the name of the database containing the new calculations
             collection_name: str
             the name of the collection
@@ -264,13 +122,13 @@ class IpEs1Fosc(ObjectiveFunction):
 
         """
         super().__init__()
-        self.client_adress = "mongodb://localhost:27017/"
-        self.db_mol = "stk_constructed"
+        self.client_address = "mongodb://localhost:27017/"
+        self.database_name = "stk_constructed"
         self.xtb_path = "xtb"
         self.stda_bin_path = "stda"
-        self.db_folder = Path(db_folder)
-        Path.mkdir(self.db_folder, exist_ok=True)
-        self.database_new_calc = "stk_constructed"
+        self.database_output_folder = Path(database_output_folder)
+        Path.mkdir(self.database_output_folder, exist_ok=True)
+        self.database_name = "stk_constructed"
         self.collection_name = f"BO_{oligomer_size}"
         self.host_ip = "localhost"
         self.oligomer_size = oligomer_size
@@ -283,16 +141,16 @@ class IpEs1Fosc(ObjectiveFunction):
         self.test_xtb_stda_connection()
         self.db_polymer = stk.ConstructedMoleculeMongoDb(
             self.client,
-            database=self.database_new_calc,
+            database=self.database_name,
         )
 
     def test_mongo_db_connection(self):
         """Tests the connection to the database."""
         try:
-            self.client = pymongo.MongoClient(self.client_adress)
+            self.client = pymongo.MongoClient(self.client_address)
             stk.MoleculeMongoDb(
                 self.client,
-                database=self.db_mol,
+                database=self.database_name,
             )
             logging.info("Connected to the database")
         except pymongo.errors.ConfigurationError:
@@ -340,14 +198,14 @@ class IpEs1Fosc(ObjectiveFunction):
 
         # define the output directories
         self.initialise_connections()
-        output_dir_ipea = Path(self.db_folder, "Database", "xtb_calculations")
+        output_dir_ipea = Path(self.database_output_folder, "Database", "xtb_calculations")
         xtb_opt_output_dir = Path(
-            self.db_folder, "Database", "xtb_opt_output_dir"
+            self.database_output_folder, "Database", "xtb_opt_output_dir"
         )
-        output_dir_stda = Path(self.db_folder, "Database", "stda_output_dir")
-        Path.mkdir(output_dir_ipea, exist_ok=True)
-        Path.mkdir(xtb_opt_output_dir, exist_ok=True)
-        Path.mkdir(output_dir_stda, exist_ok=True)
+        output_dir_stda = Path(self.database_output_folder, "Database", "stda_output_dir")
+        Path.mkdir(output_dir_ipea, exist_ok=True, parents=True)
+        Path.mkdir(xtb_opt_output_dir, exist_ok=True, parents=True)
+        Path.mkdir(output_dir_stda, exist_ok=True, parents=True)
         # build the polymer
         polymer = self.build_polymer(element)
         polymer = self.run_xtb_opt(
@@ -403,9 +261,9 @@ class IpEs1Fosc(ObjectiveFunction):
             the polymer
 
         """
-        db_mol = stk.MoleculeMongoDb(
+        database_name = stk.MoleculeMongoDb(
             self.client,
-            database=self.db_mol,
+            database=self.database_name,
         )
         precursors = []
         genes = "ABCDEFGH"
@@ -415,7 +273,7 @@ class IpEs1Fosc(ObjectiveFunction):
         repeating_unit = repeating_unit.join(genes)
         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]  # noqa: N806
         for fragment in element[InchiKey_cols].to_numpy().flatten():
-            mol = db_mol.get({"InChIKey": fragment})
+            mol = database_name.get({"InChIKey": fragment})
             bb = stk.BuildingBlock.init_from_molecule(
                 mol, functional_groups=[stk.BromoFactory()]
             )
@@ -530,7 +388,7 @@ class IpEs1Fosc(ObjectiveFunction):
                 upsert=True,
             )
 
-        collection = self.client[self.database_new_calc][
+        collection = self.client[self.database_name][
             self.collection_name + "_opt"
         ]
         if (
@@ -595,7 +453,7 @@ class IpEs1Fosc(ObjectiveFunction):
             the ionisation potential
 
         """
-        collection = self.client[self.database_new_calc][
+        collection = self.client[self.database_name][
             self.collection_name + "_IPEA"
         ]
         xtb_results = collection.find_one({"InChIKey": get_inchi_key(polymer)})
@@ -658,7 +516,7 @@ class IpEs1Fosc(ObjectiveFunction):
             The property of interrest
 
         """
-        collection = self.client[self.database_new_calc][
+        collection = self.client[self.database_name][
             self.collection_name + "_Stda"
         ]
         stda_results = collection.find_one(

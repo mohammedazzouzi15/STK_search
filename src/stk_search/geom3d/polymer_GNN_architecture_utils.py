@@ -18,11 +18,11 @@ def join_keys(polymer):
 
 def get_bbs_dict(client, database):
     client = pymongo.MongoClient(client)
-    db_mol = stk.MoleculeMongoDb(
+    database_name = stk.MoleculeMongoDb(
         client,
         database=database,
     )
-    mols = db_mol.get_all()
+    mols = database_name.get_all()
     bbs_dict = {}
     for mol in mols:
         bbs_dict[stk.InchiKey().get_key(mol)] = (

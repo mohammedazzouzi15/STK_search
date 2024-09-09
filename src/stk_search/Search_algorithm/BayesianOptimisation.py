@@ -292,17 +292,21 @@ class BayesianOptimisation(evolution_algorithm):
 
         Args:
         ----
-            fitness_acquired (list): fitness of the acquired elements
-            df_search (pd.DataFrame): search space
-            sp (SearchSpace): search space
-            benchmark (bool): if True, the search space is a benchmark
-            df_total (pd.DataFrame): dataframe of the total dataset
-            Returns:
-                pd.DataFrame: elements to evaluate
+            fitness_acquired (list): fitness of the acquired elements.
+            df_search (pd.DataFrame): search space.
+            sp (SearchSpace): search space.
+            benchmark (bool): if True, the search space is a benchmark.
+            df_total (pd.DataFrame): dataframe of the total dataset.
+
+        Returns:
+        -------
+                pd.DataFrame: elements to evaluate.
+
+        TODO: use the same function as in the EA
 
         """
 
-        def mutate_element(element):
+        def mutate_element(element)->list:
             elements_val = []
             for i in range(element.shape[0]):
                 for frag in sp.df_precursors.InChIKey:
@@ -311,7 +315,7 @@ class BayesianOptimisation(evolution_algorithm):
                     elements_val.append(element_new)
             return elements_val
 
-        def cross_element(element1, element2):
+        def cross_element(element1, element2)->list:
             elements_val = []
             for i in range(element.shape[0]):
                 element_new = element1.copy()
@@ -321,7 +325,7 @@ class BayesianOptimisation(evolution_algorithm):
 
         # select the 3 best one and add two random element from the search space
         best_element_arg = fitness_acquired.argsort()[-3:][::-1]
-        list_parents = df_search.loc[best_element_arg, :].values
+        list_parents = df_search.loc[best_element_arg, :].to_numpy()
         list_parents = np.append(
             list_parents, df_search.sample(2).values, axis=0
         )
@@ -398,30 +402,30 @@ class BayesianOptimisation(evolution_algorithm):
         torch.tensor: acquisition values.
 
         """
-        X_unsqueezed = xrpr.double()
-        X_unsqueezed = X_unsqueezed.reshape(-1, 1, X_unsqueezed.shape[1])
+        x_unsqueezed = xrpr.double()
+        x_unsqueezed = x_unsqueezed.reshape(-1, 1, x_unsqueezed.shape[1])
         # set up acquisition function
         if self.which_acquisition == "EI":
             acquisition_function = ExpectedImprovement(model, best_f=best_f)
             with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
                 acquisition_values = acquisition_function.forward(
-                    X_unsqueezed
+                    x_unsqueezed
                 )  # runs out of memory
         elif self.which_acquisition == "max_y_hat":
             with torch.no_grad():
                 acquisition_values = model.posterior(
-                    X_unsqueezed
+                    x_unsqueezed
                 ).mean.squeeze()
         elif self.which_acquisition == "max_sigma":
             with torch.no_grad():
                 acquisition_values = model.posterior(
-                    X_unsqueezed
+                    x_unsqueezed
                 ).variance.squeeze()
         elif self.which_acquisition == "LOG_EI":
             acquisition_function = LogExpectedImprovement(model, best_f=best_f)
             with torch.no_grad():  # to avoid memory issues; we arent using the gradient...
                 acquisition_values = acquisition_function.forward(
-                    X_unsqueezed
+                    x_unsqueezed
                 )  # runs out of memory
         elif self.which_acquisition == "UCB_GNN":
             if self.pred_model is None:
@@ -429,25 +433,25 @@ class BayesianOptimisation(evolution_algorithm):
                 raise ValueError(msg)
             with torch.no_grad():
                 acquisition_values = self.pred_model(
-                    X_unsqueezed.float()
+                    x_unsqueezed.float()
                 ).squeeze()
                 acquisition_values = (
                     acquisition_values
-                    + self.model.posterior(X_unsqueezed).variance.squeeze()
+                    + self.model.posterior(x_unsqueezed).variance.squeeze()
                 )
         elif self.which_acquisition == "UCB":
             with torch.no_grad():
-                acquisition_values = acquisition_values = (
-                    model.posterior(X_unsqueezed).mean.squeeze()
-                    + self.model.posterior(X_unsqueezed).variance.squeeze()
+                acquisition_values = (
+                    model.posterior(x_unsqueezed).mean.squeeze()
+                    + self.model.posterior(x_unsqueezed).variance.squeeze()
                 )
 
                 acquisition_values = self.pred_model(
-                    X_unsqueezed.float()
+                    x_unsqueezed.float()
                 ).squeeze()
                 acquisition_values = (
                     acquisition_values
-                    + self.model.posterior(X_unsqueezed).variance.squeeze()
+                    + self.model.posterior(x_unsqueezed).variance.squeeze()
                 )
         elif self.which_acquisition == "KG":
             acquisition_function = qKnowledgeGradient(
@@ -458,7 +462,7 @@ class BayesianOptimisation(evolution_algorithm):
                 dtype=torch.float64,
             )
             acquisition_values = acquisition_function.evaluate(
-                X_unsqueezed, bounds=bounds
+                x_unsqueezed, bounds=bounds
             )
         elif self.which_acquisition == "MES":
             bounds = torch.tensor(
@@ -471,16 +475,24 @@ class BayesianOptimisation(evolution_algorithm):
                 model, candidate_set=candidate_set
             )
             acquisition_values = acquisition_function(
-                X_unsqueezed,
+                x_unsqueezed,
             ).detach()
         else:
             with torch.no_grad():
                 acquisition_values = model.posterior(
-                    X_unsqueezed
+                    x_unsqueezed
                 ).variance.squeeze()
         return acquisition_values
 
     def load_representation_model(self):
+        """Load the representation model.
+        
+        Returns
+        -------
+            representation (object): representation of the element.
+            pymodel (object): model.
+        
+        """
         from stk_search.geom3d import pl_model
         from stk_search.Representation import Representation_poly_3d
         from stk_search.utils.config_utils import read_config
@@ -496,13 +508,13 @@ class BayesianOptimisation(evolution_algorithm):
         # Load the state dictionary
         pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
         pymodel.to(config["device"])
-        Representation = Representation_poly_3d.RepresentationPoly3d(
+        representation = Representation_poly_3d.RepresentationPoly3d(
             pymodel,
             mongo_client=config["pymongo_client"],
             database=config["database_name"],
             device=pymodel.device,
         )
         self.pred_model = pymodel.graph_pred_linear
-        self.Representation = Representation
+        self.Representation = representation
 
-        return Representation, pymodel
+        return representation, pymodel

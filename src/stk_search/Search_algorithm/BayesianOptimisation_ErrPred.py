@@ -4,7 +4,6 @@ import os
 import numpy as np
 import pandas as pd
 import torch
-from botorch.acquisition import ExpectedImprovement
 from botorch.acquisition.analytic import (
     ExpectedImprovement,
 )
@@ -59,15 +58,17 @@ class BayesianOptimisation_ErrPred(BayesianOptimisation.BayesianOptimisation):
 
         Args:
         ----
-            searchspace_df (pd.DataFrame): search space
-            fitness_acquired (list): fitness of the acquired elements
-            ids_acquired (list): ids of the acquired elements
-            sp (SearchSpace): search space
-            benchmark (bool): if True, the search space is a benchmark
-            df_total (pd.DataFrame): dataframe of the total dataset
+            searchspace_df (pd.DataFrame): search space.
+            fitness_acquired (list): fitness of the acquired elements.
+            ids_acquired (list): ids of the acquired elements.
+            sp (SearchSpace): search space.
+            benchmark (bool): if True, the search space is a benchmark.
+            df_total (pd.DataFrame): dataframe of the total dataset.
+
         Returns:
-            int: id of the new element
-            pd.DataFrame: updated search space
+        -------
+            int: id of the new element.
+            pd.DataFrame: updated search space.
 
         """
         df_search = searchspace_df.copy()

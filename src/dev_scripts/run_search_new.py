@@ -15,7 +15,9 @@ from stk_search.geom3d.oligomer_encoding_with_transformer import (
     initialise_model,
 )
 from stk_search.geom3d.pl_model import Pymodel
-from stk_search.ObjectiveFunction import IpEs1Fosc, LookUpTable
+from stk_search.ObjectiveFunctions.ObjectiveFunction import LookUpTable
+from stk_search.ObjectiveFunctions.IpEs1Fosc import IpEs1Fosc
+
 from stk_search.Representation import (
     Representation_3d_from_fragment,
     Representation_from_fragment,
