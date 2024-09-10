@@ -213,8 +213,7 @@ class SearchSpace:
         """
         x = 1
         for z in set(self.syntax[: self.number_of_fragments]):
-            for y in self.list_fragment[z]:
-                x = x * y
+            x = x * len( self.list_fragment[z])
         self.space_size = x
         return x
 
