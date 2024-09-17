@@ -128,7 +128,6 @@ class IpEs1Fosc(ObjectiveFunction):
         self.stda_bin_path = "stda"
         self.database_output_folder = Path(database_output_folder)
         Path.mkdir(self.database_output_folder, exist_ok=True)
-        self.database_name = "stk_constructed"
         self.collection_name = f"BO_{oligomer_size}"
         self.host_ip = "localhost"
         self.oligomer_size = oligomer_size
