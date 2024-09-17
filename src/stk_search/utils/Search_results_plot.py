@@ -1,3 +1,5 @@
+"""Compilation of function to plot the results of the search."""
+
 import glob
 import pickle
 
@@ -7,9 +9,6 @@ import pandas as pd
 import seaborn as sns
 from sklearn.cluster import HDBSCAN
 
-#plt.matplotlib.style.use(
-#    "https://gist.githubusercontent.com/JonnyCBB/c464d302fefce4722fe6cf5f461114ea/raw/64a78942d3f7b4b5054902f2cee84213eaff872f/matplotlibrc"
-#)
 cool_colors = [
     "#00BEFF",
     "#D4CA3A",
@@ -97,13 +96,9 @@ def plot_simple_regret(
     axs.set_ylim([df_total[target_name].min(), df_total[target_name].max()])
     return max(y_max_mu)
 
+
 def plot_target_MFBO(
-    res,
-    axs=None,
-    title="",
-    target_name="target",
-    df_total=None,
-    colours=None
+    res, axs=None, title="", target_name="target", df_total=None, colours=None
 ):
     if colours is None:
         colours = ["blue", "red", "green", "yellow"]
@@ -113,28 +108,51 @@ def plot_target_MFBO(
     if "fidelity" in df_sample.columns:
         fidelities = list(dict.fromkeys(df_sample["fidelity"].values))
         fidelities.sort()
-        maximum_target=[]
+        maximum_target = []
         for fidelity in fidelities:
-            fidelity_target=[]
-            fidelity_iteration=[]
+            fidelity_target = []
+            fidelity_iteration = []
             for i in range(nb_iterations):
-                if (df_sample.at[i, "fidelity"] == fidelity):
+                if df_sample.at[i, "fidelity"] == fidelity:
                     fidelity_target.append(fitness_list[i])
                     fidelity_iteration.append(i)
-            maximum_target.append(max(df_total[df_total["fidelity"]==fidelity]["target"]))
+            maximum_target.append(
+                max(df_total[df_total["fidelity"] == fidelity]["target"])
+            )
             legend_text = f"Fidelity: {fidelity}"
-            axs.scatter(fidelity_iteration, fidelity_target, label=legend_text, color=colours[fidelities.index(fidelity)])
-        plt.axhline(y=maximum_target[-1], color="black", linestyle="--", label="Global Max for Best Fidelity")
+            axs.scatter(
+                fidelity_iteration,
+                fidelity_target,
+                label=legend_text,
+                color=colours[fidelities.index(fidelity)],
+            )
+        plt.axhline(
+            y=maximum_target[-1],
+            color="black",
+            linestyle="--",
+            label="Global Max for Best Fidelity",
+        )
 
     else:
-        axs.scatter(np.arange(nb_iterations+1), fitness_list, label="Evaluated Element", color=colours[0])
-        plt.axhline(y=max(df_total["target"]), color="black", linestyle="--", label="Global Maximum")
+        axs.scatter(
+            np.arange(nb_iterations + 1),
+            fitness_list,
+            label="Evaluated Element",
+            color=colours[0],
+        )
+        plt.axhline(
+            y=max(df_total["target"]),
+            color="black",
+            linestyle="--",
+            label="Global Maximum",
+        )
     axs.legend(loc="lower right")
     axs.set_xlabel("Iteration Number")
     axs.set_ylabel("Target")
-    axs.set_ylim([min(fitness_list)-2, 0])
+    axs.set_ylim([min(fitness_list) - 2, 0])
     axs.set_title(title)
     return max(fitness_list)
+
 
 def plot_inst_regret(
     res,
@@ -168,10 +186,11 @@ def plot_inst_regret(
         # max value acquired up to this point
         y_maxes = [
             res[r]["fitness_acquired"][i - 1] - target_value
-            for r in range(nb_runs) if len(res[r]["fitness_acquired"]) > i - 1
+            for r in range(nb_runs)
+            if len(res[r]["fitness_acquired"]) > i - 1
         ]
         y_maxes = np.array(y_maxes)
-        #assert np.size(y_maxes) == nb_runs
+        # assert np.size(y_maxes) == nb_runs
         y_max_mu[i - 1] = np.mean(y_maxes)
         y_max_sig_bot[i - 1] = np.std(y_maxes)
         y_max_sig_top[i - 1] = np.std(y_maxes)
@@ -425,8 +444,8 @@ def plot_all_y_max_diff(
 
     axs.fill_between(
         nb_iterations_range,
-        y_max_mu - y_max_sig_bot ,
-        y_max_mu + y_max_sig_top ,
+        y_max_mu - y_max_sig_bot,
+        y_max_mu + y_max_sig_top,
         alpha=0.2,
         ec="None",
         color=color,
@@ -446,7 +465,6 @@ def plot_y_mean(
     df_total=None,
     nb_initialisation=0,
 ):
-
     if df_total is None:
         df_total = []
     nb_iterations_range = np.arange(nb_iterations) + 1
@@ -493,7 +511,7 @@ def plot_number_of_molecule_discovered(
 ):
     if df_total is None:
         df_total = []
-    topKmol = int(df_total.shape[0]*0.01)
+    topKmol = int(df_total.shape[0] * 0.01)
     min_target = -np.sort(-df_total[target_name].values)[topKmol]
     nb_iterations_range = np.arange(nb_iterations) + 1
     y_elm = -10 * np.ones(nb_iterations)
@@ -514,9 +532,7 @@ def plot_number_of_molecule_discovered(
                 for r in range(nb_runs)
                 if len(res[r]["fitness_acquired"]) > nb_initialisation + i - 1
             ]
-        ).sum(
-            axis=1
-        )  # /topKmol*100 # among runs
+        ).sum(axis=1)  # /topKmol*100 # among runs
         y_elm[i - 1] = np.mean(y_maxes)
         y_elm_sig_bot[i - 1] = np.std(y_maxes[y_maxes < y_elm[i - 1]])
         y_elm_sig_top[i - 1] = np.std(y_maxes[y_maxes > y_elm[i - 1]])
@@ -583,6 +599,7 @@ def plot_number_of_molecule_discovered_sum(
     axs.set_ylabel("Number of unique top \n" + f" {topKmol} molecules found")
     return max(max_mol_found)
 
+
 def plot_simple_regret_batch(
     res,
     nb_iterations=100,
@@ -618,9 +635,12 @@ def plot_simple_regret_batch(
     df_results = df_total.merge(df_results, on="InChIKey", how="inner")
     max_mol_found = np.zeros(nb_iterations)
     for num_iter in range(nb_iterations):
-        max_mol_found[num_iter] = df_max_found[
-            df_max_found["ids_acquired"] < num_iter
-        ][target_name].max() - df_max_found[target_name].max()
+        max_mol_found[num_iter] = (
+            df_max_found[df_max_found["ids_acquired"] < num_iter][
+                target_name
+            ].max()
+            - df_max_found[target_name].max()
+        )
     axs.plot(np.arange(nb_iterations), max_mol_found, label=label, color=color)
     axs.set_xlabel("# evaluated oligomers")
     axs.set_ylabel("Simple regret")
@@ -669,13 +689,13 @@ def plot_total_rate_of_discovery(
         ].shape[0]
     axs.plot(
         np.arange(nb_iterations),
-        max_mol_found / (total_found+1) * 100,
+        max_mol_found / (total_found + 1) * 100,
         label=label,
         color=color,
     )
     axs.set_xlabel("# evaluated oligomers")
     axs.set_ylabel("Rate of discovery of \n top molecules for batch (%)")
-    return max(max_mol_found / (total_found+1) * 100)
+    return max(max_mol_found / (total_found + 1) * 100)
 
 
 def plot_rate_of_discovery(
@@ -693,7 +713,7 @@ def plot_rate_of_discovery(
 ):
     if df_total is None:
         df_total = []
-    topKmol = int(df_total.shape[0]*0.01)
+    topKmol = int(df_total.shape[0] * 0.01)
     if topKmol is not None:
         min_target = -np.sort(-df_total[target_name].values)[topKmol]
     y_results = np.zeros((nb_iterations + nb_initialisation, len(res)))
@@ -715,10 +735,14 @@ def plot_rate_of_discovery(
         )
     y_elm = np.mean(y_results, axis=1)
     # get bottom  variance of data
-    #y_elm_sig_bot = np.std(y_results[y_results < y_elm], axis=1)
-    #y_elm_sig_top = np.std(y_results[y_results > y_elm], axis=1)
-    y_elm_sig_bot = np.array([np.std(row[row < y_elm[i]]) for i, row in enumerate(y_results)])
-    y_elm_sig_top = np.array([np.std(row[row > y_elm[i]]) for i, row in enumerate(y_results)])
+    # y_elm_sig_bot = np.std(y_results[y_results < y_elm], axis=1)
+    # y_elm_sig_top = np.std(y_results[y_results > y_elm], axis=1)
+    y_elm_sig_bot = np.array(
+        [np.std(row[row < y_elm[i]]) for i, row in enumerate(y_results)]
+    )
+    y_elm_sig_top = np.array(
+        [np.std(row[row > y_elm[i]]) for i, row in enumerate(y_results)]
+    )
 
     nb_iterations_range = np.arange(0, nb_iterations)
     axs.plot(nb_iterations_range, y_elm, label=label, color=color)
@@ -776,7 +800,6 @@ def plot_exploration_evolution(
     aim=5.5,
     topKmol=1000,
 ):
-
     df_total = df_total_org.copy()
     df_total[target_name] = df_total[target_name].apply(
         lambda x: -np.sqrt((x - aim) ** 2)
@@ -832,8 +855,6 @@ def plot_exploration_evolution(
     )
 
 
-
-
 def load_search_data(search_type, date, test_name, min_eval=100):
     files = glob.glob(
         f"data/output/search_experiment/{test_name}/"
@@ -845,7 +866,6 @@ def load_search_data(search_type, date, test_name, min_eval=100):
     BOresults = []
     max_num_eval = 0
     for file in files:
-
         with open(file, "rb") as f:
             results = pickle.load(f)
             if len(results["fitness_acquired"]) > min_eval:
@@ -961,7 +981,6 @@ def get_clusters(df):
 
 
 def plot_space_with_target(df, target_name="target", ax=None, size_of_bin=1):
-
     list_target_splits = [
         df[df[target_name] > i][target_name].values
         for i in range(
@@ -1035,7 +1054,6 @@ def load_search_data(search_type, date, test_name, min_eval=100):
     BOresults = []
     max_num_eval = 0
     for file in files:
-
         with open(file, "rb") as f:
             results = pickle.load(f)
             if len(results["fitness_acquired"]) > min_eval:
@@ -1056,7 +1074,6 @@ def plot_BO_results_in_space(BOresults, ax, title_label, df_rep):
     def plot_pca_space_results(
         df_tot_plot, df_plot_results, property_name, added_text=""
     ):
-
         cax = ax.scatter(
             df_tot_plot["2D PCA 1"],
             df_tot_plot["2D PCA 2"],
@@ -1090,7 +1107,6 @@ def plot_BO_results_in_space(BOresults, ax, title_label, df_rep):
 
 
 def plot_df_results_in_space(pd_results, ax, title_label, df_rep):
-
     df_plot_results = pd_results.merge(
         df_rep, on="InChIKey", how="left", suffixes=("_acquired", "")
     )
@@ -1098,7 +1114,6 @@ def plot_df_results_in_space(pd_results, ax, title_label, df_rep):
     def plot_pca_space_results(
         df_tot_plot, df_plot_results, property_name, added_text=""
     ):
-
         cax = ax.scatter(
             df_tot_plot["PCA1"],
             df_tot_plot["PCA2"],
@@ -1132,7 +1147,6 @@ def plot_df_results_in_space(pd_results, ax, title_label, df_rep):
 
 
 def plot_df_max_in_space(pd_results, ax, title_label, df_rep):
-
     df_plot_results = pd_results.merge(
         df_rep, on="InChIKey", how="left", suffixes=("_acquired", "")
     )
@@ -1140,7 +1154,6 @@ def plot_df_max_in_space(pd_results, ax, title_label, df_rep):
     def plot_pca_space_results(
         df_tot_plot, df_plot_results, property_name, added_text=""
     ) -> None:
-
         # ax.scatter(df_all_plot_morgan['PCA1'], df_all_plot_morgan['PCA2'], c='black', s=20, alpha=0.9, label='random generation')
 
         ax.scatter(
@@ -1169,7 +1182,6 @@ def plot_df_max_in_space(pd_results, ax, title_label, df_rep):
 
 
 def plot_pca_space(df_tot_plot, property_name, added_text="", ax=None):
-
     # ax.scatter(df_all_plot_morgan['PCA1'], df_all_plot_morgan['PCA2'], c='black', s=20, alpha=0.9, label='random generation')
 
     cax = ax.scatter(
@@ -1179,7 +1191,6 @@ def plot_pca_space(df_tot_plot, property_name, added_text="", ax=None):
         cmap="viridis",
         s=1,
         alpha=0.8,
-
     )
     ax.set_title(f"Chemical space , {added_text}")
 

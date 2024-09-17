@@ -1,4 +1,5 @@
-# plot the performance of the prediction model on the new molecules
+"""plot the performance of the prediction model on the new molecules."""
+
 import os
 from pathlib import Path
 
@@ -6,6 +7,7 @@ import pandas as pd
 import pymongo
 import stk
 import torch
+
 from stk_search.geom3d import dataloader, oligomer_encoding_with_transformer
 from stk_search.utils.config_utils import save_config
 
@@ -16,13 +18,15 @@ def get_dataset_from_df(dataset_all, df, config):
     Args:
     ----
         dataset_all: list of dictionaries
-            list of dictionaries containing the information of the molecules in the dataset
+            list of dictionaries containing the information of the molecules in the dataset.
         df: pandas dataframe
-            dataframe containing the information of the molecules
+            dataframe containing the information of the molecules.
         config: dictionary
-            dictionary containing the configuration of the model
+            dictionary containing the configuration of the model.
+
     Returns:
-        dataset: list of dictionaries
+    -------
+        dataset: list of dictionaries.
 
     """
     dataset_all_dict = {data["InChIKey"]: data for data in dataset_all}

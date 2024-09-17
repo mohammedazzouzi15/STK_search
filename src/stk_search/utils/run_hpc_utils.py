@@ -1,29 +1,29 @@
+"""Script to generate scripts to run the search using an HPC that has PBS as the queeuing system."""
 
 import datetime
 import os
 
 
 def generate_string_run(
-
-    case = "BO_precursor",
-    test_name = "test",
-    target = "target", aim = 0,
-    benchmark = True,
-    num_iteration = 2,
-    num_elem_initialisation = 10,
-    which_acquisition = "EI",
+    case="BO_precursor",
+    test_name="test",
+    target="target",
+    aim=0,
+    benchmark=True,
+    num_iteration=2,
+    num_elem_initialisation=10,
+    which_acquisition="EI",
     dataset_representation_path="",
-    df_path = "data/output/Full_dataset/df_total_2024-01-05.csv",
-    df_representation_path = "data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
-    config_dir = "/rds/general/user/ma11115/home/Geom3D/Geom3D/training/SchNet_frag/",
-    SearchSpace_loc = "/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/SearchSpace/test/SearchSpace1.pkl",
+    df_path="data/output/Full_dataset/df_total_2024-01-05.csv",
+    df_representation_path="data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
+    config_dir="/rds/general/user/ma11115/home/Geom3D/Geom3D/training/SchNet_frag/",
+    SearchSpace_loc="/rds/general/user/ma11115/home/STK_Search/STK_search/data/input/SearchSpace/test/SearchSpace1.pkl",
     frag_properties="all",
-    lim_counter = 10,
-    budget=None
-    ):
-    """ 
-    Generate the string to run the search notebook.
-    
+    lim_counter=10,
+    budget=None,
+):
+    """Generate the string to run the search notebook.
+
     Args:
     ----
         case: str
@@ -57,7 +57,7 @@ def generate_string_run(
             string to run the notebook
         script_qsub: str
             script to run the notebook on HPC
-            
+
     """
     input = locals()
 
@@ -73,24 +73,26 @@ def generate_string_run(
             string_to_run_notbook = f"{string_to_run_notbook} --{key} {value}"
     string_to_run = f"python {string_to_run_notbook} "
     if benchmark:
-        num_cpus, mem = 8 , 24
+        num_cpus, mem = 8, 24
         num_iterations = 50
     else:
-        num_cpus, mem = 30 , 50
+        num_cpus, mem = 30, 50
         num_iterations = 20
-    script_qsub = "#!/bin/bash \n"+\
-                    "#PBS -l walltime=07:59:01 \n"+\
-                    f"#PBS -l select=1:ncpus={num_cpus}:mem={mem}gb:avx=true \n"+\
-                    f"#PBS -J 1-{num_iterations} \n"+\
-                    " \n"+\
-                    "cd /rds/general/user/ma11115/home/STK_Search/STK_search \n"+\
-                    "module load anaconda3/personal \n"+ \
-                    "source activate Geom3D     \n"+\
-                    string_to_run
+    script_qsub = (
+        "#!/bin/bash \n"
+        + "#PBS -l walltime=07:59:01 \n"
+        + f"#PBS -l select=1:ncpus={num_cpus}:mem={mem}gb:avx=true \n"
+        + f"#PBS -J 1-{num_iterations} \n"
+        + " \n"
+        + "cd /rds/general/user/ma11115/home/STK_Search/STK_search \n"
+        + "module load anaconda3/personal \n"
+        + "source activate Geom3D     \n"
+        + string_to_run
+    )
     return string_to_run_notbook, script_qsub
 
-def submit_job(script_qsub, case_name):
 
+def submit_job(script_qsub, case_name):
     now = datetime.datetime.now()
     # print (now.strftime("%Y-%m-%d %H:%M:%S"))
     sh_file_name = (

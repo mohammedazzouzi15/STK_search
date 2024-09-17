@@ -12,12 +12,14 @@ from rdkit import Chem
 from rdkit.Chem import AllChem, DataStructs, Draw, rdFMCS
 from sklearn.cluster import HDBSCAN
 from sklearn.decomposition import PCA
-from stk_search.utils import database_utils
 from tqdm import tqdm
+
+from stk_search.utils import database_utils
 
 
 def oligomer_scaffold_splitter(dataset, config):
     """Split a dataset into a training and test set based on the scaffold of the oligomers.
+
     The test set contains the oligomers with the specified scaffold.
 
     Args:
@@ -86,12 +88,9 @@ def cluster_analysis(dataset, config, min_cluster_size=750, min_samples=50):
         min_cluster_size=min_cluster_size, min_samples=min_samples
     )
     # Fit the model to the average PCA scores
-    hdb_model.fit_predict(
-        df_total[["2d_tani_pca_1", "2d_tani_pca_2"]]
-    )
+    hdb_model.fit_predict(df_total[["2d_tani_pca_1", "2d_tani_pca_2"]])
 
     # print how many clusters there are and how many oligomers are in each cluster
-
 
 
 def pca_plot(df_total, config):
@@ -152,7 +151,6 @@ def pca_plot(df_total, config):
     plt.show()
 
 
-
 # still to do for oligomer
 def substructure_analysis_oligomers(
     dataset, config, selected_cluster=1, min_cluster_size=750, min_samples=50
@@ -180,7 +178,6 @@ def substructure_analysis_oligomers(
     min_cluster_size = config["oligomer_min_cluster_size"]
     min_samples = config["oligomer_min_samples"]
 
-
     hdb_model = HDBSCAN(
         min_cluster_size=min_cluster_size, min_samples=min_samples
     )
@@ -196,8 +193,6 @@ def substructure_analysis_oligomers(
         for oligomer_key, cluster_id in cluster_assignments.items()
         if cluster_id == selected_cluster
     ]
-
-
 
     # Generate common substructures for each molecule in the cluster
     common_substructures = []
@@ -305,8 +300,7 @@ def check_data_exists(df_total, dataset, config):
         generate_2d_PCA(dataset, config)
 
 
-
-def calculate_morgan_fingerprints(mols,radius=2,nBits=1024):
+def calculate_morgan_fingerprints(mols, radius=2, nBits=1024):
     return [
         AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=nBits)
         for mol in mols
@@ -322,7 +316,8 @@ def generate_repr(df_total, df_precursors, frag_properties, idx=0):
     frag_properties = frag_properties.union(["InChIKey"])
     if "InChIKey_0" not in df_total.columns:
         elements_curr = [
-            [eval(df_total["BB"][x])[i]["InChIKey"] for i in range(6)] for x in idx
+            [eval(df_total["BB"][x])[i]["InChIKey"] for i in range(6)]
+            for x in idx
         ]
         elements_curr = pd.DataFrame(
             elements_curr, columns=[f"InChIKey_{x}" for x in range(6)]
@@ -347,15 +342,12 @@ def generate_repr(df_total, df_precursors, frag_properties, idx=0):
                 [init_rpr, df_eval[df_eval.columns[num_frag + 1 :]].values],
                 axis=1,
             )
-    return torch.tensor(
-        np.array(init_rpr.astype(float)), dtype=torch.float32
-    )
-
+    return torch.tensor(np.array(init_rpr.astype(float)), dtype=torch.float32)
 
 
 def generate_2d_PCA(df, df_precursors):
     """Generate 2D PCA scores for the dataset and append them to df_total."""
-    #df_total, df_precursors = load_dataframes(dataset, config)
+    # df_total, df_precursors = load_dataframes(dataset, config)
     df_total = df.copy()
     X_frag_mol = df_precursors["mol_opt"].values
 
