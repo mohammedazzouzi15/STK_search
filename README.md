@@ -3,7 +3,7 @@
 
 
 <p align="center">
-  <img src="./Overview.svg" /> 
+  <img src="./overview.svg" /> 
 </p>
 
 ## Overview 
