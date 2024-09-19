@@ -9,17 +9,19 @@ Args:
 
 to run it from the command line:
 python get_frag_encoding.py --config_dir config_dir.
+
 """
 
 
 
 import os
-import Path
-from pathlib import Path
+import pathlib import Path
 
 import numpy as np
 import pandas as pd
+import Path
 import torch
+
 from stk_search.geom3d import (
     dataloader,
     oligomer_encoding_with_transformer,

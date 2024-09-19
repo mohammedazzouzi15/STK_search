@@ -6,8 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "stk_search"
-project_copyright = "2024, Mohammed Azzouzi"
+project = "stk-search"
+project_copyright = "2023, Mohammed Azzouzi"
 author = "Mohammed Azzouzi"
 
 # -- General configuration ---------------------------------------------------
@@ -20,7 +20,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    "sphinx.ext.autodoc",
 ]
 
 autosummary_imported_members = True
@@ -28,7 +27,10 @@ autosummary_imported_members = True
 autodoc_typehints = "description"
 autodoc_member_order = "groupwise"
 autoclass_content = "class"
-
+autodoc_type_aliases = {
+    "Properties": "dict[str, Json]",
+    "Json": "Json",
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
