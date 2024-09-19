@@ -209,7 +209,6 @@ class Pymodel_new(pl.LightningModule):
         if self.graph_pred_linear is not None:
             loss1 = Functional.mse_loss(z_opt, batch.y.unsqueeze(1))
             loss2 = Functional.mse_loss(z_repr, z_repr_opt)
-            # loss = loss + Functional.mse_loss(z, batch.y.unsqueeze(1))
             a = torch.tensor(0.5, requires_grad=True)
             loss = a * loss1 + (1 - a) * loss2
         else:

@@ -43,7 +43,6 @@ class SchNet(torch.nn.Module):
         atomic_mass = torch.from_numpy(ase.data.atomic_masses)
         self.register_buffer("atomic_mass", atomic_mass)
 
-        # self.embedding = Embedding(100, hidden_channels)
         self.embedding = Embedding(node_class, hidden_channels)
         self.distance_expansion = GaussianSmearing(0.0, cutoff, num_gaussians, gamma=gamma)
 
