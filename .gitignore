@@ -30,6 +30,7 @@ data
 *.eggs/
 .installed.cfg
 *.egg-info
+lightning_logs/*
 
 # Unittest and coverage
 htmlcov/*
