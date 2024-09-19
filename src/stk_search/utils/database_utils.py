@@ -9,12 +9,30 @@ import pymongo
 def load_data_database(
     df_precursor_loc="Data/calculation_data_precursor_310823_clean.pkl",
     num_fragm=6,
+    client_url="mongodb://localhost:27017/",
+    database_name="stk_constructed",
+    collection_name="BO_exp1",
 ):
-    collection_name = "BO_exp1" if num_fragm == 6 else f"BO_{num_fragm}"
+    """Load data from database.
 
-    def load_data():
-        client = pymongo.MongoClient("mongodb://ch-atarzia.ch.ic.ac.uk/")
-        database = client["stk_mohammed_BO"]
+    Args:
+    ----
+        df_precursor_loc (str): path to the precursor data.
+        num_fragm (int): number of fragments.
+        client_url (str): url to the database.
+        database_name (str): name of the database.
+        collection_name (str): name of the collection.
+
+    Returns:
+    -------
+        df_total (pd.DataFrame): dataframe with the data.
+        df_precursors (pd.DataFrame): dataframe with the precursors.
+
+    """
+
+    def load_data() -> pd.DataFrame:
+        client = pymongo.MongoClient(client_url)
+        database = client[database_name]
         collection = database[f"{collection_name}_IPEA"]
         df_IPEA = pd.DataFrame(list(collection.find()))
         collection = database[f"{collection_name}_Stda"]
@@ -22,6 +40,7 @@ def load_data_database(
         collection = database["constructed_molecules"]
         df_CM = pd.DataFrame(list(collection.find()))
         df_total = df_CM.merge(df_STDA, on="InChIKey", how="outer")
+
         df_total = df_total.merge(df_IPEA, on="InChIKey", how="outer")
         df_total = df_total.dropna(subset=["Excited state energy (eV)"])
 
@@ -43,18 +62,19 @@ def load_data_database(
         + np.log10(df_total_new["fosc1"])
     )
 
-    def prepare_df_for_plot(df_total_new=df_total_new):
+    def prepare_df_for_plot(df_total_new=df_total_new) -> tuple:
         df_test = df_total_new
-        for id, x in df_test.iterrows():
-            # print(x)
+        for _id, x in df_test.iterrows():
             if len(x["BB"]) != num_fragm:
-                df_test = df_test.drop(id)
+                df_test = df_test.drop(_id)
         df_precursors = pd.read_pickle(df_precursor_loc)
         for i in range(num_fragm):
             df_test[f"InChIKey_{i}"] = df_test["BB"].apply(
                 lambda x: str(x[i]["InChIKey"])
             )
-            df_test= df_test[df_test[f"InChIKey_{i}"].isin(df_precursors["InChIKey"])]
+            df_test = df_test[
+                df_test[f"InChIKey_{i}"].isin(df_precursors["InChIKey"])
+            ]
         return df_test, df_precursors
 
     df_total, df_precursors = prepare_df_for_plot(df_total_new)
@@ -97,23 +117,20 @@ def load_data_from_file(
     if df_path == "":
         df_precursors = pd.read_pickle(df_precursors_path)
         return None, df_precursors
+    df_total = pd.read_csv(df_path)
+    if add_feature_frag:
+        df_total, df_precursors = prepare_df_for_plot(
+            df_total, features_frag=features_frag
+        )
     else:
-        df_total = pd.read_csv(df_path)
-        if add_feature_frag:
-            df_total, df_precursors = prepare_df_for_plot(
-                df_total, features_frag=features_frag
-            )
-        else:
-            df_precursors = pd.read_pickle(df_precursors_path)
-        return df_total, df_precursors
+        df_precursors = pd.read_pickle(df_precursors_path)
+    return df_total, df_precursors
 
 
 def load_precursors_df(
     df_precursors_path="Data/calculation_data_precursor_310823_clean.pkl",
 ):
-
     return pd.read_pickle(df_precursors_path)
-
 
 
 def save_data(
