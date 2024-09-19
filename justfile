@@ -10,12 +10,6 @@ docs:
 
 # Do a dev install.
 dev:
-  pip install numpy
-  pip install rdkit
-  pip install scipy
-  pip install psutil
-  pip install wandb
-  pip install pytorch-lightning
   pip install -e '.[dev]'
 
 # Run code checks.
@@ -26,10 +20,10 @@ check:
   trap error=1 ERR
 
   echo
-  (set -x; ruff . )
+  (set -x; ruff check . )
 
   echo
-  ( set -x; black --check . )
+  ( set -x; ruff format --check . )
 
   echo
   ( set -x; mypy . )
@@ -44,8 +38,8 @@ check:
 
 # Auto-fix code issues.
 fix:
-  black .
-  ruff --fix .
+  ruff format .
+  ruff check --fix .
 
 # Build a release.
 build:
