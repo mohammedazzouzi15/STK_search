@@ -9,7 +9,7 @@ import pymongo
 import stk
 import stko
 
-from stk_search.ObjectiveFunctions.ObjectiveFunction import IpEs1Fosc
+from stk_search.ObjectiveFunctions.IpEs1Fosc import IpEs1Fosc
 
 
 def get_inchi_key(molecule)->str:
