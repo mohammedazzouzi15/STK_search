@@ -53,9 +53,9 @@ def _norm_no_nan(x, axis=-1, keepdims=False, eps=1e-8, sqrt=True):
     return torch.sqrt(out) if sqrt else out
 
 def _split(x, nv):
-    """Splits a merged representation of (s, V) back into a tuple.
+    """Splits a merged Representation of (s, V) back into a tuple.
     Should be used only with `_merge(s, V)` and only if the tuple 
-    representation cannot be used.
+    Representation cannot be used.
     
     :param x: the `torch.Tensor` returned from `_merge`
     :param nv: the number of vector channels in the input to `_merge`
@@ -67,7 +67,7 @@ def _split(x, nv):
 def _merge(s, v):
     """Merges a tuple (s, V) into a single `torch.Tensor`, where the
     vector channels are flattened and appended to the scalar channels.
-    Should be used only if the tuple representation cannot be used.
+    Should be used only if the tuple Representation cannot be used.
     Use `_split(x, nv)` to reverse.
     """
     v = torch.reshape(v, v.shape[:-2] + (3*v.shape[-2],))

@@ -3,11 +3,6 @@ import torch.nn.functional as F
 from torch import nn
 from torch_geometric.nn import GATConv, GCNConv
 
-from .AutoEncoder import AutoEncoder, VariationalAutoEncoder
-from .AWARE import AWARE
-from .BERT import BertForSequenceRegression
-from .ClofNet import ClofNet
-from .CNN import CNN
 from .DimeNet import DimeNet
 from .DimeNetPlusPlus import DimeNetPlusPlus
 from .DMPNN import DMPNN

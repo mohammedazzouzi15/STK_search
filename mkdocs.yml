@@ -1,8 +1,0 @@
-site_name: "Stk_search"
-repo_url: "https://github.com/mohammedazzouzi15/STK_search"
-site_dir: "site"
-docs_dir: "docs"
-
-theme:
-  name: readthedocs
-  include_sidebar: true

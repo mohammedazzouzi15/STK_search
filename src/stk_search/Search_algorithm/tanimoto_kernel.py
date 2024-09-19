@@ -1,5 +1,6 @@
-"""Tanimoto Kernel. Operates on representations including bit vectors e.g. Morgan/ECFP6 fingerprints count vectors e.g.
-RDKit fragment features.
+"""Tanimoto Kernel.
+
+Operates on representations including bit vectors e.g. Morgan/ECFP6 fingerprints count vectors e.g. RDKit fragment features.
 """
 
 import torch
@@ -10,6 +11,7 @@ def batch_tanimoto_sim(
     x1: torch.Tensor, x2: torch.Tensor, eps: float = 1e-6
 ) -> torch.Tensor:
     r"""Tanimoto similarity between two batched tensors, across last 2 dimensions.
+
     eps argument ensures numerical stability if all zero tensors are added. Tanimoto similarity is proportional to:
 
     (<x, y>) / (||x||^2 + ||y||^2 - <x, y>)
@@ -23,7 +25,9 @@ def batch_tanimoto_sim(
         x1: `[b x n x d]` Tensor where b is the batch dimension
         x2: `[b x m x d]` Tensor
         eps: Float for numerical stability. Default value is 1e-6
+        
     Returns:
+    -------
         Tensor denoting the Tanimoto similarity.
 
     """
@@ -45,8 +49,7 @@ def batch_tanimoto_sim(
 
 
 class TanimotoKernel(Kernel):
-    r"""Computes a covariance matrix based on the Tanimoto kernel
-     between inputs :math:`\mathbf{x_1}` and :math:`\mathbf{x_2}`:
+    r"""Computes a covariance matrix based on the Tanimoto kernel between inputs :math:`\mathbf{x_1}` and :math:`\mathbf{x_2}`.
 
      .. math::
 
@@ -79,27 +82,29 @@ class TanimotoKernel(Kernel):
     has_lengthscale = False
 
     def __init__(self, **kwargs):
+        """Initialize the Tanimoto kernel."""
         super().__init__(**kwargs)
 
-    def forward(self, x1, x2, diag=False, **params):
+    def forward(self, x1, x2, diag=False, **params: dict):
+        """Compute the covariance matrix between x1 and x2."""
         if diag:
-            assert x1.size() == x2.size()
-            assert torch.equal(x1, x2)
+            if not x1.size() == x2.size():
+                raise RuntimeError("x1 should have the same shape as x2")
+            if not torch.equal(x1, x2):
+                raise RuntimeError("x1 should be equal to x2")
             return torch.ones(
                 *x1.shape[:-2], x1.shape[-2], dtype=x1.dtype, device=x1.device
             )
-        else:
-            return self.covar_dist(x1, x2, **params)
+        return self.covar_dist(x1, x2, **params)
 
     def covar_dist(
         self,
         x1,
         x2,
         last_dim_is_batch=False,
-        **params,
+        **params: dict,
     ):
-        r"""This is a helper method for computing the bit vector similarity between
-        all pairs of points in x1 and x2.
+        r"""Compute the bit vector similarity between all pairs of points in x1 and x2.
 
         Args:
         ----
@@ -109,6 +114,9 @@ class TanimotoKernel(Kernel):
                 Second set of data.
             :attr:`last_dim_is_batch` (tuple, optional):
                 Is the last dimension of the data a batch dimension or not?
+                (default: `False`)
+            :attr:`params` (dict):
+                Additional parameters for the kernel.
 
         Returns:
         -------

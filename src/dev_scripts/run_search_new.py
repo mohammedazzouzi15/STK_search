@@ -8,13 +8,16 @@ import pandas as pd
 import pymongo
 import stk
 import torch
+
 from stk_search import SearchExp
 from stk_search.geom3d.models import SchNet
 from stk_search.geom3d.oligomer_encoding_with_transformer import (
     initialise_model,
 )
 from stk_search.geom3d.pl_model import Pymodel
-from stk_search.Objective_function import IP_ES1_fosc, Look_up_table
+from stk_search.ObjectiveFunctions.ObjectiveFunction import LookUpTable
+from stk_search.ObjectiveFunctions.IpEs1Fosc import IpEs1Fosc
+
 from stk_search.Representation import (
     Representation_3d_from_fragment,
     Representation_from_fragment,
@@ -39,7 +42,7 @@ def main(
     aim="maximise",
     which_acquisition="EI",
     lim_counter=10,
-    search_space_loc="data/input/search_space/test/search_space1.pkl",
+    SearchSpace_loc="data/input/SearchSpace/test/SearchSpace1.pkl",
     oligomer_size=6,
     df_path="",
     df_representation_path="data/output/Prescursor_data/calculation_data_precursor_190923_clean.pkl",
@@ -49,25 +52,25 @@ def main(
     budget=None,
 ):
     input_json = locals()
-    search_space_loc = "data/input/STK_search_space/search_space_test.pkl"
-    with open(search_space_loc, "rb") as f:
-        search_space = pickle.load(f)
+    SearchSpace_loc = "data/input/STK_SearchSpace/SearchSpace_test.pkl"
+    with open(SearchSpace_loc, "rb") as f:
+        SearchSpace = pickle.load(f)
     # Load the searched space
     print(" number of fragment", oligomer_size)
     print(benchmark, "benchmark")
     df_total = pd.read_csv(df_path)
-    df_representation = pd.read_pickle(df_representation_path)
+    df_Representation = pd.read_pickle(df_representation_path)
 
     # get initial elements
     if benchmark:
-        objective_function = Look_up_table(
+        ObjectiveFunction = LookUpTable(
             df_total, oligomer_size, target_name=target_name, aim=aim
         )
     else:
-        objective_function = IP_ES1_fosc(oligomer_size)
+        ObjectiveFunction = IpEs1Fosc(oligomer_size)
         print("objective function")
         dataset_representation_path = (
-            ""  # the dataset representation is only used for the benchmark
+            ""  # the dataset Representation is only used for the benchmark
         )
     print(case, "  case  ")
     if case == "BO_precursor":
@@ -86,7 +89,7 @@ def main(
             ).columns
         print(frag_properties)
         BO.Representation = (
-            Representation_from_fragment.Representation_from_fragment(
+            Representation_from_fragment.RepresentationFromFragment(
                 df_representation, frag_properties
             )
         )
@@ -131,7 +134,7 @@ def main(
         print(frag_properties)
         MFBO.fidelity_col = len(frag_properties) * oligomer_size
         MFBO.Representation = (
-            Representation_from_fragment.Representation_from_fragment(
+            Representation_from_fragment.RepresentationFromFragment(
                 df_representation, frag_properties
             )
         )
@@ -172,9 +175,9 @@ def main(
     number_of_iterations = num_iteration
     verbose = True
     S_exp = SearchExp.SearchExp(
-        search_space,
+        SearchSpace,
         search_algorithm,
-        objective_function,
+        ObjectiveFunction,
         number_of_iterations,
         verbose=verbose,
     )
@@ -235,7 +238,7 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
     print(config["model_transformer_chkpt"])
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     if os.path.exists(dataset_path):
-        print("loading representation from ", dataset_path)
+        print("loading Representation from ", dataset_path)
         data_list = torch.load(dataset_path, map_location=device)
         print("size of data list", len(data_list))
     else:
@@ -259,7 +262,7 @@ def load_representation_BO_graph_frag(config_dir, df_total, dataset_path=""):
         database=config["database_name"],
     )
     Representation = (
-        Representation_3d_from_fragment.Representation_3d_from_fragment(
+        Representation_3d_from_fragment.Representation3dFromFragment(
             EncodingModel,
             df_total,
             data=data_list,
@@ -327,7 +330,7 @@ def load_representation_model_SUEA(
     )
     pymodel.graph_pred_linear.eval()
     Representation = (
-        Representation_3d_from_fragment.Representation_3d_from_fragment(
+        Representation_3d_from_fragment.Representation3dFromFragment(
             EncodingModel,
             df_total,
             data=data_list,
@@ -343,12 +346,13 @@ def load_representation_model_SUEA(
 
 
 def load_representation_model(config_dir):
-    """New model representation for the search algorithm
+    """New model Representation for the search algorithm
     Args:
         config_dir: str
             path to the config file
             Returns:
-            representation: Representation_poly_3d
+            representation: RepresentationPoly3d
+
     pymodel: Pymodel
     """
     from stk_search.geom3d import pl_model
@@ -365,7 +369,7 @@ def load_representation_model(config_dir):
     pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
     # pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
     pymodel.to(config["device"])
-    representation = Representation_poly_3d.Representation_poly_3d(
+    Representation = Representation_poly_3d.RepresentationPoly3d(
         pymodel, device="cpu"
     )
     return representation, pymodel
@@ -386,9 +390,9 @@ if __name__ == "__main__":
     parser.add_argument("--lim_counter", type=int, default=10)
     parser.add_argument("--benchmark", type=bool, default=False)
     parser.add_argument(
-        "--search_space_loc",
+        "--SearchSpace_loc",
         type=str,
-        default="data/input/search_space/test/search_space1.pkl",
+        default="data/input/SearchSpace/test/SearchSpace1.pkl",
     )
     parser.add_argument("--df_path", type=str, default="")
     parser.add_argument(
@@ -416,7 +420,7 @@ if __name__ == "__main__":
         args.aim,
         args.which_acquisition,
         args.lim_counter,
-        args.search_space_loc,
+        args.SearchSpace_loc,
         args.oligomer_size,
         args.df_path,
         args.df_representation_path,

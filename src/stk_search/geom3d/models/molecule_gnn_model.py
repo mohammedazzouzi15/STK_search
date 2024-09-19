@@ -187,15 +187,15 @@ class GNN(nn.Module):
 
         ### Different implementations of Jk-concat
         if self.JK == "concat":
-            node_representation = torch.cat(h_list, dim=1)
+            node_Representation = torch.cat(h_list, dim=1)
         elif self.JK == "last":
-            node_representation = h_list[-1]
+            node_Representation = h_list[-1]
         elif self.JK == "max":
             h_list = [h.unsqueeze_(0) for h in h_list]
-            node_representation = torch.max(torch.cat(h_list, dim=0), dim=0)[0]
+            node_Representation = torch.max(torch.cat(h_list, dim=0), dim=0)[0]
         elif self.JK == "sum":
             h_list = [h.unsqueeze_(0) for h in h_list]
-            node_representation = torch.sum(torch.cat(h_list, dim=0), dim=0)[0]
+            node_Representation = torch.sum(torch.cat(h_list, dim=0), dim=0)[0]
 
         return node_representation
 
@@ -256,9 +256,9 @@ class GNN_graphpred(nn.Module):
             msg = "unmatched number of arguments."
             raise ValueError(msg)
 
-        node_representation = self.molecule_model(x, edge_index, edge_attr)
+        node_Representation = self.molecule_model(x, edge_index, edge_attr)
 
-        graph_representation = self.pool(node_representation, batch)
+        graph_Representation = self.pool(node_representation, batch)
         pred = self.graph_pred_linear(graph_representation)
 
         return graph_representation, pred
@@ -278,8 +278,8 @@ class GNN_graphpred(nn.Module):
             msg = "unmatched number of arguments."
             raise ValueError(msg)
 
-        node_representation = self.molecule_model(x, edge_index, edge_attr)
-        graph_representation = self.pool(node_representation, batch)
+        node_Representation = self.molecule_model(x, edge_index, edge_attr)
+        graph_Representation = self.pool(node_representation, batch)
 
         return self.graph_pred_linear(graph_representation)
 

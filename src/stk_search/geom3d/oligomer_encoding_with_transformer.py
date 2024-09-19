@@ -1,4 +1,4 @@
-"""this script is to encode the representation of the oligomer from the representation of the fragments."""
+"""this script is to encode the Representation of the oligomer from the Representation of the fragments."""
 
 import glob
 import os
@@ -6,18 +6,18 @@ import os
 import lightning.pytorch as pl
 import torch
 import torch.nn.functional as Functional
+import wandb
 from lightning.pytorch.callbacks import (
     EarlyStopping,
     LearningRateMonitor,
     ModelCheckpoint,
 )
 from lightning.pytorch.loggers import WandbLogger
+from torch_geometric.data import Data
+
 from stk_search.geom3d.pl_model import Pymodel, model_setup
 from stk_search.geom3d.transformer_utils import TransformerPredictor
 from stk_search.utils.config_utils import save_config
-from torch_geometric.data import Data
-
-import wandb
 
 
 def run_encoding_training(config, train_loader, val_loader):
@@ -71,7 +71,7 @@ def run_encoding_training(config, train_loader, val_loader):
     return EncodingModel
 
 
-def save_encoding_dataset(dataset, config, dataset_name="",save_folder=""):
+def save_encoding_dataset(dataset, config, dataset_name="", save_folder=""):
     """Save the encoding of the dataset
     Args:
         dataset (DataLoader): The data loader for the training data.
@@ -98,7 +98,6 @@ def save_encoding_dataset(dataset, config, dataset_name="",save_folder=""):
     counter = 0
     for data_input in dataset:
         with torch.no_grad():
-
             learned_rpr_data = EncodingModel(
                 [x.to(config["device"]) for x in data_input]
             )
@@ -119,8 +118,7 @@ def save_encoding_dataset(dataset, config, dataset_name="",save_folder=""):
             else:
                 torch.save(
                     data_list,
-                    save_folder
-                    + f"/dataset_representation{dataset_name}.pt",
+                    save_folder + f"/dataset_representation{dataset_name}.pt",
                 )
     if save_folder == "":
         torch.save(
@@ -131,8 +129,7 @@ def save_encoding_dataset(dataset, config, dataset_name="",save_folder=""):
     else:
         torch.save(
             data_list,
-            save_folder
-            + f"/dataset_representation{dataset_name}.pt",
+            save_folder + f"/dataset_representation{dataset_name}.pt",
         )
 
     return data_list
@@ -236,8 +233,7 @@ class Fragment_encoder(TransformerPredictor):
                         b.batch = torch.zeros_like(b.x)
                     x[
                         :,
-                        i
-                        * self.hparams.num_classes : (i + 1)
+                        i * self.hparams.num_classes : (i + 1)
                         * self.hparams.num_classes,
                     ] = self.model_encoder(
                         b.x, b.positions, b.radius_edge_index, b.batch
@@ -245,8 +241,7 @@ class Fragment_encoder(TransformerPredictor):
                 else:
                     x[
                         :,
-                        i
-                        * self.hparams.num_classes : (i + 1)
+                        i * self.hparams.num_classes : (i + 1)
                         * self.hparams.num_classes,
                     ] = self.model_encoder(b.x, b.positions, b.batch)
         else:
@@ -282,10 +277,8 @@ class Fragment_encoder(TransformerPredictor):
         preds_target = self.graph_pred_linear(preds.view(-1, preds.size(-1)))
         labels_target_pred = self.graph_pred_linear(labels)
         loss1 = Functional.mse_loss(preds_target, labels_target_pred)
-        loss2 = Functional.mse_loss(
-            preds.view(-1, preds.size(-1)), labels
-        )
-        loss = loss1 + 10*loss2
+        loss2 = Functional.mse_loss(preds.view(-1, preds.size(-1)), labels)
+        loss = loss1 + 10 * loss2
         # print (labels.shape, preds.argmax(dim=-1).shape)
         # acc = (preds.argmax(dim=-1) == labels).float().mean()
 
@@ -304,5 +297,3 @@ class Fragment_encoder(TransformerPredictor):
 
     def test_step(self, batch, batch_idx):
         self._calculate_loss(batch, mode="test")
-
-

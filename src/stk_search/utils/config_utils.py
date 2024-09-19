@@ -193,8 +193,8 @@ def read_search_config(config_search_dir):
         config["which_acquisition"] = "EI"
         config["lim_counter"] = 1
         config["benchmark"] = False
-        config["search_space_loc"] = (
-            "data/input/search_space/test/search_space1.pkl"
+        config["SearchSpace_loc"] = (
+            "data/input/SearchSpace/test/SearchSpace1.pkl"
         )
         config["df_path"] = ""
         config["df_precursors_path"] = (

@@ -23,13 +23,13 @@ def load_data():
     df_total, df_precursors = database_utils.load_data_from_file(
         df_path, df_precursors_path
     )
-    SP = Searched_pace.Searched_Space(
+    SP = Searched_pace.SearchedSpace(
         number_of_fragments=6,
         df=df_precursors,
         features_frag=df_precursors.columns[0:1],
         generation_type="conditional",
     )
-    searched_space_df = SP.check_df_for_element_from_SP(df_to_check=df_total)
+    searched_space_df = SP.check_df_for_element_from_sp(df_to_check=df_total)
     fitness_acquired = searched_space_df["target"].values
     searched_space_df_InChIKey = searched_space_df[["InChIKey"]]
     searched_space_df = searched_space_df[[f"InChIKey_{x}" for x in range(6)]]

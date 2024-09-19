@@ -1,5 +1,6 @@
 import pandas as pd
-from stk_search.Objective_function import IP_ES1_fosc
+from stk_search.ObjectiveFunctions.IpEs1Fosc import IpEs1Fosc
+
 
 
 def main(df_path,oligomer_size):
@@ -7,7 +8,7 @@ def main(df_path,oligomer_size):
     df_total = pd.read_csv(df_path)
     #load the data and the precursors dataset
     df_elements = df_total[[f"InChIKey_{i}" for i in range(oligomer_size)]]
-    calculator = IP_ES1_fosc(oligomer_size =oligomer_size)
+    calculator = IpEs1Fosc(oligomer_size =oligomer_size)
     for i in range(df_elements.shape[0]):
         try:
             fitness_function, Inchikey = calculator.evaluate_element(df_elements.iloc[[i]])

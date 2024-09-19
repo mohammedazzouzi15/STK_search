@@ -23,9 +23,9 @@ def plot_exp_batch_results(
     label_list = []
 
     for i in [3, 4, 5, 6]:
-        search_space_loc = exp_name + f"search_space_{i}.pkl"
-        SP = pickle.load(open(search_space_loc, "rb"))
-        df_eval = SP.check_df_for_element_from_SP(df_to_check=df_total)
+        SearchSpace_loc = exp_name + f"SearchSpace_{i}.pkl"
+        SP = pickle.load(open(SearchSpace_loc, "rb"))
+        df_eval = SP.check_df_for_element_from_sp(df_to_check=df_total)
         df_list.append(df_eval)
         top5_percent_length = int(df_total.shape[0] * 0.05)
         min_target_5percent = (

@@ -20,6 +20,7 @@ __pycache__/*
 .pydevproject
 .settings
 .idea
+*.ipynb
 .vscode
 tags
 data
@@ -29,6 +30,7 @@ data
 *.eggs/
 .installed.cfg
 *.egg-info
+lightning_logs/*
 
 # Unittest and coverage
 htmlcov/*
@@ -61,7 +63,6 @@ wandb/
 *.png
 *.ckpt
 *.csv
-*.yaml
 *.json
 *.pt
 *.tar

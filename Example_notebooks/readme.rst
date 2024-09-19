@@ -1,4 +1,7 @@
 notebooks showing how to use the library. 
+
+0. You can add the database used in the original work using the 00_load_database notebook.
+
 1. the first notebook shows how to generate  list of building blocks from a list of smiles. 
     Here we use the function `generate_building_blocks` to generate a list of building blocks from a list of smiles.
     in this case we consider that the connection point between the building blocks is determined by the position of bromine atoms. 

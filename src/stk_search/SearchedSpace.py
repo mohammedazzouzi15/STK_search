@@ -1,5 +1,7 @@
-"""define a class to store the searched space
-this is a sub class of the search space class.
+"""Define a class to represent the searched space.
+
+Here i mainly introduce a function to plot the histogram of the searched space
+and compare it with the histogram of the whole dataset
 """
 
 from itertools import product
@@ -14,14 +16,68 @@ from stk_search.SearchSpace import SearchSpace
 
 
 class SearchedSpace(SearchSpace):
-    def plot_hist_compare(self, df_all, df_list, label_list,properties_to_plot=None):
+    """Class that contains the chemical space to search over.
+
+    It is defined by the number of fragments and the syntax of the fragment forming the oligomer
+    It also contains the conditions that need to be respected by the building blocks.
+
+    the searched space class contains functions to plot the histogram of the searched space
+    and compare it with the histogram of the whole dataset
+
+    Attributes
+    ----------
+    number_of_fragments : int
+    df_precursors : pd.DataFrame
+    generation_type : str
+    syntax : list
+    conditions_list : list
+
+    Functions
+    ---------
+    plot_hist_compare
+    plot_histogram_fragment
+    get_all_possible_syntax
+    generate_interactive_condition_v2
+
+
+    """
+
+    def plot_hist_compare(
+        self: SearchSpace,
+        df_all: pd.DataFrame,
+        df_list: list,
+        label_list: list,
+        properties_to_plot=None,
+    ) -> tuple:
+        """Plot the histogram of the searched space and compare it with the histogram of the whole dataset.
+
+        Args:
+        ----
+        df_all : pd.DataFrame
+            dataframe containing the whole dataset
+        df_list : list
+            list of the dataframes containing the searched space
+        label_list : list
+            list of the labels of the dataframes in df_list
+        properties_to_plot : list
+            list of the properties to plot the histogram of
+
+        Returns:
+        -------
+        fig : plt.figure
+            figure containing the histogram
+        ax : plt.axis
+            axis of the figure
+
+        """
         if properties_to_plot is None:
             properties_to_plot = []
         fig, ax = plt.subplots(1, len(properties_to_plot), figsize=(15, 10))
         ax = ax.flatten()
+
         def plot_hist(df, ax, color, label="all data") -> None:
-            for axis_num,property in enumerate(properties_to_plot):
-                df[property].hist(
+            for axis_num, _property in enumerate(properties_to_plot):
+                df[_property].hist(
                     ax=ax[axis_num],
                     bins=30,
                     density=1,
@@ -29,7 +85,7 @@ class SearchedSpace(SearchSpace):
                     label=label,
                     alpha=0.5,
                 )
-                ax[axis_num].set_xlabel(f"{property}")
+                ax[axis_num].set_xlabel(f"{_property}")
 
         plot_hist(df=df_all, ax=ax, color="#21918c")
         # get a color list for the diffetent datasets
@@ -45,11 +101,10 @@ class SearchedSpace(SearchSpace):
             "#a8dadc",
             "#457b9d",
         ]
-        for id, df in enumerate(df_list):
-            plot_hist(df, ax, color=color_list[id], label=label_list[id])
+        for _id, df in enumerate(df_list):
+            plot_hist(df, ax, color=color_list[_id], label=label_list[_id])
         for _ax in ax.flatten():
-            # ax.set_yscale('log')
-            _ax.grid(False)
+            _ax.grid(visible=False)
             _ax.set_ylabel("Density")
             _ax.set_yticks([])
         # add legend for the figure on top showing the different datasets
@@ -59,6 +114,29 @@ class SearchedSpace(SearchSpace):
     def plot_histogram_fragment(
         self, column_name, df_list, df_total, number_of_fragments, label_list
     ):
+        """Plot the histogram of the fragment of the searched space and compare it with the histogram of the whole dataset.
+
+        Args:
+        ----
+        column_name : str
+            name of the column to plot the histogram of
+        df_list : list
+            list of the dataframes containing the searched space
+        df_total : pd.DataFrame
+            dataframe containing the whole dataset
+        number_of_fragments : int
+            number of fragments
+        label_list : list
+            list of the labels of the dataframes in df_list
+
+        Returns:
+        -------
+        fig : plt.figure
+            figure containing the histogram
+        axs : plt.axis
+            axis of the figure
+
+        """
         fig, axs = plt.subplots(
             3, 2, figsize=(12, 6), sharex="col", sharey="row"
         )
@@ -89,14 +167,14 @@ class SearchedSpace(SearchSpace):
                 color="#21918c",
                 range=(range_min, range_max),
             )
-            for id, df in enumerate(df_list):
+            for _id, df in enumerate(df_list):
                 df[f"{column_name}_{i}"].hist(
                     ax=axs[i // 2, i % 2],
                     bins=20,
                     edgecolor="black",
                     density=True,
-                    label=label_list[id],
-                    color=color_list[id],
+                    label=label_list[_id],
+                    color=color_list[_id],
                     range=(range_min, range_max),
                     alpha=0.5,
                 )
@@ -106,15 +184,21 @@ class SearchedSpace(SearchSpace):
         # put the lengend on top of the figure
 
         for ax in axs.flatten():
-            # ax.set_yscale('log')
-            ax.grid(False)
+            ax.grid(visible=False)
             ax.set_ylabel("Density")
             ax.set_yticks([])
-            # ax.legend()
         plt.tight_layout()
         return fig, axs
 
     def get_all_possible_syntax(self):
+        """Get all the possible syntax for the conditions.
+
+        Returns
+        -------
+        list
+            list of all the possible syntax
+
+        """
         perm = product(
             list(range(self.number_of_fragments)),
             repeat=self.number_of_fragments,
@@ -127,14 +211,11 @@ class SearchedSpace(SearchSpace):
             # check that the first element is 0
             if i[0] == 0:
                 # check that the element is not higher than its position
-                for pos, id in enumerate(i):
-                    if id > pos:
+                for pos, _id in enumerate(i):
+                    if _id > pos:
                         append = False
                         break
-                    if id != pos and i[id] == id:
-                        # print(id,i[id],pos,i[pos])
-                        append = True
-                    elif id == pos:
+                    if (_id != pos and i[_id] == _id) or i[_id] == pos:
                         append = True
                     else:
                         append = False
@@ -143,13 +224,29 @@ class SearchedSpace(SearchSpace):
                 possible_syntax.append(i)
         return possible_syntax
 
-    def generate_interactive_condition_V2(self, df_total: pd.DataFrame,
-                                          properties_to_plot=None):
+    def generate_interactive_condition_v2(
+        self, df_total: pd.DataFrame, properties_to_plot=None
+    ):
+        """Generate an interactive widget to select the conditions.
+
+        Args:
+        ----
+        df_total : pd.DataFrame
+            dataframe containing the whole dataset
+        properties_to_plot : list
+            list of the properties to plot the histogram of
+
+        Returns:
+        -------
+        None
+
+        """
         # function to generate an interactive prompt to select the condition
         # SP is the search space object
         # return the interactive widget
         if properties_to_plot is None:
             properties_to_plot = []
+
         def add_condition(
             columns: str, operation: str, value: str, fragment: int
         ) -> None:
@@ -233,7 +330,6 @@ class SearchedSpace(SearchSpace):
                 value_dropdown.value,
                 fragment_dropdown.value,
             )
-            # self.redefine_search_space()
             self.get_space_size()
             number_of_elements_text.value = f"{self.space_size:.2e}"
 
@@ -268,15 +364,15 @@ class SearchedSpace(SearchSpace):
                 self.get_space_size()
                 number_of_elements_text.value = f"{self.space_size:.2e}"
 
-                for i in range(self.number_of_fragments):
-                    display_conditions[i].options = self.conditions_list[i]
+                for number_frag in range(self.number_of_fragments):
+                    display_conditions[number_frag].options = self.conditions_list[i]
 
         add_to_all_fragment_button.on_click(on_click_add_to_all_fragment)
         # Set up the layout of the widgets
         vbox_layout = Layout(
             display="flex", flex_flow="row", align_items="flex-start"
         )
-        Vb = VBox(
+        vb = VBox(
             [
                 columns_dropdown,
                 operation_dropdown,
@@ -289,7 +385,7 @@ class SearchedSpace(SearchSpace):
             ],
             layout=vbox_layout,
         )
-        display(Vb)
+        display(vb)
         # put line for syntax chage and show some info about the searched space
         syntax_dropdown = widgets.Dropdown(
             options=self.get_all_possible_syntax(),
@@ -317,7 +413,7 @@ class SearchedSpace(SearchSpace):
         min_target_5percent = (
             df_total["target"].nlargest(n=top5_percent_length).min()
         )
-        top5_All_text = widgets.Text(
+        top5_all_text = widgets.Text(
             value=str(min_target_5percent),
             description="min target to be anong the 5% highest:",
             disabled=True,
@@ -337,22 +433,21 @@ class SearchedSpace(SearchSpace):
 
             for i in range(self.number_of_fragments):
                 display_conditions[i].options = self.conditions_list[i]
-            # number_of_elements_text.value = "{:.2e}".format(self.space_size)
 
         syntax_button.on_click(on_click_syntax)
-        Vb = VBox(
+        vb = VBox(
             [
                 syntax_dropdown,
                 syntax_button,
                 number_of_elements_text,
-                top5_All_text,
+                top5_all_text,
                 top5_current_text,
                 number_of_element_evaluated,
             ],
             layout=vbox_layout,
         )
         # Display the widget
-        display(Vb)
+        display(vb)
         # add a button to add the condition
         display_conditions = []
         for i in range(self.number_of_fragments):
@@ -362,17 +457,17 @@ class SearchedSpace(SearchSpace):
             display_conditions[i].layout.height = "100px"
             display_conditions[i].disabled = True
         # change display of list in to a table
-        Vb = VBox(
+        vb = VBox(
             display_conditions,
             layout=vbox_layout,
         )
-        display(Vb)
+        display(vb)
         # add a button to add the condition
         df_list = []
         label_list = []
         # save search space properties in table after each addition to hist compare
         # save the search space properties in a table
-        search_space_properties = [
+        searchspace_properties = [
             {
                 "number of elements": self.space_size,
                 "syntax": self.syntax,
@@ -383,14 +478,13 @@ class SearchedSpace(SearchSpace):
         ]
 
         def add_to_hist_compare(b) -> None:
-            # self.redefine_search_space()
             self.list_fragment = self.generate_list_fragment(
                 self.generation_type
             )
             self.get_space_size()
             number_of_elements_text.value = f"{self.space_size:.2e}"
             df_list.append(
-                self.check_df_for_element_from_SP(df_to_check=df_total)
+                self.check_df_for_element_from_sp(df_to_check=df_total)
             )
             label_list.append(label_text.value)
             # get the number of elements in the last df added to df_list that has target within 5% of the best target in df_total
@@ -414,7 +508,7 @@ class SearchedSpace(SearchSpace):
             hist_widget_plot.update()
             # save the search space properties in a table
             conditions = [x.copy() for x in self.conditions_list]
-            search_space_properties.append(
+            searchspace_properties.append(
                 {
                     "number of elements": self.space_size,
                     "syntax": self.syntax,
@@ -425,13 +519,14 @@ class SearchedSpace(SearchSpace):
             )
 
         def save_data(b) -> None:
-            import os
+            from pathlib import Path
 
-            path_to_save = "data/search_space_properties.pkl"
-            if os.path.exists(path_to_save):
+            path_to_save = "SearchSpace/searchspace_properties.pkl"
+            Path("SearchSpace").mkdir(parents=True, exist_ok=True)
+            if Path(path_to_save).exists():
                 df_search_space_properties = pd.read_pickle(path_to_save)
                 df_search_space_properties_2 = pd.DataFrame.from_dict(
-                    search_space_properties
+                    searchspace_properties
                 )
                 df_search_space_properties = pd.concat(
                     [
@@ -439,13 +534,15 @@ class SearchedSpace(SearchSpace):
                         df_search_space_properties_2[1:],
                     ]
                 )
-                df_search_space_properties = df_search_space_properties.reset_index(drop=True)
+                df_search_space_properties = (
+                    df_search_space_properties.reset_index(drop=True)
+                )
             else:
                 df_search_space_properties = pd.DataFrame.from_dict(
-                    search_space_properties
+                    searchspace_properties
                 )
             df_search_space_properties.to_pickle(
-                "data/search_space_properties.pkl"
+                "SearchSpace/searchspace_properties.pkl"
             )
             # save the figure
 
@@ -475,7 +572,7 @@ class SearchedSpace(SearchSpace):
             df_all=widgets.fixed(df_total),
             df_list=widgets.fixed(df_list),
             label_list=widgets.fixed(label_list),
-            properties_to_plot = widgets.fixed(properties_to_plot),
+            properties_to_plot=widgets.fixed(properties_to_plot),
         )
         # Interactive widget for column selection
         columns_dropdown_2 = widgets.Dropdown(

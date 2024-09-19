@@ -1,8 +1,10 @@
-"""PyTorch Lightning model for 3D molecular representation learning."""
+"""PyTorch Lightning model for 3D molecular Representation learning."""
 
 import lightning.pytorch as pl
 import torch
 import torch.nn.functional as Functional
+from torch import optim
+
 from stk_search.geom3d.models import (
     DimeNet,
     DimeNetPlusPlus,
@@ -12,7 +14,6 @@ from stk_search.geom3d.models import (
     SchNet,
     SphereNet,
 )
-from torch import optim
 
 
 class PrintLearningRate(pl.Callback):
@@ -21,14 +22,14 @@ class PrintLearningRate(pl.Callback):
 
 
 class Pymodel(pl.LightningModule):
-    """PyTorch Lightning model for 3D molecular representation learning.
+    """PyTorch Lightning model for 3D molecular Representation learning.
     The loss function is the mean squared error (MSE) loss.
     The learning rate scheduler can be chosen from CosineAnnealingLR, CosineAnnealingWarmRestarts, and StepLR.
     The initial learning rate and the learning rate scheduler parameters can be set in the configuration file.
 
     Args:
     ----
-    - model (nn.Module): 3D molecular representation learning model
+    - model (nn.Module): 3D molecular Representation learning model
     - graph_pred_linear (nn.Module): linear layer for graph prediction
     - config (dict): dictionary containing the configuration
 
@@ -208,7 +209,6 @@ class Pymodel_new(pl.LightningModule):
         if self.graph_pred_linear is not None:
             loss1 = Functional.mse_loss(z_opt, batch.y.unsqueeze(1))
             loss2 = Functional.mse_loss(z_repr, z_repr_opt)
-            # loss = loss + Functional.mse_loss(z, batch.y.unsqueeze(1))
             a = torch.tensor(0.5, requires_grad=True)
             loss = a * loss1 + (1 - a) * loss2
         else:

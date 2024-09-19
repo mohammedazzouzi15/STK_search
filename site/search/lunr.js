@@ -91,7 +91,7 @@ lunr.utils.warn = (function (global) {
  * `toString` on the passed object is returned.
  *
  * @param {Any} obj The object to convert to a string.
- * @return {String} string representation of the passed object.
+ * @return {String} string Representation of the passed object.
  * @memberOf lunr.utils
  */
 lunr.utils.asString = function (obj) {
@@ -330,7 +330,7 @@ lunr.idf = function (posting, documentCount) {
 }
 
 /**
- * A token wraps a string representation of a token
+ * A token wraps a string Representation of a token
  * as it is passed through the text processing pipeline.
  *
  * @constructor
@@ -356,7 +356,7 @@ lunr.Token.prototype.toString = function () {
  * when cloning a token.
  *
  * @callback lunr.Token~updateFunction
- * @param {string} str - The string representation of the token.
+ * @param {string} str - The string Representation of the token.
  * @param {Object} metadata - All metadata associated with this token.
  */
 
@@ -717,7 +717,7 @@ lunr.Pipeline.prototype.reset = function () {
 }
 
 /**
- * Returns a representation of the pipeline ready for serialisation.
+ * Returns a Representation of the pipeline ready for serialisation.
  *
  * Logs a warning if the function has not been registered.
  *
@@ -919,7 +919,7 @@ lunr.Vector.prototype.toArray = function () {
 }
 
 /**
- * A JSON serializable representation of the vector.
+ * A JSON serializable Representation of the vector.
  *
  * @returns {Number[]}
  */
@@ -1648,12 +1648,12 @@ lunr.TokenSet.prototype.toArray = function () {
 }
 
 /**
- * Generates a string representation of a TokenSet.
+ * Generates a string Representation of a TokenSet.
  *
  * This is intended to allow TokenSets to be used as keys
  * in objects, largely to aid the construction and minimisation
  * of a TokenSet. As such it is not designed to be a human
- * friendly representation of the TokenSet.
+ * friendly Representation of the TokenSet.
  *
  * @returns {string}
  */
