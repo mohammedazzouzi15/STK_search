@@ -88,6 +88,7 @@ class sTDAXTB:
         self.num_threads = num_threads
         self._output_dir = output_dir
         self.maxev_excitedenergy = maxev_excitedenergy
+        self.XTB4STDAHOME = "/media/mohammed/Work/xtb4stda_home"
 
     def calculate(self, mol):
         """Calculate the excited state properties.
@@ -118,7 +119,7 @@ class sTDAXTB:
         env = os.environ.copy()
         env["OMP_NUM_THREADS"] = str(self.num_threads)
         env["MKL_NUM_THREADS"] = str(self.num_threads)
-        env["XTB4STDAHOME"] = "/media/mohammed/Work/bin/xtb4stda_home"
+        env["XTB4STDAHOME"] = self.XTB4STDAHOME 
         command = [self.stda_bin_path + "xtb4stda", xyz]
         with Path("gen_wfn.out").open("w", encoding="utf-8") as f:
             sp.run(  # noqa: S603

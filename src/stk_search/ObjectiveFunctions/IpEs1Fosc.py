@@ -493,6 +493,7 @@ class IpEs1Fosc(ObjectiveFunction):
         output_dir,
         excited_state_property="Excited state energy (eV)",
         state=1,
+        XTB4STDAHOME = "/media/mohammed/Work/xtb4stda_home"
     ):
         """Run XTB-stda.
 
@@ -508,6 +509,8 @@ class IpEs1Fosc(ObjectiveFunction):
             the property of the excited state to output
             state: int
             the excited state for which we output the property
+            XTB4STDAHOME: str
+            the path to the xtb4stda home directory
 
         Returns:
         -------
@@ -529,6 +532,7 @@ class IpEs1Fosc(ObjectiveFunction):
                 num_threads=25,
                 output_dir=Path(output_dir, get_inchi_key(polymer)),
             )
+            stda.XTB4STDAHOME = XTB4STDAHOME
             excited_state_energy, excited_state_osc = stda.get_results(polymer)
             if len(excited_state_energy) > 0:
                 stda_results = {
