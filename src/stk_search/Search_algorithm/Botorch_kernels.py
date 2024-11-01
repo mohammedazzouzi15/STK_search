@@ -8,9 +8,9 @@ The kernels are defined as follows:
     - RBFKernel: The RBF kernel is a kernel from the gpytorch library.
 """
 
-
 from botorch.models import SingleTaskGP
 from botorch.models.transforms.input import Normalize
+from botorch.models.transforms.outcome import Standardize
 from gpytorch import kernels
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import ScaleKernel
@@ -75,9 +75,9 @@ class MaternKernel(SingleTaskGP):
 
     def change_kernel(self, kernel):
         """Change the kernel of the model.
-        
+
         changes the covar_modul of the singleTaskGP model to the kernel passed as argument.
-        
+
         Args:
         ----
             kernel (gpytorch.kernels): the kernel to be used in the model.
@@ -86,7 +86,7 @@ class MaternKernel(SingleTaskGP):
         self.covar_module = ScaleKernel(base_kernel=kernel)
 
     def forward(self, x):
-        """Forward pass of the model."""    
+        """Forward pass of the model."""
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)
@@ -106,12 +106,15 @@ class RBFKernel(SingleTaskGP):
 
     def __init__(self, train_x, train_y):
         """Initialize the RBFKernel class.
-        
-        here the RBFKernel is initialized as a subclass of SingleTaskGP. 
+
+        here the RBFKernel is initialized as a subclass of SingleTaskGP.
         and uses the ard_num_dims parameter to define the number of dimensions of the input.
         """
         super().__init__(
-            train_x, train_y, input_transform=Normalize(train_x.shape[-1])
+            train_x,
+            train_y,
+            input_transform=Normalize(d=train_x.shape[1]),
+            outcome_transform=Standardize(m=1),
         )
         self.mean_module = ConstantMean()
         self.covar_module = kernels.ScaleKernel(
@@ -123,7 +126,7 @@ class RBFKernel(SingleTaskGP):
         """Change the kernel of the model.
 
         changes the covar_modul of the singleTaskGP model to the kernel passed as argument.
-        
+
         Args:
         ----
             kernel (gpytorch.kernels): the kernel to be used in the model.

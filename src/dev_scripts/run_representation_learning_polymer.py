@@ -1,3 +1,51 @@
+"""Trains a polymer representation learning model using a given configuration file.
+
+Functions:
+----------
+- main(config_dir):
+    Train the model using the given configuration.
+        config_dir (str): The path to the directory containing the configuration file.
+
+- load_model(config_dir, config):
+    Load the best model from the checkpoint.
+        config_dir (str): The path to the directory containing the configuration file.
+        config (dict): Configuration dictionary.
+
+Returns
+-------
+        pymodel: Loaded model.
+
+- evaluate_pymodel(data, pymodel, device):
+    Evaluate the model on a given batch of data.
+        data: Batch of data.
+        pymodel: The model to evaluate.
+        device: Device to run the evaluation on.
+
+Returns
+-------
+        z, z_opt, data.y: Predictions and ground truth.
+
+- evaluate_model_prediction(loader, pymodel, config_dir, name_df="train"):
+    Evaluate the model predictions on a given data loader.
+        loader: Data loader.
+        pymodel: The model to evaluate.
+        config_dir (str): The path to the directory containing the configuration file.
+        name_df (str): Name of the dataframe to save predictions.
+
+Returns
+-------
+        df_original: DataFrame containing predictions and ground truth.
+
+- evaluale_model_performance(df_pred):
+    Evaluate the performance of the model.
+        df_pred: DataFrame containing predictions and ground truth.
+
+Returns
+-------
+        mae, mse, r2: Mean Absolute Error, Mean Squared Error, and R2 score.
+
+"""
+
 import os
 
 import pandas as pd
@@ -11,9 +59,17 @@ from stk_search.utils.config_utils import read_config
 
 
 def main(config_dir):
+    """Train the model using the given configuration.
+
+    Args:
+    ----
+       config_dir (str): The path to the directory containing the
+           configuration file.
+
+    """
     config = read_config(config_dir)
     bbs_dict = polymer_GNN_architecture_utils.get_bbs_dict(
-        config["pymongo_client"] , config["precursor_database_name"]
+        config["pymongo_client"], config["precursor_database_name"]
     )
 
     (

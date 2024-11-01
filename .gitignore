@@ -69,6 +69,10 @@ wandb/
 *.gz
 *.tar
 *.gz
+
+#extra folders
 notebooks/*.ipynb
 notebooks/*/*.ipynb
+notebook/
+lightning_logs/
 

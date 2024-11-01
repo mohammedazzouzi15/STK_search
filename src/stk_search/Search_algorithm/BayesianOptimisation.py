@@ -140,19 +140,16 @@ class BayesianOptimisation(evolution_algorithm):
             df_search.loc[ids_acquired, :]
         )
         x_rpr = x_rpr.double()
-        y_explored_bo_norm = torch.tensor(
+        y_explored_bo = torch.tensor(
             fitness_acquired, dtype=torch.float64
         )
-        y_explored_bo_norm = (
-            y_explored_bo_norm - y_explored_bo_norm.mean(axis=0)
-        ) / (y_explored_bo_norm.std(axis=0))
-        y_explored_bo_norm = y_explored_bo_norm.reshape(-1, 1)
+        y_explored_bo = y_explored_bo.reshape(-1, 1)
         # train model
-        self.train_model(x_rpr, y_explored_bo_norm)
+        self.train_model(x_rpr, y_explored_bo)
         # optimise the acquisition function
         ids_sorted_by_aquisition, df_elements = (
             self.optimise_acquisition_function(
-                best_f=y_explored_bo_norm.max().item(),
+                best_f=y_explored_bo.max().item(),
                 fitness_acquired=fitness_acquired,
                 df_search=df_search,
                 sp=sp,
@@ -231,7 +228,7 @@ class BayesianOptimisation(evolution_algorithm):
             fitness_acquired, df_search, sp, benchmark, df_total
         )
         xrpr = self.Representation.generate_repr(df_elements)
-        xrpr = self.normalise_input(xrpr)
+        #xrpr = self.normalise_input(xrpr)
         acquisition_values = self.get_acquisition_values(
             self.model,
             best_f=best_f,
@@ -256,7 +253,7 @@ class BayesianOptimisation(evolution_algorithm):
             )
 
             xrpr = self.Representation.generate_repr(df_elements)
-            xrpr = self.normalise_input(xrpr)
+            #xrpr = self.normalise_input(xrpr)
             # if benchmark:
             acquisition_values = self.get_acquisition_values(
                 self.model,
@@ -373,6 +370,8 @@ class BayesianOptimisation(evolution_algorithm):
         return df_elements.reset_index(drop=True)
 
     def train_model(self, x_train, y_train):
+        from botorch.models.transforms.input import Normalize
+        from botorch.models.transforms.outcome import Standardize
         """Train the model.
 
         Args:

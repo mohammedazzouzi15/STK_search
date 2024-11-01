@@ -1,0 +1,19 @@
+Model: 6-frag_target_241101__SchNet_splitrand-nummol5000
+Target: target
+spliting function: topk_split
+Number of molecules: 5000
+Number of fragment: 6
+Number of training data: 3496
+Number of validation data: 388
+Number of test data: 258
+Number of training data loader: 27
+Number of validation data loader: 3
+Number of test data loader: 2
+Best model: data_example/representation_learning//6-frag/target/241101//SchNet/splitrand-nummol5000/epoch=9-val_loss=0.29-other_metric=0.00.ckpt
+Best model val loss: 0.29
+Model loaded
+Model evaluation done
+ Perfomance with learned embedding
+MAE train: 0.58, MSE train: 0.63, R2 train: 0.17
+MAE val: 0.62, MSE val: 0.77, R2 val: 0.14
+MAE test: 1.63, MSE test: 2.77, R2 test: -138.10

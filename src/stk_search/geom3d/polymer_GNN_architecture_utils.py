@@ -9,6 +9,7 @@ import torch
 from stk_search.utils.config_utils import save_config
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
+import swifter
 
 
 def join_keys(polymer):
