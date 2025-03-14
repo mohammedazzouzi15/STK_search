@@ -1,7 +1,6 @@
 :Author: Mohammed Azzouzi
 :Docs: https://stk-search.readthedocs.io
 
-
 <div align="center">
   <h1>stk-search</h1>
   <h2>Search over the space of molecules built from fragments</h2>
@@ -58,6 +57,48 @@ To install the package, follow these steps:
     ```bash
     pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cpu.html
     ```
+## Directory Structure
+
+| Directory | Description |
+|-----------|-------------|
+| [Example_notebooks]| Contains Jupyter notebooks demonstrating the use of the package. |
+| `src/stk_search/algorithms` | Contains the code of the package. |
+| [utils]| Utility functions used throughout the package. |
+| [docs] | Documentation for the package. |
+| [tests] | Contains unit tests for the package. |
+
+## STK_search Directory Structure
+
+| Path | Description |
+|------|-------------|
+| `src/stk_search/` | Root directory for the STK search module |
+| `src/stk_search/SearchSpace.py` | Module defining the SearchSpace class |
+| `src/stk_search/SearchExp.py` | Module defining the SearchExp class for running search experiments |
+| `src/stk_search/SearchedSpace.py` | Module defining the SearchedSpace class for representing the searched space |
+| `src/stk_search/Search_algorithm/` | Contains modules for different search algorithms |
+| `src/stk_search/Search_algorithm/Search_algorithm.py` | Base class for search algorithms |
+| `src/stk_search/Search_algorithm/MultifidelityBayesianOptimisation.py` | Module for multifidelity Bayesian optimization |
+| `src/stk_search/Search_algorithm/Ea_surrogate.py` | Module for evolutionary algorithm with surrogate model |
+| `src/stk_search/Search_algorithm/BayesianOptimisation.py` | Module for Bayesian optimization |
+| `src/stk_search/Search_algorithm/BayesianOptimisation_ErrPred.py` | Module for Bayesian optimization with error prediction |
+| `src/stk_search/Precursors/` | Contains modules for precursor generation and database utilities |
+| `src/stk_search/Precursors/precursor_database_utils.py` | Module for precursor database utilities |
+| `src/stk_search/ObjectiveFunctions/` | Contains modules for defining objective functions |
+| `src/stk_search/ObjectiveFunctions/__init__.py` | Initialization file for the ObjectiveFunctions submodule |
+| `src/stk_search/ObjectiveFunctions/ObjectiveFunction.py` | Base class for objective functions |
+| `src/stk_search/ObjectiveFunctions/IpEs1Fosc.py` | Module for specific objective function implementation |
+| `src/stk_search/geom3d/` | Contains modules for 3D geometry processing and model training |
+| `src/stk_search/geom3d/script_plot_inference_BA.py` | Script for plotting inference results |
+| `src/stk_search/geom3d/models/` | Contains model definitions for 3D geometry processing |
+| `src/stk_search/geom3d/models/Equiformer/` | Contains modules for Equiformer model |
+| `src/stk_search/geom3d/train_models.py` | Module for training 3D geometry models |
+| `src/stk_search/geom3d/utils/` | Contains utility modules for 3D geometry processing |
+| `src/stk_search/geom3d/utils/database_utils.py` | Module for database utilities |
+| `src/dev_scripts/` | Contains development scripts for testing and running experiments |
+| `src/dev_scripts/run_search.py` | Script for running search experiments |
+| `src/dev_scripts/run_search_test.py` | Script for running search experiments with test configurations |
+| `src/dev_scripts/run_search_new.py` | Script for running new search experiments |
+
 
 ## Usage
 
@@ -65,7 +106,7 @@ Refer to the example notebooks where we show a step-by-step use of the package t
 
 1. **Notebook 0: Generate Building Blocks**
     - Shows how to go from a list of SMILES to generate a list of building blocks.
-    - Introduces a way to run calculations using [`xtb`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fc%3A%2FUsers%2Fma11115%2FOneDrive%20-%20Imperial%20College%20London%2Fgithub_folder%2FSTK_search%2FREADME.md%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A55%2C%22character%22%3A74%7D%7D%5D%2C%220faed8b2-e29e-4f60-b965-c22999e98b01%22%5D "Go to definition") and [`xtb_stda`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fc%3A%2FUsers%2Fma11115%2FOneDrive%20-%20Imperial%20College%20London%2Fgithub_folder%2FSTK_search%2FREADME.md%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A55%2C%22character%22%3A82%7D%7D%5D%2C%220faed8b2-e29e-4f60-b965-c22999e98b01%22%5D "Go to definition") to get the properties of the building blocks and save them in a database.
+    - Introduces a way to run calculations using `xtb` and `xtb_stda` to get the properties of the building blocks and save them in a database.
     - Demonstrates how to generate a dataframe with the necessary data to form a representation of the constructed molecules for Bayesian optimization.
 
 2. **Notebook 1: Define Search Space**
@@ -77,20 +118,54 @@ Refer to the example notebooks where we show a step-by-step use of the package t
 4. **Notebook 3: Representation Learning**
     - Shows how to run a representation learning using a 3D geometry-based GNN.
 
+## Adding New Search Algorithms
+
+To incorporate new search algorithms into the package, follow these steps:
+
+1. **Create a new Python file for your algorithm in the `src/stk_search/algorithms` directory.**
+    ```bash
+    touch src/stk_search/algorithms/my_new_algorithm.py
+    ```
+
+2. **Implement your search algorithm in the new file.**
+    ```python
+    # src/stk_search/algorithms/my_new_algorithm.py
+
+    class MyNewAlgorithm:
+        def __init__(self, ...):
+            # Initialize your algorithm
+
+        def run(self, ...):
+            # Implement the logic of your algorithm
+    ```
+
+3. **Import and use your new algorithm in the main script or notebook.**
+    ```python
+    from stk_search.algorithms.my_new_algorithm import MyNewAlgorithm
+
+    # Initialize and run your algorithm
+    algorithm = MyNewAlgorithm(...)
+    algorithm.run(...)
+    ```
+
+4. **Add unit tests for your new algorithm in the [tests](http://_vscodecontentref_/7) directory.**
+    ```python
+    # tests/test_my_new_algorithm.py
+
+    import unittest
+    from stk_search.algorithms.my_new_algorithm import MyNewAlgorithm
+
+    class TestMyNewAlgorithm(unittest.TestCase):
+        def test_algorithm(self):
+            # Test your algorithm
+            algorithm = MyNewAlgorithm(...)
+            result = algorithm.run(...)
+            self.assertEqual(result, expected_result)
+
+    if __name__ == '__main__':
+        unittest.main()
+    ```
+
 ## Note on Representation Learning
 
 We used the implementation of different GNNs following the code in [Geom3D](https://github.com/chao1224/Geom3D/tree/main). If you use any of the capabilities related to representation learning, please cite their paper:
-
-
-```
-@article{liu2023symmetry,
-    title={Symmetry-Informed Geometric Representation for Molecules, Proteins, and Crystalline Materials},
-    author={Liu, Shengchao and Du, Weitao and Li, Yanjing and Li, Zhuoxinran and Zheng, Zhiling and Duan, Chenru and Ma, Zhiming and Yaghi, Omar and Anandkumar, Anima and Borgs, Christian and others},
-    journal={arXiv preprint arXiv:2306.09375},
-    year={2023}
-}
-```
-
-### Contact
-
-For questions, please contact `mohammed.azzouzi@epfl.ch'
