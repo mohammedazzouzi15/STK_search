@@ -226,6 +226,37 @@ def define_and_run_search(
     return max(s_exp.ids_acquired)
 
 
+def test_representations(
+    df_Benchmark, SearchSpace, BO_learned, EA, SUEA, BO_Mord, BO_prop, RAND
+):
+    # test representation
+
+    molecule_id = np.random.randint(0, df_Benchmark.shape[0])
+    oligomer_size = 6
+    molecule_properties = SearchSpace.check_df_for_element_from_sp(
+        df_Benchmark
+    ).iloc[[molecule_id]]
+    print(molecule_properties["InChIKey"])
+    X_rpr = SUEA.Representation.generate_repr(
+        molecule_properties[[f"InChIKey_{x}" for x in range(oligomer_size)]]
+    )
+    print("representation for SUEA", X_rpr)
+    X_rpr = BO_learned.Representation.generate_repr(
+        molecule_properties[[f"InChIKey_{x}" for x in range(oligomer_size)]]
+    )
+    print("representation for BO_learned", X_rpr)
+
+    X_rpr = BO_Mord.Representation.generate_repr(
+        molecule_properties[[f"InChIKey_{x}" for x in range(oligomer_size)]]
+    )
+    print("representation for BO_Mord", X_rpr)
+    X_rpr = BO_prop.Representation.generate_repr(
+        molecule_properties[[f"InChIKey_{x}" for x in range(oligomer_size)]]
+    )
+    print("representation for BO_prop", X_rpr)
+    
+
+
 def define_objective_function(target):
     df_total_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/Molecule_database/58K_200524.csv"  # "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
     df_total = pd.read_csv(df_total_path)
