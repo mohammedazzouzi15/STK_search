@@ -14,6 +14,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+import torch
+
 from stk_search.SearchSpace import SearchSpace
 
 
@@ -108,7 +110,7 @@ class SearchExp:
         search_algorithm,
         objective_function,
         number_of_iterations,
-        verbose=False,  # noqa: FBT002
+        verbose=False,
     ):
         """Initialize the search experiment.
 
@@ -216,6 +218,10 @@ class SearchExp:
             self.save_results()
             if self.verbose:
                 pass
+            # clear GPU memory
+            if self.search_algorithm.device == "cuda":
+                torch.cuda.empty_cache()
+
         # save the results
         return self.save_results()
 
@@ -260,9 +266,7 @@ class SearchExp:
         self.fitness_acquired.append(eval_value)
         self.InchiKey_acquired.append(InchiKey)
         self.ids_acquired.append(element_id)
-        self.time_calc.append(
-            datetime.now(tz=timezone.utc) - time_calc
-        )
+        self.time_calc.append(datetime.now(tz=timezone.utc) - time_calc)
         self.overall_time.append(datetime.now(tz=timezone.utc))
         return eval_value, InchiKey
 
@@ -308,6 +312,8 @@ class SearchExp:
 
         path = self.output_folder + f"/{self.date}"
         Path(path).mkdir(parents=True, exist_ok=True)
-        with Path(path + f"/results_{self.search_exp_name}.pkl").open("wb") as f:
+        with Path(path + f"/results_{self.search_exp_name}.pkl").open(
+            "wb"
+        ) as f:
             pickle.dump(resutls_dict, f)
         return resutls_dict

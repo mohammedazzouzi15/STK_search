@@ -345,21 +345,22 @@ def load_representation_model_SUEA(
     return pymodel, Representation
 
 
-def load_representation_model(config_dir):
+def load_representation_model(config_dir, checkpoint_path=""):
     """New model Representation for the search algorithm
     Args:
         config_dir: str
             path to the config file
             Returns:
             representation: RepresentationPoly3d
-
+        checkpoint_path: str
+            path to the checkpoint
     pymodel: Pymodel
     """
     from stk_search.geom3d import pl_model
     from stk_search.Representation import Representation_poly_3d
 
     config = read_config(config_dir)
-    chkpt_path = config["model_embedding_chkpt"]
+    chkpt_path = checkpoint_path
     checkpoint = torch.load(chkpt_path, map_location=config["device"])
     model, graph_pred_linear = pl_model.model_setup(config)
     print("Model loaded: ", config["model_name"])
@@ -369,7 +370,7 @@ def load_representation_model(config_dir):
     pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
     # pymodel.load_state_dict(state_dict=checkpoint["state_dict"])
     pymodel.to(config["device"])
-    Representation = Representation_poly_3d.RepresentationPoly3d(
+    representation = Representation_poly_3d.RepresentationPoly3d(
         pymodel, device="cpu"
     )
     return representation, pymodel

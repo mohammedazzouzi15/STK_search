@@ -1,6 +1,7 @@
 import unittest
-from ObjectiveFunction import get_property_value, ObjectiveFunctionClass  # Replace with actual class name
+from stk_search.ObjectiveFunctions.ObjectiveFunction import get_property_value, ObjectiveFunctionClass  # Replace with actual class name
 import os
+
 
 class TestObjectiveFunction(unittest.TestCase):
 
