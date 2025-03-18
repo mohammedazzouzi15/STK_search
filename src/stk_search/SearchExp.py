@@ -219,7 +219,7 @@ class SearchExp:
             if self.verbose:
                 pass
             # clear GPU memory
-            if self.search_algorithm.device == "cuda":
+            if hasattr(self.search_algorithm,"device") and self.search_algorithm.device == "cuda":
                 torch.cuda.empty_cache()
 
         # save the results

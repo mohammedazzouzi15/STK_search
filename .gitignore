@@ -76,3 +76,7 @@ notebooks/*/*.ipynb
 notebook/
 lightning_logs/
 
+Example_notebooks/benchmark_slurm_script.sh
+Example_notebooks/nohup.out
+Example_notebooks/run_benchmark.py
+Example_notebooks/data_example/fragment/fragementclean_test.txt
