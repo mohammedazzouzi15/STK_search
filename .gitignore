@@ -80,3 +80,7 @@ Example_notebooks/benchmark_slurm_script.sh
 Example_notebooks/nohup.out
 Example_notebooks/run_benchmark.py
 Example_notebooks/data_example/fragment/fragementclean_test.txt
+
+Example_notebooks/plot_benchmark_output.py
+Example_notebooks/add_to_db_from_df.py
+Example_notebooks/plot_benchmark_output.py

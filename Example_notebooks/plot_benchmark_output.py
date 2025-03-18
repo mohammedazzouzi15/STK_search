@@ -343,21 +343,21 @@ def main():
     ]
 
     # Configurable parameters
-    min_num_iteration = 1000
+    min_num_iteration = 800
     num_results_min = min_num_iteration
     max_iteration = min_num_iteration
     num_initialisation = 50
     top_mol_count = 300
-    x_limits = {0: (50, min_num_iteration), 2: (50, min_num_iteration), 4: (50, min_num_iteration), 5: (50, min_num_iteration)}
-    y_limits = {0:(-0.5,1),1:(-0.5,1),2:(-2,1),3:(-2,1),4: (0, 38), 5: (0, 0.43)}
-    tick_labels = {4: np.arange(0, min_num_iteration, 100),5: np.arange(0, min_num_iteration, 100)}
+    x_limits = {0: (50, min_num_iteration), 2: (50, min_num_iteration), 4: (50, min_num_iteration), 5: (50, min_num_iteration), 1: (0, 80), 3: (0, 3100)}
+    y_limits = {0:(0,0.7),1:(0,0.7),2:(-2,1),3:(-2,1),4: (0, 38), 5: (0, 0.43)}
+    tick_labels = {4: np.arange(0, min_num_iteration, 50),5: np.arange(0, min_num_iteration, 50), 3: [0,15,30]}
 
     df = get_dataframe_of_searches(save_path)
     df = df[df["benchmark"]]
     df_all = df.copy()
     print(df_all.head())
     df_all["key"] = df.apply(lambda x: join_name([x["search_output_folder"].split("/")[-1]]), axis=1)
-    df_all["df_path"] = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
+    df_all["df_path"] = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150525.csv"
     df_all.to_csv("df_all.csv")
     results_dict = load_search_dict(df_all, min_num_iteration)
 

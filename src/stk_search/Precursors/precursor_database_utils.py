@@ -12,6 +12,7 @@ import stk
 import stko
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
+
 from stk_search.ObjectiveFunctions.IpEs1Fosc import IpEs1Fosc
 
 
@@ -201,6 +202,74 @@ class PrecursorDatabase(IpEs1Fosc):
             smile, functional_groups=[functional_groups()]
         )
         precursor_database.put(stk_mol)
+        return stk_mol
+
+    def put(self, precursor_database, molecule, Inchikey=""):
+        from stk.databases.mongo_db.utilities import HashableDict
+
+        molecule = molecule.with_canonical_atom_ordering()
+        json = precursor_database._jsonizer.to_json(molecule)
+        # lru_cache requires that the parameters to the cached function
+        # are hashable objects.
+        json["matrix"]["m"] = tuple(tuple(row) for row in json["matrix"]["m"])
+        json["matrix"] = HashableDict(json["matrix"])
+        json["molecule"] = HashableDict(json["molecule"])
+        json["molecule"]["InChIKey"] = Inchikey
+        json["matrix"]["InChIKey"] = Inchikey
+        return self._put(precursor_database,HashableDict(json))
+
+    def _put(self, precursor_database, json):
+        keys = dict(json["matrix"])
+        keys.pop("m")
+
+        query = {"$or": []}
+        for key, value in keys.items():
+            query["$or"].append({key: value})
+
+        precursor_database._molecules.update_many(
+            filter=query,
+            update={
+                "$set": json["molecule"],
+            },
+            upsert=True,
+        )
+        precursor_database._position_matrices.update_many(
+            filter=query,
+            update={
+                "$set": json["matrix"],
+            },
+            upsert=True,
+        )
+
+    def add_precursor_to_database_mol(
+        self, mol, functional_groups=stk.BromoFactory, custom_inchi_key=None
+    ):
+        """Add a precursor to the database.
+
+        This function adds the precursors to the database.
+
+        Args:
+        ----
+        mol: rdkit.Chem.rdchem.Mol
+            The RDKit molecule of the precursor.
+        functional_groups : stk.FunctionalGroup
+            The functional groups of the precursor.
+
+        Returns:
+        -------
+            stk_mol : stk.BuildingBlock
+                The building block of the precursor.
+
+        """
+        precursor_database = stk.MoleculeMongoDb(
+            self.client,
+            database=self.database_name,
+        )
+        stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
+            mol, functional_groups=[functional_groups()]
+        )
+        # check if the InchiKey is the same as the one in the database
+        self.put(precursor_database, stk_mol, custom_inchi_key)
         return stk_mol
 
     def build_polymer(self, smile) -> stk.BuildingBlock:

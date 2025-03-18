@@ -44,7 +44,7 @@ class RepresentationPoly3d:
 
     """
 
-    def __init__( 
+    def __init__(
         self,
         model_encoding,
         device=None,
@@ -212,6 +212,34 @@ class RepresentationPoly3d:
         )
         return "_".join(keys)
 
+    def get_all(self, database_name):
+        for entry in database_name._position_matrices.find():
+            # Do 'or' query over all key value pairs.
+            query = {
+                "$or": [
+                    {key: value}
+                    for key, value in database_name._get_molecule_keys(entry)
+                ]
+            }
+
+            json = database_name._molecules.find_one(query)
+            if json is None:
+                raise KeyError(
+                    "No molecule found in the database associated "
+                    f"with a position matrix with query: {query}. "
+                    "This suggests your database is corrupted."
+                )
+
+            yield (
+                database_name._dejsonizer.from_json(
+                    {
+                        "molecule": json,
+                        "matrix": entry,
+                    }
+                ),
+                json["InChIKey"],
+            )
+
     def get_bbs_dict(self, client, database):
         """Get the building blocks dictionary."""
         client = pymongo.MongoClient(client)
@@ -219,14 +247,13 @@ class RepresentationPoly3d:
             client,
             database=database,
         )
-        mols = database_name.get_all()
+        mols_keys = self.get_all(database_name)
         bbs_dict = {}
-        for mol in mols:
-            bbs_dict[stk.InchiKey().get_key(mol)] = (
-                stk.BuildingBlock.init_from_molecule(
-                    mol, functional_groups=[stk.BromoFactory()]
-                )
+        for mol, key in mols_keys:
+            bbs_dict[key] = stk.BuildingBlock.init_from_molecule(
+                mol, functional_groups=[stk.BromoFactory()]
             )
+
         self.bbs_dict = bbs_dict
         return bbs_dict
 
@@ -259,7 +286,8 @@ class RepresentationPoly3d:
         # joins the Genes to make a repeating unit string
         repeating_unit = repeating_unit.join(genes)
         InchiKey_cols = [col for col in element.columns if "InChIKey_" in col]  # noqa: N806
-        def gen_mol(elem)->Data:
+
+        def gen_mol(elem) -> Data:
             precursors = []
             for fragment in elem[InchiKey_cols].to_numpy().flatten():
                 bb = bbs_dict[fragment]
