@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import swifter  # noqa: F401
 import torch
+
 from stk_search import SearchExp, SearchSpace
 from stk_search.geom3d import train_models
 from stk_search.ObjectiveFunctions.ObjectiveFunction import LookUpTable
@@ -27,8 +28,8 @@ def set_benchmark_params():
     target = "target"
     aim = "maximise"
     case_name_list = [
-        "BO_Mord",
         "BO_learned",
+        "BO_Mord",
         "evolution_algorithm",
         "random",
         "ea_surrogate",
@@ -51,7 +52,7 @@ def get_dataframes(
     df_total_path_bench="/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv",
     df_precursor_path="/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/precursor_with_prop.pkl",
     df_precursor_Mordred_path="/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/df_PCA_mordred_descriptor_290224.pkl",
-    SearchSpace_loc="/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/SearchSpace_6_frag_full.pkl",
+    SearchSpace_loc="/media/mohammed/Work/STK_search/Example_notebooks/SearchSpace/SearchSpace_test.pkl",
 ):
     # run a search experiment with the new target
 
@@ -59,10 +60,26 @@ def get_dataframes(
     df_Benchmark = pd.read_csv(df_total_path_bench)
     df_precursor = pd.read_pickle(df_precursor_path)
     df_precursor_Mordred = pd.read_pickle(df_precursor_Mordred_path)
-    SearchSpace.df_precursors = df_precursor_Mordred
+
+    SearchSpace.df_precursors = df_precursor[
+        df_precursor["InChIKey"].isin(SearchSpace.df_precursors["InChIKey"])
+    ]
+    num_of_elem_in_SP = SearchSpace.check_df_for_element_from_sp(
+        df_Benchmark
+    ).shape
+    print(
+        "number of elements in the benchmark in the search space:",
+        num_of_elem_in_SP,
+    )
     print("shape of df_Benchmark:", df_Benchmark.shape)
     print("shape of df_precursors:", df_precursor.shape)
     print("shape of df_precursor_Mordred:", df_precursor_Mordred.shape)
+    print("shape of SearchSpace:", SearchSpace.df_precursors.shape)
+    print(
+        " Inchikey 'PTRYVXYLNANOHT-WTKPLQERSA-N' in df_precursor: ",
+        SearchSpace.df_precursors[SearchSpace.df_precursors["InChIKey"] == "PTRYVXYLNANOHT-WTKPLQERSA-N"
+        ].shape[0],
+    )
     print(
         df_Benchmark[df_Benchmark["target"] > 0].shape[0]
         / df_Benchmark.shape[0]
@@ -231,7 +248,9 @@ def test_representations(
 ):
     # test representation
 
-    molecule_id = np.random.randint(0, df_Benchmark.shape[0])
+    molecule_id = np.random.randint(
+        0, SearchSpace.check_df_for_element_from_sp(df_Benchmark).shape[0]
+    )
     oligomer_size = 6
     molecule_properties = SearchSpace.check_df_for_element_from_sp(
         df_Benchmark
@@ -254,7 +273,6 @@ def test_representations(
         molecule_properties[[f"InChIKey_{x}" for x in range(oligomer_size)]]
     )
     print("representation for BO_prop", X_rpr)
-    
 
 
 def define_objective_function(target):
@@ -304,6 +322,9 @@ def run_benchmark():
         df_precursor_Mordred, df_precursor, config_dir
     )
     objective_function = define_objective_function(target)
+    test_representations(
+        df_Benchmark, SearchSpace, BO_learned, EA, SUEA, BO_Mord, BO_prop, RAND
+    )
     for case_name in case_name_list:
         df_representation_path = ""
         frag_properties = ""
@@ -332,21 +353,21 @@ def run_benchmark():
             ).columns
         else:
             raise ValueError("case name not recognised")
-        for _ in range(number_of_repeats):
-            define_and_run_search(
-                search_algorithm=search_algorithm,
-                case_name=case_name,
-                num_elem_initialisation=num_elem_initialisation,
-                number_of_iterations=num_iteration,
-                search_space=SearchSpace,
-                config_dir=config_dir,
-                df_total_path="",
-                df_total=df_Benchmark,
-                df_representation_path=df_representation_path,
-                ObjectiveFunction=objective_function,
-                frag_properties=frag_properties,
-            )
-            torch.cuda.empty_cache()
+
+        define_and_run_search(
+            search_algorithm=search_algorithm,
+            case_name=case_name,
+            num_elem_initialisation=num_elem_initialisation,
+            number_of_iterations=num_iteration,
+            search_space=SearchSpace,
+            config_dir=config_dir,
+            df_total_path="",
+            df_total=df_Benchmark,
+            df_representation_path=df_representation_path,
+            ObjectiveFunction=objective_function,
+            frag_properties=frag_properties,
+        )
+        torch.cuda.empty_cache()
 
 
 if __name__ == "__main__":
