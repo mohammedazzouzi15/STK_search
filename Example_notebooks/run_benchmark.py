@@ -34,7 +34,7 @@ def set_benchmark_params():
         "ea_surrogate",
         "BO_precursor",
     ]
-    config_dir = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/representation_learning/splitrand-nummol20000"
+    config_dir = "/home/mazzouzi/STK_search/Example_notebooks/data_example/data_benchmark/representation_learning/SchNet/splitrand-nummol20000"
     return (
         exp_name,
         num_elem_initialisation,
@@ -231,7 +231,9 @@ def test_representations(
 ):
     # test representation
 
-    molecule_id = np.random.randint(0, df_Benchmark.shape[0])
+    molecule_id = np.random.randint(
+        0, SearchSpace.check_df_for_element_from_sp(df_Benchmark).shape[0]
+    )
     oligomer_size = 6
     molecule_properties = SearchSpace.check_df_for_element_from_sp(
         df_Benchmark
@@ -258,7 +260,7 @@ def test_representations(
 
 
 def define_objective_function(target):
-    df_total_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/Molecule_database/58K_200524.csv"  # "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
+    df_total_path = "/home/mazzouzi/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"  
     df_total = pd.read_csv(df_total_path)
     oligomer_size = 6
     target_name = "target"
@@ -278,10 +280,10 @@ def define_objective_function(target):
 
 def run_benchmark():
     # run a search experiment with the new target
-    df_total_path_bench = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"  # "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
-    df_precursor_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/precursor/df_properties.pkl"  # "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/precursor_with_prop.pkl"
-    df_precursor_Mordred_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/precursor/df_mordred_24072024.pkl"  # s "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/df_PCA_mordred_descriptor_290224.pkl"
-    SearchSpace_loc = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/SearchSpace_6_frag_full.pkl"
+    df_total_path_bench = "/home/mazzouzi/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"  # "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
+    df_precursor_path = "/home/mazzouzi/STK_search/Example_notebooks/data_example/data_benchmark/df_properties.pkl"  # "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/precursor_with_prop.pkl"
+    df_precursor_Mordred_path = "/home/mazzouzi/STK_search/Example_notebooks/data_example/data_benchmark/df_mordred_24072024.pkl"  # s "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/df_PCA_mordred_descriptor_290224.pkl"
+    SearchSpace_loc = "/home/mazzouzi/STK_search/Example_notebooks/data_example/data_benchmark/SearchSpace_6_frag_full.pkl"
     df_Benchmark, df_precursor, df_precursor_Mordred, SearchSpace = (
         get_dataframes(
             df_total_path_bench,
@@ -304,6 +306,9 @@ def run_benchmark():
         df_precursor_Mordred, df_precursor, config_dir
     )
     objective_function = define_objective_function(target)
+    test_representations(
+        df_Benchmark, SearchSpace, BO_learned, EA, SUEA, BO_Mord, BO_prop, RAND
+    )
     for case_name in case_name_list:
         df_representation_path = ""
         frag_properties = ""
@@ -332,21 +337,21 @@ def run_benchmark():
             ).columns
         else:
             raise ValueError("case name not recognised")
-        for _ in range(number_of_repeats):
-            define_and_run_search(
-                search_algorithm=search_algorithm,
-                case_name=case_name,
-                num_elem_initialisation=num_elem_initialisation,
-                number_of_iterations=num_iteration,
-                search_space=SearchSpace,
-                config_dir=config_dir,
-                df_total_path="",
-                df_total=df_Benchmark,
-                df_representation_path=df_representation_path,
-                ObjectiveFunction=objective_function,
-                frag_properties=frag_properties,
-            )
-            torch.cuda.empty_cache()
+
+        define_and_run_search(
+            search_algorithm=search_algorithm,
+            case_name=case_name,
+            num_elem_initialisation=num_elem_initialisation,
+            number_of_iterations=num_iteration,
+            search_space=SearchSpace,
+            config_dir=config_dir,
+            df_total_path="",
+            df_total=df_Benchmark,
+            df_representation_path=df_representation_path,
+            ObjectiveFunction=objective_function,
+            frag_properties=frag_properties,
+        )
+
 
 
 if __name__ == "__main__":
