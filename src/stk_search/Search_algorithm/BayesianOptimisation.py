@@ -385,7 +385,10 @@ class BayesianOptimisation(evolution_algorithm):
             y_train,
         )
         mll = self.likelihood(self.model.likelihood, self.model)
-        fit_gpytorch_mll(mll)
+        try:
+            fit_gpytorch_mll(mll)
+        except Exception as e:
+            print(e)
 
     def get_acquisition_values(self, model, best_f, xrpr):
         """Get the acquisition values.
