@@ -84,3 +84,6 @@ Example_notebooks/data_example/fragment/fragementclean_test.txt
 Example_notebooks/plot_benchmark_output.py
 Example_notebooks/add_to_db_from_df.py
 Example_notebooks/plot_benchmark_output.py
+Example_notebooks/00_load_database_to_mongodb.ipynb
+Example_notebooks/3_run_search_benchmark.ipynb
+Example_notebooks/nohup.out
