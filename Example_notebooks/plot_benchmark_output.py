@@ -61,6 +61,7 @@ def plot_simple_regret_stuff(df_summary_1, results_dict, num_results_min, max_it
     df_total_bench = pd.read_csv(df_plot["df_path"].iloc[0], low_memory=False)
     keys = ["BO-learned", "BO-Mord", "BO-Prop", "SUEA", "EA", "Rand"]
     keys = ["BO_learned", "BO_Mord", "BO_precursor", "ea_surrogate", "evolution_algorithm", "random"]
+    keys = [x for x in keys if x in results_dict.keys()]
     #keys = set(keys).intersection(set(results_dict.keys()))
     print("Keys:", keys)
     for color_num, key in enumerate(keys):
@@ -215,6 +216,7 @@ def plot_top_mols_acquired(results_dict, df_plot, fig, num_results_min, max_iter
     df_total_bench = pd.read_csv(df_plot["df_path"].iloc[0], low_memory=False)
     min_value = df_total_bench["target"].sort_values().iloc[-top_mol_count]
     keys = ["BO_learned", "BO_Mord", "BO_precursor", "ea_surrogate", "evolution_algorithm", "random"]
+    keys = [x for x in keys if x in results_dict.keys()]
     #keys = set(keys).intersection(set(results_dict.keys()))
     print("Keys:", keys)
 
@@ -355,7 +357,7 @@ def modify_figure__layout_simple(fig, legend_list, x_limits, y_limits):
 
 
 def main():
-    save_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/runs"
+    save_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/runs2"
     save_folder = "data/figures/" + datetime.datetime.now().strftime("_%Y_%m_%d")
     plot_function_list_single = [
         Search_results_plot.plot_simple_regret,
@@ -381,17 +383,17 @@ def main():
     df_all = df.copy()
     print(df_all.head())
     df_all["key"] = df.apply(lambda x: join_name([x["search_output_folder"].split("/")[-1]]), axis=1)
-    df_all["df_path"] = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150525.csv"
-    df_all.to_csv("figures/df_all.csv")
+    df_all["df_path"] = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
+    df_all.to_csv("figures/df_all_run2.csv")
     results_dict = load_search_dict(df_all, min_num_iteration)
 
-    fig, axes, metric_dict_res = plot_metric(
-        df_all, plot_function_list_single, results_dict, nb_iterations=min_num_iteration,color_dict=color_dict
-    )
-    fig.tight_layout()
-    fig.savefig("figures/single.png")
+    #fig, axes, metric_dict_res = plot_metric(
+     #   df_all, plot_function_list_single, results_dict, nb_iterations=min_num_iteration,color_dict=color_dict
+    #)
+    #fig.tight_layout()
+    #fig.savefig("figures/single.png")
     fig, df_plot = plot_simple_regret_stuff(df_all, results_dict, num_results_min, max_iteration, num_initialisation,color_dict=color_dict)
-    fig.savefig("figures/single2.png")
+    fig.savefig("figures/single2_run2.png")
     modify_figure__layout_simple(
         fig,
         legend_list=["BO-learned", "BO-Mord", "BO-Prop", "SUEA", "EA", "Rand"],
@@ -412,8 +414,8 @@ def main():
 
     fig = modify_figure(fig_org, legend_list, x_limits, y_limits, tick_labels)
     fig.tight_layout()
-    fig.savefig("figures/single3.png")
-    with open("figures/fig.pkl", "wb") as f:
+    fig.savefig("figures/single3_run2.png")
+    with open("figures/fig_run2.pkl", "wb") as f:
         pickle.dump(fig, f)
 
 

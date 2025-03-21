@@ -269,7 +269,8 @@ class evolution_algorithm(Search_Algorithm):
         self.name = "Evolution_algorithm"
         self.selection_method_mutation = "top"
         self.selection_method_cross = "top"
-        self.number_of_parents = 5
+        self.number_of_parents = 10
+        self.number_of_random = 5
         self.multi_fidelity = False
         self.budget = None
 
@@ -592,7 +593,7 @@ class evolution_algorithm(Search_Algorithm):
             )
         elif selection_method == "top":
             list_parents = self.top_selection(
-                fitness_acquired, df_search, self.number_of_parents
+                fitness_acquired, df_search, self.number_of_parents, self.number_of_random
             )
         else:
             msg = f"Unknown selection method: {selection_method}"

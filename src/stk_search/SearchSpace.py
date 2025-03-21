@@ -133,12 +133,12 @@ class SearchSpace:
                     + condition_exp[2]
                 )
                 df_precursor_filter = df_precursor_filter[eval(expression)]
-
             df_mult_filtered = df_mult_filtered[
                 df_mult_filtered[f"InChIKey_{i}"].isin(
                     df_precursor_filter["InChIKey"]
                 )
             ]
+
         # check if the fragment in the dataframe respect the syntax in the syntax list
         for pos, pos_id in enumerate(self.syntax):
             if pos_id == pos:

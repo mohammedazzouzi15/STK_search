@@ -83,10 +83,11 @@ class BayesianOptimisation(evolution_algorithm):
             representation (object): representation of the element
 
         """
+        super().__init__()
         self.verbose = verbose
         self.which_acquisition = which_acquisition
         self.kernel = kernel
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
         self.likelihood = likelihood
         self.model = model
         self.lim_counter = lim_counter  # max iteration for the acquisition function optimisation
@@ -96,6 +97,7 @@ class BayesianOptimisation(evolution_algorithm):
         self.config_dir = ""
         self.multi_fidelity = False
         self.budget = None
+        
 
     def update_representation(self, representation):
         """Update the representation."""
@@ -224,7 +226,7 @@ class BayesianOptimisation(evolution_algorithm):
         """
         # generate list of element to evaluate using acquistion function
         counter, lim_counter = 0, self.lim_counter
-        df_elements = self.Generate_element_to_evaluate(
+        df_elements = self.generate_df_elements_to_choose_from(
             fitness_acquired, df_search, sp, benchmark, df_total
         )
         xrpr = self.Representation.generate_repr(df_elements)
@@ -244,7 +246,7 @@ class BayesianOptimisation(evolution_algorithm):
         while counter < lim_counter:
             counter += 1
             max_counter += 1
-            df_elements = self.Generate_element_to_evaluate(
+            df_elements = self.generate_df_elements_to_choose_from(
                 acquisition_values.cpu().numpy(),
                 df_elements,
                 sp,
@@ -277,7 +279,7 @@ class BayesianOptimisation(evolution_algorithm):
                 break
         return ids_sorted_by_aquisition, df_elements
 
-    def Generate_element_to_evaluate(
+    def generate_df_elements_to_choose_from(
         self,
         fitness_acquired,
         df_search,
@@ -285,7 +287,8 @@ class BayesianOptimisation(evolution_algorithm):
         benchmark=False,
         df_total=None,
     ):
-        """Generate elements to evaluate.
+        """
+        Generate elements to evaluate.
 
         Args:
         ----
@@ -303,45 +306,10 @@ class BayesianOptimisation(evolution_algorithm):
 
         """
 
-        def mutate_element(element)->list:
-            elements_val = []
-            for i in range(element.shape[0]):
-                for frag in sp.df_precursors.InChIKey:
-                    element_new = element.copy()
-                    element_new[i] = frag
-                    elements_val.append(element_new)
-            return elements_val
 
-        def cross_element(element1, element2)->list:
-            elements_val = []
-            for i in range(element.shape[0]):
-                element_new = element1.copy()
-                element_new[i] = element2[i]
-                elements_val.append(element_new)
-            return elements_val
-
-        # select the 3 best one and add two random element from the search space
-        best_element_arg = fitness_acquired.argsort()[-3:][::-1]
-        list_parents = df_search.loc[best_element_arg, :].to_numpy()
-        list_parents = np.append(
-            list_parents, df_search.sample(2).values, axis=0
+        elements = self.Generate_element_to_evaluate(
+            fitness_acquired, df_search, sp
         )
-        elements = []
-        for element in list_parents:
-            if len(elements) == 0:
-                elements = mutate_element(element)
-            else:
-                elements = np.append(elements, mutate_element(element), axis=0)
-        for element1, element2 in itertools.product(
-            list_parents, list_parents
-        ):
-            if len(elements) == 0:
-                elements = cross_element(element1, element2)
-            else:
-                elements = np.append(
-                    elements, cross_element(element1, element2), axis=0
-                )
-        elements = np.append(elements, df_search.values, axis=0)
         df_elements = pd.DataFrame(
             elements,
             columns=[
@@ -369,9 +337,10 @@ class BayesianOptimisation(evolution_algorithm):
             df_elements = df_elements.sample(1000)
         return df_elements.reset_index(drop=True)
 
+
     def train_model(self, x_train, y_train):
-        from botorch.models.transforms.input import Normalize
-        from botorch.models.transforms.outcome import Standardize
+        #from botorch.models.transforms.input import Normalize
+        #from botorch.models.transforms.outcome import Standardize
         """Train the model.
 
         Args:
@@ -380,6 +349,7 @@ class BayesianOptimisation(evolution_algorithm):
             y_train (torch.tensor): output.
 
         """
+        #return self.train_model_with_torch(x_train, y_train)
         self.model = self.kernel(
             x_train,
             y_train,
@@ -389,6 +359,40 @@ class BayesianOptimisation(evolution_algorithm):
             fit_gpytorch_mll(mll)
         except Exception as e:
             print(e)
+            
+    def train_model_with_torch(self, x_train, y_train):
+        from torch.optim import SGD
+        NUM_EPOCHS = 1000
+        self.model = self.kernel(
+            x_train,
+            y_train,
+        )
+        mll = self.likelihood(self.model.likelihood, self.model)
+        mll = mll.to(x_train)
+
+
+        self.model.train()
+        optimizer = SGD(self.model.parameters(), lr=0.15)
+
+
+        for epoch in range(NUM_EPOCHS):
+            # clear gradients
+            optimizer.zero_grad()
+            # forward pass through the model to obtain the output MultivariateNormal
+            output = self.model(x_train)
+            # Compute negative marginal log likelihood
+            loss = -mll(output, self.model.train_targets)
+            # back prop gradients
+            loss.backward()
+            # print every 10 iterations
+            #print("loss", loss)
+            if (epoch + 1) % 1000 == 0:
+                print(
+                    f"Epoch {epoch+1:>3}/{NUM_EPOCHS} - Loss: {loss.item():>4.3f} "
+                    #f"lengthscale: {self.model.covar_module.lengthscale.item():>4.3f} "
+                   # f"noise: {self.model.likelihood.noise.item():>4.3f}"
+                )
+            optimizer.step()
 
     def get_acquisition_values(self, model, best_f, xrpr):
         """Get the acquisition values.
