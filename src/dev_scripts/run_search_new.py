@@ -59,7 +59,7 @@ def main(
     print(" number of fragment", oligomer_size)
     print(benchmark, "benchmark")
     df_total = pd.read_csv(df_path)
-    df_Representation = pd.read_pickle(df_representation_path)
+    df_representation = pd.read_pickle(df_representation_path)
 
     # get initial elements
     if benchmark:

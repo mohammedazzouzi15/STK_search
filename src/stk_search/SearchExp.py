@@ -217,7 +217,11 @@ class SearchExp:
             # save the results
             self.save_results()
             if self.verbose:
-                pass
+                print(f"iteration {_id} done")
+                print(f"fitness acquired: {self.fitness_acquired[-1]}")
+                print(f"InchiKey acquired: {self.InchiKey_acquired[-1]}")
+                print(f"max fitness: {max(self.fitness_acquired)}")
+                print(f"mean fitness: {sum(self.fitness_acquired[self.num_elem_initialisation-1:-1])/len(self.fitness_acquired[self.num_elem_initialisation-1:-1])}")
             # clear GPU memory
             if hasattr(self.search_algorithm,"device") and self.search_algorithm.device == "cuda":
                 torch.cuda.empty_cache()

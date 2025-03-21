@@ -12,6 +12,8 @@ with open("fig.pkl", "rb") as f:
 
 fig.axes[1].set_xlabel("")
 fig.axes[3].set_xlabel("")
+fig.axes[1].set_ylabel("")
+fig.axes[3].set_ylabel("")
 # Hide tick labels for specific axes
 fig.axes[1].tick_params(labelleft=False)  # Hide bottom and left tick labels
 fig.axes[3].tick_params(labelleft=False)  # Hide bottom and left tick labels
@@ -55,14 +57,21 @@ for ax_index, ax in enumerate(fig.axes):
     if ax_index in tick_labels:
         ax.xaxis.set_major_locator(MaxNLocator(nbins=len(tick_labels[ax_index])))
         ax.xaxis.set_ticklabels(tick_labels[ax_index])
-legend_list = ["SUEA", "BO-Mord", "BO-Learned", "Rand", "EA"]
+legend_list = [
+        "BO-learned",
+        "BO-Mord",
+        "BO-Prop",
+        "SUEA",
+        "EA",
+        "Rand",
+    ]
 h,l = fig.axes[0].get_legend_handles_labels()
 # Modify the legend
 lg = fig.axes[0].legend(h,
     legend_list,
     loc="upper left",  # Change the location of the legend
-    bbox_to_anchor=(0.2, 1.2),  # Adjust the position of the legend
-    ncol=5,  # Number of columns in the legend
+    bbox_to_anchor=(0.1, 1.2),  # Adjust the position of the legend
+    ncol=6,  # Number of columns in the legend
     fontsize=20,  # Font size of the legend text
 
     frameon=True,  # Add a frame around the legend
