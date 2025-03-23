@@ -59,6 +59,7 @@ class Ea_surrogate(evolution_algorithm):
 
     def __init__(self):
         """Initialise the class."""
+        super().__init__()
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.model = None
         self.verbose = False
