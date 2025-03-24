@@ -206,7 +206,7 @@ class random_search(Search_Algorithm):
                 df_elements = sp.check_df_for_element_from_sp(
                     df_to_check=df_total
                 )
-                df_elements = df_elements.sample(10)
+                df_elements = df_elements.sample(100)
             else:
                 df_elements = sp.random_generation_df(10)
             df_elements = df_elements[
@@ -330,7 +330,6 @@ class evolution_algorithm(Search_Algorithm):
                 df_elements = df_elements.drop_duplicates()
                 msg = "no new element found"
                 raise ValueError(msg)
-        #print("size of the elements to choose from", len(df_elements))
         def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
@@ -553,10 +552,12 @@ class evolution_algorithm(Search_Algorithm):
             list: list of parents
 
         """
-        top_indices = np.argsort(fitness_acquired)[-size + number_of_random :]
+        fitness_acquired = np.argsort(np.array(fitness_acquired))
+        top_indices = fitness_acquired[-size + number_of_random:]
         random_indices = np.random.choice(
             df_search.shape[0], size=number_of_random
         )
+
         indices_considered = np.append(top_indices, random_indices)
         #print(df_search.iloc[top_indices].to_numpy()[0])
         return df_search.iloc[indices_considered].to_numpy()

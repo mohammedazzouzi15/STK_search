@@ -18,10 +18,16 @@ def join_name(x):
 
 def get_results_length(x):
     try:
-        return len(pd.read_pickle(x)["fitness_acquired"])
+
+        return max(pd.read_pickle(x)["ids_acquired"])
     except Exception:
         return 0
 
+def get_max_fitness(x):
+    try:
+        return max(pd.read_pickle(x)["fitness_acquired"])
+    except Exception:
+        return 0
 def define_color_dict():
     color_dict = {
         "BO_learned": sns.color_palette("tab10")[0],
@@ -47,6 +53,8 @@ def generate_datafame_from_search_results(search_results, max_iteration, num_ini
         df["mean_fitness_acquired"] = df["ids_acquired"].apply(
             lambda x: df[df["ids_acquired"] <= x]["fitness_acquired"].mean()
         )
+        df["run_name"] = dict_org["run_name"]
+
         yield df
 
 
@@ -170,6 +178,9 @@ def get_dataframe_of_searches(
     df["results_lenght"] = df["search_exp_file"].apply(
         lambda x: get_results_length(x)
     )
+    df["max_fitness"] = df["search_exp_file"].apply(
+        lambda x: get_max_fitness(x)
+    )
     return df
 
 
@@ -177,7 +188,9 @@ def load_search_dict(df, min_num_iteration):
     results_dict = {}
     for _, row in df.iterrows():
         if get_results_length(row["search_exp_file"]) >= min_num_iteration:
-            results_dict.setdefault(row["key"], []).append(pickle.load(open(row["search_exp_file"], "rb")))
+            res = pickle.load(open(row["search_exp_file"], "rb"))
+            res["run_name"] = row["search_exp_file"]
+            results_dict.setdefault(row["key"], []).append(res)
     return results_dict
 
 
@@ -360,18 +373,18 @@ def modify_figure__layout_simple(fig, legend_list, x_limits, y_limits):
 
 
 def main():
-    run_name = "runs5"
+    run_name = "runs6"
     save_path = f"/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/{run_name}"
     print(save_path)
     color_dict = define_color_dict()
     # Configurable parameters
-    min_num_iteration = 250
+    min_num_iteration = 700
     num_results_min = min_num_iteration
     max_iteration = min_num_iteration
     num_initialisation = 50
     top_mol_count = 300
     x_limits = {0: (50, min_num_iteration), 2: (50, min_num_iteration), 4: (50, min_num_iteration), 5: (50, min_num_iteration), 1: (0, 80), 3: (0, 3100)}
-    y_limits = {0:(0,0.7),1:(0,0.7),2:(-2,1),3:(-2,1),4: (0, 38), 5: (0, 0.43)}
+    y_limits = {0:(0,0.7),1:(0,0.7),2:(-2,0),3:(-2,0),4: (0, 38), 5: (0, 0.43)}
     tick_labels = {4: np.arange(0, min_num_iteration, 50),5: np.arange(0, min_num_iteration, 50), 3: [0,15,30]}
 
     df = get_dataframe_of_searches(save_path)

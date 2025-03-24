@@ -12,8 +12,8 @@ the different step of the algorithm are:
 
 """
 
-import itertools
 import os
+import time
 
 import numpy as np
 import pandas as pd
@@ -87,7 +87,7 @@ class BayesianOptimisation(evolution_algorithm):
         self.verbose = verbose
         self.which_acquisition = which_acquisition
         self.kernel = kernel
-        self.device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
         self.likelihood = likelihood
         self.model = model
         self.lim_counter = lim_counter  # max iteration for the acquisition function optimisation
@@ -97,7 +97,6 @@ class BayesianOptimisation(evolution_algorithm):
         self.config_dir = ""
         self.multi_fidelity = False
         self.budget = None
-        
 
     def update_representation(self, representation):
         """Update the representation."""
@@ -135,20 +134,34 @@ class BayesianOptimisation(evolution_algorithm):
             pd.DataFrame: updated search space.
 
         """
+        # Start timing the function
+        total_start_time = time.time()
+
+        # Step 1: Prepare input for the BO
+        step_start_time = time.time()
         df_search = searchspace_df.copy()
         fitness_acquired = np.array(fitness_acquired)
-        # prepare input for the BO
         x_rpr = self.Representation.generate_repr(
             df_search.loc[ids_acquired, :]
         )
         x_rpr = x_rpr.double()
-        y_explored_bo = torch.tensor(
-            fitness_acquired, dtype=torch.float64
-        )
+        y_explored_bo = torch.tensor(fitness_acquired, dtype=torch.float64)
         y_explored_bo = y_explored_bo.reshape(-1, 1)
-        # train model
+        if self.verbose:
+            print(
+                f"Step 1 (Prepare input for BO) took {time.time() - step_start_time:.4f} seconds"
+            )
+
+        # Step 2: Train the model
+        step_start_time = time.time()
         self.train_model(x_rpr, y_explored_bo)
-        # optimise the acquisition function
+        if self.verbose:
+            print(
+                f"Step 2 (Train the model) took {time.time() - step_start_time:.4f} seconds"
+            )
+
+        # Step 3: Optimise the acquisition function
+        step_start_time = time.time()
         ids_sorted_by_aquisition, df_elements = (
             self.optimise_acquisition_function(
                 best_f=y_explored_bo.max().item(),
@@ -159,8 +172,14 @@ class BayesianOptimisation(evolution_algorithm):
                 df_total=df_total,
             )
         )
+        if self.verbose:
+            print(
+                f"Step 3 (Optimise acquisition function) took {time.time() - step_start_time:.4f} seconds"
+            )
 
-        # add the new element to the search space
+        # Step 4: Add the new element to the search space
+        step_start_time = time.time()
+
         def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
@@ -172,6 +191,17 @@ class BayesianOptimisation(evolution_algorithm):
                 df_search, df_elements.to_numpy()[element_id.item()]
             ):
                 break
+        if self.verbose:
+            print(
+                f"Step 4 (Add new element to search space) took {time.time() - step_start_time:.4f} seconds"
+            )
+
+        # End timing the function
+        if self.verbose:
+            print(
+                f"Total execution time for suggest_element: {time.time() - total_start_time:.4f} seconds"
+            )
+
         return len(df_search) - 1, df_search
 
     def normalise_input(self, x_rpr):
@@ -230,7 +260,7 @@ class BayesianOptimisation(evolution_algorithm):
             fitness_acquired, df_search, sp, benchmark, df_total
         )
         xrpr = self.Representation.generate_repr(df_elements)
-        #xrpr = self.normalise_input(xrpr)
+        # xrpr = self.normalise_input(xrpr)
         acquisition_values = self.get_acquisition_values(
             self.model,
             best_f=best_f,
@@ -255,7 +285,7 @@ class BayesianOptimisation(evolution_algorithm):
             )
 
             xrpr = self.Representation.generate_repr(df_elements)
-            #xrpr = self.normalise_input(xrpr)
+            # xrpr = self.normalise_input(xrpr)
             # if benchmark:
             acquisition_values = self.get_acquisition_values(
                 self.model,
@@ -287,8 +317,7 @@ class BayesianOptimisation(evolution_algorithm):
         benchmark=False,
         df_total=None,
     ):
-        """
-        Generate elements to evaluate.
+        """Generate elements to evaluate.
 
         Args:
         ----
@@ -305,8 +334,6 @@ class BayesianOptimisation(evolution_algorithm):
         TODO: use the same function as in the EA
 
         """
-
-
         elements = self.Generate_element_to_evaluate(
             fitness_acquired, df_search, sp
         )
@@ -337,10 +364,9 @@ class BayesianOptimisation(evolution_algorithm):
             df_elements = df_elements.sample(1000)
         return df_elements.reset_index(drop=True)
 
-
     def train_model(self, x_train, y_train):
-        #from botorch.models.transforms.input import Normalize
-        #from botorch.models.transforms.outcome import Standardize
+        # from botorch.models.transforms.input import Normalize
+        # from botorch.models.transforms.outcome import Standardize
         """Train the model.
 
         Args:
@@ -349,7 +375,7 @@ class BayesianOptimisation(evolution_algorithm):
             y_train (torch.tensor): output.
 
         """
-        #return self.train_model_with_torch(x_train, y_train)
+        # return self.train_model_with_torch(x_train, y_train)
         self.model = self.kernel(
             x_train,
             y_train,
@@ -359,9 +385,10 @@ class BayesianOptimisation(evolution_algorithm):
             fit_gpytorch_mll(mll)
         except Exception as e:
             print(e)
-            
+
     def train_model_with_torch(self, x_train, y_train):
         from torch.optim import SGD
+
         NUM_EPOCHS = 1000
         self.model = self.kernel(
             x_train,
@@ -370,10 +397,8 @@ class BayesianOptimisation(evolution_algorithm):
         mll = self.likelihood(self.model.likelihood, self.model)
         mll = mll.to(x_train)
 
-
         self.model.train()
         optimizer = SGD(self.model.parameters(), lr=0.15)
-
 
         for epoch in range(NUM_EPOCHS):
             # clear gradients
@@ -385,12 +410,12 @@ class BayesianOptimisation(evolution_algorithm):
             # back prop gradients
             loss.backward()
             # print every 10 iterations
-            #print("loss", loss)
+            # print("loss", loss)
             if (epoch + 1) % 1000 == 0:
                 print(
                     f"Epoch {epoch+1:>3}/{NUM_EPOCHS} - Loss: {loss.item():>4.3f} "
-                    #f"lengthscale: {self.model.covar_module.lengthscale.item():>4.3f} "
-                   # f"noise: {self.model.likelihood.noise.item():>4.3f}"
+                    # f"lengthscale: {self.model.covar_module.lengthscale.item():>4.3f} "
+                    # f"noise: {self.model.likelihood.noise.item():>4.3f}"
                 )
             optimizer.step()
 
@@ -492,12 +517,12 @@ class BayesianOptimisation(evolution_algorithm):
 
     def load_representation_model(self):
         """Load the representation model.
-        
+
         Returns
         -------
             representation (object): representation of the element.
             pymodel (object): model.
-        
+
         """
         from stk_search.geom3d import pl_model
         from stk_search.Representation import Representation_poly_3d
