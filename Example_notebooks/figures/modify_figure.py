@@ -6,8 +6,8 @@ import pickle
 
 import numpy as np
 from matplotlib.ticker import MaxNLocator
-
-with open("fig.pkl", "rb") as f:
+name = "fig_runs5.pkl"
+with open(name, "rb") as f:
     fig = pickle.load(f)
 
 fig.axes[1].set_xlabel("")
@@ -20,7 +20,7 @@ fig.axes[3].tick_params(labelleft=False)  # Hide bottom and left tick labels
 
 fig.axes[1].set_frame_on(False)
 fig.axes[3].set_frame_on(False)
-min_num_iteration = 1000
+min_num_iteration = 250
 x_limits = {
     0: (50, min_num_iteration),
     2: (50, min_num_iteration),
@@ -32,8 +32,8 @@ x_limits = {
 y_limits = {
     0: (0, 0.7),
     1: (0, 0.7),
-    2: (-2, 1),
-    3: (-2, 1),
+    2: (-2, 0),
+    3: (-2, 0),
     4: (0, 65),
     5: (0, 0.63),
 }
@@ -83,10 +83,10 @@ lg = fig.axes[0].legend(h,
 
 
 fig.tight_layout()
-fig.savefig("mod_fig.png")
+fig.savefig("mod_"+name.replace(".pkl", ".png"))
 
 # Optionally, save the modified figure as a `.pickle` file for further editing
-with open("mod_fig.pkl", "wb") as f:
+with open("mod_"+name, "wb") as f:
     pickle.dump(fig, f)
 
 # Show the modified figure

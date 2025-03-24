@@ -71,6 +71,7 @@ def plot_simple_regret_stuff(df_summary_1, results_dict, num_results_min, max_it
         )
         sns.lineplot(x="ids_acquired", y="max_fitness_acquired", data=df_results, ax=ax1, label=key, color=color_dict[key])
         sns.lineplot(x="ids_acquired", y="mean_fitness_acquired", data=df_results, ax=ax3, color=color_dict[key])
+        df_results.to_csv(f"figures/df_results_{key}.csv")
 
     sns.histplot(data=df_total_bench, y="target", bins=100, ax=ax2, color="black", alpha=0.5)
     sns.histplot(data=df_total_bench, y="target", bins=50, ax=ax4, color="black", alpha=0.5)
@@ -149,12 +150,14 @@ def load_search_list(row):
 def get_dataframe_of_searches(
     save_path="/media/mohammed/Work/STK_search/Example_notebooks/output/search_experiment_benchmark/search_exp_database",
 ):
+    print(save_path)
     json_files = glob.glob(f"{save_path}/*.json")
     list_json = []
     for json_file in json_files:
         with open(json_file) as f:
             list_json.append(json.load(f))
         f.close()
+    print(len(list_json))
     df = pd.DataFrame(list_json)
     df["search_exp_file"] = (
         df["search_output_folder"]
@@ -357,19 +360,12 @@ def modify_figure__layout_simple(fig, legend_list, x_limits, y_limits):
 
 
 def main():
-    save_path = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/runs2"
-    save_folder = "data/figures/" + datetime.datetime.now().strftime("_%Y_%m_%d")
-    plot_function_list_single = [
-        Search_results_plot.plot_simple_regret,
-        Search_results_plot.plot_inst_regret,
-        Search_results_plot.plot_cumulative_regret,
-        Search_results_plot.plot_number_of_molecule_discovered,
-        Search_results_plot.plot_rate_of_discovery,
-    ]
+    run_name = "runs5"
+    save_path = f"/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/{run_name}"
+    print(save_path)
     color_dict = define_color_dict()
-
     # Configurable parameters
-    min_num_iteration = 1000
+    min_num_iteration = 250
     num_results_min = min_num_iteration
     max_iteration = min_num_iteration
     num_initialisation = 50
@@ -384,7 +380,7 @@ def main():
     print(df_all.head())
     df_all["key"] = df.apply(lambda x: join_name([x["search_output_folder"].split("/")[-1]]), axis=1)
     df_all["df_path"] = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
-    df_all.to_csv("figures/df_all_run2.csv")
+    df_all.to_csv(f"figures/df_all_{run_name}.csv")
     results_dict = load_search_dict(df_all, min_num_iteration)
 
     #fig, axes, metric_dict_res = plot_metric(
@@ -393,7 +389,7 @@ def main():
     #fig.tight_layout()
     #fig.savefig("figures/single.png")
     fig, df_plot = plot_simple_regret_stuff(df_all, results_dict, num_results_min, max_iteration, num_initialisation,color_dict=color_dict)
-    fig.savefig("figures/single2_run2.png")
+    fig.savefig(f"figures/single2_{run_name}.png")
     modify_figure__layout_simple(
         fig,
         legend_list=["BO-learned", "BO-Mord", "BO-Prop", "SUEA", "EA", "Rand"],
@@ -414,8 +410,8 @@ def main():
 
     fig = modify_figure(fig_org, legend_list, x_limits, y_limits, tick_labels)
     fig.tight_layout()
-    fig.savefig("figures/single3_run2.png")
-    with open("figures/fig_run2.pkl", "wb") as f:
+    fig.savefig(f"figures/single3_{run_name}.png")
+    with open(f"figures/fig_{run_name}.pkl", "wb") as f:
         pickle.dump(fig, f)
 
 

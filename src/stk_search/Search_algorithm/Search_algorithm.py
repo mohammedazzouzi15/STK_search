@@ -269,8 +269,8 @@ class evolution_algorithm(Search_Algorithm):
         self.name = "Evolution_algorithm"
         self.selection_method_mutation = "top"
         self.selection_method_cross = "top"
-        self.number_of_parents = 10
-        self.number_of_random = 5
+        self.number_of_parents = 5
+        self.number_of_random = 2
         self.multi_fidelity = False
         self.budget = None
 
@@ -330,14 +330,14 @@ class evolution_algorithm(Search_Algorithm):
                 df_elements = df_elements.drop_duplicates()
                 msg = "no new element found"
                 raise ValueError(msg)
-
+        #print("size of the elements to choose from", len(df_elements))
         def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
             return False
-
-        for element in df_elements.sample(frac=1).to_numpy():
+        df_elements_shuffled = df_elements.sample(frac=1).reset_index(drop=True)
+        for element in df_elements_shuffled.to_numpy():
             if add_element(df_search, element):
                 break
 
@@ -558,6 +558,7 @@ class evolution_algorithm(Search_Algorithm):
             df_search.shape[0], size=number_of_random
         )
         indices_considered = np.append(top_indices, random_indices)
+        #print(df_search.iloc[top_indices].to_numpy()[0])
         return df_search.iloc[indices_considered].to_numpy()
 
     def run_selection_method(
