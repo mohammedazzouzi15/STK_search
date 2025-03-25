@@ -273,6 +273,7 @@ class evolution_algorithm(Search_Algorithm):
         self.number_of_random = 2
         self.multi_fidelity = False
         self.budget = None
+        self.num_added_random = 10
 
     def suggest_element(
         self,
@@ -336,6 +337,7 @@ class evolution_algorithm(Search_Algorithm):
                 return True
             return False
         df_elements_shuffled = df_elements.sample(frac=1).reset_index(drop=True)
+        print("shape of df to add", df_elements_shuffled.shape)
         for element in df_elements_shuffled.to_numpy():
             if add_element(df_search, element):
                 break
@@ -643,4 +645,11 @@ class evolution_algorithm(Search_Algorithm):
                 elements = np.append(
                     elements, self.cross_element(element1, element2), axis=0
                 )
+
+        searched_space_df = sp.random_generation_df(
+                self.num_added_random
+            )
+        elements = np.append(elements, searched_space_df.to_numpy(),
+                            axis=0)
+        print("shape of elements", elements.shape)
         return elements

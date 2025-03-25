@@ -136,7 +136,7 @@ class RepresentationPoly3d:
 
         """
         df_elements = elements.copy()
-        df_elements["bb_key"] = df_elements.swifter.progress_bar(False).apply(
+        df_elements["bb_key"] = df_elements.apply(
             lambda x: self.join_keys_elem(x), axis=1
         )
         df_elements.index = df_elements["bb_key"]
@@ -317,7 +317,7 @@ class RepresentationPoly3d:
                 bb_key=bb_key,
             )
 
-        element["polymer"] = element.swifter.progress_bar(False).apply(
+        element["polymer"] = element.apply(
             lambda x: gen_mol(x), axis=1
         )
         return element["polymer"].tolist()

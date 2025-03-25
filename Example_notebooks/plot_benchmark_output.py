@@ -373,12 +373,12 @@ def modify_figure__layout_simple(fig, legend_list, x_limits, y_limits):
 
 
 def main():
-    run_name = "runs6"
+    run_name = "runs8"
     save_path = f"/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/{run_name}"
     print(save_path)
     color_dict = define_color_dict()
     # Configurable parameters
-    min_num_iteration = 700
+    min_num_iteration = 500
     num_results_min = min_num_iteration
     max_iteration = min_num_iteration
     num_initialisation = 50

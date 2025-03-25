@@ -594,3 +594,5 @@ class SearchedSpace(SearchSpace):
             layout=vbox_layout,
         )
         display(vb)
+
+    

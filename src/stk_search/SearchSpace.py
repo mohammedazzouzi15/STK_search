@@ -244,3 +244,76 @@ class SearchSpace:
             plot_histogram, column_name=columns_dropdown, layout=vbox_layout
         )
         plt.show()
+
+    def random_generation_df(self, num_elements):
+        """
+        Generate a random DataFrame of molecular fragments based on the syntax.
+
+        This function randomly selects molecular fragments from the precursor DataFrame
+        (`self.df_precursors`) and combines them according to the specified syntax (`self.syntax`).
+        The resulting DataFrame contains a random subset of molecules with the desired structure.
+
+        Args:
+        ----
+        num_elements : int
+            The number of elements (rows) to generate in the resulting DataFrame.
+
+        Returns:
+        -------
+        pd.DataFrame
+            A DataFrame containing randomly generated molecular fragments
+            combined according to the syntax.
+
+        Notes:
+        -----
+        - The function ensures that the fragments are combined based on the syntax rules.
+        - The `features_frag` attribute specifies the features to include in the resulting DataFrame.
+        """
+        import random
+
+        # List to track fragment IDs that should not be merged
+        excluded_ids = []
+
+        # Calculate the maximum number of fragments to sample for each syntax group
+        max_fragments = int(num_elements ** (1 / len(set(self.syntax)))) + 1
+        # Initialize a list to store DataFrames for each fragment group
+        fragment_dfs = [None] * self.number_of_fragments
+
+        # Generate DataFrames for each unique syntax group
+        for group_id in set(self.syntax):
+            if group_id == 0:
+                # Select random fragments for the first group
+                fragment_dfs[group_id] = self.df_precursors.loc[
+                    list(random.sample(self.list_fragment[0], max_fragments))
+                ]
+                combined_df = fragment_dfs[group_id]
+            else:
+                # Select random fragments for other groups and merge with the combined DataFrame
+                fragment_dfs[group_id] = self.df_precursors.loc[
+                    list(random.sample(self.list_fragment[group_id], max_fragments))
+                ]
+                combined_df = combined_df.merge(
+                    fragment_dfs[group_id],
+                    how="cross",
+                    suffixes=("", f"_{group_id}"),
+                )
+            excluded_ids.append(group_id)
+
+
+        # Merge fragments based on the syntax
+        for position, group_id in enumerate(self.syntax):
+            if position in excluded_ids:
+                continue
+            else:
+                combined_df = combined_df.merge(
+                    fragment_dfs[group_id],
+                    left_on=f"InChIKey_{group_id}",
+                    right_on="InChIKey",
+                    suffixes=("", f"_{position}"),
+                )
+
+        # Randomly sample the desired number of elements
+        combined_df = combined_df.sample(num_elements)
+        combined_df.reset_index(drop=True, inplace=True)
+        combined_df = combined_df[[col for col in combined_df.columns if "InChIKey" in col]]
+        return combined_df
