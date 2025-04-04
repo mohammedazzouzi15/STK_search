@@ -309,10 +309,6 @@ class evolution_algorithm(Search_Algorithm):
             pd.DataFrame: dataframe containing the element to evaluate
 
         """
-        import time
-
-        random_seed = int(time.time() * 1000) - int(time.time()) * 1000
-        np.random.seed(random_seed)
         df_search = searchspace_df
         df_elements = searchspace_df
         error_counter = 0
@@ -414,7 +410,7 @@ class evolution_algorithm(Search_Algorithm):
                 "df_total in searchspace_df",
                 sp.check_df_for_element_from_sp(df_to_check=df_total).shape,
             )
-            
+
             df_elements = df_elements.merge(
                 df_total,
                 on=[
@@ -422,7 +418,7 @@ class evolution_algorithm(Search_Algorithm):
                 ],  # check this for generalization
                 how="left",
             )
-            
+
             df_elements = df_elements.dropna(subset="target")
             print(
                 "df_total in searchspace_df",
