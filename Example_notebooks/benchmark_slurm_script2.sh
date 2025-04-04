@@ -1,12 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=run_benchmark
-#SBATCH --output=run_benchmark_%A_%a.log
-#SBATCH --error=run_benchmark_%A_%a.err
+#SBATCH --output=slurm_log/run_benchmark_%A_%a.log
+#SBATCH --error=slurm_log/run_benchmark_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=16G
+#SBATCH --mem=32G
 #SBATCH --time=48:00:00
-#SBATCH --array=0-20  # Adjust the range according to the number of jobs you want to run
+#SBATCH --array=0-35  # Adjust the range according to the number of jobs you want to run
+#SBATCH --exclude=node40,node63,node25,node19,node35,node64,node62
 
 # Load necessary modules
 conda activate /home/mazzouzi/miniconda3/envs/stk_search
