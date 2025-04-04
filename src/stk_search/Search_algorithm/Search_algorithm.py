@@ -273,7 +273,7 @@ class evolution_algorithm(Search_Algorithm):
         self.number_of_random = 2
         self.multi_fidelity = False
         self.budget = None
-        self.num_added_random = 10
+        self.num_added_random = 0
 
     def suggest_element(
         self,
@@ -331,13 +331,16 @@ class evolution_algorithm(Search_Algorithm):
                 df_elements = df_elements.drop_duplicates()
                 msg = "no new element found"
                 raise ValueError(msg)
+
         def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
                 df.loc[len(df)] = element
                 return True
             return False
-        df_elements_shuffled = df_elements.sample(frac=1).reset_index(drop=True)
-        print("shape of df to add", df_elements_shuffled.shape)
+
+        df_elements_shuffled = df_elements.sample(frac=1).reset_index(
+            drop=True
+        )
         for element in df_elements_shuffled.to_numpy():
             if add_element(df_search, element):
                 break
@@ -405,6 +408,13 @@ class evolution_algorithm(Search_Algorithm):
         df_elements = sp.check_df_for_element_from_sp(df_to_check=df_elements)
         if benchmark:
             # take only element in df_total
+            print("df_elements", df_elements.shape)
+            print("df_total", df_total.shape)
+            print(
+                "df_total in searchspace_df",
+                sp.check_df_for_element_from_sp(df_to_check=df_total).shape,
+            )
+            
             df_elements = df_elements.merge(
                 df_total,
                 on=[
@@ -412,10 +422,17 @@ class evolution_algorithm(Search_Algorithm):
                 ],  # check this for generalization
                 how="left",
             )
+            
             df_elements = df_elements.dropna(subset="target")
+            print(
+                "df_total in searchspace_df",
+                max(df_elements["target"]),
+                np.mean(df_elements["target"]),
+            )
             df_elements = df_elements[
                 [f"InChIKey_{i}" for i in range(elements.shape[1])]
             ]  # check this for generalization
+            print("df_elements", df_elements.shape)
         return df_elements, df_search
 
     def mutate_element(self, element, sp: SearchSpace):
@@ -444,18 +461,18 @@ class evolution_algorithm(Search_Algorithm):
 
     def cross_element(self, element1, element2):
         """Cross two elements.
-        
+
         Cross two elements by complementing one part of the first element with the rest from the other element
-        
+
         Args:
         ----
             element1 (np.array): element 1
             element2 (np.array): element 2
-            
+
         Returns:
         -------
             list: list of elements
-        
+
         """
         elements = []
         for i in range(element1.shape[0]):  # check this for generalization
@@ -466,19 +483,19 @@ class evolution_algorithm(Search_Algorithm):
 
     def roulette_wheel_selection(self, fitness_acquired, df_search, size=3):
         """Roulette wheel selection.
-        
+
         Select parents based on the roulette wheel selection
-        
+
         Args:
         ----
             fitness_acquired (list): fitness of the acquired elements
             df_search (pd.DataFrame): dataframe containing the searched space
             size (int): number of parents
-        
+
         Returns:
         -------
             list: list of parents
-        
+
         """
         total_fitness = np.sum(fitness_acquired)
         selection_probs = fitness_acquired / total_fitness
@@ -555,13 +572,13 @@ class evolution_algorithm(Search_Algorithm):
 
         """
         fitness_acquired = np.argsort(np.array(fitness_acquired))
-        top_indices = fitness_acquired[-size + number_of_random:]
+        top_indices = fitness_acquired[-size + number_of_random :]
         random_indices = np.random.choice(
             df_search.shape[0], size=number_of_random
         )
 
         indices_considered = np.append(top_indices, random_indices)
-        #print(df_search.iloc[top_indices].to_numpy()[0])
+        # print(df_search.iloc[top_indices].to_numpy()[0])
         return df_search.iloc[indices_considered].to_numpy()
 
     def run_selection_method(
@@ -597,7 +614,10 @@ class evolution_algorithm(Search_Algorithm):
             )
         elif selection_method == "top":
             list_parents = self.top_selection(
-                fitness_acquired, df_search, self.number_of_parents, self.number_of_random
+                fitness_acquired,
+                df_search,
+                self.number_of_parents,
+                self.number_of_random,
             )
         else:
             msg = f"Unknown selection method: {selection_method}"
@@ -646,10 +666,7 @@ class evolution_algorithm(Search_Algorithm):
                     elements, self.cross_element(element1, element2), axis=0
                 )
 
-        searched_space_df = sp.random_generation_df(
-                self.num_added_random
-            )
-        elements = np.append(elements, searched_space_df.to_numpy(),
-                            axis=0)
-        print("shape of elements", elements.shape)
+        searched_space_df = sp.random_generation_df(self.num_added_random)
+        elements = np.append(elements, searched_space_df.to_numpy(), axis=0)
+        # print("shape of elements", elements.shape)
         return elements

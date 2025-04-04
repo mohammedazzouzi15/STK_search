@@ -149,6 +149,7 @@ class SearchExp:
         self.df_total = None
         self.date = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
         self.search_exp_name = uuid.uuid4().hex
+        self.set_save_folder()
 
     def run_seach(self):
         """Run the search experiment.
@@ -291,6 +292,13 @@ class SearchExp:
             + f"/search_experiment_{self.search_exp_name}.pkl",
         ).open("wb") as f:
             pickle.dump(self, f)
+    
+    def set_save_folder(self):
+        path = self.output_folder + f"/{self.date}"
+        Path(path).mkdir(parents=True, exist_ok=True)
+        self.save_path = path + f"/results_{self.search_exp_name}.pkl"
+
+
 
     def save_results(self):
         """Save the results.
@@ -314,10 +322,37 @@ class SearchExp:
             "time_calc": self.time_calc,
         }
 
-        path = self.output_folder + f"/{self.date}"
-        Path(path).mkdir(parents=True, exist_ok=True)
-        with Path(path + f"/results_{self.search_exp_name}.pkl").open(
+        
+        with Path(self.save_path).open(
             "wb"
         ) as f:
             pickle.dump(resutls_dict, f)
         return resutls_dict
+
+    def load_results(self, filepath: str):
+        """Load a saved search experiment and rerun it for more iterations.
+
+        Parameters
+        ----------
+        filepath : str
+            The path to the saved search experiment file (.pkl).
+        additional_iterations : int
+            The number of additional iterations to run.
+
+        Returns
+        -------
+        results_dict : dict
+            The updated results of the search experiment.
+        """
+        # Load the saved search experiment
+        with Path(filepath).open("rb") as f:
+            resutls_dict = pickle.load(f)
+
+        self.ids_acquired = resutls_dict["ids_acquired"]
+        self.df_search_space = resutls_dict["searched_space_df"]
+        self.fitness_acquired = resutls_dict["fitness_acquired"]
+        self.InchiKey_acquired = resutls_dict["InchiKey_acquired"]
+        self.overall_time = resutls_dict["overall_time"]
+        self.time_calc = resutls_dict["time_calc"]
+        self.ids_acquired = list(set(self.ids_acquired))
+        return 0

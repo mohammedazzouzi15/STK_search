@@ -3,11 +3,11 @@ import numpy as np
 
 def test_random():
     top_mol_count = 300
-    number_of_iteration = 100
+    number_of_iteration = 450
     df = pd.read_csv("/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv")
     print("max value in the dataset", df["target"].max())
-    df.dropna(subset=["target"], inplace=True)
-    df.drop_duplicates(subset=["InChIKey"], inplace=True)
+    #df.dropna(subset=["target"], inplace=True)
+    #df.drop_duplicates(subset=["InChIKey"], inplace=True)
     print(df.shape)
     max_list = []
     min_value = df["target"].sort_values().iloc[-top_mol_count]

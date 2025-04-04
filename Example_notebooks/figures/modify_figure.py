@@ -6,7 +6,7 @@ import pickle
 
 import numpy as np
 from matplotlib.ticker import MaxNLocator
-name = "fig_runs5.pkl"
+name = "fig_runs8.pkl"
 with open(name, "rb") as f:
     fig = pickle.load(f)
 
@@ -20,7 +20,7 @@ fig.axes[3].tick_params(labelleft=False)  # Hide bottom and left tick labels
 
 fig.axes[1].set_frame_on(False)
 fig.axes[3].set_frame_on(False)
-min_num_iteration = 250
+min_num_iteration = 810
 x_limits = {
     0: (50, min_num_iteration),
     2: (50, min_num_iteration),
@@ -59,7 +59,7 @@ for ax_index, ax in enumerate(fig.axes):
         ax.xaxis.set_ticklabels(tick_labels[ax_index])
 legend_list = [
         "BO-learned",
-        "BO-Mord",
+        #"BO-Mord",
         "BO-Prop",
         "SUEA",
         "EA",

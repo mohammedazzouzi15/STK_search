@@ -87,7 +87,7 @@ class BayesianOptimisation(evolution_algorithm):
         self.verbose = verbose
         self.which_acquisition = which_acquisition
         self.kernel = kernel
-        self.device = "cpu"  # "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.likelihood = likelihood
         self.model = model
         self.lim_counter = lim_counter  # max iteration for the acquisition function optimisation
