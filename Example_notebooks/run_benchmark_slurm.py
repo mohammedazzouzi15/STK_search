@@ -277,7 +277,7 @@ def run_benchmark():
     SearchSpace_loc = "data_example/data_benchmark/SearchSpace_6_frag_full.pkl"
     df_precursor_path = "data_example/data_benchmark/df_properties.pkl"
     df_precursor_Mordred_path = (
-        "data_example/precursor/df_PCA_mordred_descriptor_290224.pkl"
+        "data_example/precursor/df_mordred_24072024.pkl"
     )
     save_path = "data_example/data_benchmark/runs9"
     config_dir = "data_example/representation_learning/splitrand-nummol20000"
