@@ -162,16 +162,26 @@ class BayesianOptimisation(evolution_algorithm):
 
         # Step 3: Optimise the acquisition function
         step_start_time = time.time()
-        ids_sorted_by_aquisition, df_elements = (
-            self.optimise_acquisition_function(
-                best_f=y_explored_bo.max().item(),
-                fitness_acquired=fitness_acquired,
-                df_search=df_search,
-                sp=sp,
-                benchmark=benchmark,
-                df_total=df_total,
+        df_search = searchspace_df
+        df_elements = searchspace_df
+        error_counter = 0
+        while not self._check_new_element_in_SearchSpace(
+            df_search, df_elements
+        ):
+            ids_sorted_by_aquisition, df_elements = (
+                self.optimise_acquisition_function(
+                    best_f=y_explored_bo.max().item(),
+                    fitness_acquired=fitness_acquired,
+                    df_search=df_search,
+                    sp=sp,
+                    benchmark=benchmark,
+                    df_total=df_total,
+                )
             )
-        )
+            error_counter += 1
+            if error_counter > 10:
+                msg = "Error: No new element found in the search space."
+                raise ValueError(msg)
         if self.verbose:
             print(
                 f"Step 3 (Optimise acquisition function) took {time.time() - step_start_time:.4f} seconds"
@@ -272,7 +282,11 @@ class BayesianOptimisation(evolution_algorithm):
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
+        df_elements = df_elements.loc[ids_sorted_by_aquisition]
         max_counter, max_optimisation_iteration = 0, 100
+
+        top_elements = [df_elements[ids_sorted_by_aquisition[:100].cpu().numpy()]]  # List to store top 100 elements in each loop
+        top_acquisition_values = [acquisition_values[ids_sorted_by_aquisition[:100].cpu().numpy()]]  # List to store corresponding acquisition values
         while counter < lim_counter:
             counter += 1
             max_counter += 1
@@ -299,15 +313,34 @@ class BayesianOptimisation(evolution_algorithm):
                 descending=True
             )
             max_acquisition_value_current = acquisition_values.max()
+
+            # Store top 100 elements and their IDs
+            top_elements.append(df_elements.iloc[ids_sorted_by_aquisition[:100].cpu().numpy()])
+            top_acquisition_values.append(
+                acquisition_values[ids_sorted_by_aquisition[:100].cpu().numpy()]
+            )
+
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
             ):
                 max_acquisition_value = max_acquisition_value_current
                 counter = 0
+                df_elements_good = df_elements.copy()
+                df_elements_good = df_elements_good[
+                    ids_sorted_by_aquisition[:100].cpu().numpy()
+                ]
+                
             if max_counter > max_optimisation_iteration:
                 break
-        return ids_sorted_by_aquisition, df_elements
+        acquisition_values = torch.cat(
+            [torch.tensor(x) for x in top_acquisition_values]
+        )
+        ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
+        # Concatenate all stored elements and IDs
+        concatenated_elements = pd.concat(top_elements).reset_index(drop=True)
+
+        return ids_sorted_by_aquisition, concatenated_elements
 
     def generate_df_elements_to_choose_from(
         self,
