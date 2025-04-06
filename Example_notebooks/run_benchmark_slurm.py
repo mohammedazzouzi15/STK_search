@@ -279,7 +279,7 @@ def run_benchmark():
     df_precursor_Mordred_path = (
         "data_example/precursor/df_mordred_24072024.pkl"
     )
-    save_path = "data_example/data_benchmark/runs9"
+    save_path = "data_example/data_benchmark/runs10"
     config_dir = "data_example/data_benchmark/representation_learning/splitrand-nummol20000"
 
     df_Benchmark, df_precursor, df_precursor_Mordred, sp = get_dataframes(
