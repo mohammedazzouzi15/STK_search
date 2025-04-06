@@ -18,16 +18,18 @@ def join_name(x):
 
 def get_results_length(x):
     try:
-
-        return max(pd.read_pickle(x)["ids_acquired"])
+        return len(pd.read_pickle(x)["ids_acquired"])
     except Exception:
         return 0
+
 
 def get_max_fitness(x):
     try:
         return max(pd.read_pickle(x)["fitness_acquired"])
     except Exception:
         return 0
+
+
 def define_color_dict():
     color_dict = {
         "BO_learned": sns.color_palette("tab10")[0],
@@ -39,75 +41,105 @@ def define_color_dict():
     }
     return color_dict
 
-def generate_datafame_from_search_results(search_results, max_iteration, num_initialisation):
+
+def generate_datafame_from_search_results(
+    search_results, max_iteration, num_initialisation
+):
     """Generate a dataframe from the search results."""
     min_value = 0
     for dict_org in search_results:
-        #try:
-            dict_copy = dict_org.copy()
-            dict_copy.pop("searched_space_df")
-            for key, value in dict_copy.items():
-                if key == "ids_acquired":
-                    continue
-                if key == "run_name":
-                    continue
-                dict_copy[key] = [value[int(x)] for x in dict_copy["ids_acquired"]]
-            df = pd.DataFrame.from_records(dict_copy)
-            df = df[(df["ids_acquired"] < max_iteration) & (df["ids_acquired"] > num_initialisation)]
-            df = df.drop_duplicates(subset=["ids_acquired"], keep="last")
-            df["max_fitness_acquired"] = df["ids_acquired"].apply(
-                lambda x: df[df["ids_acquired"] <= x]["fitness_acquired"].max()
-            )
-            df["mean_fitness_acquired"] = df["ids_acquired"].apply(
-                lambda x: df[df["ids_acquired"] <= x]["fitness_acquired"].mean()
-            )
-            df["run_name"] = dict_org["run_name"]
-            df["number_of_top_mol_found"] = df["ids_acquired"].apply(
+        # try:
+        dict_copy = dict_org.copy()
+        dict_copy.pop("searched_space_df")
+        for key, value in dict_copy.items():
+            if key == "ids_acquired":
+                continue
+            if key == "run_name":
+                continue
+            dict_copy[key] = [value[int(x)] for x in dict_copy["ids_acquired"]]
+        df = pd.DataFrame.from_records(dict_copy)
+        #df = df.sort_values(by="ids_acquired")
+        #df = df.reset_index(drop=True)
+        #df["ids_acquired"] = df.index
+        df = df[
+            (df["ids_acquired"] < max_iteration)
+            & (df["ids_acquired"] > num_initialisation)
+        ]
+        df = df.drop_duplicates(subset=["ids_acquired"], keep="last")
+        df["max_fitness_acquired"] = df["ids_acquired"].apply(
+            lambda x: df[df["ids_acquired"] <= x]["fitness_acquired"].max()
+        )
+        df["mean_fitness_acquired"] = df["ids_acquired"].apply(
+            lambda x: df[df["ids_acquired"] <= x]["fitness_acquired"].mean()
+        )
+        df["run_name"] = dict_org["run_name"]
+        df["number_of_top_mol_found"] = df["ids_acquired"].apply(
             lambda x: len(
                 df[
                     (df["ids_acquired"] <= x)
                     & (df["fitness_acquired"] >= min_value)
                 ]
-                )
             )
-            df["rate_of_discovery"] = df["ids_acquired"].apply(
-                lambda x: len(
-                    df[
-                        (df["ids_acquired"] <= x)
-                        & (df["fitness_acquired"] >= min_value)
-                    ]
-                )
-                / df[df["ids_acquired"] <= x].shape[0]
+        )
+        df["rate_of_discovery"] = df["ids_acquired"].apply(
+            lambda x: len(
+                df[
+                    (df["ids_acquired"] <= x)
+                    & (df["fitness_acquired"] >= min_value)
+                ]
             )
-            yield df
+            / df[df["ids_acquired"] <= x].shape[0]
+        )
+        yield df
 
-        #except Exception as e:
-         #   print(dict_org.keys())
-          #  for key, value in dict_org.items():
-           #     print(key, len(value))  
-            #print(e)
-            #raise e
+    # except Exception as e:
+    #   print(dict_org.keys())
+    #  for key, value in dict_org.items():
+    #     print(key, len(value))
+    # print(e)
+    # raise e
+
 
 def get_dict_df_results(results_dict, max_iteration, num_initialisation):
-    keys = ["BO_learned", "BO_Mord", "BO_precursor", "ea_surrogate", "evolution_algorithm", "random"]
+    keys = [
+        "BO_learned",
+        "BO_Mord",
+        "BO_precursor",
+        "ea_surrogate",
+        "evolution_algorithm",
+        "random",
+    ]
     keys = [x for x in keys if x in results_dict.keys()]
     dict_df_results = {}
-    #keys = set(keys).intersection(set(results_dict.keys()))
+    # keys = set(keys).intersection(set(results_dict.keys()))
     for color_num, key in enumerate(keys):
         print(key)
         res = results_dict[key]
         df_results = pd.concat(
             generate_datafame_from_search_results(
-                res, max_iteration=max_iteration, num_initialisation=num_initialisation
+                res,
+                max_iteration=max_iteration,
+                num_initialisation=num_initialisation,
             )
         )
         dict_df_results[key] = df_results
         df_results.to_csv(f"figures/df_results_{key}.csv")
     return dict_df_results
 
-def plot_simple_regret_stuff(df_summary_1, results_dict, num_results_min, max_iteration, num_initialisation,color_dict,dict_df_results):
+
+def plot_simple_regret_stuff(
+    df_summary_1,
+    results_dict,
+    num_results_min,
+    max_iteration,
+    num_initialisation,
+    color_dict,
+    dict_df_results,
+):
     df_plot = df_summary_1.copy()
-    keys = set(df_plot["key"].to_numpy()).intersection(set(results_dict.keys()))
+    keys = set(df_plot["key"].to_numpy()).intersection(
+        set(results_dict.keys())
+    )
     print("Keys:", keys)
     fig = plt.figure(figsize=(10, 5))
     gs = gridspec.GridSpec(1, 4, width_ratios=[1, 0.2, 1, 0.2])
@@ -115,21 +147,52 @@ def plot_simple_regret_stuff(df_summary_1, results_dict, num_results_min, max_it
     ax1, ax2, ax3, ax4 = [plt.subplot(gs[i]) for i in range(4)]
     df_total_bench = pd.read_csv(df_plot["df_path"].iloc[0], low_memory=False)
     keys = ["BO-learned", "BO-Mord", "BO-Prop", "SUEA", "EA", "Rand"]
-    keys = ["BO_learned", "BO_Mord", "BO_precursor", "ea_surrogate", "evolution_algorithm", "random"]
+    keys = [
+        "BO_learned",
+        "BO_Mord",
+        "BO_precursor",
+        "ea_surrogate",
+        "evolution_algorithm",
+        "random",
+    ]
     keys = [x for x in keys if x in results_dict.keys()]
-    #keys = set(keys).intersection(set(results_dict.keys()))
+    # keys = set(keys).intersection(set(results_dict.keys()))
     for color_num, key in enumerate(keys):
         print(key)
         df_results = dict_df_results[key]
-        sns.lineplot(x="ids_acquired", y="max_fitness_acquired", data=df_results, ax=ax1, label=key, color=color_dict[key])
-        sns.lineplot(x="ids_acquired", y="mean_fitness_acquired", data=df_results, ax=ax3, color=color_dict[key])
-        
+        sns.lineplot(
+            x="ids_acquired",
+            y="max_fitness_acquired",
+            data=df_results,
+            ax=ax1,
+            label=key,
+            color=color_dict[key],
+        )
+        sns.lineplot(
+            x="ids_acquired",
+            y="mean_fitness_acquired",
+            data=df_results,
+            ax=ax3,
+            color=color_dict[key],
+        )
 
-    sns.histplot(data=df_total_bench, y="target", bins=100, ax=ax2, color="black", alpha=0.5)
-    sns.histplot(data=df_total_bench, y="target", bins=50, ax=ax4, color="black", alpha=0.5)
+    sns.histplot(
+        data=df_total_bench,
+        y="target",
+        bins=100,
+        ax=ax2,
+        color="black",
+        alpha=0.5,
+    )
+    sns.histplot(
+        data=df_total_bench,
+        y="target",
+        bins=50,
+        ax=ax4,
+        color="black",
+        alpha=0.5,
+    )
     return fig, df_plot
-
-
 
 
 def load_search_list(row):
@@ -177,23 +240,53 @@ def load_search_dict(df, min_num_iteration):
     return results_dict
 
 
-
-
-def plot_top_mols_acquired(results_dict, df_plot, fig, num_results_min, max_iteration, num_initialisation, top_mol_count,color_dict,dict_df_results):
+def plot_top_mols_acquired(
+    results_dict,
+    df_plot,
+    fig,
+    num_results_min,
+    max_iteration,
+    num_initialisation,
+    top_mol_count,
+    color_dict,
+    dict_df_results,
+):
     cool_colors = sns.color_palette("tab10", len(df_plot))
-    keys = set(df_plot["key"].to_numpy()).intersection(set(results_dict.keys()))
+    keys = set(df_plot["key"].to_numpy()).intersection(
+        set(results_dict.keys())
+    )
     print("Keys:", keys)
     df_total_bench = pd.read_csv(df_plot["df_path"].iloc[0], low_memory=False)
     min_value = df_total_bench["target"].sort_values().iloc[-top_mol_count]
-    keys = ["BO_learned", "BO_Mord", "BO_precursor", "ea_surrogate", "evolution_algorithm", "random"]
+    keys = [
+        "BO_learned",
+        "BO_Mord",
+        "BO_precursor",
+        "ea_surrogate",
+        "evolution_algorithm",
+        "random",
+    ]
     keys = [x for x in keys if x in results_dict.keys()]
-    #keys = set(keys).intersection(set(results_dict.keys()))
+    # keys = set(keys).intersection(set(results_dict.keys()))
     print("Keys:", keys)
 
     for color_num, key in enumerate(keys):
         df_results = dict_df_results[key]
-        sns.lineplot(x="ids_acquired", y="number_of_top_mol_found", data=df_results, ax=fig.axes[4], label=key, color=color_dict[key])
-        sns.lineplot(x="ids_acquired", y="rate_of_discovery", data=df_results, ax=fig.axes[5],color=color_dict[key])
+        sns.lineplot(
+            x="ids_acquired",
+            y="number_of_top_mol_found",
+            data=df_results,
+            ax=fig.axes[4],
+            label=key,
+            color=color_dict[key],
+        )
+        sns.lineplot(
+            x="ids_acquired",
+            y="rate_of_discovery",
+            data=df_results,
+            ax=fig.axes[5],
+            color=color_dict[key],
+        )
 
 
 def modify_figure(fig_org, legend_list, x_limits, y_limits, tick_labels):
@@ -322,42 +415,81 @@ def modify_figure__layout_simple(fig, legend_list, x_limits, y_limits):
 
 
 def main():
-    run_name = "runs9"
+    run_name = "runs10"
     save_path = f"/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/{run_name}/database"
     print(save_path)
     color_dict = define_color_dict()
     # Configurable parameters
-    min_num_iteration = 350
+    min_num_iteration = 200
     num_results_min = min_num_iteration
     max_iteration = min_num_iteration
     num_initialisation = 50
     top_mol_count = 300
-    x_limits = {0: (50, min_num_iteration), 2: (50, min_num_iteration), 4: (50, min_num_iteration), 5: (50, min_num_iteration), 1: (0, 80), 3: (0, 3100)}
-    y_limits = {0:(0,0.7),1:(0,0.7),2:(-2,0),3:(-2,0),4: (0, 38), 5: (0, 0.43)}
-    tick_labels = {4: np.arange(0, min_num_iteration, 50),5: np.arange(0, min_num_iteration, 50), 3: [0,15,30]}
+    x_limits = {
+        0: (50, min_num_iteration),
+        2: (50, min_num_iteration),
+        4: (50, min_num_iteration),
+        5: (50, min_num_iteration),
+        1: (0, 80),
+        3: (0, 3100),
+    }
+    y_limits = {
+        0: (0, 0.7),
+        1: (0, 0.7),
+        2: (-2, 0),
+        3: (-2, 0),
+        4: (0, 38),
+        5: (0, 0.43),
+    }
+    tick_labels = {
+        4: np.arange(0, min_num_iteration, 50),
+        5: np.arange(0, min_num_iteration, 50),
+        3: [0, 15, 30],
+    }
 
     df = get_dataframe_of_searches(save_path)
     df = df[df["benchmark"]]
     df_all = df.copy()
     print(df_all.head())
-    df_all["key"] = df.apply(lambda x: join_name([x["search_output_folder"].split("/")[-1]]), axis=1)
-    df_all["df_path"] = "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
+    df_all["key"] = df.apply(
+        lambda x: join_name([x["search_output_folder"].split("/")[-1]]), axis=1
+    )
+    df_all["df_path"] = (
+        "/media/mohammed/Work/STK_search/Example_notebooks/data_example/data_benchmark/30K_benchmark_150524.csv"
+    )
     df_all.to_csv(f"figures/df_all_{run_name}.csv")
     results_dict = load_search_dict(df_all, min_num_iteration)
 
-    #fig, axes, metric_dict_res = plot_metric(
-     #   df_all, plot_function_list_single, results_dict, nb_iterations=min_num_iteration,color_dict=color_dict
-    #)
-    #fig.tight_layout()
-    #fig.savefig("figures/single.png")
-    dict_df_results = get_dict_df_results(results_dict, max_iteration, num_initialisation)
+    # fig, axes, metric_dict_res = plot_metric(
+    #   df_all, plot_function_list_single, results_dict, nb_iterations=min_num_iteration,color_dict=color_dict
+    # )
+    # fig.tight_layout()
+    # fig.savefig("figures/single.png")
+    dict_df_results = get_dict_df_results(
+        results_dict, max_iteration, num_initialisation
+    )
     plot_ = True
-    if plot_ :
-        fig, df_plot = plot_simple_regret_stuff(df_all, results_dict, num_results_min, max_iteration, num_initialisation,color_dict=color_dict,dict_df_results=dict_df_results)
+    if plot_:
+        fig, df_plot = plot_simple_regret_stuff(
+            df_all,
+            results_dict,
+            num_results_min,
+            max_iteration,
+            num_initialisation,
+            color_dict=color_dict,
+            dict_df_results=dict_df_results,
+        )
         fig.savefig(f"figures/single2_{run_name}.png")
         modify_figure__layout_simple(
             fig,
-            legend_list=["BO-learned", "BO-Mord", "BO-Prop", "SUEA", "EA", "Rand"],
+            legend_list=[
+                "BO-learned",
+                "BO-Mord",
+                "BO-Prop",
+                "SUEA",
+                "EA",
+                "Rand",
+            ],
             x_limits=x_limits,
             y_limits=y_limits,
         )
@@ -371,9 +503,21 @@ def main():
             "EA",
             "Rand",
         ]
-        plot_top_mols_acquired(results_dict, df_plot, fig_org, num_results_min, max_iteration, num_initialisation, top_mol_count,color_dict=color_dict,dict_df_results=dict_df_results)
+        plot_top_mols_acquired(
+            results_dict,
+            df_plot,
+            fig_org,
+            num_results_min,
+            max_iteration,
+            num_initialisation,
+            top_mol_count,
+            color_dict=color_dict,
+            dict_df_results=dict_df_results,
+        )
 
-        fig = modify_figure(fig_org, legend_list, x_limits, y_limits, tick_labels)
+        fig = modify_figure(
+            fig_org, legend_list, x_limits, y_limits, tick_labels
+        )
         fig.tight_layout()
         fig.savefig(f"figures/single3_{run_name}.png")
         with open(f"figures/fig_{run_name}.pkl", "wb") as f:

@@ -661,7 +661,7 @@ class evolution_algorithm(Search_Algorithm):
                 elements = np.append(
                     elements, self.cross_element(element1, element2), axis=0
                 )
-
+    
         searched_space_df = sp.random_generation_df(self.num_added_random)
         elements = np.append(elements, searched_space_df.to_numpy(), axis=0)
         # print("shape of elements", elements.shape)

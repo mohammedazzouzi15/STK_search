@@ -71,14 +71,14 @@ def initialise_search_algorithm(
     BO_learned.verbose = True
     EA = Search_algorithm.evolution_algorithm()
     EA.number_of_parents = 5
-    # EA.num_added_random = 10000
+    EA.num_added_random = 0
     EA.number_of_random = 2
     EA.selection_method_mutation = "top"
     EA.selection_method_cross = "top"
     RAND = Search_algorithm.random_search()
     SUEA = Ea_surrogate.Ea_surrogate()
     SUEA.number_of_parents = 5
-    SUEA.num_added_random = 10000
+    SUEA.num_added_random = 0
     SUEA.number_of_random = 2
     BO_Mord = BayesianOptimisation.BayesianOptimisation(
         which_acquisition=which_acquisition, lim_counter=lim_counter
@@ -111,12 +111,12 @@ def initialise_search_algorithm(
             df_precursors, frag_properties
         )
     )
-    BO_learned.number_of_parents = 10
-    BO_learned.number_of_random = 5
-    BO_prop.number_of_parents = 10
-    BO_prop.number_of_random = 5
-    BO_Mord.number_of_parents = 10
-    BO_Mord.number_of_random = 5
+    BO_learned.number_of_parents = 5
+    BO_learned.number_of_random = 2
+    BO_prop.number_of_parents = 5
+    BO_prop.number_of_random = 2
+    BO_Mord.number_of_parents = 5
+    BO_Mord.number_of_random = 2
     return BO_learned, EA, SUEA, BO_Mord, BO_prop, RAND
 
 

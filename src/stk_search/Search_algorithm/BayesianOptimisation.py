@@ -110,6 +110,7 @@ class BayesianOptimisation(evolution_algorithm):
         sp: SearchSpace,
         benchmark=True,
         df_total: pd.DataFrame = None,
+        error_counter_lim=10,
     ):
         """Suggest a new element to evaluate.
 
@@ -162,23 +163,6 @@ class BayesianOptimisation(evolution_algorithm):
 
         # Step 3: Optimise the acquisition function
         step_start_time = time.time()
-        ids_sorted_by_aquisition, df_elements = (
-            self.optimise_acquisition_function(
-                best_f=y_explored_bo.max().item(),
-                fitness_acquired=fitness_acquired,
-                df_search=df_search,
-                sp=sp,
-                benchmark=benchmark,
-                df_total=df_total,
-            )
-        )
-        if self.verbose:
-            print(
-                f"Step 3 (Optimise acquisition function) took {time.time() - step_start_time:.4f} seconds"
-            )
-
-        # Step 4: Add the new element to the search space
-        step_start_time = time.time()
 
         def add_element(df, element) -> bool:
             if ~(df == element).all(1).any():
@@ -186,11 +170,45 @@ class BayesianOptimisation(evolution_algorithm):
                 return True
             return False
 
+        df_search = searchspace_df
+        df_elements = searchspace_df
+        leave_loop = False
+        error_counter = 0
+        while not self._check_new_element_in_SearchSpace(
+            df_search, df_elements
+        ):
+            ids_sorted_by_aquisition, df_elements = (
+                self.optimise_acquisition_function(
+                    best_f=y_explored_bo.max().item(),
+                    fitness_acquired=fitness_acquired,
+                    df_search=df_search,
+                    sp=sp,
+                    benchmark=benchmark,
+                    df_total=df_total,
+                )
+            )
+            if self.verbose:
+                print(
+                    f"Step 3 (Optimise acquisition function) took {time.time() - step_start_time:.4f} seconds"
+                )
+            error_counter = error_counter + 1
+            print(
+                f"Error counter: {error_counter} / {error_counter_lim}"
+            )
+            if error_counter > error_counter_lim:
+                df_elements = df_elements.drop_duplicates()
+                msg = "no new element found"
+                raise ValueError(msg)
+            # Step 4: Add the new element to the search space
+            step_start_time = time.time()
+            print(df_elements.shape)
+
         for element_id in ids_sorted_by_aquisition:
             if add_element(
                 df_search, df_elements.to_numpy()[element_id.item()]
             ):
                 break
+
         if self.verbose:
             print(
                 f"Step 4 (Add new element to search space) took {time.time() - step_start_time:.4f} seconds"
@@ -201,6 +219,7 @@ class BayesianOptimisation(evolution_algorithm):
             print(
                 f"Total execution time for suggest_element: {time.time() - total_start_time:.4f} seconds"
             )
+        
 
         return len(df_search) - 1, df_search
 
@@ -273,6 +292,18 @@ class BayesianOptimisation(evolution_algorithm):
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
         max_counter, max_optimisation_iteration = 0, 100
+        good_df_elements = df_elements.copy()
+        # only keep the top 10 elements
+        good_df_elements = good_df_elements.iloc[
+            ids_sorted_by_aquisition[:100].cpu().numpy()
+        ]
+        good_acquisition_values = (
+            acquisition_values[ids_sorted_by_aquisition[:100]]
+            .cpu()
+            .numpy()
+            .reshape(-1)
+        )
+        # check if the new element is in the search space
         while counter < lim_counter:
             counter += 1
             max_counter += 1
@@ -305,9 +336,35 @@ class BayesianOptimisation(evolution_algorithm):
             ):
                 max_acquisition_value = max_acquisition_value_current
                 counter = 0
+                # add elements better than the current best in the good_df_elements
+
+                good_df_elements = pd.concat(
+                    [
+                        good_df_elements,
+                        df_elements.iloc[
+                            ids_sorted_by_aquisition[:100].cpu().numpy()
+                        ],
+                    ],
+                    ignore_index=True,
+                )
+                good_acquisition_values = np.concatenate(
+                    [
+                        good_acquisition_values,
+                        acquisition_values[ids_sorted_by_aquisition[:100]]
+                        .cpu()
+                        .numpy()
+                        .reshape(-1),
+                    ]
+                )
+            if self.verbose:
+                print(
+                    f"Acquisition counter: {counter}"
+                )
             if max_counter > max_optimisation_iteration:
                 break
-        return ids_sorted_by_aquisition, df_elements
+        good_ids_sorted_by_aquisition = -good_acquisition_values.argsort()
+
+        return good_ids_sorted_by_aquisition, good_df_elements
 
     def generate_df_elements_to_choose_from(
         self,
@@ -375,21 +432,19 @@ class BayesianOptimisation(evolution_algorithm):
             y_train (torch.tensor): output.
 
         """
-        # return self.train_model_with_torch(x_train, y_train)
+        #return self.train_model_with_torch(x_train, y_train)
         self.model = self.kernel(
             x_train,
             y_train,
         )
         mll = self.likelihood(self.model.likelihood, self.model)
-        try:
-            fit_gpytorch_mll(mll)
-        except Exception as e:
-            print(e)
+        fit_gpytorch_mll(mll)
+        
 
     def train_model_with_torch(self, x_train, y_train):
         from torch.optim import SGD
 
-        NUM_EPOCHS = 1000
+        NUM_EPOCHS = 2000
         self.model = self.kernel(
             x_train,
             y_train,

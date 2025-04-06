@@ -6,7 +6,7 @@ import pickle
 
 import numpy as np
 from matplotlib.ticker import MaxNLocator
-name = "fig_runs8.pkl"
+name = "fig_runs10.pkl"
 with open(name, "rb") as f:
     fig = pickle.load(f)
 
