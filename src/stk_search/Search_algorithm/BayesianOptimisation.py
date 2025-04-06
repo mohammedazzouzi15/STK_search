@@ -291,19 +291,8 @@ class BayesianOptimisation(evolution_algorithm):
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
+        df_elements = df_elements.loc[ids_sorted_by_aquisition]
         max_counter, max_optimisation_iteration = 0, 100
-        good_df_elements = df_elements.copy()
-        # only keep the top 10 elements
-        good_df_elements = good_df_elements.iloc[
-            ids_sorted_by_aquisition[:100].cpu().numpy()
-        ]
-        good_acquisition_values = (
-            acquisition_values[ids_sorted_by_aquisition[:100]]
-            .cpu()
-            .numpy()
-            .reshape(-1)
-        )
-        # check if the new element is in the search space
         while counter < lim_counter:
             counter += 1
             max_counter += 1
@@ -330,41 +319,22 @@ class BayesianOptimisation(evolution_algorithm):
                 descending=True
             )
             max_acquisition_value_current = acquisition_values.max()
+
+            # Store top 100 elements and their IDs
+            top_elements.append(df_elements.iloc[ids_sorted_by_aquisition[:100].cpu().numpy()])
+            top_acquisition_values.append(
+                acquisition_values[ids_sorted_by_aquisition[:100].cpu().numpy()]
+            )
+
             if (
                 max_acquisition_value_current
                 > max_acquisition_value + 0.001 * max_acquisition_value
             ):
                 max_acquisition_value = max_acquisition_value_current
                 counter = 0
-                # add elements better than the current best in the good_df_elements
-
-                good_df_elements = pd.concat(
-                    [
-                        good_df_elements,
-                        df_elements.iloc[
-                            ids_sorted_by_aquisition[:100].cpu().numpy()
-                        ],
-                    ],
-                    ignore_index=True,
-                )
-                good_acquisition_values = np.concatenate(
-                    [
-                        good_acquisition_values,
-                        acquisition_values[ids_sorted_by_aquisition[:100]]
-                        .cpu()
-                        .numpy()
-                        .reshape(-1),
-                    ]
-                )
-            if self.verbose:
-                print(
-                    f"Acquisition counter: {counter}"
-                )
             if max_counter > max_optimisation_iteration:
                 break
-        good_ids_sorted_by_aquisition = -good_acquisition_values.argsort()
-
-        return good_ids_sorted_by_aquisition, good_df_elements
+        return ids_sorted_by_aquisition, df_elements
 
     def generate_df_elements_to_choose_from(
         self,
