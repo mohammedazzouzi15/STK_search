@@ -144,12 +144,12 @@ def set_benchmark_params(config_dir):
     target = "target"
     aim = "maximise"
     case_name_list = [
+        "BO_learned",
         "BO_precursor",
         #"BO_Mord",
         "evolution_algorithm",
         "random",
         "ea_surrogate",
-        "BO_learned",
     ]
     return (
         exp_name,

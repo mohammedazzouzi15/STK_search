@@ -468,7 +468,7 @@ def main():
     dict_df_results = get_dict_df_results(
         results_dict, max_iteration, num_initialisation
     )
-    plot_ = True
+    plot_ = False
     if plot_:
         fig, df_plot = plot_simple_regret_stuff(
             df_all,

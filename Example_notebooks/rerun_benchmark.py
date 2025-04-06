@@ -193,14 +193,14 @@ def initialise_search_algorithm(
     BO_learned.verbose = True
     EA = Search_algorithm.evolution_algorithm()
     EA.number_of_parents = 5
-    EA.num_added_random = 10000
+    EA.num_added_random = 0
     EA.number_of_random = 2
     EA.selection_method_mutation = "top"
     EA.selection_method_cross = "top"
     RAND = Search_algorithm.random_search()
     SUEA = Ea_surrogate.Ea_surrogate()
     SUEA.number_of_parents = 5
-    SUEA.num_added_random = 10000
+    SUEA.num_added_random = 0
     SUEA.number_of_random = 2
     BO_Mord = BayesianOptimisation.BayesianOptimisation(
         which_acquisition=which_acquisition, lim_counter=lim_counter
@@ -236,12 +236,12 @@ def initialise_search_algorithm(
             df_precursors, frag_properties
         )
     )
-    BO_learned.number_of_parents = 10
-    BO_learned.number_of_random = 5
-    BO_prop.number_of_parents = 10
-    BO_prop.number_of_random = 5
-    BO_Mord.number_of_parents = 10
-    BO_Mord.number_of_random = 5
+    BO_learned.number_of_parents = 5
+    BO_learned.number_of_random = 2
+    BO_prop.number_of_parents = 5
+    BO_prop.number_of_random = 2
+    BO_Mord.number_of_parents = 5
+    BO_Mord.number_of_random = 2
     return BO_learned, EA, SUEA, BO_Mord, BO_prop, RAND
 
 
@@ -256,7 +256,7 @@ def run_benchmark():
     df_precursor_Mordred_path = "data_example/precursor/df_PCA_mordred_descriptor_290224.pkl" #"data_example/data_benchmark/precursor_with_mordred_descriptor.pkl"
     config_dir = "data_example/representation_learning/splitrand-nummol20000"
     num_elem_initialisation = 50
-    num_iteration = 800
+    num_iteration = 200
 
     df_Benchmark, df_precursor, df_precursor_Mordred, sp = (
         get_dataframes(
@@ -275,15 +275,7 @@ def run_benchmark():
     objective_function = define_objective_function(df_total_path_bench)
                                                                                                              
 
-    save_path_list = ["data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_a8ad48a0e0944525a83363757fc0a33c.pkl",
-                      "data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_15081fdc3b7942c7a36829c5d86bc924.pkl",
-                      "data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_14614f1bf88c452ab38b8f24b228abed.pkl",
-                      "data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_7c88c93369f84772a1caddddc23c8a4f.pkl",
-                      "data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_d3901804d9ad40f6b1a10e16fb4b1150.pkl",
-                      "data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_06546f000b174a2e86ecd8280e92ef2c.pkl",
-                      "data_example/data_benchmark/runs8/6_frag/BO_learned/20250324/results_06546f000b174a2e86ecd8280e92ef2c.pkl",
-
-                    ]
+    save_path_list = ["data_example/data_benchmark/runs10/6_frag/BO_learned/20250405/results_942c3296e9b7434ea98d3c579c8b059f.pkl",                    ]
     for save_path in save_path_list:
         case_name = save_path.split("/")[-3]
         search_algorithm,df_representation_path,frag_properties = get_search_algorithm(

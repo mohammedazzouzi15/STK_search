@@ -291,7 +291,6 @@ class BayesianOptimisation(evolution_algorithm):
         # select element to acquire with maximal aquisition value, which is not in the acquired set already
         ids_sorted_by_aquisition = acquisition_values.argsort(descending=True)
         max_acquisition_value = acquisition_values.max()
-        df_elements = df_elements.loc[ids_sorted_by_aquisition]
         max_counter, max_optimisation_iteration = 0, 100
         good_df_elements = df_elements.copy()
         # only keep the top 10 elements
@@ -333,10 +332,7 @@ class BayesianOptimisation(evolution_algorithm):
             max_acquisition_value_current = acquisition_values.max()
 
             # Store top 100 elements and their IDs
-            top_elements.append(df_elements.iloc[ids_sorted_by_aquisition[:100].cpu().numpy()])
-            top_acquisition_values.append(
-                acquisition_values[ids_sorted_by_aquisition[:100].cpu().numpy()]
-            )
+            
 
             if (
                 max_acquisition_value_current
